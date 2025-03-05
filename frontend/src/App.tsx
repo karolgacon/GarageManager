@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
 
 function App() {
-  const [response, setResponse] = useState("")
+  const [response, setResponse] = useState("");
 
-    const updateResponse = async () => {
-        const res = await fetch("http://localhost:8000/api/hello-world")
-        const data = await res.json()
-        setResponse(data["message"])
-    }
+  const updateResponse = async () => {
+    const res = await fetch("http://localhost:8000/api/hello-world");
+    const data = await res.json();
+    setResponse(data["message"]);
+  };
 
   return (
     <>
@@ -25,7 +25,7 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => updateResponse()}>
-          response is {response}
+          response is: {response}
         </button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
@@ -35,7 +35,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
