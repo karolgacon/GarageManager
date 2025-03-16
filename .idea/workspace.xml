@@ -5,22 +5,52 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d392a5a8-35c7-4ad4-8003-85a51db1f178" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/tsconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/routers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/serializers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/user_view.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.eslintrc.cjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.eslintrc.cjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/users/authentication.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/users/exception.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/core/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/.npmignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/.travis.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/History.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/Readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/examples/custom_path.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/examples/module.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/test/index.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/test/nested/two/nested.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/test/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/package/test/support/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -50,7 +80,9 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "last_opened_file_path": "E:/GarageManager/env",
@@ -68,6 +100,32 @@
     ]
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="GitHub - Sem 6" type="Python.DjangoServer" factoryName="Django server">
+      <module name="GitHub - Sem 6" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="localhost" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -86,7 +144,9 @@
       <updated>1741159754196</updated>
       <workItem from="1741159755271" duration="12000" />
       <workItem from="1741159775397" duration="2502000" />
-      <workItem from="1741162356346" duration="20478000" />
+      <workItem from="1741162356346" duration="21229000" />
+      <workItem from="1741289003930" duration="9000" />
+      <workItem from="1742115984404" duration="11796000" />
     </task>
     <servers />
   </component>
