@@ -12,16 +12,28 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from pathlib import Path
-# import environ # type: ignore
+import environ # type: ignore
+from datetime import timedelta
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENVIRONMENT = 'development'
+env = environ.Env()
+env_file = BASE_DIR / '.env'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-
+if env_file.exists():
+    environ.Env.read_env(str(env_file))
+    BASE_URL = env('BASE_URL', default="http://localhost:8000")
+    HOST = env('HOST', default="localhost")
+    SECRET_KEY = env('SECRET_KEY').strip("'")
+    # GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID')
+    # GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET')
+    # RECAPTCHA_SECRET_KEY = env('RECAPTCHA_KEY')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+s+9ufw9iumr@u4k0+1ff$el4t0d&wlrt=7f^^*)mct9ne+9yf'
+# SECRET_KEY = 'django-insecure-+s+9ufw9iumr@u4k0+1ff$el4t0d&wlrt=7f^^*)mct9ne+9yf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,9 +41,14 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
-JWT_CONFIG = {
-    'TOKEN_LIFETIME_HOURS': 24,  # Ustaw tutaj odpowiedni czas życia tokena w godzinach
-    # Inne ustawienia JWT, jeśli potrzebne.
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 REST_FRAMEWORK = {
@@ -40,7 +57,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'users.authentication.JWTAuthentication',
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
 # Application definition
@@ -58,10 +75,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'drf_spectacular',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
     'django_crontab',
     'users',
 ]
@@ -75,7 +92,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware'
+    # 'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -157,6 +174,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Twój frontend React
+    "http://127.0.0.1:5173"
+]
 
 CORS_ALLOWED_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True

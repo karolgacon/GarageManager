@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     build:
@@ -5,20 +7,25 @@ services:
       dockerfile: Dockerfile.frontend
     ports:
       - 5173:5173
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend
-          target: /frontend
-          ignore:
-            - node_modules
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules # Zapewnia, że node_modules nie będą nadpisywane przez wolumeny
+    environment:
+      - VITE_API_URL=http://backend:8000 # Jeśli frontend korzysta z backendu
+    command: >
+      sh -c "npm install && npm run dev" # Uruchomienie Vite w trybie deweloperskim
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
   backend:
     build:
       context: .
     ports:
       - 8000:8000
     volumes:
-        - ./backend:/backend
+      - ./backend:/backend
     command: >
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
@@ -29,6 +36,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-network
 
   db:
     image: postgres:17.1
@@ -45,6 +54,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
 volumes:
   db-data:
+
+networks:
+  app-network:
+    driver: bridge

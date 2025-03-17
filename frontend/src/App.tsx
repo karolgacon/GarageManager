@@ -6,12 +6,23 @@ import "./App.css";
 function App() {
   const [response, setResponse] = useState("");
 
-  const updateResponse = async () => {
-    const res = await fetch("http://localhost:8000/api/hello-world");
+const updateResponse = async () => {
+    console.log("Kliknięto przycisk");
+  try {
+    const res = await fetch("http://localhost:8000/api/v1/users");
     const data = await res.json();
-    setResponse(data["message"]);
-  };
+    console.log("Dane z API:", data);
 
+    if (Array.isArray(data) && data.length > 0) {
+      setResponse(data[0].email); // Wyświetli e-mail pierwszego użytkownika
+    } else {
+      setResponse("Brak użytkowników w bazie");
+    }
+  } catch (error) {
+    console.error("Błąd podczas pobierania danych:", error);
+    setResponse("Błąd podczas pobierania danych");
+  }
+};
   return (
     <>
       <div>

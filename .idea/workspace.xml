@@ -5,37 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d392a5a8-35c7-4ad4-8003-85a51db1f178" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/users/routers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/users/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/users/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/user_view.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/authView.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/users/view_collection/refreshToken.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GitHub - Sem 6.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GitHub - Sem 6.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36470c0e-945f-4b25-a72e-be93647501da.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36470c0e-945f-4b25-a72e-be93647501da.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/36470c0e-945f-4b25-a72e-be93647501da/storage_v2/_src_/database/db.fgwAAA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/36470c0e-945f-4b25-a72e-be93647501da/storage_v2/_src_/database/db.fgwAAA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/backend/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/backend/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/users/authentication.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/users/exception.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/core/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/.npmignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/.travis.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/History.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/Makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/Readme.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/examples/custom_path.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/examples/module.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/test/index.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/test/nested/two/nested.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/test/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/package/test/support/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/users/authentication.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/users/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/users/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,28 +59,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "E:/GarageManager/env",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "E:\\GarageManager\\frontend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/GarageManager/env&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\GarageManager\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="GitHub - Sem 6" type="Python.DjangoServer" factoryName="Django server">
       <module name="GitHub - Sem 6" />
@@ -146,7 +127,8 @@
       <workItem from="1741159775397" duration="2502000" />
       <workItem from="1741162356346" duration="21229000" />
       <workItem from="1741289003930" duration="9000" />
-      <workItem from="1742115984404" duration="11796000" />
+      <workItem from="1742115984404" duration="14097000" />
+      <workItem from="1742237984219" duration="6449000" />
     </task>
     <servers />
   </component>
