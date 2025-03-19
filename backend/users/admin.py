@@ -1,12 +1,10 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User  # Używasz modelu User zdefiniowanego w aplikacji users
 
-class MyUserAdmin(UserAdmin):
-    model = User
 
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('role',)}),  # Zastąp 'role' innym polem, jeśli potrzebujesz
-    )
+class MyUserAdmin(admin.ModelAdmin):
+    list_display = ['email', 'first_name', 'last_name', 'is_active']  # Użyj dostępnych pól
+    ordering = ['email']  # Zmieniamy na istniejące pole, np. 'email'
+
 
 admin.site.register(User, MyUserAdmin)
