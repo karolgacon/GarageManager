@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from ..serializers import UserSerializer
 
-class RegisterView(APIView):
+class CreateUserView(APIView):
     permission_classes = (AllowAny,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
     def post(self, request):
         username = request.data.get("username")

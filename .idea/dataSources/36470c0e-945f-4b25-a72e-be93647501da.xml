@@ -3,9 +3,17 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>848</IntrospectionStateNumber>
+      <Grants>1||-9223372036854775808|c|G
+1||10|c|G
+1||10|C|G
+1||10|T|G
+4||-9223372036854775808|c|G
+4||10|c|G
+4||10|C|G
+4||10|T|G</Grants>
+      <IntrospectionStateNumber>851</IntrospectionStateNumber>
       <ServerVersion>17.1</ServerVersion>
-      <StartupTime>1742244461</StartupTime>
+      <StartupTime>1742376025</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -1399,7 +1407,7 @@ true posixrules
 13219||10|C|G
 13219||-9223372036854775808|U|G
 13219||10|U|G</Grants>
-      <IntrospectionStateNumber>848</IntrospectionStateNumber>
+      <IntrospectionStateNumber>851</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>user</OwnerName>
     </database>
@@ -4826,8 +4834,8 @@ true posixrules
     <schema id="265" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>848</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2025-03-17.20:49:49</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>851</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2025-03-19.11:09:01</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>532</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -5052,7 +5060,7 @@ true posixrules
     </table>
     <table id="297" parent="265" name="users_user">
       <ObjectId>16684</ObjectId>
-      <StateNumber>823</StateNumber>
+      <StateNumber>849</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>user</OwnerName>
     </table>
@@ -6284,7 +6292,13 @@ pg_catalog</CollationParentNames>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <foreign-key id="456" parent="297" name="users_user_car_workshop_id_d04db25d_fk_users_carworkshop_id">
+    <column id="456" parent="297" name="username">
+      <Position>8</Position>
+      <StateNumber>849</StateNumber>
+      <StoredType>varchar(150)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <foreign-key id="457" parent="297" name="users_user_car_workshop_id_d04db25d_fk_users_carworkshop_id">
       <ColNames>car_workshop_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
@@ -6293,7 +6307,7 @@ pg_catalog</CollationParentNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16677</RefTableId>
     </foreign-key>
-    <index id="457" parent="297" name="users_user_pkey">
+    <index id="458" parent="297" name="users_user_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16689</ObjectId>
@@ -6305,7 +6319,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="458" parent="297" name="users_user_email_key">
+    <index id="459" parent="297" name="users_user_email_key">
       <ColNames>email</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16691</ObjectId>
@@ -6316,7 +6330,18 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="459" parent="297" name="users_user_id_7386ac76_like">
+    <index id="460" parent="297" name="users_user_username_key">
+      <ColNames>username</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>24735</ObjectId>
+      <StateNumber>849</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <index id="461" parent="297" name="users_user_id_7386ac76_like">
       <ColNames>id</ColNames>
       <ObjectId>16714</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6328,7 +6353,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="460" parent="297" name="users_user_email_243f6e77_like">
+    <index id="462" parent="297" name="users_user_email_243f6e77_like">
       <ColNames>email</ColNames>
       <ObjectId>16715</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6340,26 +6365,44 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="461" parent="297" name="users_user_car_workshop_id_d04db25d">
+    <index id="463" parent="297" name="users_user_car_workshop_id_d04db25d">
       <ColNames>car_workshop_id</ColNames>
       <ObjectId>16716</ObjectId>
       <StateNumber>823</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="462" parent="297" name="users_user_pkey">
+    <index id="464" parent="297" name="users_user_username_06e46fe6_like">
+      <ColNames>username</ColNames>
+      <ObjectId>24737</ObjectId>
+      <StateNumber>849</StateNumber>
+      <AccessMethodId>403</AccessMethodId>
+      <ClassNames>varchar_pattern_ops</ClassNames>
+      <ClassIds>4218</ClassIds>
+      <ClassParentNames>pg_catalog</ClassParentNames>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="465" parent="297" name="users_user_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16690</ObjectId>
       <Primary>1</Primary>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16689</UnderlyingIndexId>
     </key>
-    <key id="463" parent="297" name="users_user_email_key">
+    <key id="466" parent="297" name="users_user_email_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16692</ObjectId>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16691</UnderlyingIndexId>
     </key>
-    <column id="464" parent="298" name="id">
+    <key id="467" parent="297" name="users_user_username_key">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>24736</ObjectId>
+      <StateNumber>849</StateNumber>
+      <UnderlyingIndexId>24735</UnderlyingIndexId>
+    </key>
+    <column id="468" parent="298" name="id">
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -6368,21 +6411,21 @@ pg_catalog</CollationParentNames>
       <SequenceId>16693</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="465" parent="298" name="user_id">
+    <column id="469" parent="298" name="user_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>823</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="466" parent="298" name="group_id">
+    <column id="470" parent="298" name="group_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>823</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="467" parent="298" name="users_user_groups_user_id_5f6f5a90_fk_users_user_id">
+    <foreign-key id="471" parent="298" name="users_user_groups_user_id_5f6f5a90_fk_users_user_id">
       <ColNames>user_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
@@ -6391,7 +6434,7 @@ pg_catalog</CollationParentNames>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16684</RefTableId>
     </foreign-key>
-    <foreign-key id="468" parent="298" name="users_user_groups_group_id_9afc8d0e_fk_auth_group_id">
+    <foreign-key id="472" parent="298" name="users_user_groups_group_id_9afc8d0e_fk_auth_group_id">
       <ColNames>group_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
@@ -6400,7 +6443,7 @@ pg_catalog</CollationParentNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16412</RefTableId>
     </foreign-key>
-    <index id="469" parent="298" name="users_user_groups_pkey">
+    <index id="473" parent="298" name="users_user_groups_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16699</ObjectId>
@@ -6409,7 +6452,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="470" parent="298" name="users_user_groups_user_id_group_id_b88eab82_uniq">
+    <index id="474" parent="298" name="users_user_groups_user_id_group_id_b88eab82_uniq">
       <ColNames>user_id
 group_id</ColNames>
       <ObjectId>16717</ObjectId>
@@ -6420,7 +6463,7 @@ group_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="471" parent="298" name="users_user_groups_user_id_5f6f5a90">
+    <index id="475" parent="298" name="users_user_groups_user_id_5f6f5a90">
       <ColNames>user_id</ColNames>
       <ObjectId>16729</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6429,7 +6472,7 @@ group_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="472" parent="298" name="users_user_groups_user_id_5f6f5a90_like">
+    <index id="476" parent="298" name="users_user_groups_user_id_5f6f5a90_like">
       <ColNames>user_id</ColNames>
       <ObjectId>16730</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6441,25 +6484,25 @@ group_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="473" parent="298" name="users_user_groups_group_id_9afc8d0e">
+    <index id="477" parent="298" name="users_user_groups_group_id_9afc8d0e">
       <ColNames>group_id</ColNames>
       <ObjectId>16731</ObjectId>
       <StateNumber>823</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="474" parent="298" name="users_user_groups_pkey">
+    <key id="478" parent="298" name="users_user_groups_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16700</ObjectId>
       <Primary>1</Primary>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16699</UnderlyingIndexId>
     </key>
-    <key id="475" parent="298" name="users_user_groups_user_id_group_id_b88eab82_uniq">
+    <key id="479" parent="298" name="users_user_groups_user_id_group_id_b88eab82_uniq">
       <ObjectId>16718</ObjectId>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16717</UnderlyingIndexId>
     </key>
-    <column id="476" parent="299" name="id">
+    <column id="480" parent="299" name="id">
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -6468,21 +6511,21 @@ group_id</ColNames>
       <SequenceId>16701</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="477" parent="299" name="user_id">
+    <column id="481" parent="299" name="user_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>823</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="478" parent="299" name="permission_id">
+    <column id="482" parent="299" name="permission_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>823</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="479" parent="299" name="users_user_user_permissions_user_id_20aca447_fk_users_user_id">
+    <foreign-key id="483" parent="299" name="users_user_user_permissions_user_id_20aca447_fk_users_user_id">
       <ColNames>user_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
@@ -6491,7 +6534,7 @@ group_id</ColNames>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16684</RefTableId>
     </foreign-key>
-    <foreign-key id="480" parent="299" name="users_user_user_perm_permission_id_0b93982e_fk_auth_perm">
+    <foreign-key id="484" parent="299" name="users_user_user_perm_permission_id_0b93982e_fk_auth_perm">
       <ColNames>permission_id</ColNames>
       <Deferrable>1</Deferrable>
       <InitiallyDeferred>1</InitiallyDeferred>
@@ -6500,7 +6543,7 @@ group_id</ColNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16406</RefTableId>
     </foreign-key>
-    <index id="481" parent="299" name="users_user_user_permissions_pkey">
+    <index id="485" parent="299" name="users_user_user_permissions_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16707</ObjectId>
@@ -6509,7 +6552,7 @@ group_id</ColNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="482" parent="299" name="users_user_user_permissions_user_id_permission_id_43338c45_uniq">
+    <index id="486" parent="299" name="users_user_user_permissions_user_id_permission_id_43338c45_uniq">
       <ColNames>user_id
 permission_id</ColNames>
       <ObjectId>16732</ObjectId>
@@ -6520,7 +6563,7 @@ permission_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="483" parent="299" name="users_user_user_permissions_user_id_20aca447">
+    <index id="487" parent="299" name="users_user_user_permissions_user_id_20aca447">
       <ColNames>user_id</ColNames>
       <ObjectId>16744</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6529,7 +6572,7 @@ permission_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="484" parent="299" name="users_user_user_permissions_user_id_20aca447_like">
+    <index id="488" parent="299" name="users_user_user_permissions_user_id_20aca447_like">
       <ColNames>user_id</ColNames>
       <ObjectId>16745</ObjectId>
       <StateNumber>823</StateNumber>
@@ -6541,20 +6584,20 @@ permission_id</ColNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="485" parent="299" name="users_user_user_permissions_permission_id_0b93982e">
+    <index id="489" parent="299" name="users_user_user_permissions_permission_id_0b93982e">
       <ColNames>permission_id</ColNames>
       <ObjectId>16746</ObjectId>
       <StateNumber>823</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="486" parent="299" name="users_user_user_permissions_pkey">
+    <key id="490" parent="299" name="users_user_user_permissions_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16708</ObjectId>
       <Primary>1</Primary>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16707</UnderlyingIndexId>
     </key>
-    <key id="487" parent="299" name="users_user_user_permissions_user_id_permission_id_43338c45_uniq">
+    <key id="491" parent="299" name="users_user_user_permissions_user_id_permission_id_43338c45_uniq">
       <ObjectId>16733</ObjectId>
       <StateNumber>823</StateNumber>
       <UnderlyingIndexId>16732</UnderlyingIndexId>
