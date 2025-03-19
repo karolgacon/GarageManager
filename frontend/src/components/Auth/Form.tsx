@@ -10,8 +10,7 @@ interface FormProps {
 }
 
 function Form({ route, method }: FormProps) {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState(""); // Dodane dla rejestracji
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,13 +20,12 @@ function Form({ route, method }: FormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    console.log("route", route);
-    console.log("method", method);
+
     try {
       const payload = method === "register"
-        ? { username, email, password } // Rejestracja wymaga emaila
-        : { username: username, password }; // Logowanie może być przez email lub username
-      console.log("payload", payload);
+        ? { email, password }
+        : { email, password }; // Logowanie tylko przez email
+
       const res = await api.post(route, payload);
       if (method === "login") {
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
@@ -47,38 +45,14 @@ function Form({ route, method }: FormProps) {
     <form onSubmit={handleSubmit} className="form-container">
       <h1>{name}</h1>
 
-      {method === "register" && (
-        <input
-          className="form-input"
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      )}
-
-      {method === "register" && (
-        <input
-          className="form-input"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      )}
-
-      {method === "login" && (
-        <input
-          className="form-input"
-          type="text"
-          placeholder="Username or Email"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      )}
+      <input
+        className="form-input"
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
 
       <input
         className="form-input"

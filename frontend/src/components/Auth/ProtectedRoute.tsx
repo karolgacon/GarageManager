@@ -2,13 +2,18 @@ import {Navigate} from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 import api from '../../api';
 import {REFRESH_TOKEN, ACCESS_TOKEN} from "../../constants.ts";
-import {useState, useEffect} from "react";
+import {useState, useEffect, ReactNode} from "react";
 
-function ProtectedRoute ({children}) {
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+function ProtectedRoute ({children}: ProtectedRouteProps) {
     const [isAuthorized, setIsAuthorized] = useState<boolean|null>(null);
 
     useEffect(() => {
-        auth().catch((error) => setIsAuthorized(false));
+        auth().catch(() => setIsAuthorized(false));
     }, []);
 
     const refreshToken = async () => {
@@ -27,28 +32,34 @@ function ProtectedRoute ({children}) {
         }
     }
 
-    const auth = async () => {
-        const token  = localStorage.getItem(ACCESS_TOKEN);
-        if(!token){
-            setIsAuthorized(false);
-            return;
-        }
-        const decoded = jwtDecode(token);
-        const tokenExpiration = decoded.exp;
-        const now = Date.now()/ 1000;
-
-        if(tokenExpiration < now){
-            await refreshToken();
-        } else {
-            setIsAuthorized(true);
-        }
+  const auth = async () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+      setIsAuthorized(false);
+      return;
     }
 
-    if(isAuthorized === null){
-        return <div>Loading...</div>;
+    const decoded: { exp?: number } = jwtDecode(token);
+    if (!decoded.exp) {
+      setIsAuthorized(false);
+      return;
     }
 
-    return isAuthorized ? children : <Navigate to="/login" />;
+    const tokenExpiration = decoded.exp;
+    const now = Date.now() / 1000;
+
+    if (tokenExpiration < now) {
+      await refreshToken();
+    } else {
+      setIsAuthorized(true);
+    }
+  };
+
+  if (isAuthorized === null) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthorized ? children : <Navigate to="/login" />;
 }
 
 export default ProtectedRoute;
