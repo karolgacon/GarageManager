@@ -1,54 +1,58 @@
+from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-
-
-class CarWorkshop(models.Model):
-    nip = models.CharField(blank=False, null=False)
-    name = models.CharField(blank=True)
-    email = models.EmailField(blank=True)
-    address = models.CharField(blank=True)
-    phone_number = models.CharField(blank=True)
+from django.contrib.auth.models import AbstractUser, Group, Permission, PermissionsMixin
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, username=None, password=None):
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("Email is required")
+            raise ValueError('A user email is needed.')
+
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username)
-        user.set_password(password)  # Hasłowanie hasła
-        user.save()
+        user = self.model(email=email, **extra_fields)
+        if password:
+            user.set_password(password)  # Hashowanie hasła
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username=None, password=None):
-        user = self.create_user(email, username, password)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        return user
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+
+        return self.create_user(email, password, **extra_fields)
 
 
+# Używamy domyślnego modelu User z Django
 class User(AbstractBaseUser, PermissionsMixin):
-    id = models.CharField(max_length=500, blank=True, unique=True, primary_key=True)
+    id = models.AutoField(primary_key=True)  # Automatyczne generowanie ID
+    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=100, unique=True)
-    username = models.CharField(max_length=150, unique=True, blank=True, null=True)  # Opcjonalny username
-    car_workshop = models.ForeignKey(CarWorkshop, on_delete=models.CASCADE, null=True)
-
-    ROLE_CHOICES = (
-        ('admin', 'admin'),
-        ('owner', 'owner'),
-        ('mechanic', 'mechanic'),
-        ('client', 'client'),
-    )
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('owner', 'Owner'),
+        ('mechanic', 'Mechanic'),
+        ('client', 'Client'),
+    ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
 
-    USERNAME_FIELD = 'email'  # Używamy email jako główny identyfikator
-    REQUIRED_FIELDS = ['username']  # Dodajemy username do wymaganych pól w przypadku migracji
-    objects = CustomUserManager()
+    is_staff = models.BooleanField(default=False)  # Konieczne do logowania do panelu admina
+    is_active = models.BooleanField(default=True)  # Umożliwia blokowanie konta
+    date_joined = models.DateTimeField(auto_now_add=True)  # Data utworzenia konta
 
-    groups = models.ManyToManyField('auth.Group', related_name='user_set_custom', blank=True)
-    user_permissions = models.ManyToManyField('auth.Permission', related_name='user_permissions_custom', blank=True)
+    USERNAME_FIELD = 'email'
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.email
+
+# Profil użytkownika przechowujący dodatkowe dane
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    address = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+    photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
