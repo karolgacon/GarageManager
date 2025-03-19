@@ -1,11 +1,12 @@
 from django.urls import path, include
 from .view_collection.user_view import UserViewAPI
-from .view_collection.refreshToken import RefreshTokenView
-from .view_collection.authView import RegisterView, LoginView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from .view_collection.authView import CreateUserView, LoginView
 
 urlpatterns = [
     path('user/', UserViewAPI.as_view(), name='user'),
-    path('refresh-token/', RefreshTokenView.as_view(), name='refresh-token'),
-    path("register/", RegisterView.as_view(), name="register"),
+    path('token/refresh/', TokenRefreshView.as_view(), name='refresh-token'),
+    path('token/obtain/', TokenObtainPairView.as_view(), name='token-obtain'),
+    path("user/register/", CreateUserView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
 ]
