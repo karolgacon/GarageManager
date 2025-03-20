@@ -77,6 +77,24 @@ class ProfileAPIView(ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
+        description="Partially update a profile (user updates own, admin updates any).",
+        request=ProfileSerializer,
+        responses={200: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
+    )
+    def partial_update(self, request, pk=None):
+        """ Użytkownik może częściowo edytować swój profil, admin dowolny. """
+        if request.user.is_staff:
+            profile = get_object_or_404(Profile, pk=pk)
+        else:
+            profile = get_object_or_404(Profile, user=request.user)
+
+        serializer = self.serializer_class(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
         description="Delete a profile (admin can delete any, user deletes own).",
         responses={204: OpenApiResponse(description="Profile deleted"), 404: OpenApiResponse(description="Profile not found")}
     )
