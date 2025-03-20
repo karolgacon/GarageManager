@@ -48,6 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 # Profil użytkownika przechowujący dodatkowe dane
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     address = models.CharField(max_length=255, null=True, blank=True)
