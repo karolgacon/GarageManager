@@ -1,9 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission, PermissionsMixin
-
-
 class CustomUserManager(BaseUserManager):
+
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('A user email is needed.')
@@ -48,6 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 # Profil użytkownika przechowujący dodatkowe dane
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     address = models.CharField(max_length=255, null=True, blank=True)
