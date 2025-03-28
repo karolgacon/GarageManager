@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers import UserSerializer
 
 
+
 class CreateUserView(APIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
