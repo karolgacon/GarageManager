@@ -1,0 +1,40 @@
+body{
+  font-family: "Comic Sans MS";
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 80px auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.form-input {
+  width: 90%;
+  padding: 20px;
+  margin: 10px 0;
+  border: 1px solid #ada7a7;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.form-button {
+  width: 95%;
+  padding: 20px;
+  margin: 20px 0;
+  background-color: #e10415;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.form-button:hover {
+  background-color: #b3000f;
+}

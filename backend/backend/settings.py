@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount.providers.google',
     'django_crontab',
     'users',
+    'workshops',
 ]
 
 MIDDLEWARE = [
@@ -166,14 +167,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
+AUTH_USER_MODEL = 'users.User'  # Zamień app_name na swoją aplikację
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTHENTICATION_BACKENDS = (
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
+# AUTHENTICATION_BACKENDS = (
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# )
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Twój frontend React

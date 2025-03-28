@@ -47,16 +47,15 @@ class UsersAPIView(ModelViewSet):
     permission_classes = (AllowAny,)
 
     @extend_schema(
-        description="List all users in the car workshop.",
+        description="List all users.",
         responses={200: UserSerializer(many=True), 404: OpenApiResponse(description="Users not found")}
     )
     def list(self, request):
         """
-        List all users in the current authenticated user's car workshop.
+        List all users.
         """
         try:
-            queryset = self.filter_queryset(self.get_queryset())
-            users = queryset.all()
+            users = self.filter_queryset(self.get_queryset())
             serializer = self.get_serializer(users, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
@@ -78,37 +77,31 @@ class UsersAPIView(ModelViewSet):
             return Response({'message': "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
     @extend_schema(
-        description="Create a new user in the car workshop.",
+        description="Create a new user.",
         request=UserSerializer,
-        responses={201: UserSerializer, 400: OpenApiResponse(description="Bad Request"), 403: OpenApiResponse(description="Forbidden")}
+        responses={201: UserSerializer, 400: OpenApiResponse(description="Bad Request")}
     )
     def create(self, request):
         """
-        Create a new user in the car workshop of the authenticated user.
+        Create a new user.
         """
-        user = request.user
-        if not hasattr(user, 'car_workshop'):
-            return Response({'error': "User does not have a car workshop"}, status=status.HTTP_403_FORBIDDEN)
-
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
-            user_serializer.save(car_workshop=user.car_workshop)
+            user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        description="Update an existing user in the car workshop.",
+        description="Update an existing user.",
         request=UserSerializer,
         responses={200: UserSerializer, 400: OpenApiResponse(description="Bad Request")}
     )
     def update(self, request, *args, **kwargs):
         """
-        Update an existing user in the car workshop.
+        Update an existing user.
         """
         user = self.get_object()
-        request.data['car_workshop'] = self.request.user.car_workshop.id
         user_serializer = UserSerializer(user, data=request.data)
-
         if user_serializer.is_valid():
             user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_200_OK)
