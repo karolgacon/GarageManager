@@ -35,11 +35,19 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('mechanic', 'Mechanic'),
         ('client', 'Client'),
     ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
 
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('blocked', 'Blocked'),
+        ('suspended', 'Suspended'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     is_staff = models.BooleanField(default=False)  # Konieczne do logowania do panelu admina
     is_active = models.BooleanField(default=True)  # Umożliwia blokowanie konta
     date_joined = models.DateTimeField(auto_now_add=True)  # Data utworzenia konta
+    last_login = models.DateTimeField(null=True, blank=True)
+    login_attempts = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
@@ -49,10 +57,49 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 # Profil użytkownika przechowujący dodatkowe dane
 class Profile(models.Model):
+    CONTACT_CHOICES = [
+        ('email', 'E-mail'),
+        ('phone', 'Telefon'),
+        ('sms', 'SMS')
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     address = models.CharField(max_length=255, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
     photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    preferred_contact_method = models.CharField(
+        max_length=20,
+        choices=CONTACT_CHOICES,
+        default='email'
+    )
 
     def __str__(self):
         return f"Profile of {self.user.username}"
+
+class LoginHistory(models.Model):
+    STATUS_CHOICES = [
+        ('success', 'Success login'),
+        ('failed', 'Failed login'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='login_history')
+    login_time = models.DateTimeField(auto_now_add=True)
+    device_info = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+
+    def __str__(self):
+        return f"Login history of {self.user.username}"
+
+class LoyaltyPoints(models.Model):
+    LEVEL_CHOICES = [
+        ('bronze', 'Bronze'),
+        ('silver', 'Silver'),
+        ('gold', 'Gold'),
+        ('platinum', 'Platinum'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='loyalty_points')
+    total_points = models.IntegerField(default=0)
+    membership_level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='bronze')
+    points_earned_this_year = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.membership_level} level"

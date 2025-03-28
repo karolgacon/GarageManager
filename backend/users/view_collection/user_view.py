@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,7 +21,7 @@ class UserViewAPI(APIView):
         """
         Get the profile information of the current authenticated user.
         """
-        user = get_object_or_404(User, email=self.request.user.email)
+        user = get_object_or_404(User, email=request.user.email)
         user_serializer = ProfileSerializer(user)
         return Response(user_serializer.data, status=status.HTTP_200_OK)
 
@@ -33,7 +34,7 @@ class UserViewAPI(APIView):
         """
         Update the profile of the current authenticated user.
         """
-        user = get_object_or_404(User, email=self.request.user.email)
+        user = get_object_or_404(User, email=request.user.email)
         user_serializer = UserSerializer(user, data=request.data)
         if user_serializer.is_valid():
             user_serializer.save()
