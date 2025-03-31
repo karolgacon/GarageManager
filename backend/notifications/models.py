@@ -42,7 +42,6 @@ class AuditLog(models.Model):
     old_value = models.JSONField(null=True, blank=True)
     new_value = models.JSONField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.action_type} w {self.table_name} przez {self.user}"

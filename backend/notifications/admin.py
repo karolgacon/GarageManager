@@ -10,6 +10,6 @@ class NotificationAdmin(admin.ModelAdmin):
 # ---------------------------- ADMIN FOR AUDIT LOGS ----------------------------
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
-    list_display = ("user", "action_type", "table_name", "record_id", "timestamp", "ip_address")
+    list_display = ("user", "action_type", "table_name", "record_id", "timestamp")
     search_fields = ("user__username", "table_name", "action_type")
     list_filter = ("action_type", "timestamp")
