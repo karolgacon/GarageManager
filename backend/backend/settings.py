@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'vehicles',
     'appointments',
     'inventory',
+    'billing',
 ]
 
 MIDDLEWARE = [
