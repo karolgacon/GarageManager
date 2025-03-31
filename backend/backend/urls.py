@@ -28,6 +28,9 @@ from workshops import routers as workshops_routers
 from vehicles import urls as vehicles_urls
 from vehicles import routers as vehicles_routers
 
+from appointments import urls as appointments_urls
+from appointments import routers as appointments_routers
+
 urlpatterns = [
     path('api/v1/admin/', admin.site.urls),
     path('api/v1/api-auth/', include("rest_framework.urls")),
@@ -40,4 +43,6 @@ urlpatterns = [
     path("api/v1/", include(workshops_routers)),
     path("api/v1/", include(vehicles_urls)),
     path("api/v1/", include(vehicles_routers)),
+    path("api/v1/", include(appointments_urls)),
+    path("api/v1/", include(appointments_routers)),
 ]

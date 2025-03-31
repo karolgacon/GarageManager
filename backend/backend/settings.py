@@ -82,7 +82,8 @@ INSTALLED_APPS = [
     'django_crontab',
     'users',
     'workshops',
-    'vehicles'
+    'vehicles',
+    'appointments',
 ]
 
 MIDDLEWARE = [
