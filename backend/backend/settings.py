@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'workshops',
     'vehicles',
     'appointments',
+    'inventory',
 ]
 
 MIDDLEWARE = [
