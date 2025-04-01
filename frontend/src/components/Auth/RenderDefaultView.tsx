@@ -85,10 +85,10 @@ const RenderDefaultView: React.FC<RenderDefaultViewProps> = ({ handleSignIn, set
             </Button>
 
             <Button
-                onClick={() => setCurrentView("owner")}
+                onClick={() => setCurrentView("register")} // Changed to a new "register" view
                 fullWidth
                 sx={{
-                    backgroundColor: "#DC143C", // Darker red color
+                    backgroundColor: "#DC143C",
                     color: "#fff",
                     fontWeight: 600,
                     textTransform: "uppercase",
