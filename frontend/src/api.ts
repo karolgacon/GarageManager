@@ -1,21 +1,24 @@
 import axios from "axios";
-import {ACCESS_TOKEN} from "./constants.ts";
+import { BASE_API_URL } from './constants';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BASE_API_URL
-})
+    baseURL: BASE_API_URL
+});
 
 api.interceptors.request.use(
-    (config) =>{
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (token){
+    (config) => {
+        const token = localStorage.getItem("token");
+        if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
     (error) => {
+        if (!(error instanceof Error)) {
+            return Promise.reject(new Error("An unknown error occurred during the request."));
+        }
         return Promise.reject(error);
     }
-)
+);
 
 export default api;
