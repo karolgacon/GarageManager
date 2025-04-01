@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Profile, LoginHistory, LoyaltyPoints
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 # Serializator profilu użytkownika
 class ProfileSerializer(serializers.ModelSerializer):
@@ -13,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'profile', 'first_name', 'last_name', 'status']  # Dodajemy 'profile'
+        fields = ['id', 'username', 'email', 'role', 'profile', 'first_name', 'last_name', 'status', 'is_active']  # Dodajemy 'profile'
 
     def create(self, validated_data):
         profile_data = validated_data.pop('profile')  # Pobieramy dane profilu
@@ -35,3 +36,15 @@ class LoyaltyPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoyaltyPoints
         fields = ['id', 'user', 'total_points', 'points_earned_this_year', 'membership_level']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Dodajemy dodatkowe pola do tokena
+        token['is_active'] = user.is_active
+        token['role'] = user.groups.first().name if user.groups.exists() else "client"
+
+        return token

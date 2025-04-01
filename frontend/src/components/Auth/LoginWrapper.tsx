@@ -9,6 +9,7 @@ import { setAuthHeader } from "../../authorization/authServices";
 import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "../../authorization/CustomJwtPayload";
 import RenderRegisterView from "./RenderRegisterView";
+import { useNavigate } from "react-router-dom";
 
 import RenderDefaultView from "./RenderDefaultView";
 export interface LoginWrapperHandle {
@@ -23,13 +24,14 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const {setAuth} = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleSignIn = async (email: string, password: string) => {
         setLoading(true);
         setError(null);
 
         try {
-            const res = await axios.post(`${BASE_API_URL}/api/login`, {
+            const res = await axios.post(`${BASE_API_URL}/user/login/`, {
                 email,
                 password
             });
@@ -42,19 +44,26 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
 
             // Decode token to get user data
             const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
+            console.log('decoded:', decoded);
+            // Update authentication context
+            const userDetailsRes = await axios.get(`${BASE_API_URL}/users/${decoded.user_id}/`);
+            const userDetails = userDetailsRes.data;
 
             // Update authentication context
             setAuth({
                 token: jwtToken,
-                roles: [decoded.role],
-                username: decoded.username
+                roles: [userDetails.role],
+                username: userDetails.username,
+                is_active: userDetails.is_active // Assuming you have this field in your response
             });
 
+            console.log('userDetails:', userDetails);
+
             // Redirect based on account status and role
-            if (!decoded.is_active) {
-                window.location.href = '/notVerified';
+            if (!userDetails.is_active) {
+                setError("Twoje konto nie zostało jeszcze aktywowane.");
             } else {
-                redirectBasedOnRole(decoded.role);
+                redirectBasedOnRole(userDetails.role);
             }
         } catch (err: any) {
             handleError(err);
@@ -116,9 +125,10 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
 
 // Add this function to handle redirections
     const redirectBasedOnRole = (role: string) => {
+
         switch (role) {
             case 'admin':
-                window.location.href = '/adminDashboard';
+                window.location.href = '/home';
                 break;
             case 'owner':
                 window.location.href = '/ownerDashboard';
@@ -128,7 +138,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
                 break;
             case 'client':
             default:
-                window.location.href = '/clientDashboard';
+                window.location.href = '/home';
                 break;
         }
     };

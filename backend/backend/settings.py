@@ -44,11 +44,10 @@ ALLOWED_HOSTS = ["*"]
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    # "ROTATE_REFRESH_TOKENS": True,
-    # "BLACKLIST_AFTER_ROTATION": True,
-    # "ALGORITHM": "HS256",
-    # "SIGNING_KEY": SECRET_KEY,
-    # "AUTH_HEADER_TYPES": ("Bearer",),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'TOKEN_OBTAIN_SERIALIZER': 'users.serializers.CustomTokenObtainPairSerializer',
 }
 
 REST_FRAMEWORK = {
