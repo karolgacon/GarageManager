@@ -6,21 +6,25 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id','user','address', 'phone', 'photo', 'preferred_contact_method']
+        fields = ['id','user','address', 'phone', 'preferred_contact_method']
 
 # Serializator użytkownika
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()  # Dodajemy profile jako zagnieżdżony serializator
-
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'profile', 'first_name', 'last_name', 'status', 'is_active']  # Dodajemy 'profile'
+        fields = ['id', 'username', 'email', 'role', 'first_name', 'last_name', 'status', 'is_active']  # Usuwamy 'profile'
 
     def create(self, validated_data):
-        profile_data = validated_data.pop('profile')  # Pobieramy dane profilu
+        # Tworzenie użytkownika bez profilu
         user = User.objects.create(**validated_data)
-        Profile.objects.create(user=user, **profile_data)  # Tworzymy profil powiązany z użytkownikiem
         return user
+
+    def update(self, instance, validated_data):
+        # Aktualizacja użytkownika bez profilu
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -37,14 +41,11 @@ class LoyaltyPointsSerializer(serializers.ModelSerializer):
         model = LoyaltyPoints
         fields = ['id', 'user', 'total_points', 'points_earned_this_year', 'membership_level']
 
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
         # Dodajemy dodatkowe pola do tokena
         token['is_active'] = user.is_active
         token['role'] = user.groups.first().name if user.groups.exists() else "client"
-
         return token

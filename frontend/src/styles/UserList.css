@@ -1,0 +1,125 @@
+.user-list-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-list-container h1 {
+    color: #fff;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.refresh-button, .create-button {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.15);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.create-button {
+    background-color: #ff3850;
+}
+
+.refresh-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.create-button:hover {
+    background-color: #d70026;
+}
+
+.refresh-button:disabled {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.user-card {
+    background-color: #1c1e2e;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-4px);
+}
+
+.user-card h3 {
+    margin: 0 0 12px 0;
+    color: #fff;
+    font-size: 18px;
+}
+
+.user-card p {
+    margin: 8px 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user-card a {
+    display: inline-block;
+    margin-top: 16px;
+    color: #ff3850;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.user-card a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.error-message {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ff3850;
+    border-left: 4px solid #ff3850;
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 18px;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .refresh-button, .create-button {
+        width: 100%;
+    }
+}

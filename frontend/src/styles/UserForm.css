@@ -1,0 +1,136 @@
+.user-form-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-form-container h1 {
+    color: #fff;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.back-button {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.15);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    margin-bottom: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.user-form {
+    background-color: #1c1e2e;
+    border-radius: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 24px;
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-size: 16px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #ff3850;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.submit-button, .cancel-button {
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.submit-button {
+    background-color: #ff3850;
+    color: white;
+}
+
+.cancel-button {
+    background-color: rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.submit-button:hover {
+    background-color: #d70026;
+}
+
+.cancel-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.submit-button:disabled {
+    background-color: rgba(255, 56, 80, 0.5);
+    cursor: not-allowed;
+}
+
+.error-message {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ff3850;
+    border-left: 4px solid #ff3850;
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 18px;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .submit-button, .cancel-button {
+        width: 100%;
+    }
+}

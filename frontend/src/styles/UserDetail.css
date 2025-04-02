@@ -1,0 +1,134 @@
+.user-detail-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-detail-container h1 {
+    color: #fff;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.back-button {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.15);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    margin-bottom: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.user-details {
+    background-color: #1c1e2e;
+    border-radius: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 24px;
+    transition: transform 0.2s ease;
+}
+
+.user-details:hover {
+    transform: translateY(-4px);
+}
+
+.user-details h2 {
+    color: #fff;
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.user-details p {
+    margin: 12px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+}
+
+.user-details strong {
+    color: #fff;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.refresh-button, .edit-button, .delete-button {
+    padding: 10px 16px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.refresh-button {
+    background-color: rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.edit-button {
+    background-color: #ff3850;
+    color: white;
+}
+
+.delete-button {
+    background-color: #d70026;
+    color: white;
+}
+
+.refresh-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.edit-button:hover {
+    background-color: #e82640;
+}
+
+.delete-button:hover {
+    background-color: #b5001e;
+}
+
+.error-message {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ff3850;
+    border-left: 4px solid #ff3850;
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 18px;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .actions {
+        flex-direction: column;
+    }
+
+    .refresh-button, .edit-button, .delete-button {
+        width: 100%;
+    }
+}
