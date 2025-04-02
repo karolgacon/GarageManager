@@ -1,14 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserService } from '../../api/UserAPIEndpoint';
 import { User } from '../../models/UserModel';
 import '../../styles/UserList.css';
+
 
 const UserList: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         try {
@@ -66,6 +68,10 @@ const UserList: React.FC = () => {
                     )}
                 </div>
             )}
+            <button onClick={() => navigate('/')} className="back-button">
+                Powrót do strony głównej
+            </button>
+
         </div>
     );
 };

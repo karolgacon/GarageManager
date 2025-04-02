@@ -86,6 +86,10 @@ const UserDetail: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <button onClick={() => navigate('/users')} className="back-button">
+                Powrót do listy
+            </button>
+
         </div>
     );
 };

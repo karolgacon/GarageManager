@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserService } from '../api/UserAPIEndpoint';
-import { ProfileService } from '../api/ProfileAPIEndpoint';
 import { User } from '../models/UserModel';
-import { Profile } from '../models/ProfileModel';
 import '../styles/Home.css'; // Import pliku CSS
 
 const Home: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -21,18 +18,9 @@ const Home: React.FC = () => {
                 const userData = await UserService.getUsers();
                 setUsers(userData);
 
-                // Try to fetch current user profile
-                try {
-                    const profileData = await ProfileService.getProfile();
-                    setProfile(profileData);
-
-                    // Get current user details if profile is available
-                    if (profileData && profileData.user) {
-                        const currentUserData = await UserService.getUser(profileData.user);
-                        setCurrentUser(currentUserData);
-                    }
-                } catch (profileErr) {
-                    console.log('Profile not yet set up or not available');
+                // Get current user details if available
+                if (userData.length > 0) {
+                    setCurrentUser(userData[0]); // Set the first user as the current user
                 }
 
                 setError(null);
@@ -78,14 +66,6 @@ const Home: React.FC = () => {
                                 <p><strong>Imię:</strong> {currentUser.first_name || 'Nie podano'}</p>
                                 <p><strong>Nazwisko:</strong> {currentUser.last_name || 'Nie podano'}</p>
                                 <p><strong>Email:</strong> {currentUser.email}</p>
-
-                                {profile && (
-                                    <div className="profile-info">
-                                        <p><strong>Telefon:</strong> {profile.phone || 'Nie podano'}</p>
-                                        {profile.photo && <p><strong>Avatar:</strong> Ustawiony</p>}
-                                    </div>
-                                )}
-
                                 <div className="user-actions">
                                     <Link to={`/users/${currentUser.id}`} className="user-action">
                                         Zobacz szczegóły
@@ -135,16 +115,16 @@ const Home: React.FC = () => {
                     <Link to="/users/new" className="quick-action">
                         Dodaj użytkownika
                     </Link>
-                    {currentUser && (
-                        <>
-                            <Link to={`/users/${currentUser.id}`} className="quick-action">
-                                Mój profil
-                            </Link>
-                            <Link to={`/users/edit/${currentUser.id}`} className="quick-action">
-                                Edytuj profil
-                            </Link>
-                        </>
-                    )}
+                    {/*{currentUser && (*/}
+                    {/*    <>*/}
+                    {/*        <Link to={`/users/${currentUser.id}`} className="quick-action">*/}
+                    {/*            Mój profil*/}
+                    {/*        </Link>*/}
+                    {/*        <Link to={`/users/edit/${currentUser.id}`} className="quick-action">*/}
+                    {/*            Edytuj profil*/}
+                    {/*        </Link>*/}
+                    {/*    </>*/}
+                    {/*)}*/}
                 </div>
             </div>
         </div>

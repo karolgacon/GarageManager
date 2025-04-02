@@ -130,6 +130,10 @@ const UserForm: React.FC<UserFormProps> = ({ mode = 'create' }) => {
                     </div>
                 </form>
             )}
+            <button onClick={() => navigate('/users')} className="back-button">
+                Powrót do listy
+            </button>
+
         </div>
     );
 };
