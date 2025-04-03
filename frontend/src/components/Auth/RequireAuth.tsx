@@ -14,6 +14,7 @@ const RequireAuth = ({ requiredRole }) => {
             try {
                 const tokenData = jwtDecode<CustomJwtPayload>(token);
                 // Zapisz rolę w localStorage
+                console.log(tokenData);
                 if (tokenData.role) {
                     localStorage.setItem("userRole", tokenData.role);
                 } else {
@@ -22,6 +23,7 @@ const RequireAuth = ({ requiredRole }) => {
                             const response = await axios.get(`${BASE_API_URL}/users/${tokenData.user_id}`);
                             const role = response.data.role;
                             localStorage.setItem("userRole", role);
+                            localStorage.setItem("userID", tokenData.user_id);
                         } catch (error) {
                             console.error("Error fetching user data:", error);
                             localStorage.removeItem("userRole"); // Usuń rolę, jeśli wystąpił błąd

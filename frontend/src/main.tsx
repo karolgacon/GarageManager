@@ -6,7 +6,7 @@ import './index.css'
 import UserList from './components/Users/UserList.tsx';
 import UserDetail from './components/Users/UserDetail.tsx';
 import UserForm from './components/Users/UserForm.tsx';
-// import ProfileComponent from './components/Profile/ProfileComponent.tsx';
+import ProfileComponent from './components/Profile/ProfileComponent.tsx';
 // import Register from './pages/Register.tsx'
 import Login from './pages/Login.tsx'
 import Home from "./pages/Home.tsx";
@@ -25,6 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/users/new" element={<UserForm mode="create" />} />
                     <Route path="/users/edit/:id" element={<UserForm mode="edit" />} />
                     <Route path="/users/:id" element={<UserDetail />} />
+                    <Route path="/profile" element={<ProfileComponent />} />
                 </Route>
                 {/*<Route path="/register" element={<Register />} />*/}
                 <Route path="/login" element={<Login />} />

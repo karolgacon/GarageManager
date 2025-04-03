@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserService } from '../api/UserAPIEndpoint';
 import { User } from '../models/UserModel';
-import '../styles/Home.css'; // Import pliku CSS
+import '../styles/Home.css';
 
 const Home: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -73,6 +73,9 @@ const Home: React.FC = () => {
                                     <Link to={`/users/edit/${currentUser.id}`} className="user-action">
                                         Edytuj dane
                                     </Link>
+                                    <Link to="/profile" className="user-action">
+                                        Zarządzaj profilem
+                                    </Link>
                                 </div>
                             </>
                         ) : (
@@ -115,16 +118,19 @@ const Home: React.FC = () => {
                     <Link to="/users/new" className="quick-action">
                         Dodaj użytkownika
                     </Link>
-                    {/*{currentUser && (*/}
-                    {/*    <>*/}
-                    {/*        <Link to={`/users/${currentUser.id}`} className="quick-action">*/}
-                    {/*            Mój profil*/}
-                    {/*        </Link>*/}
-                    {/*        <Link to={`/users/edit/${currentUser.id}`} className="quick-action">*/}
-                    {/*            Edytuj profil*/}
-                    {/*        </Link>*/}
-                    {/*    </>*/}
-                    {/*)}*/}
+                    {currentUser && (
+                        <>
+                            <Link to={`/users/${currentUser.id}`} className="quick-action">
+                                Mój profil
+                            </Link>
+                            <Link to={`/users/edit/${currentUser.id}`} className="quick-action">
+                                Edytuj profil
+                            </Link>
+                            <Link to="/profile" className="quick-action">
+                                Zarządzaj profilem dodatkowym
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
