@@ -5,8 +5,8 @@ from .views_collection.CustomerFeedbackView import CustomerFeedbackViewSet
 
 router = DefaultRouter()
 
-router.register(r'appointments', AppointmentViewSet)
-router.register(r'repair-jobs', RepairJobViewSet)
-router.register(r'customer-feedbacks', CustomerFeedbackViewSet)
+router.register(r'appointments', AppointmentViewSet, basename='appointments')
+router.register(r'repair-jobs', RepairJobViewSet, basename='repair-job')
+router.register(r'customer-feedbacks', CustomerFeedbackViewSet, basename='customer-feedback')
 
 urlpatterns = router.urls
