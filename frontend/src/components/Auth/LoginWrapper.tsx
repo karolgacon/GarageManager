@@ -39,31 +39,38 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
             const data = res.data;
             const jwtToken = data.token;
 
-            // Save token to localStorage
-            setAuthHeader(jwtToken);
-
             // Decode token to get user data
             const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
-            console.log('decoded:', decoded);
-            // Update authentication context
-            const userDetailsRes = await axios.get(`${BASE_API_URL}/users/${decoded.user_id}/`);
-            const userDetails = userDetailsRes.data;
 
-            // Update authentication context
-            setAuth({
-                token: jwtToken,
-                roles: [userDetails.role],
-                username: userDetails.username,
-                is_active: userDetails.is_active // Assuming you have this field in your response
-            });
+            try {
+                // Get user details first
+                const userDetailsRes = await axios.get(`${BASE_API_URL}/users/${decoded.user_id}/`);
+                const userDetails = userDetailsRes.data;
 
-            console.log('userDetails:', userDetails);
+                // Set token only after we confirm user details are valid
+                setAuthHeader(jwtToken);
 
-            // Redirect based on account status and role
-            if (!userDetails.is_active) {
-                setError("Twoje konto nie zostało jeszcze aktywowane.");
-            } else {
-                redirectBasedOnRole(userDetails.role);
+                // Store role in localStorage
+                localStorage.setItem("userRole", userDetails.role);
+                localStorage.setItem("userID", decoded.user_id.toString());
+
+                // Update authentication context
+                setAuth({
+                    token: jwtToken,
+                    roles: [userDetails.role],
+                    username: userDetails.username,
+                    is_active: userDetails.is_active
+                });
+
+                // Redirect based on account status and role
+                if (!userDetails.is_active) {
+                    setError("Twoje konto nie zostało jeszcze aktywowane.");
+                } else {
+                    redirectBasedOnRole(userDetails.role);
+                }
+            } catch (fetchErr) {
+                console.error("Error fetching user details:", fetchErr);
+                setError("Nie można pobrać danych użytkownika.");
             }
         } catch (err: any) {
             handleError(err);
@@ -100,21 +107,26 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
             const data = res.data;
             const jwtToken = data.token;
 
-            // Save token to localStorage
-            setAuthHeader(jwtToken);
-
             // Decode token to get user data
             const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
+
+            // Set token in localStorage
+            setAuthHeader(jwtToken);
+
+            // Store role in localStorage
+            localStorage.setItem("userRole", role);
+            localStorage.setItem("userID", decoded.user_id.toString());
 
             // Update authentication context
             setAuth({
                 token: jwtToken,
-                roles: [decoded.role],
-                username: decoded.username
+                roles: [role],
+                username: decoded.username,
+                is_active: true
             });
 
             // Redirect based on user role
-            redirectBasedOnRole(decoded.role);
+            redirectBasedOnRole(role);
 
         } catch (err: any) {
             handleError(err);
@@ -123,22 +135,21 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
         }
     };
 
-// Add this function to handle redirections
+    // Modified to use React Router's navigate instead of window.location
     const redirectBasedOnRole = (role: string) => {
-
         switch (role) {
             case 'admin':
-                window.location.href = '/home';
+                navigate('/home');
                 break;
             case 'owner':
-                window.location.href = '/ownerDashboard';
+                navigate('/ownerDashboard');
                 break;
             case 'mechanic':
-                window.location.href = '/mechanicDashboard';
+                navigate('/mechanicDashboard');
                 break;
             case 'client':
             default:
-                window.location.href = '/home';
+                navigate('/home');
                 break;
         }
     };
@@ -162,8 +173,6 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, r
                     handleBack={() => setCurrentView("default")}
                 />
             )}
-
-            {/* Other views... */}
 
             {loading && (
                 <Box sx={{mt: 2, textAlign: 'center'}}>
