@@ -62,7 +62,7 @@ class AppointmentViewSet(viewsets.ViewSet):
         summary="Szczegóły wizyty",
         description="Pobiera szczegółowe informacje o konkretnej wizycie.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
                              type=int)
         ],
         responses={
@@ -150,7 +150,7 @@ class AppointmentViewSet(viewsets.ViewSet):
         summary="Aktualizuj wizytę",
         description="Aktualizuje całą wizytę na podstawie dostarczonych danych.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
                              type=int)
         ],
         request=AppointmentSerializer,
@@ -210,7 +210,7 @@ class AppointmentViewSet(viewsets.ViewSet):
         summary="Częściowa aktualizacja wizyty",
         description="Aktualizuje wybrane pola wizyty.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
                              type=int)
         ],
         request=AppointmentSerializer,
@@ -265,7 +265,7 @@ class AppointmentViewSet(viewsets.ViewSet):
         summary="Usuń wizytę",
         description="Usuwa określoną wizytę z systemu.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID wizyty", required=True,
                              type=int)
         ],
         responses={

@@ -68,7 +68,7 @@ class CustomerFeedbackViewSet(viewsets.ViewSet):
         summary="Szczegóły opinii",
         description="Pobiera szczegółowe informacje o konkretnej opinii klienta.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID opinii", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID opinii", required=True,
                              type=int)
         ],
         responses={
@@ -162,7 +162,7 @@ class CustomerFeedbackViewSet(viewsets.ViewSet):
         summary="Aktualizuj opinię",
         description="Aktualizuje całą opinię klienta na podstawie dostarczonych danych.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID opinii", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID opinii", required=True,
                              type=int)
         ],
         request=CustomerFeedbackSerializer,
@@ -225,7 +225,7 @@ class CustomerFeedbackViewSet(viewsets.ViewSet):
         summary="Częściowa aktualizacja opinii",
         description="Aktualizuje wybrane pola opinii klienta.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID opinii", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID opinii", required=True,
                              type=int)
         ],
         request=CustomerFeedbackSerializer,
@@ -282,7 +282,7 @@ class CustomerFeedbackViewSet(viewsets.ViewSet):
         summary="Usuń opinię",
         description="Usuwa określoną opinię klienta z systemu.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID opinii", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID opinii", required=True,
                              type=int)
         ],
         responses={
@@ -363,7 +363,7 @@ class CustomerFeedbackViewSet(viewsets.ViewSet):
         summary="Odpowiedź warsztatu",
         description="Dodaje odpowiedź warsztatu do opinii klienta.",
         parameters=[
-            OpenApiParameter(name="pk", location=OpenApiParameter.PATH, description="ID opinii", required=True,
+            OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="ID opinii", required=True,
                              type=int)
         ],
         request={

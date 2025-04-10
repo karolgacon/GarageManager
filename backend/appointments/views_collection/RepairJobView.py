@@ -70,7 +70,7 @@ class RepairJobViewSet(viewsets.ViewSet):
         summary="Szczegóły naprawy",
         description="Zwraca szczegóły naprawy o podanym ID.",
         parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
+            OpenApiParameter(name='id', type=OpenApiTypes.INT, description='ID naprawy'),
         ],
         responses={
             200: RepairJobSerializer,
@@ -143,7 +143,7 @@ class RepairJobViewSet(viewsets.ViewSet):
         summary="Zaktualizuj naprawę",
         description="Aktualizuje naprawę o podanym ID.",
         parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
+            OpenApiParameter(name='id', type=OpenApiTypes.INT, description='ID naprawy'),
         ],
         request=RepairJobSerializer,
         responses={
@@ -186,7 +186,7 @@ class RepairJobViewSet(viewsets.ViewSet):
         summary="Częściowa aktualizacja naprawy",
         description="Częściowo aktualizuje naprawę o podanym ID.",
         parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
+            OpenApiParameter(name='id', type=OpenApiTypes.INT, description='ID naprawy'),
         ],
         request=RepairJobSerializer,
         responses={
@@ -228,7 +228,7 @@ class RepairJobViewSet(viewsets.ViewSet):
         summary="Usuń naprawę",
         description="Usuwa naprawę o podanym ID.",
         parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
+            OpenApiParameter(name='id', type=OpenApiTypes.INT, description='ID naprawy'),
         ],
         responses={
             204: {"description": "Naprawa usunięta pomyślnie"},
