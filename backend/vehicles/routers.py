@@ -7,8 +7,8 @@ from .views_collection.MaintenanceScheduleView import MaintenanceScheduleViewSet
 
 router = DefaultRouter()
 
-router.register(r'vehicles', VehicleViewSet)
-router.register(r'diagnostics', DiagnosticsViewSet)
-router.register(r'maintenance-schedules', MaintenanceScheduleViewSet)
+router.register(r'vehicles', VehicleViewSet , basename='vehicles')
+router.register(r'diagnostics', DiagnosticsViewSet, basename='diagnostics')
+router.register(r'maintenance-schedules', MaintenanceScheduleViewSet, basename='maintenance-schedules')
 
 urlpatterns = router.urls
