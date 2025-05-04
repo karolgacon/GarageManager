@@ -43,7 +43,7 @@ const useStyles = createUseStyles({
 		border: "1px dashed #ccc", // Dashed border as shown in screenshot
 		borderRadius: "4px",
 		boxSizing: "border-box",
-		color: "#aaaaaa", // Lighter color to match the image
+		color: "#000", // Lighter color to match the image
 		backgroundColor: "transparent", // Ensure background is transparent
 		"&::placeholder": {
 			color: "#aaaaaa", // Also lighten placeholder text

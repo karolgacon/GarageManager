@@ -12,13 +12,15 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^7.0.1",
+    "@mui/icons-material": "^5.17.1",
+    "@mui/material": "^5.17.1",
     "axios": "^1.8.3",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-jss": "^10.10.0",
-    "react-router-dom": "^7.4.1"
+    "react-router-dom": "^7.4.1",
+    "recharts": "^2.15.3"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
@@ -30,6 +32,6 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.2.2",
-    "vite": "^5.3.4"
+    "vite": "^6.3.4"
   }
 }
