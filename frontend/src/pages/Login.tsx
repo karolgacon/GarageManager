@@ -1,55 +1,43 @@
-import { createUseStyles } from 'react-jss';
-import LoginWrapper from '../components/Auth/LoginWrapper';
-import LeftAppInfo from '../components/Auth/LeftAppInfo';
+import { createUseStyles } from "react-jss";
+import LoginWrapper from "../components/Auth/LoginWrapper";
 
 const useStyles = createUseStyles({
-    container: {
-        display: 'flex',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-    },
-    leftSide: {
-        width: '50%',
-        position: 'relative',
-        backgroundColor: '#FF2D55', // Red color from image
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    rightSide: {
-        width: '50%',
-        position: 'relative',
-        backgroundColor: '#FFFFFF', // White background
-    },
-    '@media (max-width: 768px)': {
-        container: {
-            flexDirection: 'column',
-        },
-        leftSide: {
-            width: '100%',
-            height: '30%',
-        },
-        rightSide: {
-            width: '100%',
-            height: '70%',
-        },
-    },
+	container: {
+		width: "100vw",
+		height: "100vh",
+		display: "flex",
+		flexDirection: "column",
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "#F2F4F7", // Light gray background from screenshot
+		overflow: "hidden",
+		position: "relative",
+		// padding: "20px",
+	},
+	footer: {
+		position: "absolute",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		padding: "12px 0",
+		textAlign: "center",
+		fontSize: "12px",
+		fontWeight: "500",
+		letterSpacing: "1px",
+		backgroundColor: "#FF3B57", // Red footer
+		color: "black",
+	},
 });
 
 function Login() {
-    const classes = useStyles();
+	const classes = useStyles();
 
-    return (
-        <div className={classes.container}>
-            <div className={classes.leftSide}>
-                <LeftAppInfo />
-            </div>
-            <div className={classes.rightSide}>
-                <LoginWrapper />
-            </div>
-        </div>
-    );
+	return (
+		<div className={classes.container}>
+			<LoginWrapper />
+			<div className={classes.footer}>COPYRIGHT | GARAGEMASTER 2025</div>
+		</div>
+	);
 }
 
 export default Login;

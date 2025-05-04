@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <AuthProvider>
             <Routes>
                 <Route element={<RequireAuth requiredRole={["client","admin","mechanic","owner"]} />}>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Login />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/users" element={<UserList />} />
                     <Route path="/users/new" element={<UserForm mode="create" />} />

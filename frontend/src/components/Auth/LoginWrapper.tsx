@@ -1,188 +1,217 @@
 import { useState, forwardRef, useImperativeHandle, useContext } from "react";
 import axios from "axios";
 import { BASE_API_URL } from "../../constants";
-import { Box, Typography } from "@mui/material";
 import useStyles from "./LoginWrapper.styles.ts";
-import LeftImage from './LeftImage';
 import AuthContext from "../../context/AuthProvider";
 import { setAuthHeader } from "../../authorization/authServices";
 import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "../../authorization/CustomJwtPayload";
-import RenderRegisterView from "./RenderRegisterView";
 import { useNavigate } from "react-router-dom";
+import GarageLogo from "./GarageLogo";
+// Import an eye icon from a library like react-icons or use SVG directly
+// Example with SVG:
+const EyeIcon = () => (
+	<svg
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+	>
+		<path
+			d="M12 5C7 5 2.73 8.11 1 12C2.73 15.89 7 19 12 19C17 19 21.27 15.89 23 12C21.27 8.11 17 5 12 5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z"
+			fill="#AAAAAA"
+		/>
+	</svg>
+);
 
-import RenderDefaultView from "./RenderDefaultView";
 export interface LoginWrapperHandle {
-    triggerPendingAction: () => void;
+	triggerPendingAction: () => void;
 }
 
 interface LoginWrapperProps {}
 
-const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>((props, ref) => {
-    const classes = useStyles();
-    const [currentView, setCurrentView] = useState("default");
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const {setAuth} = useContext(AuthContext);
-    const navigate = useNavigate();
+const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
+	(props, ref) => {
+		const classes = useStyles();
+		const [email, setEmail] = useState("");
+		const [password, setPassword] = useState("");
+		const [showPassword, setShowPassword] = useState(false);
+		const [rememberMe, setRememberMe] = useState(false);
+		const [error, setError] = useState<string | null>(null);
+		const [loading, setLoading] = useState(false);
+		const { setAuth } = useContext(AuthContext);
+		const navigate = useNavigate();
 
-    const handleSignIn = async (email: string, password: string) => {
-        setLoading(true);
-        setError(null);
+		const handleSignIn = async (e: React.FormEvent) => {
+			e.preventDefault();
+			setLoading(true);
+			setError(null);
 
-        try {
-            const res = await axios.post(`${BASE_API_URL}/user/login/`, {
-                email,
-                password
-            });
+			try {
+				const res = await axios.post(`${BASE_API_URL}/user/login/`, {
+					email,
+					password,
+				});
 
-            const data = res.data;
-            const jwtToken = data.token;
+				const data = res.data;
+				const jwtToken = data.token;
 
-            // Decode token to get user data
-            const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
+				// Decode token to get user data
+				const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
 
-            try {
-                // Get user details first
-                const userDetailsRes = await axios.get(`${BASE_API_URL}/users/${decoded.user_id}/`);
-                const userDetails = userDetailsRes.data;
+				try {
+					// Get user details first
+					const userDetailsRes = await axios.get(
+						`${BASE_API_URL}/users/${decoded.user_id}/`
+					);
+					const userDetails = userDetailsRes.data;
 
-                // Set token only after we confirm user details are valid
-                setAuthHeader(jwtToken);
+					// Set token only after we confirm user details are valid
+					setAuthHeader(jwtToken);
 
-                // Store role in localStorage
-                localStorage.setItem("userRole", userDetails.role);
-                localStorage.setItem("userID", decoded.user_id.toString());
+					// Store role in localStorage
+					localStorage.setItem("userRole", userDetails.role);
+					localStorage.setItem("userID", decoded.user_id.toString());
 
-                // Update authentication context
-                setAuth({
-                    token: jwtToken,
-                    roles: [userDetails.role],
-                    username: userDetails.username,
-                    is_active: userDetails.is_active
-                });
+					// Update authentication context
+					setAuth({
+						token: jwtToken,
+						roles: [userDetails.role],
+						username: userDetails.username,
+						is_active: userDetails.is_active,
+					});
 
-                // Redirect based on account status and role
-                if (!userDetails.is_active) {
-                    setError("Twoje konto nie zostało jeszcze aktywowane.");
-                } else {
-                    redirectBasedOnRole(userDetails.role);
-                }
-            } catch (fetchErr) {
-                console.error("Error fetching user details:", fetchErr);
-                setError("Nie można pobrać danych użytkownika.");
-            }
-        } catch (err: any) {
-            handleError(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+					// Redirect based on account status and role
+					if (!userDetails.is_active) {
+						setError("Your account has not been activated yet.");
+					} else {
+						redirectBasedOnRole(userDetails.role);
+					}
+				} catch (fetchErr) {
+					console.error("Error fetching user details:", fetchErr);
+					setError("Could not fetch user data.");
+				}
+			} catch (err: any) {
+				handleError(err);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    const handleError = (err: any) => {
-        if (axios.isAxiosError(err) && err.response) {
-            const backendError = err.response.data?.error || err.response.data?.message;
-            setError(backendError || 'Wystąpił błąd podczas logowania.');
-        } else {
-            setError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
-        }
-    };
+		const handleError = (err: any) => {
+			if (axios.isAxiosError(err) && err.response) {
+				const backendError =
+					err.response.data?.error || err.response.data?.message;
+				setError(backendError || "An error occurred while logging in.");
+			} else {
+				setError("An unexpected error occurred. Please try again later.");
+			}
+		};
 
-    useImperativeHandle(ref, () => ({
-        triggerPendingAction: () => {
-            // Można zaimplementować ponowną próbę logowania, jeśli jest taka potrzeba
-        }
-    }));
+		useImperativeHandle(ref, () => ({
+			triggerPendingAction: () => {
+				// Implementation if needed
+			},
+		}));
 
-    const handleRegistration = async (userData: any, role: string) => {
-        setLoading(true);
-        setError(null);
+		// Modified to use React Router's navigate instead of window.location
+		const redirectBasedOnRole = (role: string) => {
+			switch (role) {
+				case "admin":
+					navigate("/home");
+					break;
+				case "owner":
+					navigate("/ownerDashboard");
+					break;
+				case "mechanic":
+					navigate("/mechanicDashboard");
+					break;
+				case "client":
+				default:
+					navigate("/home");
+					break;
+			}
+		};
 
-        try {
-            const res = await axios.post(`${BASE_API_URL}/api/register`, {
-                ...userData,
-                role
-            });
+		const togglePasswordVisibility = () => {
+			setShowPassword(!showPassword);
+		};
 
-            const data = res.data;
-            const jwtToken = data.token;
+		return (
+			<div className={classes.container}>
+				<GarageLogo />
 
-            // Decode token to get user data
-            const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
+				<div className={classes.formCard}>
+					<h2 className={classes.formTitle}>Login to your account</h2>
 
-            // Set token in localStorage
-            setAuthHeader(jwtToken);
+					<form onSubmit={handleSignIn}>
+						<div className={classes.formField}>
+							<input
+								type="email"
+								className={classes.input}
+								placeholder="Email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								required
+							/>
+						</div>
 
-            // Store role in localStorage
-            localStorage.setItem("userRole", role);
-            localStorage.setItem("userID", decoded.user_id.toString());
+						<div className={classes.formField}>
+							<input
+								type={showPassword ? "text" : "password"}
+								className={classes.input}
+								placeholder="Password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+							/>
+							<span
+								className={classes.passwordToggle}
+								onClick={togglePasswordVisibility}
+							>
+								<EyeIcon />
+							</span>
+						</div>
 
-            // Update authentication context
-            setAuth({
-                token: jwtToken,
-                roles: [role],
-                username: decoded.username,
-                is_active: true
-            });
+						<div className={classes.rememberRow}>
+							<label className={classes.checkboxLabel}>
+								<div className={classes.checkboxContainer}>
+									<input
+										type="checkbox"
+										className={classes.checkbox}
+										checked={rememberMe}
+										onChange={() => setRememberMe(!rememberMe)}
+									/>
+								</div>
+								Remember me
+							</label>
+							<a href="#" className={classes.forgotLink}>
+								Forgot Password?
+							</a>
+						</div>
 
-            // Redirect based on user role
-            redirectBasedOnRole(role);
+						<button
+							type="submit"
+							className={classes.submitButton}
+							disabled={loading}
+						>
+							{loading ? "Signing in..." : "Sign in with email"}
+						</button>
+					</form>
 
-        } catch (err: any) {
-            handleError(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+					<div className={classes.registerContainer}>
+						<span className={classes.accountText}>Don't have an account?</span>
+						<a href="/register" className={classes.registerLink}>
+							Get Started
+						</a>
+					</div>
 
-    // Modified to use React Router's navigate instead of window.location
-    const redirectBasedOnRole = (role: string) => {
-        switch (role) {
-            case 'admin':
-                navigate('/home');
-                break;
-            case 'owner':
-                navigate('/ownerDashboard');
-                break;
-            case 'mechanic':
-                navigate('/mechanicDashboard');
-                break;
-            case 'client':
-            default:
-                navigate('/home');
-                break;
-        }
-    };
-
-    return (
-        <div className={classes.container}>
-            <div style={{position: "absolute", top: "24px", left: "24px"}}>
-                <LeftImage/>
-            </div>
-
-            {currentView === "default" && (
-                <RenderDefaultView
-                    handleSignIn={handleSignIn}
-                    setCurrentView={setCurrentView}
-                />
-            )}
-
-            {currentView === "register" && (
-                <RenderRegisterView
-                    handleRegistration={handleRegistration}
-                    handleBack={() => setCurrentView("default")}
-                />
-            )}
-
-            {loading && (
-                <Box sx={{mt: 2, textAlign: 'center'}}>
-                    <Typography>Trwa przetwarzanie...</Typography>
-                </Box>
-            )}
-
-            {error && <div className={classes.errorMessage}>{error}</div>}
-        </div>
-    );
-});
+					{error && <div className={classes.errorMessage}>{error}</div>}
+				</div>
+			</div>
+		);
+	}
+);
 
 export default LoginWrapper;
