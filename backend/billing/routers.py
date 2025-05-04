@@ -5,6 +5,6 @@ from .views_collection.InvoiceView import InvoiceViewSet
 router = DefaultRouter()
 
 router.register(r'payments', PaymentViewSet)
-router.register(r'invoices', InvoiceViewSet)
+router.register(r'invoices', InvoiceViewSet, basename='invoices')
 
 urlpatterns = router.urls
