@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from vehicles.models import Vehicle
 from workshops.models import Workshop
+from django.core.exceptions import ValidationError
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
@@ -35,6 +36,19 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Wizyta {self.client.username} w {self.workshop.name}"
+    
+    
+    def clean(self):
+        if self.status not in dict(self.STATUS_CHOICES):
+            raise ValidationError(f"Invalid status: {self.status}")
+        if self.priority not in dict(self.PRIORITY_CHOICES):
+            raise ValidationError(f"Invalid priority: {self.priority}")
+        if self.booking_type not in dict(self.BOOKING_TYPES):
+            raise ValidationError(f"Invalid booking type: {self.booking_type}")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 class RepairJob(models.Model):
     COMPLEXITY_CHOICES = [

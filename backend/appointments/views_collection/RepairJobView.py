@@ -2,351 +2,174 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from ..models import RepairJob
 from ..serializers import RepairJobSerializer
+from ..services.repairJobsService import RepairJobService
+from django.http import Http404
+from django.forms import ValidationError
 
 class RepairJobViewSet(viewsets.ViewSet):
     """
-    ViewSet dla zarządzania naprawami.
-    Obsługuje operacje CRUD dla napraw.
+    ViewSet for managing repair jobs.
+    Handles CRUD operations for repair jobs.
     """
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        """
-        Zwraca wszystkie naprawy.
-        """
-        return RepairJob.objects.all()
-
     @extend_schema(
-        summary="Lista wszystkich napraw",
-        description="Zwraca listę wszystkich napraw.",
-        responses={
-            200: RepairJobSerializer(many=True),
-            401: OpenApiTypes.OBJECT,
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value=[
-                    {
-                        "id": 1,
-                        "appointment": 1,
-                        "mechanic": 1,
-                        "description": "Wymiana oleju",
-                        "cost": 100.00,
-                        "duration": 60,
-                        "complexity_level": "simple",
-                        "warranty_period": 3,
-                        "diagnostic_notes": "Brak",
-                    },
-                    {
-                        "id": 2,
-                        "appointment": 2,
-                        "mechanic": 2,
-                        "description": "Wymiana klocków hamulcowych",
-                        "cost": 200.00,
-                        "duration": 120,
-                        "complexity_level": "moderate",
-                        "warranty_period": 6,
-                        "diagnostic_notes": "Brak",
-                    }
-                ]
-            )
-        ]
+        summary="List all repair jobs",
+        description="Returns a list of all repair jobs.",
+        responses={200: RepairJobSerializer(many=True)}
     )
     def list(self, request):
-        """
-        Zwraca listę wszystkich napraw.
-        """
-        queryset = self.get_queryset()
-        serializer = RepairJobSerializer(queryset, many=True)
+        """List all repair jobs."""
+        repair_jobs = RepairJobService.get_all_repair_jobs()
+        serializer = RepairJobSerializer(repair_jobs, many=True)
         return Response(serializer.data)
 
     @extend_schema(
-        summary="Szczegóły naprawy",
-        description="Zwraca szczegóły naprawy o podanym ID.",
-        parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
-        ],
-        responses={
-            200: RepairJobSerializer,
-            404: OpenApiTypes.OBJECT,
-            401: OpenApiTypes.OBJECT,
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value={
-                    "id": 1,
-                    "appointment": 1,
-                    "mechanic": 1,
-                    "description": "Wymiana oleju",
-                    "cost": 100.00,
-                    "duration": 60,
-                    "complexity_level": "simple",
-                    "warranty_period": 3,
-                    "diagnostic_notes": "Brak",
-                }
-            )
-        ]
+        summary="Retrieve repair job details",
+        description="Returns details of a specific repair job.",
+        responses={200: RepairJobSerializer, 404: OpenApiResponse(description="Repair job not found")}
     )
     def retrieve(self, request, pk=None):
-        """
-        Zwraca szczegóły naprawy o podanym ID.
-        """
+        """Retrieve details of a specific repair job."""
         try:
-            repair_job = self.get_queryset().get(pk=pk)
+            repair_job = RepairJobService.get_repair_job_by_id(pk)
             serializer = RepairJobSerializer(repair_job)
             return Response(serializer.data)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono naprawy."}, status=status.HTTP_404_NOT_FOUND)
+        except Http404:
+            return Response(
+                {"error": "Repair job not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
     @extend_schema(
-        summary="Utwórz nową naprawę",
-        description="Tworzy nową naprawę.",
+        summary="Create a new repair job",
+        description="Creates a new repair job with details such as mechanic, appointment, and job description.",
         request=RepairJobSerializer,
-        responses={
-            201: RepairJobSerializer,
-            400: {"description": "Niepoprawne dane wejściowe"},
-            401: {"description": "Brak autoryzacji"},
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value={
-                    "id": 1,
-                    "appointment": 1,
-                    "mechanic": 1,
-                    "description": "Wymiana oleju",
-                    "cost": 100.00,
-                    "duration": 60,
-                    "complexity_level": "simple",
-                    "warranty_period": 3,
-                    "diagnostic_notes": "Brak",
-                }
-            )
-        ]
+        responses={201: RepairJobSerializer, 400: OpenApiResponse(description="Validation error")}
     )
     def create(self, request):
-        """
-        Tworzy nową naprawę.
-        """
-        serializer = RepairJobSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+        """Create a new repair job."""
+        try:
+            repair_job = RepairJobService.create_repair_job(request.data)
+            serializer = RepairJobSerializer(repair_job)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response(
+                {"error": e.message_dict},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @extend_schema(
-        summary="Zaktualizuj naprawę",
-        description="Aktualizuje naprawę o podanym ID.",
-        parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
-        ],
+        summary="Update a repair job",
+        description="Updates an existing repair job.",
         request=RepairJobSerializer,
-        responses={
-            200: RepairJobSerializer,
-            400: {"description": "Niepoprawne dane wejściowe"},
-            404: {"description": "Nie znaleziono naprawy"},
-            401: {"description": "Brak autoryzacji"},
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value={
-                    "id": 1,
-                    "appointment": 1,
-                    "mechanic": 1,
-                    "description": "Wymiana oleju",
-                    "cost": 100.00,
-                    "duration": 60,
-                    "complexity_level": "simple",
-                    "warranty_period": 3,
-                    "diagnostic_notes": "Brak",
-                }
-            )
-        ]
+        responses={200: RepairJobSerializer, 404: OpenApiResponse(description="Repair job not found")}
     )
     def update(self, request, pk=None):
-        """
-        Aktualizuje naprawę o podanym ID.
-        """
+        """Update an existing repair job."""
         try:
-            repair_job = self.get_queryset().get(pk=pk)
-            serializer = RepairJobSerializer(repair_job, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono naprawy."}, status=status.HTTP_404_NOT_FOUND)
+            repair_job = RepairJobService.update_repair_job(pk, request.data)
+            serializer = RepairJobSerializer(repair_job)
+            return Response(serializer.data)
+        except Http404:
+            return Response(
+                {"error": "Repair job not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValidationError as e:
+            return Response(
+                {"error": e.message_dict},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @extend_schema(
-        summary="Częściowa aktualizacja naprawy",
-        description="Częściowo aktualizuje naprawę o podanym ID.",
-        parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
-        ],
+        summary="Partially update a repair job",
+        description="Partially updates fields of a repair job.",
         request=RepairJobSerializer,
-        responses={
-            200: RepairJobSerializer,
-            400: {"description": "Niepoprawne dane wejściowe"},
-            404: {"description": "Nie znaleziono naprawy"},
-            401: {"description": "Brak autoryzacji"},
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value={
-                    "id": 1,
-                    "appointment": 1,
-                    "mechanic": 1,
-                    "description": "Wymiana oleju",
-                    "cost": 100.00,
-                    "duration": 60,
-                    "complexity_level": "simple",
-                    "warranty_period": 3,
-                    "diagnostic_notes": "Brak",
-                }
-            )
-        ]
+        responses={200: RepairJobSerializer, 404: OpenApiResponse(description="Repair job not found")}
     )
     def partial_update(self, request, pk=None):
-        """
-        Częściowo aktualizuje naprawę o podanym ID.
-        """
+        """Partially update a repair job."""
         try:
-            repair_job = self.get_queryset().get(pk=pk)
-            serializer = RepairJobSerializer(repair_job, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono naprawy."}, status=status.HTTP_404_NOT_FOUND)
+            repair_job = RepairJobService.partially_update_repair_job(pk, request.data)
+            serializer = RepairJobSerializer(repair_job)
+            return Response(serializer.data)
+        except Http404:
+            return Response(
+                {"error": "Repair job not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValidationError as e:
+            return Response(
+                {"error": e.message_dict},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
     @extend_schema(
-        summary="Usuń naprawę",
-        description="Usuwa naprawę o podanym ID.",
-        parameters=[
-            OpenApiParameter(name='pk', type=OpenApiTypes.INT, description='ID naprawy'),
-        ],
-        responses={
-            204: {"description": "Naprawa usunięta pomyślnie"},
-            404: {"description": "Nie znaleziono naprawy"},
-            401: {"description": "Brak autoryzacji"},
-        },
+        summary="Delete a repair job",
+        description="Deletes a repair job from the system.",
+        responses={204: OpenApiResponse(description="No content"), 404: OpenApiResponse(description="Repair job not found")}
     )
     def destroy(self, request, pk=None):
-        """
-        Usuwa naprawę o podanym ID.
-        """
+        """Delete a repair job."""
         try:
-            repair_job = self.get_queryset().get(pk=pk)
-            repair_job.delete()
+            RepairJobService.delete_repair_job(pk)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono naprawy."}, status=status.HTTP_404_NOT_FOUND)
+        except Http404:
+            return Response(
+                {"error": "Repair job not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
     @extend_schema(
-        summary="Naprawy danego mechanika",
-        description="Zwraca naprawy przypisane do danego mechanika.",
-        parameters=[
-            OpenApiParameter(name='mechanic_id', type=OpenApiTypes.INT, description='ID mechanika'),
-        ],
-        responses={
-            200: RepairJobSerializer(many=True),
-            404: {"description": "Nie znaleziono mechanika"},
-            401: {"description": "Brak autoryzacji"},
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value=[
-                    {
-                        "id": 1,
-                        "appointment": 1,
-                        "mechanic": 1,
-                        "description": "Wymiana oleju",
-                        "cost": 100.00,
-                        "duration": 60,
-                        "complexity_level": "simple",
-                        "warranty_period": 3,
-                        "diagnostic_notes": "Brak",
-                    },
-                    {
-                        "id": 2,
-                        "appointment": 2,
-                        "mechanic": 1,
-                        "description": "Wymiana klocków hamulcowych",
-                        "cost": 200.00,
-                        "duration": 120,
-                        "complexity_level": "moderate",
-                        "warranty_period": 6,
-                        "diagnostic_notes": "Brak",
-                    }
-                ]
-            )
-        ]
+        summary="Retrieve repair jobs for a specific mechanic",
+        description="Returns a list of repair jobs assigned to a specific mechanic.",
+        parameters=[OpenApiParameter(name="mechanic_id", description="ID of the mechanic", required=True, type=int)],
+        responses={200: RepairJobSerializer(many=True), 404: OpenApiResponse(description="No repair jobs found")}
     )
-    @action(detail=False, methods=['get'], url_path='mechanic/(?P<mechanic_id>[^/.]+)')
-    def mechanic_repairs(self, request, mechanic_id=None):
-        """
-        Zwraca naprawy przypisane do danego mechanika.
-        """
-        try:
-            repairs = self.get_queryset().filter(mechanic_id=mechanic_id)
-            serializer = RepairJobSerializer(repairs, many=True)
-            return Response(serializer.data)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono napraw."}, status=status.HTTP_404_NOT_FOUND)
+    @action(detail=False, methods=['get'])
+    def by_mechanic(self, request):
+        """Retrieve repair jobs for a specific mechanic."""
+        mechanic_id = request.query_params.get('mechanic_id')
+        if mechanic_id:
+            try:
+                repair_jobs = RepairJobService.get_repair_jobs_by_mechanic(mechanic_id)
+                serializer = RepairJobSerializer(repair_jobs, many=True)
+                return Response(serializer.data)
+            except Http404:
+                return Response(
+                    {"error": "No repair jobs found for the specified mechanic."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(
+            {"error": "The 'mechanic_id' parameter is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @extend_schema(
-        summary="Naprawy do danego zlecenia",
-        description="Zwraca naprawy przypisane do danego zlecenia.",
-        parameters=[
-            OpenApiParameter(name='appointment_id', type=OpenApiTypes.INT, description='ID zlecenia'),
-        ],
-        responses={
-            200: RepairJobSerializer(many=True),
-            404: {"description": "Nie znaleziono zlecenia"},
-            401: {"description": "Brak autoryzacji"},
-        },
-        examples=[
-            OpenApiExample("Przykład odpowiedzi",
-                value=[
-                    {
-                        "id": 1,
-                        "appointment": 1,
-                        "mechanic": 1,
-                        "description": "Wymiana oleju",
-                        "cost": 100.00,
-                        "duration": 60,
-                        "complexity_level": "simple",
-                        "warranty_period": 3,
-                        "diagnostic_notes": "Brak",
-                    },
-                    {
-                        "id": 2,
-                        "appointment": 1,
-                        "mechanic": 2,
-                        "description": "Wymiana klocków hamulcowych",
-                        "cost": 200.00,
-                        "duration": 120,
-                        "complexity_level": "moderate",
-                        "warranty_period": 6,
-                        "diagnostic_notes": "Brak",
-                    }
-                ]
-            )
-        ]
+        summary="Retrieve repair jobs for a specific appointment",
+        description="Returns a list of repair jobs associated with a specific appointment.",
+        parameters=[OpenApiParameter(name="appointment_id", description="ID of the appointment", required=True, type=int)],
+        responses={200: RepairJobSerializer(many=True), 404: OpenApiResponse(description="No repair jobs found")}
     )
-    @action(detail=False, methods=['get'], url_path='appointment/(?P<appointment_id>[^/.]+)')
-    def appointment_repairs(self, request, appointment_id=None):
-        """
-        Zwraca naprawy przypisane do danego zlecenia.
-        """
-        try:
-            repairs = self.get_queryset().filter(appointment_id=appointment_id)
-            serializer = RepairJobSerializer(repairs, many=True)
-            return Response(serializer.data)
-        except RepairJob.DoesNotExist:
-            return Response({"error": "Nie znaleziono napraw."}, status=status.HTTP_404_NOT_FOUND)
+    @action(detail=False, methods=['get'])
+    def by_appointment(self, request):
+        """Retrieve repair jobs for a specific appointment."""
+        appointment_id = request.query_params.get('appointment_id')
+        if appointment_id:
+            try:
+                repair_jobs = RepairJobService.get_repair_jobs_by_appointment(appointment_id)
+                serializer = RepairJobSerializer(repair_jobs, many=True)
+                return Response(serializer.data)
+            except Http404:
+                return Response(
+                    {"error": "No repair jobs found for the specified appointment."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(
+            {"error": "The 'appointment_id' parameter is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )

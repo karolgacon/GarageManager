@@ -28,6 +28,7 @@ if env_file.exists():
     # GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID')
     # GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET')
     # RECAPTCHA_SECRET_KEY = env('RECAPTCHA_KEY')
+    ENVIRONMENT = env('ENVIRONMENT', default='local')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -57,6 +58,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+        'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
     ],
 }
 # Application definition
@@ -127,11 +134,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME"),
-        'USER': os.environ.get("DB_USER"),
-        'PASSWORD': os.environ.get("DB_PASS"),
-        'HOST': os.environ.get("DB_HOST"),
-        'PORT': '5432',
+        'NAME': os.environ.get("DB_NAME", "db"),  # Default to "db"
+        'USER': os.environ.get("DB_USER", "user"),  # Default to "user"
+        'PASSWORD': os.environ.get("DB_PASS", "localdevpw"),  # Default to "localdevpw"
+        'HOST': os.environ.get("DB_HOST", "localhost"),  # Default to "localhost"
+        'PORT': os.environ.get("DB_PORT", "5432"),  # Default to "5432"
+        'TEST': {
+            'NAME': os.environ.get("TEST_DB_NAME", "test_db"),  # Test database name
+        },
     }
 }
 
