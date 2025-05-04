@@ -1,9 +1,7 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from ..models import RepairJobPart
+from backend.views_collection.BaseView import BaseViewSet
+from ..services.repairJobPartService import RepairJobPartService
 from ..serializers import RepairJobPartSerializer
 
-class RepairJobPartViewSet(viewsets.ModelViewSet):
-    queryset = RepairJobPart.objects.all()
+class RepairJobPartViewSet(BaseViewSet):
+    service = RepairJobPartService
     serializer_class = RepairJobPartSerializer
-    permission_classes = [IsAuthenticated]

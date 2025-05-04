@@ -5,8 +5,8 @@ from .views_collection.StockEntryView import StockEntryViewSet
 
 router = DefaultRouter()
 
-router.register(r'repair-job-parts', RepairJobPartViewSet)
-router.register(r'parts', PartViewSet)
-router.register(r'stock-entries', StockEntryViewSet)
+router.register(r'repair-job-parts', RepairJobPartViewSet, basename='repair-job-parts')
+router.register(r'parts', PartViewSet, basename='parts')
+router.register(r'stock-entries', StockEntryViewSet, basename='stock-entries')
 
 urlpatterns = router.urls

@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from django.http import Http404
 from django.forms import ValidationError
+from rest_framework.permissions import IsAuthenticated
+
 
 class BaseViewSet(viewsets.ViewSet):
     """
@@ -10,6 +12,7 @@ class BaseViewSet(viewsets.ViewSet):
     """
     service = None  # This should be overridden in child classes
     serializer_class = None  # This should be overridden in child classes
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         summary="List all records",
