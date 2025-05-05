@@ -4,7 +4,7 @@ from .views_collection.AuditLogView import AuditLogViewSet
 
 router = DefaultRouter()
 
-router.register(r'notifications', NotificationViewSet)
-router.register(r'auditlogs', AuditLogViewSet)
+router.register(r'notifications', NotificationViewSet, basename='notification')
+router.register(r'auditlogs', AuditLogViewSet, basename='auditlog')
 
 urlpatterns = router.urls
