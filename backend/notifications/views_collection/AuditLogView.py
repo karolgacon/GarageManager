@@ -1,9 +1,7 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from ..models import AuditLog
+from ..services.auditLogService import AuditLogService
 from ..serializers import AuditLogSerializer
+from backend.views_collection.BaseView import BaseViewSet as baseViewSet
 
-class AuditLogViewSet(viewsets.ModelViewSet):
-    queryset = AuditLog.objects.all()
+class AuditLogViewSet(baseViewSet):
     serializer_class = AuditLogSerializer
-    permission_classes = [IsAuthenticated]
+    service = AuditLogService

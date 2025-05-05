@@ -1,9 +1,7 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from ..models import Notification
+from ..services.notificationService import NotificationService
 from ..serializers import NotificationSerializer
+from backend.views_collection.BaseView import BaseViewSet
 
-class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
+class NotificationViewSet(BaseViewSet):
+    service = NotificationService
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
