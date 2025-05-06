@@ -1,53 +1,65 @@
+from backend.views_collection.BaseView import BaseViewSet
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
-from rest_framework import status
-from rest_framework.response import Response
-from ..models import Profile
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from ..services.profileService import ProfileService
 from ..serializers import ProfileSerializer
-from django.shortcuts import get_object_or_404
 
-class ProfileAPIView(ModelViewSet):
-    queryset = Profile.objects.all()
+@extend_schema_view(
+    retrieve=extend_schema(
+        summary="Retrieve current user's profile",
+        description="Returns the profile information of the currently authenticated user.",
+        responses={200: ProfileSerializer, 404: OpenApiResponse(description="Profile not found")}
+    ),
+    create=extend_schema(
+        summary="Create a profile",
+        description="Creates a profile for the currently authenticated user.",
+        request=ProfileSerializer,
+        responses={201: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
+    ),
+    update=extend_schema(
+        summary="Update current user's profile",
+        description="Updates the profile information of the currently authenticated user.",
+        request=ProfileSerializer,
+        responses={200: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
+    ),
+    destroy=extend_schema(
+        summary="Delete current user's profile",
+        description="Deletes the profile of the currently authenticated user.",
+        responses={204: OpenApiResponse(description="Profile deleted successfully"), 404: OpenApiResponse(description="Profile not found")}
+    )
+)
+class ProfileViewSet(BaseViewSet):
+    service = ProfileService
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
-
-    def get_object(self):
-        """ Pobieramy profil powiązany z aktualnym użytkownikiem """
-        return get_object_or_404(Profile, user=self.request.user)
-
-    def create(self, request):
-        """ Tworzymy profil powiązany z aktualnym użytkownikiem """
-        if hasattr(request.user, 'profile'):
-            return Response({"detail": "Profile already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        """ Pobiera profil użytkownika po ID, jeśli podano, inaczej pobiera profil zalogowanego użytkownika """
-        if pk is None or pk == str(request.user.id):
-            profile = self.get_object()  # Pobieramy profil zalogowanego użytkownika
-        else:
-            profile = get_object_or_404(Profile, user_id=pk)  # Pobieramy profil innego użytkownika
+        """
+        Pobiera profil aktualnie zalogowanego użytkownika.
+        """
+        if pk is None:
+            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
+        return super().retrieve(request, pk)
 
-        serializer = self.get_serializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def create(self, request):
+        """
+        Tworzy profil powiązany z aktualnym użytkownikiem.
+        """
+        request.data['user'] = request.user.id  # Automatycznie przypisujemy użytkownika
+        return super().create(request)
 
-    def update(self, request, *args, **kwargs):
-        """ Aktualizujemy profil powiązany z aktualnym użytkownikiem """
-        profile = self.get_object()
-        serializer = self.get_serializer(profile, data=request.data, partial=request.method == 'PATCH')
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, pk=None):
+        """
+        Aktualizuje profil powiązany z aktualnym użytkownikiem.
+        """
+        if pk is None:
+            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
+        return super().update(request, pk)
 
-    def destroy(self, request, *args, **kwargs):
-        """ Usuwamy profil powiązany z aktualnym użytkownikiem """
-        profile = self.get_object()
-        profile.delete()
-        return Response({"message": "Profile deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    def destroy(self, request, pk=None):
+        """
+        Usuwa profil powiązany z aktualnym użytkownikiem.
+        """
+        if pk is None:
+            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
+        return super().destroy(request, pk)
