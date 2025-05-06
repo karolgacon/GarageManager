@@ -40,7 +40,7 @@ from rest_framework.permissions import AllowAny
 class UserViewSet(BaseViewSet):
     service = UserService
     serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     @extend_schema(
         summary="Get current user profile",
