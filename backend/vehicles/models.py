@@ -41,7 +41,7 @@ class Diagnostics(models.Model):
     diagnostic_result = models.JSONField(null=True, blank=True)
 
     def __str__(self):
-        return f"Diagnostic {self.vehicle} - {self.diagnostic_date}"
+        return f"Diagnostic {self.vehicle.registration_number} - {self.diagnostic_date}"
 
 class MaintenanceSchedule(models.Model):
     SERVICE_TYPES = [
@@ -59,4 +59,4 @@ class MaintenanceSchedule(models.Model):
     mileage_interval = models.IntegerField(help_text="Interval in kilometers")
 
     def __str__(self):
-        return f"{self.vehicle} - {self.service_type}"
+        return f"Maintenance for {self.vehicle.registration_number} - {self.service_type}"

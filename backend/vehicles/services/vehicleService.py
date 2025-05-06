@@ -1,9 +1,15 @@
+from backend.services.baseService import BaseService
 from ..repositories.vehicleRepository import VehicleRepository
 
-class VehicleService:
-    @staticmethod
-    def get_vehicle_details(vehicle_id):
-        vehicle = VehicleRepository.get_vehicle_by_id(vehicle_id)
+class VehicleService(BaseService):
+    repository = VehicleRepository
+
+    @classmethod
+    def get_vehicle_details(cls, vehicle_id):
+        """
+        Pobiera szczegóły pojazdu na podstawie ID.
+        """
+        vehicle = cls.repository.get_by_id(vehicle_id)
         if not vehicle:
             return None
         return {
@@ -17,33 +23,23 @@ class VehicleService:
             "owner": vehicle.client.username if vehicle.client else None,
         }
 
-    @staticmethod
-    def create_vehicle(data):
+    @classmethod
+    def get_vehicles_by_client(cls, client_id):
         """
-        Creates a new vehicle using the provided data.
+        Pobiera wszystkie pojazdy powiązane z klientem.
         """
-        vehicle = VehicleRepository.create_vehicle(data)
-        return VehicleService.get_vehicle_details(vehicle.id)
-    
-    @staticmethod
-    def update_vehicle_details(vehicle_id, **kwargs):
-        vehicle = VehicleRepository.get_vehicle_by_id(vehicle_id)
-        if not vehicle:
-            return None
-        for key, value in kwargs.items():
-            if hasattr(vehicle, key):
-                setattr(vehicle, key, value)
-        vehicle.save()
-        return VehicleService.get_vehicle_details(vehicle_id)
+        return cls.repository.get_vehicles_by_client(client_id)
 
-    @staticmethod
-    def get_vehicles_by_client(client_id):
-        return VehicleRepository.get_vehicles_by_client(client_id)
+    @classmethod
+    def get_vehicles_due_for_maintenance(cls):
+        """
+        Pobiera pojazdy wymagające przeglądu technicznego.
+        """
+        return cls.repository.get_vehicles_due_for_maintenance()
 
-    @staticmethod
-    def get_vehicles_due_for_maintenance():
-        return VehicleRepository.get_vehicles_due_for_maintenance()
-
-    @staticmethod
-    def delete_vehicle(vehicle_id):
-        return VehicleRepository.delete_vehicle(vehicle_id)
+    @classmethod
+    def get_vehicles_by_brand(cls, brand):
+        """
+        Pobiera wszystkie pojazdy określonej marki.
+        """
+        return cls.repository.get_vehicles_by_brand(brand)

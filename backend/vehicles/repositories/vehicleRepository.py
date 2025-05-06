@@ -1,34 +1,27 @@
+from backend.repositories.baseRepository import BaseRepository
 from ..models import Vehicle
+from datetime import date
 
-class VehicleRepository:
-    @staticmethod
-    def get_all_vehicles():
-        return Vehicle.objects.all()
-    
-    @staticmethod
-    def create_vehicle(data):
+class VehicleRepository(BaseRepository):
+    model = Vehicle
+
+    @classmethod
+    def get_vehicles_by_client(cls, client_id):
         """
-        Creates a new vehicle in the database.
+        Pobiera wszystkie pojazdy powiązane z klientem.
         """
-        return Vehicle.objects.create(**data)
+        return cls.model.objects.filter(client_id=client_id)
 
-    @staticmethod
-    def get_vehicle_by_id(vehicle_id):
-        return Vehicle.objects.filter(id=vehicle_id).first()
+    @classmethod
+    def get_vehicles_due_for_maintenance(cls):
+        """
+        Pobiera pojazdy wymagające przeglądu technicznego.
+        """
+        return cls.model.objects.filter(last_maintenance_date__lt=date.today())
 
-    @staticmethod
-    def get_vehicles_by_client(client_id):
-        return Vehicle.objects.filter(client_id=client_id)
-
-    @staticmethod
-    def get_vehicles_due_for_maintenance():
-        from datetime import date
-        return Vehicle.objects.filter(last_maintenance_date__lt=date.today())
-
-    @staticmethod
-    def delete_vehicle(vehicle_id):
-        vehicle = Vehicle.objects.filter(id=vehicle_id).first()
-        if vehicle:
-            vehicle.delete()
-            return True
-        return False
+    @classmethod
+    def get_vehicles_by_brand(cls, brand):
+        """
+        Pobiera wszystkie pojazdy określonej marki.
+        """
+        return cls.model.objects.filter(brand=brand)
