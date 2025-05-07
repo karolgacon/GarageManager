@@ -63,7 +63,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 				try {
 					// Get user details first
 					const userDetailsRes = await axios.get(
-						`${BASE_API_URL}/users/${decoded.user_id}/`
+						`${BASE_API_URL}/user/${decoded.user_id}/`
 					);
 					const userDetails = userDetailsRes.data;
 
@@ -122,10 +122,10 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 					navigate("/home");
 					break;
 				case "owner":
-					navigate("/ownerDashboard");
+					navigate("/home");
 					break;
 				case "mechanic":
-					navigate("/mechanicDashboard");
+					navigate("/home");
 					break;
 				case "client":
 				default:
