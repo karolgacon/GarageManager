@@ -6,9 +6,9 @@ from .views_collection.ReportView import ReportViewSet
 
 router = DefaultRouter()
 
-router.register(r'workshops', WorkshopViewSet)
-router.register(r'services', ServiceViewSet)
-router.register(r'mechanics', WorkshopMechanicViewSet)
-router.register(r'reports', ReportViewSet)
+router.register(r'workshops', WorkshopViewSet, basename='workshop')
+router.register(r'services', ServiceViewSet, basename='service')
+router.register(r'mechanics', WorkshopMechanicViewSet, basename='workshop-mechanic')
+router.register(r'reports', ReportViewSet, basename='report')
 
 urlpatterns = router.urls
