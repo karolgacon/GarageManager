@@ -46,6 +46,6 @@ class AuthService(BaseService):
                 "username": user.username,
                 "email": user.email,
                 "is_active": user.is_active,
-                "role": user.role
-            }
+                "role": user.role,
+            },
         }
