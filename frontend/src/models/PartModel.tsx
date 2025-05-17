@@ -1,24 +1,29 @@
 export interface Part {
-	id: number;
+	id?: number;
 	name: string;
-	product_id: string;
-	description: string;
-	quantity: number;
+	manufacturer: string;
 	price: number;
-	category?: string;
+	stock_quantity: number;
+	minimum_stock_level: number;
+	category: string;
 	supplier?: string;
-	image_url?: string;
-	created_at?: string;
-	updated_at?: string;
-	is_available?: boolean;
-	minimum_stock?: number;
 }
 
 export const defaultPart: Part = {
-	id: 0,
+	id: undefined,
 	name: "",
-	product_id: "",
-	description: "",
-	quantity: 0,
+	manufacturer: "",
 	price: 0,
+	stock_quantity: 0,
+	minimum_stock_level: 5,
+	category: "body",
+	supplier: "",
 };
+
+export const CATEGORY_OPTIONS = [
+	{ value: "engine", label: "Engine" },
+	{ value: "electrical", label: "Electrical" },
+	{ value: "brake", label: "Brake" },
+	{ value: "suspension", label: "Suspension" },
+	{ value: "body", label: "Body" },
+];
