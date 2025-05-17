@@ -12,6 +12,7 @@ import Login from './pages/Login.tsx'
 import Dashboard from "./pages/Dashboard.tsx";
 import RequireAuth from "./components/Auth/RequireAuth.tsx";
 import NotFound from './pages/NotFound.tsx';
+import  Inventory  from './pages/Inventory.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -27,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/users/edit/:id" element={<UserForm mode="edit" />} />
                     <Route path="/users/:id" element={<UserDetail />} />
                     <Route path="/profile" element={<ProfileComponent />} />
-                    <Route path="/inventory" element={<Dashboard />} />
+                    <Route path="/inventory" element={<Inventory />} />
                 </Route>
                 {/*<Route path="/register" element={<Register />} />*/}
           <Route path="/login" element={<Login />} />
