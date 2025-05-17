@@ -7,6 +7,7 @@ import AuthContext from "../../context/AuthProvider";
 
 const HeaderBar = () => {
 	const { auth } = useContext(AuthContext);
+    
 
 	return (
 		<Paper
@@ -27,7 +28,7 @@ const HeaderBar = () => {
 			>
 				<Box sx={{ ml:2 }}>
 					<Typography variant="h6" fontWeight="bold" sx={{ mb: 0 }}>
-						Hi, {auth?.user?.name || "Name"}
+						Hi, {auth?.username || "Name"}
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
 						Let's check your Garage today
@@ -50,11 +51,11 @@ const HeaderBar = () => {
 								height: 40,
 							}}
 						>
-							{auth?.user?.name?.charAt(0) || "N"}
+							{auth?.username?.charAt(0) || "N"}
 						</Avatar>
 						<Box sx={{ ml: 1, display: { xs: "none", sm: "block" } }}>
 							<Typography variant="subtitle2" fontWeight="bold">
-								{auth?.user?.name || "Name"}
+								{auth?.username || "Name"}
 							</Typography>
 							<Typography variant="caption" color="text.secondary">
 								{auth?.roles?.[0]?.charAt(0).toUpperCase() +
