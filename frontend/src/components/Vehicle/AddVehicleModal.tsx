@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -97,7 +97,14 @@ function ColorlibStepIcon(props: any) {
 	const { active, completed, className, icon, userRole } = props;
 
 	const icons: { [index: string]: React.ReactElement } =
-		userRole === "client"
+		userRole === "admin"
+			? {
+					1: <PersonIcon />,
+					2: <DirectionsCarIcon />,
+					3: <BuildIcon />,
+					4: <CheckCircleIcon />,
+			  }
+			: userRole === "client"
 			? {
 					1: <DirectionsCarIcon />,
 					2: <BuildIcon />,
@@ -140,11 +147,21 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 	const [activeStep, setActiveStep] = useState(0);
 	const [vehicleData, setVehicleData] = useState<Partial<Vehicle>>({});
 
+	// Create a ref for the VehicleForm
+	const vehicleFormRef = useRef<{ validateAndSubmit: () => boolean }>(null);
+
 	// Zdefiniowanie kroków formularza
 	const steps =
-		userRole === "client"
-			? ["Vehicle Information", "Select Workshop", "Review & Submit"]
-			: ["Select Client", "Vehicle Information", "Review & Submit"];
+		userRole === "admin"
+			? [
+					"Select Client",
+					"Vehicle Details",
+					"Select Workshop",
+					"Review & Submit",
+			  ]
+			: userRole === "client"
+			? ["Vehicle Details", "Select Workshop", "Review & Submit"]
+			: ["Select Client", "Vehicle Details", "Review & Submit"];
 
 	// Na zmianę warsztatów aktualizujemy wybrany warsztat
 	useEffect(() => {
@@ -185,6 +202,12 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			}
 		}
 
+		// Add validation for admin selecting a workshop
+		if (userRole === "admin" && activeStep === 2 && !selectedWorkshopId) {
+			setError("Please select a workshop for this vehicle");
+			return;
+		}
+
 		// Przejście do następnego kroku
 		setActiveStep((prevStep) => prevStep + 1);
 		setError(null);
@@ -196,10 +219,15 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		setError(null);
 	};
 
-	// Obsługa zapisania danych pojazdu
-	const handleVehicleDataSave = (data: Partial<Vehicle>) => {
-		setVehicleData(data);
-		handleNext();
+	// Update the handleVehicleDataSave function to use the ref
+	const handleVehicleDataSave = () => {
+		// If we're on the vehicle form step, validate and get data from the ref
+		if (vehicleFormRef.current && vehicleFormRef.current.validateAndSubmit()) {
+			// Form validation succeeded, the form's onSubmit would have been called
+			// Continue with the flow
+			handleNext();
+		}
+		// If validation fails, the form will display errors
 	};
 
 	// Obsługa końcowego zatwierdzenia i wysłania danych
@@ -245,8 +273,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 
 	// Renderuj zawartość bieżącego kroku
 	const renderStepContent = () => {
-		if (userRole !== "client") {
-			// Formularz dla admin/owner/mechanic
+		if (userRole === "admin") {
+			// Special flow for admin
 			switch (activeStep) {
 				case 0:
 					return (
@@ -286,9 +314,89 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 								</Typography>
 							</Box>
 							<VehicleForm
-								onSubmit={handleVehicleDataSave}
+								ref={vehicleFormRef}
+								onSubmit={setVehicleData} // Just update the state, don't navigate
 								isLoading={loading}
 								error={error}
+								enableInternalButtons={false} // Don't show the internal button
+							/>
+						</Box>
+					);
+				case 2:
+					return (
+						<Box>
+							<Box
+								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+							>
+								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+									<BuildIcon />
+								</Avatar>
+								<Typography variant="h6" fontWeight="bold">
+									Select Workshop
+								</Typography>
+							</Box>
+							<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+								Assign this vehicle to a workshop for maintenance and servicing.
+							</Typography>
+							<WorkshopSelector
+								value={selectedWorkshopId}
+								onChange={(workshopId) => setSelectedWorkshopId(workshopId)}
+								disabled={loading}
+								error={error}
+							/>
+						</Box>
+					);
+				case 3:
+					return renderReviewStep();
+				default:
+					return null;
+			}
+		} else if (userRole !== "client") {
+			// Existing code for owner/mechanic
+			switch (activeStep) {
+				case 0:
+					return (
+						<Box>
+							<Box
+								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+							>
+								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+									<PersonIcon />
+								</Avatar>
+								<Typography variant="h6" fontWeight="bold">
+									Select Client
+								</Typography>
+							</Box>
+							<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+								Choose a client who will be the owner of this vehicle.
+							</Typography>
+							<ClientSelector
+								value={selectedClientId}
+								onChange={(clientId) => setSelectedClientId(clientId)}
+								disabled={loading}
+								error={error}
+							/>
+						</Box>
+					);
+				case 1:
+					return (
+						<Box>
+							<Box
+								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+							>
+								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+									<DirectionsCarIcon />
+								</Avatar>
+								<Typography variant="h6" fontWeight="bold">
+									Vehicle Details
+								</Typography>
+							</Box>
+							<VehicleForm
+								ref={vehicleFormRef}
+								onSubmit={setVehicleData} // Just update the state, don't navigate
+								isLoading={loading}
+								error={error}
+								enableInternalButtons={false} // Don't show the internal button
 							/>
 						</Box>
 					);
@@ -298,7 +406,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					return null;
 			}
 		} else {
-			// Formularz dla klienta
+			// Existing code for client
 			switch (activeStep) {
 				case 0:
 					return (
@@ -317,9 +425,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 								Enter the details of your vehicle.
 							</Typography>
 							<VehicleForm
-								onSubmit={handleVehicleDataSave}
+								ref={vehicleFormRef}
+								onSubmit={setVehicleData} // Just update the state, don't navigate
 								isLoading={loading}
 								error={error}
+								enableInternalButtons={false} // Don't show the internal button
 							/>
 						</Box>
 					);
@@ -375,19 +485,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 3,
-						mb: 3,
+						p: 2, // Reduced from p: 3
+						mb: 2, // Reduced from mb: 3
 						borderRadius: 2,
 						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 					}}
 				>
-					<Typography
-						variant="subtitle1"
-						fontWeight="bold"
-						sx={{ mb: 1, color: "#ff3c4e" }}
-					>
-						Vehicle Information
-					</Typography>
+					<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+						<DirectionsCarIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+						<Typography
+							variant="subtitle1"
+							fontWeight="bold"
+							sx={{ color: "#ff3c4e" }}
+						>
+							Vehicle Information
+						</Typography>
+					</Box>
 					<Divider sx={{ my: 1.5 }} />
 					<Box
 						sx={{
@@ -398,10 +511,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					>
 						<Box>
 							<Typography variant="body2" color="text.secondary">
-								Make
+								Brand
 							</Typography>
 							<Typography variant="body1" fontWeight="medium">
-								{vehicleData.make || "Not specified"}
+								{vehicleData.brand || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
@@ -442,16 +555,24 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							</Typography>
 							<Typography variant="body1" fontWeight="medium">
 								{vehicleData.mileage
-									? `${vehicleData.mileage} km`
+									? `${vehicleData.mileage.toLocaleString()} km`
 									: "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
 							<Typography variant="body2" color="text.secondary">
-								Brand
+								Fuel Type
 							</Typography>
 							<Typography variant="body1" fontWeight="medium">
-								{vehicleData.brand || "Not specified"}
+								{vehicleData.fuel_type || "Not specified"}
+							</Typography>
+						</Box>
+						<Box>
+							<Typography variant="body2" color="text.secondary">
+								Status
+							</Typography>
+							<Typography variant="body1" fontWeight="medium">
+								{vehicleData.status || "Not specified"}
 							</Typography>
 						</Box>
 					</Box>
@@ -461,19 +582,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					<Paper
 						variant="outlined"
 						sx={{
-							p: 3,
-							mb: 3,
+							p: 2, // Reduced from p: 3
+							mb: 2, // Reduced from mb: 3
 							borderRadius: 2,
 							boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 						}}
 					>
-						<Typography
-							variant="subtitle1"
-							fontWeight="bold"
-							sx={{ mb: 1, color: "#ff3c4e" }}
-						>
-							Client Information
-						</Typography>
+						<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+							<PersonIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+							<Typography
+								variant="subtitle1"
+								fontWeight="bold"
+								sx={{ color: "#ff3c4e" }}
+							>
+								Client Information
+							</Typography>
+						</Box>
 						<Divider sx={{ my: 1.5 }} />
 						<Box sx={{ display: "flex", alignItems: "center" }}>
 							<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
@@ -489,18 +613,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 3,
+						p: 2, // Reduced from p: 3
+						mb: 2, // Reduced from mb: 3
 						borderRadius: 2,
 						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 					}}
 				>
-					<Typography
-						variant="subtitle1"
-						fontWeight="bold"
-						sx={{ mb: 1, color: "#ff3c4e" }}
-					>
-						Workshop Assignment
-					</Typography>
+					<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+						<BuildIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+						<Typography
+							variant="subtitle1"
+							fontWeight="bold"
+							sx={{ color: "#ff3c4e" }}
+						>
+							Workshop Assignment
+						</Typography>
+					</Box>
 					<Divider sx={{ my: 1.5 }} />
 					<Box sx={{ display: "flex", alignItems: "center" }}>
 						<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
@@ -530,10 +658,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			fullWidth
 			fullScreen={fullScreen}
 			maxWidth="md"
+			scroll="paper" // Use paper scroll mode for better scrolling
 			PaperProps={{
 				sx: {
 					borderRadius: { xs: 0, sm: 2 },
-					maxHeight: "90vh",
+					maxHeight: "90vh", // Ensure it doesn't take the entire screen
 				},
 			}}
 		>
@@ -612,14 +741,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					</Alert>
 				)}
 
-				{/* Zawartość kroku */}
+				{/* Zawartość kroku - remove fixed height and maxHeight properties */}
 				<Box
 					sx={{
 						px: 3,
 						py: 3,
-						minHeight: { xs: "300px", md: "350px" },
-						maxHeight: { xs: "calc(100vh - 300px)", md: "auto" },
-						overflow: "auto",
 					}}
 				>
 					{renderStepContent()}
@@ -692,11 +818,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					{activeStep < steps.length - 1 ? (
 						<Button
 							variant="contained"
-							onClick={
-								activeStep === 1 && userRole !== "client"
-									? handleVehicleDataSave
-									: handleNext
-							}
+							onClick={() => {
+								// Check which step we're on
+								if (
+									(activeStep === 1 &&
+										userRole !== "client" &&
+										userRole !== "admin") ||
+									(activeStep === 0 && userRole === "client") ||
+									(activeStep === 1 && userRole === "admin")
+								) {
+									// We're on the vehicle form step
+									handleVehicleDataSave();
+								} else {
+									// We're on a different step (client selection or workshop selection)
+									handleNext();
+								}
+							}}
 							endIcon={<ArrowForwardIcon />}
 							disabled={loading}
 							sx={{

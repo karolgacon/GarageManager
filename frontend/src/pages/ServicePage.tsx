@@ -15,11 +15,11 @@ import {
 	Divider,
 	IconButton,
 	Menu,
-    MenuItem,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    DialogContent,
+	MenuItem,
+	Dialog,
+	DialogActions,
+	DialogTitle,
+	DialogContent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import BuildIcon from "@mui/icons-material/Build";
@@ -610,12 +610,13 @@ const Services: React.FC = () => {
 												p: 2,
 												mb: 2,
 												border: "1px solid",
-												borderColor:
-													schedule.status === "overdue"
-														? "error.light"
-														: schedule.status === "pending"
-														? "warning.light"
-														: "success.light",
+												borderColor: !schedule.status
+													? "grey.light"
+													: schedule.status === "overdue"
+													? "error.light"
+													: schedule.status === "pending"
+													? "warning.light"
+													: "success.light",
 												borderRadius: 2,
 											}}
 										>
@@ -631,12 +632,14 @@ const Services: React.FC = () => {
 														{schedule.service_type}
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
-														{schedule.vehicle_details?.make}{" "}
-														{schedule.vehicle_details?.model} (
-														{schedule.vehicle_details?.year})
+														{schedule.vehicle_details?.make || "Unknown"}{" "}
+														{schedule.vehicle_details?.model || "Unknown"} (
+														{schedule.vehicle_details?.year || "Unknown"})
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
-														Reg: {schedule.vehicle_details?.registration_number}
+														Reg:{" "}
+														{schedule.vehicle_details?.registration_number ||
+															"Unknown"}
 													</Typography>
 													<Box sx={{ mt: 1 }}>
 														<Typography
@@ -658,14 +661,18 @@ const Services: React.FC = () => {
 																		: "success.dark",
 															}}
 														>
-															{schedule.status.toUpperCase()}
+															{schedule.status
+																? schedule.status.toUpperCase()
+																: "UNKNOWN"}
 														</Typography>
 													</Box>
 												</Box>
 												<Box>
 													<Typography variant="body2" align="right">
 														Due:{" "}
-														{new Date(schedule.due_date).toLocaleDateString()}
+														{schedule.due_date
+															? new Date(schedule.due_date).toLocaleDateString()
+															: "Unknown"}
 													</Typography>
 													{schedule.last_maintenance_date && (
 														<Typography

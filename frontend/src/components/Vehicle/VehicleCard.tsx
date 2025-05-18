@@ -62,9 +62,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 	};
 
 	// Sprawdzanie czy pojazd wymaga przeglądu
-	const isMaintenanceDue = vehicle.next_service_due
-		? new Date(vehicle.next_service_due) <= new Date()
-		: false;
+	const isMaintenanceDue =
+		vehicle.next_service_due != null
+			? new Date(vehicle.next_service_due) <= new Date()
+			: false;
 
 	// Check if user has permission to edit/delete
 	const canEditDelete =
@@ -148,7 +149,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						{vehicle.vin || "N/A"}
 					</Typography>
 
-					{vehicle.engine_type && (
+					{vehicle.engine_type != null && vehicle.engine_type !== "" && (
 						<Typography
 							variant="body2"
 							color="text.secondary"
@@ -161,7 +162,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						</Typography>
 					)}
 
-					{vehicle.mileage !== undefined && (
+					{vehicle.mileage != null && ( // This checks for both null and undefined
 						<Typography
 							variant="body2"
 							color="text.secondary"

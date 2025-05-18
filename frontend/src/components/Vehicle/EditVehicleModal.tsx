@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -44,6 +44,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 	const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(
 		null
 	);
+	const vehicleFormRef = useRef<{ validateAndSubmit: () => boolean }>(null);
 
 	// Pobierz dane pojazdu po otwarciu modalu
 	useEffect(() => {
@@ -68,46 +69,43 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 		}
 	};
 
-	const handleSubmit = async (vehicleData: Partial<Vehicle>) => {
-		if (!vehicleId) return;
+	const handleSubmit = async (updatedVehicleData: Partial<Vehicle>) => {
+		setLoading(true);
+		setError(null);
 
 		try {
-			setLoading(true);
-			setError(null);
+			// Create a clean copy without read-only properties
+			const cleanData = { ...updatedVehicleData };
 
-			// Określenie warsztatu w zależności od roli
-			let workshopIdToUse = vehicle?.workshop_id; // Domyślnie zachowujemy aktualny warsztat
+			// Remove read-only properties that are calculated on the backend
+			delete cleanData.owner_name;
+			delete cleanData.workshop_name;
 
-			if (userRole === "admin") {
-				// Admin może zmienić warsztat
-				workshopIdToUse = selectedWorkshopId;
-			} else if (userRole === "owner" || userRole === "mechanic") {
-				// Owner i mechanic mogą przypisać tylko do swojego warsztatu
-				workshopIdToUse = currentWorkshopId;
+			// Handle owner_id and workshop_id
+			if (userRole !== "client" && selectedClientId) {
+				cleanData.owner_id = selectedClientId;
 			}
-			// Client nie może zmienić przypisania do warsztatu
 
-			// Określenie właściciela w zależności od roli
-			const ownerIdToUse =
-				userRole === "client"
-					? vehicle?.owner_id // Klient nie może zmienić właściciela
-					: selectedClientId;
+			if (selectedWorkshopId) {
+				cleanData.workshop_id = selectedWorkshopId;
+			}
 
-			// Przygotowanie danych do aktualizacji
-			const updatedVehicle: Partial<Vehicle> = {
-				...vehicleData,
-				owner_id: ownerIdToUse,
-				workshop_id: workshopIdToUse,
-			};
-
+			// Now send the cleaned data to the API
 			const response = await vehicleService.updateVehicle(
-				vehicleId,
-				updatedVehicle
+				vehicleId!,
+				cleanData
 			);
 			onVehicleUpdated(response);
 			onClose();
 		} catch (err) {
 			console.error("Error updating vehicle:", err);
+
+			// Log more detailed error information
+			if (err.response) {
+				console.error("Response data:", err.response.data);
+				console.error("Response status:", err.response.status);
+			}
+
 			setError("Failed to update the vehicle. Please try again.");
 		} finally {
 			setLoading(false);
@@ -223,6 +221,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 								Vehicle Information
 							</Typography>
 							<VehicleForm
+								ref={vehicleFormRef}
 								initialData={vehicle}
 								onSubmit={handleSubmit}
 								isLoading={loading}
@@ -240,6 +239,28 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 					disabled={loading || fetchLoading}
 				>
 					Cancel
+				</Button>
+				<Button
+					onClick={() => {
+						// Wywołaj metodę validateAndSubmit z formularza
+						if (vehicleFormRef.current) {
+							vehicleFormRef.current.validateAndSubmit();
+						}
+					}}
+					variant="contained"
+					color="primary"
+					disabled={loading || fetchLoading}
+					startIcon={
+						loading ? <CircularProgress size={20} color="inherit" /> : null
+					}
+					sx={{
+						bgcolor: "#ff3c4e",
+						"&:hover": {
+							bgcolor: "#d6303f",
+						},
+					}}
+				>
+					{loading ? "Saving..." : "Save Changes"}
 				</Button>
 			</DialogActions>
 		</Dialog>

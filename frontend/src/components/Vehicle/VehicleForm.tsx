@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, {
+	useState,
+	useEffect,
+	forwardRef,
+	useImperativeHandle,
+} from "react";
 import {
 	Box,
 	TextField,
@@ -22,17 +27,25 @@ import {
 
 interface VehicleFormProps {
 	initialData?: Vehicle;
-	onSubmit: (data: Partial<Vehicle>) => void;
-	isLoading: boolean;
+	onSubmit?: (data: Partial<Vehicle>) => void;
+	isLoading?: boolean;
 	error?: string | null;
+	enableInternalButtons?: boolean; // Add this prop with default value false
 }
 
-const VehicleForm: React.FC<VehicleFormProps> = ({
-	initialData = defaultVehicle,
-	onSubmit,
-	isLoading,
-	error,
-}) => {
+// Modify your component definition to receive the ref properly
+const VehicleForm = forwardRef<
+	{ validateAndSubmit: () => boolean },
+	VehicleFormProps
+>((props, ref) => {
+	const {
+		initialData = defaultVehicle,
+		onSubmit,
+		isLoading,
+		error,
+		enableInternalButtons = false,
+	} = props;
+
 	const [formData, setFormData] = useState<Partial<Vehicle>>(initialData);
 	const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
@@ -106,9 +119,27 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 		}
 	};
 
+	// Modify validateAndSubmit to return the result of validateForm
+	const validateAndSubmit = () => {
+		if (validateForm()) {
+			if (onSubmit) {
+				onSubmit(formData);
+			}
+			return true;
+		}
+		return false;
+	};
+
+	// Use useImperativeHandle correctly with the ref from props
+	useImperativeHandle(ref, () => ({
+		validateAndSubmit,
+	}));
+
 	return (
 		<Box component="form" onSubmit={handleSubmit}>
-			<Grid container spacing={3}>
+			<Grid container spacing={2}>
+				{" "}
+				{/* Reduce spacing from 3 to 2 */}
 				<Grid item xs={12} sm={6}>
 					<TextField
 						fullWidth
@@ -120,6 +151,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 						helperText={formErrors.brand}
 						disabled={isLoading}
 						required
+						InputLabelProps={{
+							shrink: true,
+						}}
+						placeholder="Enter the vehicle brand"
 					/>
 				</Grid>
 				<Grid item xs={12} sm={6}>
@@ -275,21 +310,28 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 				</Box>
 			)}
 
-			<Box sx={{ mt: 3, textAlign: "right" }}>
-				<Button
-					type="submit"
-					variant="contained"
-					disabled={isLoading}
-					sx={{
-						bgcolor: "#ff3c4e",
-						"&:hover": { bgcolor: "#d6303f" },
-					}}
-				>
-					{isLoading ? <CircularProgress size={24} color="inherit" /> : "Next"}
-				</Button>
-			</Box>
+			{/* Only show the submit button if enableInternalButtons is true */}
+			{enableInternalButtons && (
+				<Box sx={{ mt: 3, textAlign: "right" }}>
+					<Button
+						type="submit"
+						variant="contained"
+						disabled={isLoading}
+						sx={{
+							bgcolor: "#ff3c4e",
+							"&:hover": { bgcolor: "#d6303f" },
+						}}
+					>
+						{isLoading ? (
+							<CircularProgress size={24} color="inherit" />
+						) : (
+							"Next"
+						)}
+					</Button>
+				</Box>
+			)}
 		</Box>
 	);
-};
+});
 
 export default VehicleForm;

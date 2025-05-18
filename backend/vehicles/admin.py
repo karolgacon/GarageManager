@@ -4,9 +4,28 @@ from .models import Vehicle, Diagnostics, MaintenanceSchedule
 # ---------------------------- ADMIN FOR VEHICLES ----------------------------
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ("client", "brand", "model", "registration_number", "vin", "manufacture_year", "last_maintenance_date")
-    search_fields = ("client__username", "brand", "model", "registration_number", "vin")
-    list_filter = ("brand", "manufacture_year")
+    list_display = ("owner", "brand", "model", "registration_number", "vin", "year", "last_service_date")
+    search_fields = ("owner__username", "brand", "model", "registration_number", "vin")
+    list_filter = ("brand", "year", "status")
+    
+    # Optional: add fieldsets for better organization in the admin panel
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('brand', 'model', 'year', 'registration_number', 'vin')
+        }),
+        ('Vehicle Details', {
+            'fields': ('color', 'engine_type', 'mileage', 'fuel_type', 'transmission')
+        }),
+        ('Ownership & Status', {
+            'fields': ('owner', 'workshop', 'status')
+        }),
+        ('Service Information', {
+            'fields': ('last_service_date', 'next_service_due')
+        }),
+        ('Image', {
+            'fields': ('image_url',)
+        }),
+    )
 
 # ---------------------------- ADMIN FOR DIAGNOSTICS ----------------------------
 @admin.register(Diagnostics)

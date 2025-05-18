@@ -40,7 +40,8 @@ export const vehicleService = {
 		vehicleData: Partial<Vehicle>
 	): Promise<Vehicle> => {
 		try {
-			const response = await api.put(`${BASE_API_URL}${id}/`, vehicleData);
+			// Zmiana z put na patch
+			const response = await api.patch(`${BASE_API_URL}${id}/`, vehicleData);
 			return response.data;
 		} catch (error) {
 			console.error(`Error updating vehicle with ID ${id}:`, error);
