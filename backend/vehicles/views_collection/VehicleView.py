@@ -79,3 +79,36 @@ class VehicleViewSet(BaseViewSet):
         vehicles = self.service.get_vehicles_by_brand(brand)
         serializer = self.serializer_class(vehicles, many=True)
         return Response(serializer.data)
+    
+    @extend_schema(
+    summary="Get current user's vehicles",
+    description="Retrieve vehicles owned by the current authenticated user",
+    responses={200: VehicleSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'])
+    def my_vehicles(self, request):
+        """
+        Pobiera pojazdy należące do zalogowanego użytkownika.
+        """
+        user = request.user
+        vehicles = self.service.get_vehicles_by_client(user.id)
+        serializer = self.serializer_class(vehicles, many=True)
+        return Response(serializer.data)
+    @extend_schema(
+        summary="Get workshop vehicles",
+        description="Retrieve vehicles associated with a specific workshop",
+        parameters=[OpenApiParameter(name="workshop_id", location=OpenApiParameter.QUERY, description="Workshop ID", required=True, type=int)],
+        responses={200: VehicleSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'])
+    def workshop_vehicles(self, request):
+        """
+        Pobiera pojazdy przypisane do określonego warsztatu.
+        """
+        workshop_id = request.query_params.get("workshop_id")
+        if not workshop_id:
+            return Response({"error": "Workshop ID is required"}, status=400)
+        
+        vehicles = self.service.get_vehicles_by_workshop(int(workshop_id))
+        serializer = self.serializer_class(vehicles, many=True)
+        return Response(serializer.data)

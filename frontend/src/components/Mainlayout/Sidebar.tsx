@@ -16,6 +16,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BookIcon from "@mui/icons-material/Book";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar"; // Dodaj import ikony samochodu
 import AuthContext from "../../context/AuthProvider";
 import {
 	COLOR_PRIMARY,
@@ -56,6 +57,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 			icon: <BuildIcon />,
 			path: "/services",
 			roles: ["admin", "owner", "mechanic"],
+		},
+		{
+			title: "Vehicles", // Nowa zakładka Vehicles
+			icon: <DirectionsCarIcon />,
+			path: "/vehicles",
+			roles: ["admin", "owner", "mechanic", "client"], // Role, które mają dostęp do tej zakładki
 		},
 		{
 			title: "Customers",

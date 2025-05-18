@@ -35,8 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			};
 		}
 		return {};
-    });
-    const navigate = useNavigate();
+	});
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (auth?.token) {
@@ -56,14 +56,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const logout = () => {
 		setAuth({});
-        window.localStorage.clear();
-        navigate("/login", { replace: true });
+		window.localStorage.clear();
+		navigate("/login", { replace: true });
 	};
 
-	const isAdmin = () => auth.roles?.includes("admin");
-	const isOwner = () => auth.roles?.includes("owner");
-	const isMechanic = () => auth.roles?.includes("mechanic");
-	const isClient = () => auth.roles?.includes("client");
+	const isAdmin = () => auth.roles?.includes("admin") || false;
+	const isOwner = () => auth.roles?.includes("owner") || false;
+	const isMechanic = () => auth.roles?.includes("mechanic") || false;
+	const isClient = () => auth.roles?.includes("client") || false;
 
 	return (
 		<AuthContext.Provider

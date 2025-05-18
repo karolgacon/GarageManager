@@ -1,5 +1,5 @@
 export interface Part {
-	id?: number;
+	id: number;
 	name: string;
 	manufacturer: string;
 	price: number;
@@ -7,6 +7,8 @@ export interface Part {
 	minimum_stock_level: number;
 	category: string;
 	supplier?: string;
+	created_at?: string;
+	updated_at?: string;
 }
 
 export const defaultPart: Part = {

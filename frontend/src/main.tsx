@@ -14,6 +14,7 @@ import RequireAuth from "./components/Auth/RequireAuth.tsx";
 import NotFound from './pages/NotFound.tsx';
 import  Inventory  from './pages/Inventory.tsx';
 import Services from './pages/ServicePage.tsx';
+import Vehicles from './pages/Vehicles.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/profile" element={<ProfileComponent />} />
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/services" element={<Services />} />
+                    <Route path="/vehicles" element={<Vehicles />} />
                 </Route>
                 {/*<Route path="/register" element={<Register />} />*/}
           <Route path="/login" element={<Login />} />

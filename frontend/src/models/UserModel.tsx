@@ -1,13 +1,36 @@
+import { Profile } from "./ProfileModel";
 
-import { Profile } from './ProfileModel';
 export interface User {
-    id: number;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-    username: string;
-    role: string;  // Możesz użyć enum dla ról
-    is_active?: boolean;
-    status: string;
-    profile?: Profile; // Dodajemy zagnieżdżony profil
+	id: number;
+	username?: string;
+	email: string;
+	first_name?: string;
+	last_name?: string;
+	full_name?: string;
+	roles: string[]; // Zmienione z role na roles jako tablica
+	is_active?: boolean;
+	date_joined?: string;
+	last_login?: string;
+	workshop_id?: number;
+	phone_number?: string;
+	avatar?: string;
+	address?: string;
+	profile?: Profile; // Dodajemy zagnieżdżony profil
 }
+
+export const USER_ROLES = [
+	{ value: "admin", label: "Administrator" },
+	{ value: "owner", label: "Workshop Owner" },
+	{ value: "mechanic", label: "Mechanic" },
+	{ value: "client", label: "Client" },
+];
+
+export const defaultUser: User = {
+	id: 0,
+	email: "",
+	username: "",
+	first_name: "",
+	last_name: "",
+	roles: ["client"], // Zmiana z role na roles
+	is_active: true,
+};
