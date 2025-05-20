@@ -1,11 +1,14 @@
 from django.db import models
-from users.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Notification(models.Model):
     CHANNEL_CHOICES = [
         ('email', 'E-mail'),
         ('sms', 'SMS'),
-        ('push', 'Powiadomienie push')
+        ('push', 'Powiadomienie push'),
+        ('queue', 'Kolejka')  # Dodaj nowy kanał dla wiadomości z kolejki
     ]
 
     NOTIFICATION_TYPES = [
@@ -13,7 +16,8 @@ class Notification(models.Model):
         ('repair_status', 'Status naprawy'),
         ('invoice', 'Faktura'),
         ('promotional', 'Promocyjna'),
-        ('system', 'Systemowa')
+        ('system', 'Systemowa'),
+        ('service_reminder', 'Przypomnienie o serwisie')  # Dodaj nowy typ powiadomienia
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
@@ -24,6 +28,8 @@ class Notification(models.Model):
     channel = models.CharField(max_length=20, choices=CHANNEL_CHOICES, default='email')
     related_object_id = models.IntegerField(null=True, blank=True)
     related_object_type = models.CharField(max_length=50, null=True, blank=True)
+    processed = models.BooleanField(default=False)  # Dodaj pole do śledzenia przetworzenia przez kolejkę
+    queue_message_id = models.CharField(max_length=100, null=True, blank=True)  # ID wiadomości w kolejce
 
     def __str__(self):
         return f"Powiadomienie dla {self.user.username} - {self.notification_type}"

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   frontend:
@@ -11,11 +11,12 @@ services:
       - ./frontend:/frontend
       - /frontend/node_modules # Zapewnia, że node_modules nie będą nadpisywane przez wolumeny
     environment:
-      - VITE_API_URL=http://backend:8000 # Jeśli frontend korzysta z backendu
+      - VITE_API_URL=http://localhost:8000 # Zmieniamy na localhost zamiast backend
     command: >
-      sh -c "npm install && npm run dev" # Uruchomienie Vite w trybie deweloperskim
+      sh -c "npm install && npm run dev -- --host 0.0.0.0" # Dodanie --host 0.0.0.0 aby było dostępne z zewnątrz
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy # Zależność od zdrowego backendu
     networks:
       - app-network
 
@@ -33,9 +34,21 @@ services:
       - DB_NAME=db
       - DB_USER=user
       - DB_PASS=localdevpw
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=garage
+      - RABBITMQ_PASS=garage123
+      - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy # Dodanie warunku, że RabbitMQ musi być zdrowy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     networks:
       - app-network
 
@@ -50,15 +63,82 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=localdevpw
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "db", "-U", "user" ]
+      test: ["CMD", "pg_isready", "-q", "-d", "db", "-U", "user"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - app-network
 
+  rabbitmq:
+    image: rabbitmq:3.13.7-management-alpine # Zmiana na wersję z panelem zarządzania
+    hostname: garage-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=garage
+      - RABBITMQ_DEFAULT_PASS=garage123
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  worker:
+    build:
+      context: .
+    volumes:
+      - ./backend:/backend
+    command: >
+      sh -c "celery -A backend worker -l INFO"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=db
+      - DB_USER=user
+      - DB_PASS=localdevpw
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=garage
+      - RABBITMQ_PASS=garage123
+      - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
+    depends_on:
+      backend:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  notification-worker:
+    build:
+      context: .
+    volumes:
+      - ./backend:/backend
+    command: >
+      sh -c "python notifications/notification_worker.py"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=db
+      - DB_USER=user
+      - DB_PASS=localdevpw
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=garage
+      - RABBITMQ_PASS=garage123
+    depends_on:
+      backend:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+
 volumes:
   db-data:
+  rabbitmq-data:
 
 networks:
   app-network:
