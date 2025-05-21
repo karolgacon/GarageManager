@@ -34,21 +34,10 @@ services:
       - DB_NAME=db
       - DB_USER=user
       - DB_PASS=localdevpw
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=garage
-      - RABBITMQ_PASS=garage123
       - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy # Dodanie warunku, że RabbitMQ musi być zdrowy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health-check/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
     networks:
       - app-network
 
@@ -62,6 +51,7 @@ services:
       - POSTGRES_DB=db
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=localdevpw
+      - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "db", "-U", "user"]
       interval: 5s
@@ -101,15 +91,10 @@ services:
       - DB_NAME=db
       - DB_USER=user
       - DB_PASS=localdevpw
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USER=garage
-      - RABBITMQ_PASS=garage123
       - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
     depends_on:
-      backend:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      - backend
+      - rabbitmq
     networks:
       - app-network
 

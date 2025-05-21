@@ -14,6 +14,9 @@ import os
 from pathlib import Path
 import environ # type: ignore
 from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENVIRONMENT = 'development'
@@ -25,6 +28,9 @@ if env_file.exists():
     BASE_URL = env('BASE_URL', default="http://localhost:8000")
     HOST = env('HOST', default="localhost")
     SECRET_KEY = env('SECRET_KEY').strip("'")
+    BREVO_API_KEY = env('BREVO_API_KEY')
+    DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+    BREVO_REGISTER_ID = env.int('BREVO_REGISTER_ID')
     # GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID')
     # GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET')
     # RECAPTCHA_SECRET_KEY = env('RECAPTCHA_KEY')
@@ -93,6 +99,9 @@ INSTALLED_APPS = [
     'inventory',
     'billing',
     'notifications',
+    'anymail',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +134,12 @@ TEMPLATES = [
     },
 ]
 
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+ANYMAIL = {
+    "BREVO_API_KEY": BREVO_API_KEY,
+}
+DEFAULT_FROM_EMAIL = DEFAULT_FROM_EMAIL
+
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
@@ -145,6 +160,28 @@ DATABASES = {
     }
 }
 
+# settings.py (dodaj lub rozbuduj swój LOGGING)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        # Logger dla Twojego modułu taska
+        "notifications.tasks": {
+            "handlers": ["console"],
+            "level": "INFO",    # albo DEBUG, jeśli chcesz jeszcze więcej
+            "propagate": False,
+        },
+        # Logger dla Anymail – już powinien być, ale upewnij się:
+        "anymail": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -200,4 +237,6 @@ CORS_ALLOWED_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
