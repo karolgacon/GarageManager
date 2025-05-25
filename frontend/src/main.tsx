@@ -7,7 +7,7 @@ import UserList from './components/Users/UserList.tsx';
 import UserDetail from './components/Users/UserDetail.tsx';
 import UserForm from './components/Users/UserForm.tsx';
 import ProfileComponent from './components/Profile/ProfileComponent.tsx';
-// import Register from './pages/Register.tsx'
+import Register from './pages/Register.tsx'
 import Login from './pages/Login.tsx'
 import Dashboard from "./pages/Dashboard.tsx";
 import RequireAuth from "./components/Auth/RequireAuth.tsx";
@@ -15,6 +15,7 @@ import NotFound from './pages/NotFound.tsx';
 import  Inventory  from './pages/Inventory.tsx';
 import Services from './pages/ServicePage.tsx';
 import Vehicles from './pages/Vehicles.tsx';
+import RegisterComplete from './pages/RegisterComplete.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -34,7 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/services" element={<Services />} />
                     <Route path="/vehicles" element={<Vehicles />} />
                 </Route>
-                {/*<Route path="/register" element={<Register />} />*/}
+          <Route path="/register" element={<RegisterComplete />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
             </Routes>

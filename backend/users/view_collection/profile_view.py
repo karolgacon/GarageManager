@@ -5,61 +5,28 @@ from ..services.profileService import ProfileService
 from ..serializers import ProfileSerializer
 
 @extend_schema_view(
-    retrieve=extend_schema(
-        summary="Retrieve current user's profile",
-        description="Returns the profile information of the currently authenticated user.",
-        responses={200: ProfileSerializer, 404: OpenApiResponse(description="Profile not found")}
-    ),
     create=extend_schema(
-        summary="Create a profile",
-        description="Creates a profile for the currently authenticated user.",
-        request=ProfileSerializer,
-        responses={201: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
+        summary="Create user profile",
+        description="Create a new profile for the authenticated user",
+        responses={
+            201: OpenApiResponse(description="Profile created successfully"),
+            400: OpenApiResponse(description="Bad request"),
+            401: OpenApiResponse(description="Unauthorized"),
+        }
     ),
-    update=extend_schema(
-        summary="Update current user's profile",
-        description="Updates the profile information of the currently authenticated user.",
-        request=ProfileSerializer,
-        responses={200: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
-    ),
-    destroy=extend_schema(
-        summary="Delete current user's profile",
-        description="Deletes the profile of the currently authenticated user.",
-        responses={204: OpenApiResponse(description="Profile deleted successfully"), 404: OpenApiResponse(description="Profile not found")}
-    )
 )
 class ProfileViewSet(BaseViewSet):
     service = ProfileService
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
 
-    def retrieve(self, request, pk=None):
-        """
-        Pobiera profil aktualnie zalogowanego użytkownika.
-        """
-        if pk is None:
-            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
-        return super().retrieve(request, pk)
-
     def create(self, request):
-        """
-        Tworzy profil powiązany z aktualnym użytkownikiem.
-        """
-        request.data['user'] = request.user.id  # Automatycznie przypisujemy użytkownika
+        # Automatycznie przypisz zalogowanego użytkownika
+        data = request.data.copy()
+        data['user'] = request.user.id
+        request._full_data = data
         return super().create(request)
 
-    def update(self, request, pk=None):
-        """
-        Aktualizuje profil powiązany z aktualnym użytkownikiem.
-        """
-        if pk is None:
-            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
-        return super().update(request, pk)
-
-    def destroy(self, request, pk=None):
-        """
-        Usuwa profil powiązany z aktualnym użytkownikiem.
-        """
-        if pk is None:
-            pk = request.user.id  # Ustawiamy ID zalogowanego użytkownika
-        return super().destroy(request, pk)
+    def get_queryset(self):
+        # Tylko profil zalogowanego użytkownika
+        return self.service.repository.model.objects.filter(user=self.request.user)

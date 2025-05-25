@@ -1,5 +1,6 @@
 from backend.services.baseService import BaseService
 from ..repositories.profileRepository import ProfileRepository
+from ..models import User  # Import z users.models zamiast django.contrib.auth.models
 
 class ProfileService(BaseService):
     repository = ProfileRepository
@@ -40,3 +41,15 @@ class ProfileService(BaseService):
         profile = cls.get_profile_by_user(user)
         cls.repository.delete(profile.id)
         return {"message": "Profile deleted successfully"}
+
+    @classmethod
+    def create(cls, data):
+        # Jeśli user_id jest w data, zamień go na instancję User
+        if 'user' in data and isinstance(data['user'], (int, str)):
+            try:
+                user_instance = User.objects.get(id=data['user'])
+                data['user'] = user_instance
+            except User.DoesNotExist:
+                raise ValueError(f"User with id {data['user']} does not exist")
+        
+        return super().create(data)

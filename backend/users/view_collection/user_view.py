@@ -56,15 +56,59 @@ class UserViewSet(BaseViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
+        summary="Create current user profile",
+        description="Creates the profile information for the currently authenticated user.",
+        request=ProfileSerializer,
+        responses={
+            201: ProfileSerializer, 
+            400: OpenApiResponse(description="Bad Request"),
+            409: OpenApiResponse(description="Profile already exists")
+        }
+    )
+    @action(detail=False, methods=['post'])
+    def profile(self, request):
+        # Sprawdź czy użytkownik już ma profil
+        user = self.service.get_by_id(request.user.id)
+        if not user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Sprawdź czy profil już istnieje
+        if hasattr(user, 'profile') and user.profile:
+            return Response(
+                {"error": "Profile already exists. Use PUT to update."}, 
+                status=status.HTTP_409_CONFLICT
+            )
+        
+        # Tworzenie nowego profilu
+        data = request.data.copy()
+        data['user'] = request.user.id
+        
+        serializer = ProfileSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
         summary="Update current user profile",
         description="Updates the profile information of the currently authenticated user.",
-        request=UserSerializer,
-        responses={200: UserSerializer, 400: OpenApiResponse(description="Bad Request")}
+        request=ProfileSerializer,
+        responses={200: ProfileSerializer, 400: OpenApiResponse(description="Bad Request")}
     )
     @action(detail=False, methods=['put'])
     def update_profile(self, request):
         user = self.service.get_by_id(request.user.id)
-        serializer = UserSerializer(user, data=request.data)
+        if not user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Sprawdź czy profil istnieje
+        if not hasattr(user, 'profile') or not user.profile:
+            return Response(
+                {"error": "Profile does not exist. Use POST to create."}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = ProfileSerializer(user.profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
