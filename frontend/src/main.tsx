@@ -16,6 +16,7 @@ import  Inventory  from './pages/Inventory.tsx';
 import Services from './pages/ServicePage.tsx';
 import Vehicles from './pages/Vehicles.tsx';
 import RegisterComplete from './pages/RegisterComplete.tsx';
+import Profile from './pages/Profile.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -30,10 +31,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/users/new" element={<UserForm mode="create" />} />
                     <Route path="/users/edit/:id" element={<UserForm mode="edit" />} />
                     <Route path="/users/:id" element={<UserDetail />} />
-                    <Route path="/profile" element={<ProfileComponent />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/services" element={<Services />} />
                     <Route path="/vehicles" element={<Vehicles />} />
+                    <Route path="/profile" element={<Profile/>} />
                 </Route>
           <Route path="/register" element={<RegisterComplete />} />
           <Route path="/login" element={<Login />} />

@@ -1,7 +1,16 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
+import {
+	Box,
+	TextField,
+	Button,
+	Typography,
+	Paper,
+	LinearProgress,
+	Alert,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 import axios from "axios";
-import { BASE_API_URL } from "../../constants";
-import useProfileSetupStyles from "./ProfileSetup.styles";
+import { BASE_API_URL, COLOR_PRIMARY } from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import GarageLogo from "./GarageLogo";
@@ -22,8 +31,162 @@ interface ProfileData {
 	dateOfBirth: string;
 }
 
+// Styled components z dokładnie takimi samymi stylami
+const StyledContainer = styled(Box)({
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
+	width: "100%",
+	maxWidth: "650px", // Zwiększone z 500px
+	margin: "0 auto",
+});
+
+const StyledFormCard = styled(Paper)({
+	backgroundColor: "white",
+	borderRadius: "16px",
+	padding: "40px 60px", // Zmienione z "50px" - mniej padding góra/dół, więcej boki
+	width: "100%",
+	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+	border: "1px solid #E5E7EB",
+	minHeight: "400px", // Zmniejszone z 500px
+});
+
+const StyledFormTitle = styled(Typography)({
+	fontSize: "26px", // Zmniejszone z 28px
+	fontWeight: "600",
+	color: "#1F2937",
+	marginBottom: "6px", // Zmniejszone z 8px
+	textAlign: "center",
+});
+
+const StyledFormSubtitle = styled(Typography)({
+	fontSize: "15px", // Zmniejszone z 16px
+	color: "#6B7280",
+	textAlign: "center",
+	marginBottom: "30px", // Zmniejszone z 35px
+});
+
+const StyledTextField = styled(TextField)({
+	width: "100%",
+	marginBottom: "20px", // Zmniejszone z 24px
+	"& .MuiOutlinedInput-root": {
+		padding: "0",
+		borderRadius: "12px",
+		backgroundColor: "#F9FAFB",
+		"& input": {
+			padding: "14px 20px", // Zmniejszone z 16px góra/dół
+			fontSize: "16px",
+			minHeight: "16px", // Zmniejszone
+		},
+		"& fieldset": {
+			border: "1px solid #D1D5DB",
+		},
+		"&:hover fieldset": {
+			border: "1px solid #D1D5DB",
+		},
+		"&.Mui-focused": {
+			backgroundColor: "white",
+			"& fieldset": {
+				borderColor: "#FF3B57",
+				boxShadow: "0 0 0 3px rgba(255, 59, 87, 0.1)",
+			},
+		},
+	},
+	"& .MuiInputLabel-root": {
+		display: "none",
+	},
+	"& .MuiOutlinedInput-input::placeholder": {
+		color: "#9CA3AF",
+		opacity: 1,
+	},
+});
+
+const StyledButtonGroup = styled(Box)({
+	display: "flex",
+	gap: "16px",
+	marginTop: "30px", // Zmniejszone z 40px
+});
+
+const StyledButton = styled(Button)({
+	flex: 1,
+	padding: "14px 24px", // Zmniejszone z 16px góra/dół
+	borderRadius: "12px",
+	fontSize: "16px",
+	fontWeight: "600",
+	textTransform: "none",
+	minHeight: "48px", // Zmniejszone z 52px
+	transition: "all 0.2s ease",
+});
+
+const StyledPrimaryButton = styled(StyledButton)({
+	backgroundColor: "#FF3B57",
+	color: "white",
+	border: "none",
+	"&:hover": {
+		backgroundColor: "#E6334A",
+		transform: "translateY(-1px)",
+		boxShadow: "0 4px 12px rgba(255, 59, 87, 0.3)",
+	},
+	"&:disabled": {
+		opacity: 0.6,
+		backgroundColor: "#FF3B57",
+	},
+});
+
+const StyledSecondaryButton = styled(StyledButton)({
+	backgroundColor: "white",
+	color: "#374151",
+	border: "2px solid #D1D5DB",
+	"&:hover": {
+		backgroundColor: "#F9FAFB",
+		borderColor: "#9CA3AF",
+	},
+});
+
+const StyledSkipButton = styled(StyledButton)({
+	backgroundColor: "transparent",
+	color: "#6B7280",
+	border: "2px solid #D1D5DB",
+	"&:hover": {
+		backgroundColor: "#F9FAFB",
+		borderColor: "#9CA3AF",
+	},
+});
+
+const StyledProgressBar = styled(LinearProgress)({
+	width: "100%",
+	height: "6px",
+	backgroundColor: "#E5E7EB",
+	borderRadius: "3px",
+	marginBottom: "20px", // Zmniejszone z 25px
+	"& .MuiLinearProgress-bar": {
+		backgroundColor: "#FF3B57",
+		borderRadius: "3px",
+	},
+});
+
+const StyledStepIndicator = styled(Typography)({
+	textAlign: "center",
+	marginBottom: "20px", // Zmniejszone z 25px
+	fontSize: "15px", // Zmniejszone z 16px
+	color: "#6B7280",
+	fontWeight: "500",
+});
+
+const StyledErrorAlert = styled(Alert)({
+	backgroundColor: "#FEF2F2",
+	border: "1px solid #FECACA",
+	color: "#DC2626",
+	borderRadius: "12px",
+	fontSize: "14px", // Zmniejszone z 15px
+	marginTop: "20px", // Zmniejszone z 25px
+	fontWeight: "500",
+	"& .MuiAlert-icon": {
+		display: "none",
+	},
+});
+
 const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
-	const classes = useProfileSetupStyles();
 	const [currentStep, setCurrentStep] = useState(1);
 	const [profileData, setProfileData] = useState<ProfileData>({
 		firstName: "",
@@ -60,7 +223,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 			...prev,
 			[field]: value,
 		}));
-		// Clear error when user starts typing
 		if (error) setError(null);
 	};
 
@@ -161,9 +323,8 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				date_of_birth: profileData.dateOfBirth,
 			});
 
-			// Używaj prawidłowego endpointu z URL patterns
 			const response = await axios.post(
-				`${BASE_API_URL}/users/profile/`, // Prawidłowy endpoint
+				`${BASE_API_URL}/users/profile/`,
 				{
 					first_name: profileData.firstName,
 					last_name: profileData.lastName,
@@ -184,7 +345,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 
 			console.log("Profile created successfully:", response.data);
 
-			// Success - show snackbar and redirect
 			showSnackbar(
 				"Profile completed successfully! Welcome to GarageManager!",
 				"success"
@@ -208,10 +368,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 						"Server error occurred. Please check the console and try again."
 					);
 				} else if (err.response?.status === 409) {
-					// Profile już istnieje - spróbuj update
 					try {
 						const updateResponse = await axios.put(
-							`${BASE_API_URL}/users/update_profile/`, // Endpoint do update
+							`${BASE_API_URL}/users/update_profile/`,
 							{
 								first_name: profileData.firstName,
 								last_name: profileData.lastName,
@@ -265,110 +424,77 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 		switch (currentStep) {
 			case 1:
 				return (
-					<div>
-						<h2 className={classes.formTitle}>Personal Information</h2>
-						<p className={classes.formSubtitle}>
+					<>
+						<StyledFormTitle>Personal Information</StyledFormTitle>
+						<StyledFormSubtitle>
 							Let's start with your basic details
-						</p>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="First Name *"
-								value={profileData.firstName}
-								onChange={(e) => handleInputChange("firstName", e.target.value)}
-								required
-							/>
-						</div>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="Last Name *"
-								value={profileData.lastName}
-								onChange={(e) => handleInputChange("lastName", e.target.value)}
-								required
-							/>
-						</div>
-					</div>
+						</StyledFormSubtitle>
+						<StyledTextField
+							placeholder="First Name *"
+							value={profileData.firstName}
+							onChange={(e) => handleInputChange("firstName", e.target.value)}
+							required
+						/>
+						<StyledTextField
+							placeholder="Last Name *"
+							value={profileData.lastName}
+							onChange={(e) => handleInputChange("lastName", e.target.value)}
+							required
+						/>
+					</>
 				);
 			case 2:
 				return (
-					<div>
-						<h2 className={classes.formTitle}>Contact Information</h2>
-						<p className={classes.formSubtitle}>How can we reach you?</p>
-						<div className={classes.formField}>
-							<input
-								type="tel"
-								className={classes.input}
-								placeholder="Phone Number *"
-								value={profileData.phone}
-								onChange={(e) => handleInputChange("phone", e.target.value)}
-								required
-							/>
-						</div>
-						<div className={classes.formField}>
-							<input
-								type="date"
-								className={classes.input}
-								placeholder="Date of Birth *"
-								value={profileData.dateOfBirth}
-								onChange={(e) =>
-									handleInputChange("dateOfBirth", e.target.value)
-								}
-								required
-							/>
-						</div>
-					</div>
+					<>
+						<StyledFormTitle>Contact Information</StyledFormTitle>
+						<StyledFormSubtitle>How can we reach you?</StyledFormSubtitle>
+						<StyledTextField
+							type="tel"
+							placeholder="Phone Number *"
+							value={profileData.phone}
+							onChange={(e) => handleInputChange("phone", e.target.value)}
+							required
+						/>
+						<StyledTextField
+							type="date"
+							placeholder="Date of Birth *"
+							value={profileData.dateOfBirth}
+							onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+							required
+							InputLabelProps={{ shrink: true }}
+						/>
+					</>
 				);
 			case 3:
 				return (
-					<div>
-						<h2 className={classes.formTitle}>Address Information</h2>
-						<p className={classes.formSubtitle}>Where are you located?</p>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="Street Address *"
-								value={profileData.address}
-								onChange={(e) => handleInputChange("address", e.target.value)}
-								required
-							/>
-						</div>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="City *"
-								value={profileData.city}
-								onChange={(e) => handleInputChange("city", e.target.value)}
-								required
-							/>
-						</div>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="Postal Code *"
-								value={profileData.postalCode}
-								onChange={(e) =>
-									handleInputChange("postalCode", e.target.value)
-								}
-								required
-							/>
-						</div>
-						<div className={classes.formField}>
-							<input
-								type="text"
-								className={classes.input}
-								placeholder="Country *"
-								value={profileData.country}
-								onChange={(e) => handleInputChange("country", e.target.value)}
-								required
-							/>
-						</div>
-					</div>
+					<>
+						<StyledFormTitle>Address Information</StyledFormTitle>
+						<StyledFormSubtitle>Where are you located?</StyledFormSubtitle>
+						<StyledTextField
+							placeholder="Street Address *"
+							value={profileData.address}
+							onChange={(e) => handleInputChange("address", e.target.value)}
+							required
+						/>
+						<StyledTextField
+							placeholder="City *"
+							value={profileData.city}
+							onChange={(e) => handleInputChange("city", e.target.value)}
+							required
+						/>
+						<StyledTextField
+							placeholder="Postal Code *"
+							value={profileData.postalCode}
+							onChange={(e) => handleInputChange("postalCode", e.target.value)}
+							required
+						/>
+						<StyledTextField
+							placeholder="Country *"
+							value={profileData.country}
+							onChange={(e) => handleInputChange("country", e.target.value)}
+							required
+						/>
+					</>
 				);
 			default:
 				return null;
@@ -379,66 +505,43 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 
 	return (
 		<>
-			<div className={classes.container}>
+			<StyledContainer>
 				<GarageLogo />
 
-				<div className={classes.formCard}>
-					{/* Progress bar */}
-					<div className={classes.progressBar}>
-						<div
-							className={classes.progressFill}
-							style={{ width: `${progressPercentage}%` }}
-						/>
-					</div>
+				<StyledFormCard elevation={0}>
+					<StyledProgressBar variant="determinate" value={progressPercentage} />
 
-					<div className={classes.stepIndicator}>Step {currentStep} of 3</div>
+					<StyledStepIndicator>Step {currentStep} of 3</StyledStepIndicator>
 
 					{renderStep()}
 
-					{/* Error message - positioned better */}
-					{error && <div className={classes.errorMessage}>{error}</div>}
+					{error && (
+						<StyledErrorAlert severity="error">{error}</StyledErrorAlert>
+					)}
 
-					{/* Button group */}
-					<div className={classes.buttonGroup}>
+					<StyledButtonGroup>
 						{currentStep > 1 && (
-							<button
-								type="button"
-								onClick={handlePrevious}
-								className={`${classes.button} ${classes.secondaryButton}`}
-							>
+							<StyledSecondaryButton onClick={handlePrevious}>
 								Previous
-							</button>
+							</StyledSecondaryButton>
 						)}
 
-						<button
-							type="button"
-							onClick={handleSkip}
-							className={`${classes.button} ${classes.skipButton}`}
-						>
+						<StyledSkipButton onClick={handleSkip}>
 							Skip for now
-						</button>
+						</StyledSkipButton>
 
 						{currentStep < 3 ? (
-							<button
-								type="button"
-								onClick={handleNext}
-								className={`${classes.button} ${classes.primaryButton}`}
-							>
+							<StyledPrimaryButton onClick={handleNext}>
 								Next
-							</button>
+							</StyledPrimaryButton>
 						) : (
-							<button
-								type="button"
-								onClick={handleSubmit}
-								className={`${classes.button} ${classes.primaryButton}`}
-								disabled={loading}
-							>
+							<StyledPrimaryButton onClick={handleSubmit} disabled={loading}>
 								{loading ? "Saving..." : "Complete Setup"}
-							</button>
+							</StyledPrimaryButton>
 						)}
-					</div>
-				</div>
-			</div>
+					</StyledButtonGroup>
+				</StyledFormCard>
+			</StyledContainer>
 
 			<CustomSnackbar
 				snackbarState={snackbarState}

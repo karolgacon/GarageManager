@@ -1,23 +1,58 @@
-import api from '../api';
-import { Profile } from '../models/ProfileModel';
+import axios from "axios";
+import { BASE_API_URL } from "../constants";
 
-export const ProfileService = {
-    getProfile: async (userId: number): Promise<Profile> => {
-        const response = await api.get(`/profiles/${userId}/`);
-        return response.data;
-    },
+const API_URL = `${BASE_API_URL}/users/profile/`;
 
-    createProfile: async (profileData: Partial<Profile>): Promise<Profile> => {
-        const response = await api.post('/profiles/', profileData);
-        return response.data;
-    },
+export class ProfileService {
+	static async getProfile(userId: string) {
+		const token = localStorage.getItem("token");
 
-    updateProfile: async (userId: number, profileData: Partial<Profile>): Promise<Profile> => {
-        const response = await api.put(`/profiles/${userId}/`, profileData);
-        return response.data;
-    },
+		// Dodaj debugging
+		console.log("Token:", token);
+		console.log("API URL:", API_URL);
+		console.log("Full URL:", `${API_URL}`);
 
-    deleteProfile: async (userId: number): Promise<void> => {
-        await api.delete(`/profiles/${userId}/`);
-    }
-};
+		if (!token) {
+			throw new Error("No authentication token found");
+		}
+
+		const response = await axios.get(`${API_URL}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	}
+
+	static async createProfile(profileData: any) {
+		const token = localStorage.getItem("token");
+		const response = await axios.post(`${API_URL}`, profileData, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+		});
+		return response.data;
+	}
+
+	static async updateProfile(userId: string, profileData: any) {
+		const token = localStorage.getItem("token");
+		const response = await axios.put(`${API_URL}`, profileData, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+		});
+		return response.data;
+	}
+
+	static async deleteProfile() {
+		const token = localStorage.getItem("token");
+		const response = await axios.delete(`${API_URL}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	}
+}
