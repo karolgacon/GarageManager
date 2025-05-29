@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CustomerDetailDialog from "./CustomerDetailDialog";
 import AddCustomerModal from "./AddCustomerModal";
 import EditCustomerModal from "./EditCustomerModal";
@@ -33,6 +33,13 @@ const CustomerModals: React.FC<CustomerModalsProps> = ({
 	onCustomerUpdated,
 	onConfirmDelete,
 }) => {
+	// Close detail modal when edit modal is opened
+	useEffect(() => {
+		if (modalStates.edit && modalStates.detail) {
+			onClose("detail");
+		}
+	}, [modalStates.edit, modalStates.detail, onClose]);
+
 	return (
 		<>
 			<CustomerDetailDialog

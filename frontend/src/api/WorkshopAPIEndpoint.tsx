@@ -18,6 +18,16 @@ interface Workshop {
 	updated_at?: string;
 }
 
+interface Mechanic {
+	id: number;
+	first_name: string;
+	last_name: string;
+	email: string;
+	phone?: string;
+	is_active: boolean;
+	role: string;
+}
+
 const BASE_URL = `${BASE_API_URL}/workshops`;
 
 export const workshopService = {
@@ -90,16 +100,30 @@ export const workshopService = {
 	},
 
 	// Pobierz mechaników przypisanych do warsztatu
-	getWorkshopMechanics: async (workshopId: number): Promise<any[]> => {
+	getWorkshopMechanics: async (workshopId: number): Promise<Mechanic[]> => {
 		try {
-			const response = await api.get(`${BASE_URL}/${workshopId}/mechanics/`);
-			return response.data;
+			// Najpierw spróbujmy pobrać mechaników z API użytkowników
+			// filtrując po roli i warsztacie
+			const response = await api.get(`${BASE_API_URL}/users/`, {
+				params: {
+					role: "mechanic",
+					workshop_id: workshopId,
+				},
+			});
+
+			// Filtrujemy dodatkowo po stronie klienta, aby mieć pewność
+			return response.data.filter(
+				(user: any) =>
+					user.role === "mechanic" &&
+					(user.workshop_id === workshopId || user.workshop?.id === workshopId)
+			);
 		} catch (error) {
 			console.error(
 				`Error fetching mechanics for workshop (ID: ${workshopId}):`,
 				error
 			);
-			throw error;
+			// Jeśli wystąpił błąd, zwracamy pustą tablicę
+			return [];
 		}
 	},
 
@@ -159,4 +183,4 @@ export const workshopService = {
 	},
 };
 
-export type { Workshop };
+export type { Workshop, Mechanic };

@@ -162,7 +162,7 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					}}
 				>
 					<Chip
-						label={customer.status}
+						label={customer.status? "Active" : "Inactive"}
 						size="small"
 						color={getStatusColor(customer.status) as any}
 						variant="outlined"
