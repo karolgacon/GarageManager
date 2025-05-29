@@ -1,5 +1,6 @@
 import api from "../api";
 import { BASE_API_URL } from "../constants";
+import { Customer } from "../models/CustomerModel";
 
 interface Workshop {
 	id: number;
@@ -101,4 +102,61 @@ export const workshopService = {
 			throw error;
 		}
 	},
+
+	// ✅ NOWE METODY DLA CUSTOMERS:
+
+	// Pobierz klientów warsztatu (dla admin/owner)
+	getWorkshopCustomers: async (workshopId: number): Promise<Customer[]> => {
+		try {
+			const response = await api.get(`${BASE_URL}/${workshopId}/customers/`);
+			return response.data;
+		} catch (error) {
+			console.error(
+				`Error fetching customers for workshop (ID: ${workshopId}):`,
+				error
+			);
+			throw error;
+		}
+	},
+
+	// Pobierz klientów dla aktualnego warsztatu użytkownika (mechanic/owner)
+	getCurrentWorkshopCustomers: async (): Promise<Customer[]> => {
+		try {
+			const response = await api.get(`${BASE_URL}/my-workshop/customers/`);
+			return response.data;
+		} catch (error) {
+			console.error("Error fetching current workshop customers:", error);
+			throw error;
+		}
+	},
+
+	// Przypisz klienta do warsztatu
+	assignCustomerToWorkshop: async (
+		workshopId: number,
+		customerId: number
+	): Promise<void> => {
+		try {
+			await api.post(`${BASE_URL}/${workshopId}/customers/`, {
+				customer_id: customerId,
+			});
+		} catch (error) {
+			console.error(`Error assigning customer to workshop:`, error);
+			throw error;
+		}
+	},
+
+	// Usuń klienta z warsztatu
+	removeCustomerFromWorkshop: async (
+		workshopId: number,
+		customerId: number
+	): Promise<void> => {
+		try {
+			await api.delete(`${BASE_URL}/${workshopId}/customers/${customerId}/`);
+		} catch (error) {
+			console.error(`Error removing customer from workshop:`, error);
+			throw error;
+		}
+	},
 };
+
+export type { Workshop };

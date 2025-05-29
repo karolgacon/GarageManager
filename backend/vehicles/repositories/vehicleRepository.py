@@ -10,7 +10,7 @@ class VehicleRepository(BaseRepository):
         """
         Pobiera wszystkie pojazdy powiązane z klientem.
         """
-        return cls.model.objects.filter(client_id=client_id)
+        return cls.model.objects.filter(owner_id=client_id)
 
     @classmethod
     def get_vehicles_due_for_maintenance(cls):
@@ -25,3 +25,11 @@ class VehicleRepository(BaseRepository):
         Pobiera wszystkie pojazdy określonej marki.
         """
         return cls.model.objects.filter(brand=brand)
+
+    @staticmethod
+    def get_vehicles_by_workshop(workshop_id):
+        """
+        Pobiera wszystkie pojazdy przypisane do określonego warsztatu.
+        """
+        from ..models import Vehicle
+        return Vehicle.objects.filter(workshop_id=workshop_id)

@@ -17,6 +17,7 @@ import Services from './pages/ServicePage.tsx';
 import Vehicles from './pages/Vehicles.tsx';
 import RegisterComplete from './pages/RegisterComplete.tsx';
 import Profile from './pages/Profile.tsx';
+import Customers from './pages/Customers.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -35,7 +36,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/services" element={<Services />} />
                     <Route path="/vehicles" element={<Vehicles />} />
-                    <Route path="/profile" element={<Profile/>} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/customers" element={<Customers />} />
                 </Route>
           <Route path="/register" element={<RegisterComplete />} />
           <Route path="/login" element={<Login />} />

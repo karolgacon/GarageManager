@@ -82,9 +82,12 @@ export const vehicleService = {
 	// User-specific endpoints (these may require custom backend implementation)
 	getCurrentUserVehicles: async (): Promise<Vehicle[]> => {
 		try {
-			// This might need to be implemented on the backend, or you can filter locally
-			// Assuming the backend has an endpoint or filtering mechanism
-			const response = await api.get(`${BASE_API_URL}?owner=current`);
+			const token = localStorage.getItem("token");
+			const response = await api.get(`${BASE_API_URL}my-vehicles/`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
 			return response.data;
 		} catch (error) {
 			console.error("Error fetching current user vehicles:", error);

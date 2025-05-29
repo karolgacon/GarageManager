@@ -1,5 +1,4 @@
 import os
-
 from django.forms import ValidationError
 os.environ['DJANGO_SETTINGS_MODULE'] = 'backend.settings'
 import django # type: ignore
@@ -35,13 +34,13 @@ def workshop(db):
 @pytest.fixture
 def vehicle(db, client_user):
     return Vehicle.objects.create(
-        client=client_user,  # Use 'client' instead of 'owner'
-        brand="toyota",  # Use a valid choice for 'brand'
+        owner=client_user,  # ✅ Zmień 'client' na 'owner'
+        brand="toyota",
         model="Corolla",
-        registration_number="ABC123",  # Add a unique registration number
-        vin="1HGCM82633A123456",  # Add a unique VIN
-        manufacture_year=2020,  # Use 'manufacture_year' instead of 'year'
-        last_maintenance_date=None  # Optional field
+        registration_number="ABC123",
+        vin="1HGCM82633A123456",
+        year=2020,  # ✅ Zmień 'manufacture_year' na 'year'
+        # ✅ Usuń 'last_maintenance_date' całkowicie lub sprawdź czy w modelu jest teraz inne pole
     )
 
 
@@ -285,8 +284,6 @@ def test_create_appointment_missing_fields(api_client, client_user, caplog):
     url = reverse("appointments-list")
     data = {
         "client": client_user.id,
-        "workshop": None,  # Missing workshop
-        "vehicle": None,   # Missing vehicle
         "date": (now() + timedelta(days=2)).isoformat(),
         "status": "confirmed",
         "priority": "high",

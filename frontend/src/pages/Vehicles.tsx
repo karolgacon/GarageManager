@@ -68,23 +68,31 @@ const Vehicles: React.FC = () => {
 			setError(null);
 
 			let data: Vehicle[];
-			const userRole = auth.roles?.[0]; // Get the first role from the array
+			const userRole = auth.roles?.[0];
+
+			console.log("User role:", userRole); // ← Dodaj to
+			console.log("Auth object:", auth); // ← I to
 
 			// Fetch appropriate data based on user role
 			if (userRole === "admin") {
+				console.log("Fetching all vehicles for admin");
 				data = await vehicleService.getAllVehicles();
 			} else if (userRole === "client") {
+				console.log("Fetching current user vehicles for client");
 				data = await vehicleService.getCurrentUserVehicles();
 			} else if (["owner", "mechanic"].includes(userRole || "")) {
 				if (auth.workshopId) {
+					console.log("Fetching workshop vehicles");
 					data = await vehicleService.getWorkshopVehicles(auth.workshopId);
 				} else {
+					console.log("Fetching current user vehicles (fallback)");
 					data = await vehicleService.getCurrentUserVehicles();
 				}
 			} else {
 				data = [];
 			}
 
+			console.log("Fetched vehicles:", data); // ← I to
 			setVehicles(data);
 			setFilteredVehicles(data);
 		} catch (err: any) {
