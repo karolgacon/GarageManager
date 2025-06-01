@@ -20,6 +20,7 @@ import Profile from './pages/Profile.tsx';
 import Customers from './pages/Customers.tsx';
 import Bookings from './pages/Bookings.tsx';
 import Diagnostics from './pages/Diagnostics.tsx';
+import StaffManagement from './pages/StaffManagement.tsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="/customers" element={<Customers />} />
                     <Route path="/bookings" element={<Bookings />} />
                     <Route path="/diagnostics" element={<Diagnostics />} />
+                    <Route path="/staff" element={<StaffManagement/>} />
                 </Route>
           <Route path="/register" element={<RegisterComplete />} />
           <Route path="/login" element={<Login />} />

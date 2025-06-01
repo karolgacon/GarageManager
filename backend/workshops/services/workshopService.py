@@ -159,3 +159,135 @@ class WorkshopService(BaseService):
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching user workshop: {str(e)}")
+
+    @staticmethod
+    def get_workshop_staff(workshop_id):
+        """
+        Pobiera wszystkich pracowników (owner i mechanic) przypisanych do warsztatu.
+        """
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        try:
+            print(f"[DEBUG] Getting staff for workshop_id: {workshop_id}")
+            
+            # Sprawdź dostępne pola w User modelu
+            user_fields = [f.name for f in User._meta.get_fields()]
+            print(f"[DEBUG] Available User fields: {user_fields}")
+            
+            # Użyj kombinacji różnych relacji
+            from django.db.models import Q
+            
+            staff = User.objects.filter(
+                Q(role='owner', is_active=True, owned_workshops__id=workshop_id) |
+                Q(role='mechanic', is_active=True, workshopmechanic__workshop_id=workshop_id)
+            ).select_related('profile').distinct()
+            
+            print(f"[DEBUG] Found {staff.count()} staff members")
+            
+            if staff.exists():
+                return staff
+            
+            # Fallback - sprawdź przez workshop relationship na vehicle
+            try:
+                staff = User.objects.filter(
+                    role__in=['owner', 'mechanic'],
+                    is_active=True,
+                    vehicles__workshop_id=workshop_id
+                ).select_related('profile').distinct()
+                
+                print(f"[DEBUG] Fallback: Found {staff.count()} staff members through vehicles")
+                return staff
+                
+            except Exception as e:
+                print(f"[DEBUG] Fallback failed: {e}")
+                return User.objects.none()
+                
+        except Exception as e:
+            print(f"[DEBUG] Error in get_workshop_staff: {e}")
+            import traceback
+            traceback.print_exc()
+            raise Exception(f"Error fetching workshop staff: {str(e)}")
+
+    @staticmethod
+    def get_workshop_mechanics(workshop_id):
+        """
+        Pobiera wszystkich mechaników przypisanych do warsztatu.
+        """
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        try:
+            print(f"[DEBUG] Getting mechanics for workshop_id: {workshop_id}")
+            
+            # Użyj relacji workshopmechanic
+            mechanics = User.objects.filter(
+                role='mechanic',
+                is_active=True,
+                workshopmechanic__workshop_id=workshop_id
+            ).select_related('profile').distinct()
+            
+            print(f"[DEBUG] Found {mechanics.count()} mechanics with workshopmechanic__workshop_id")
+            
+            if mechanics.exists():
+                return mechanics
+            
+            # Fallback - sprawdź przez vehicles relationship
+            try:
+                mechanics = User.objects.filter(
+                    role='mechanic',
+                    is_active=True,
+                    vehicles__workshop_id=workshop_id
+                ).select_related('profile').distinct()
+                
+                print(f"[DEBUG] Fallback: Found {mechanics.count()} mechanics through vehicles")
+                return mechanics
+                
+            except Exception as e:
+                print(f"[DEBUG] Fallback failed: {e}")
+                return User.objects.none()
+                
+        except Exception as e:
+            print(f"[DEBUG] Error in get_workshop_mechanics: {e}")
+            import traceback
+            traceback.print_exc()
+            raise Exception(f"Error fetching workshop mechanics: {str(e)}")
+
+    @staticmethod
+    def get_workshop_staff_alternative(workshop_id):
+        """
+        Alternatywna metoda pobierania pracowników warsztatu przez raw SQL.
+        """
+        from django.contrib.auth import get_user_model
+        from django.db import connection
+        User = get_user_model()
+        
+        try:
+            print(f"[DEBUG] Getting staff for workshop_id: {workshop_id} using alternative method")
+            
+            # Bezpośrednie zapytanie SQL do tabeli WorkshopMechanic
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT DISTINCT u.id, u.username, u.first_name, u.last_name, u.email, u.role
+                    FROM users_user u
+                    LEFT JOIN workshops_workshopmechanic wm ON u.id = wm.mechanic_id
+                    LEFT JOIN workshops_workshop w ON u.id = w.owner_id
+                    WHERE u.is_active = true 
+                    AND u.role IN ('owner', 'mechanic')
+                    AND (wm.workshop_id = %s OR w.id = %s)
+                """, [workshop_id, workshop_id])
+                
+                rows = cursor.fetchall()
+                
+            # Konwertuj na User objects
+            user_ids = [row[0] for row in rows]
+            staff = User.objects.filter(id__in=user_ids).select_related('profile')
+            
+            print(f"[DEBUG] Alternative method found {staff.count()} staff members")
+            return staff
+            
+        except Exception as e:
+            print(f"[DEBUG] Error in alternative method: {e}")
+            import traceback
+            traceback.print_exc()
+            return User.objects.none()

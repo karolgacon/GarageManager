@@ -110,3 +110,53 @@ class WorkshopViewSet(BaseViewSet):
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Get workshop staff",
+        description="Retrieve all staff members (owners and mechanics) assigned to a specific workshop.",
+        parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="Workshop ID", required=True, type=int)],
+        responses={200: UserSerializer(many=True)}
+    )
+    @action(detail=True, methods=['get'], url_path='staff')
+    def staff(self, request, pk=None):
+        """
+        Pobiera wszystkich pracowników (owner i mechanic) przypisanych do określonego warsztatu.
+        """
+        try:
+            workshop_id = int(pk)
+            
+            # Spróbuj standardowej metody
+            try:
+                staff = self.service.get_workshop_staff(workshop_id)
+            except Exception as e:
+                print(f"[DEBUG] Standard method failed, trying alternative: {e}")
+                # Użyj alternatywnej metody
+                staff = self.service.get_workshop_staff_alternative(workshop_id)
+            
+            serializer = UserSerializer(staff, many=True)
+            return Response(serializer.data)
+        except ValueError:
+            return Response({"error": "Invalid workshop ID"}, status=400)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Get workshop mechanics only",
+        description="Retrieve all mechanics assigned to a specific workshop.",
+        parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, description="Workshop ID", required=True, type=int)],
+        responses={200: UserSerializer(many=True)}
+    )
+    @action(detail=True, methods=['get'], url_path='mechanics')
+    def mechanics(self, request, pk=None):
+        """
+        Pobiera wszystkich mechaników przypisanych do określonego warsztatu.
+        """
+        try:
+            workshop_id = int(pk)
+            mechanics = self.service.get_workshop_mechanics(workshop_id)
+            serializer = UserSerializer(mechanics, many=True)
+            return Response(serializer.data)
+        except ValueError:
+            return Response({"error": "Invalid workshop ID"}, status=400)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
