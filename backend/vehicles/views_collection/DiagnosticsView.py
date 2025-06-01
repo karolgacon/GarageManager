@@ -61,3 +61,32 @@ class DiagnosticsViewSet(BaseViewSet):
         diagnostics = self.service.get_critical_diagnostics()
         serializer = self.serializer_class(diagnostics, many=True)
         return Response(serializer.data)
+
+    @extend_schema(
+        summary="List diagnostics by vehicle",
+        description="Retrieve a list of diagnostics for a specific vehicle.",
+        parameters=[
+            OpenApiParameter(name="vehicle_id", location=OpenApiParameter.PATH, description="Vehicle ID", required=True, type=int)
+        ],
+        responses={200: DiagnosticsSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='vehicle/(?P<vehicle_id>[^/.]+)')
+    def vehicle(self, request, vehicle_id=None):
+        """
+        Pobiera diagnostykę dla danego pojazdu.
+        """
+        try:
+            vehicle_id = int(vehicle_id)
+            diagnostics = self.service.get_diagnostics_by_vehicle(vehicle_id)
+            serializer = self.serializer_class(diagnostics, many=True)
+            return Response(serializer.data)
+        except ValueError:
+            return Response(
+                {"detail": "Invalid vehicle ID format."},
+                status=400
+            )
+        except Exception as e:
+            return Response(
+                {"detail": str(e)},
+                status=500
+            )

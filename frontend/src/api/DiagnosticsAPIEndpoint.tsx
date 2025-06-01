@@ -1,53 +1,72 @@
 import api from "../api";
-import { DiagnosisIssue } from "../models/DiagnosisModel";
-import { BASE_API_URL } from "../constants";
+import { DiagnosticIssue } from "../models/DiagnosticIssue";
 
-const BASE_URL = `${BASE_API_URL}/diagnostics`;
+const BASE_API_URL = "/diagnostics/";
+
+const getAllDiagnostics = async (): Promise<DiagnosticIssue[]> => {
+	try {
+		const response = await api.get(BASE_API_URL);
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching all diagnostics:", error);
+		throw error;
+	}
+};
+
+const getVehicleDiagnostics = async (
+	vehicleId: number
+): Promise<DiagnosticIssue[]> => {
+	try {
+		const response = await api.get(`${BASE_API_URL}vehicle/${vehicleId}/`);
+		return response.data;
+	} catch (error) {
+		console.error(
+			`Error fetching diagnostics for vehicle ${vehicleId}:`,
+			error
+		);
+		throw error;
+	}
+};
+
+const getCriticalDiagnostics = async (): Promise<DiagnosticIssue[]> => {
+	try {
+		const response = await api.get(`${BASE_API_URL}critical/`);
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching critical diagnostics:", error);
+		throw error;
+	}
+};
+
+const getDiagnosticsByCategory = async (
+	category: string
+): Promise<DiagnosticIssue[]> => {
+	try {
+		const response = await api.get(`${BASE_API_URL}category/${category}/`);
+		return response.data;
+	} catch (error) {
+		console.error(
+			`Error fetching diagnostics for category ${category}:`,
+			error
+		);
+		throw error;
+	}
+};
+
+const getDiagnosticById = async (id: number): Promise<DiagnosticIssue> => {
+	try {
+		const response = await api.get(`${BASE_API_URL}${id}/`);
+		return response.data;
+	} catch (error) {
+		console.error(`Error fetching diagnostic with ID ${id}:`, error);
+		throw error;
+	}
+};
 
 export const diagnosticsService = {
-	getAllDiagnostics: async (): Promise<DiagnosisIssue[]> => {
-		try {
-			console.log("Fetching all diagnostics from:", BASE_URL);
-			const response = await api.get(BASE_URL);
-			return response.data;
-		} catch (error) {
-			console.error("Error fetching diagnostics:", error);
-			throw error;
-		}
-	},
-
-	getCriticalDiagnostics: async (): Promise<DiagnosisIssue[]> => {
-		try {
-			const response = await api.get(`${BASE_URL}/critical/`);
-			return response.data;
-		} catch (error) {
-			console.error("Error fetching critical diagnostics:", error);
-			throw error;
-		}
-	},
-
-	getDiagnosticsByCategory: async (
-		category: string
-	): Promise<DiagnosisIssue[]> => {
-		try {
-			const response = await api.get(`${BASE_URL}/?category=${category}`);
-			return response.data;
-		} catch (error) {
-			console.error(
-				`Error fetching diagnostics for category ${category}:`,
-				error
-			);
-			throw error;
-		}
-	},
-
-	getDiagnosticById: async (id: number): Promise<DiagnosisIssue> => {
-		try {
-			const response = await api.get(`${BASE_URL}/${id}/`);
-			return response.data;
-		} catch (error) {
-			console.error(`Error fetching diagnostic with id ${id}:`, error);
-			throw error;
-		}
-	},
+	getAllDiagnostics,
+	getVehicleDiagnostics,
+	getCriticalDiagnostics,
+	getDiagnosticsByCategory,
+	getDiagnosticById,
 };

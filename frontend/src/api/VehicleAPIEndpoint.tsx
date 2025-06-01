@@ -79,15 +79,10 @@ export const vehicleService = {
 		}
 	},
 
-	// User-specific endpoints (these may require custom backend implementation)
+	// User-specific endpoints
 	getCurrentUserVehicles: async (): Promise<Vehicle[]> => {
 		try {
-			const token = localStorage.getItem("token");
-			const response = await api.get(`${BASE_API_URL}my-vehicles/`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
+			const response = await api.get(`${BASE_API_URL}my-vehicles/`);
 			return response.data;
 		} catch (error) {
 			console.error("Error fetching current user vehicles:", error);
@@ -95,17 +90,42 @@ export const vehicleService = {
 		}
 	},
 
+	// Get client vehicles based on client ID - matches the by_owner action on the backend
+	getClientVehicles: async (clientId: number): Promise<Vehicle[]> => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}by_owner/?owner=${clientId}`
+			);
+			return response.data;
+		} catch (error) {
+			console.error(`Error fetching vehicles for client ${clientId}:`, error);
+			throw error;
+		}
+	},
+
+	// Get workshop vehicles - match your backend workshop_vehicles action
 	getWorkshopVehicles: async (workshopId: number): Promise<Vehicle[]> => {
 		try {
-			// This might need to be implemented on the backend, or you can filter locally
-			// Assuming the backend has an endpoint or filtering mechanism
-			const response = await api.get(`${BASE_API_URL}?workshop=${workshopId}`);
+			const response = await api.get(
+				`${BASE_API_URL}workshop_vehicles/?workshop_id=${workshopId}`
+			);
 			return response.data;
 		} catch (error) {
 			console.error(
 				`Error fetching vehicles for workshop ${workshopId}:`,
 				error
 			);
+			throw error;
+		}
+	},
+
+	// Get vehicles filtered by owner directly from main list endpoint
+	getVehiclesByOwner: async (ownerId: number): Promise<Vehicle[]> => {
+		try {
+			const response = await api.get(`${BASE_API_URL}?owner=${ownerId}`);
+			return response.data;
+		} catch (error) {
+			console.error(`Error fetching vehicles for owner ${ownerId}:`, error);
 			throw error;
 		}
 	},
