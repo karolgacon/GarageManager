@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Inventory",
 			icon: <InventoryIcon />,
 			path: "/inventory",
-			roles: ["admin", "owner"],
+			roles: ["admin", "owner", "mechanic"],
 		},
 		{
 			title: "Services",
@@ -68,19 +68,19 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Customers",
 			icon: <PeopleIcon />,
 			path: "/customers",
-			roles: ["admin", "owner"],
+			roles: ["admin", "owner", "mechanic"],
 		},
 		{
 			title: "Bookings",
 			icon: <BookIcon />,
 			path: "/bookings",
-			roles: ["admin", "owner", "client"],
+			roles: ["admin", "owner", "client", "mechanic"],
 		},
 		{
 			title: "Diagnostics",
 			icon: <SettingsIcon />,
 			path: "/diagnostics",
-			roles: ["admin", "mechanic"],
+			roles: ["admin", "mechanic", "owner"],
 		},
 		{
 			title: "Staff Management",

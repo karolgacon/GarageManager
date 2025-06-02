@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -14,10 +14,14 @@ import {
 	Typography,
 	IconButton,
 	InputAdornment,
+	CircularProgress,
+	Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Part, CATEGORY_OPTIONS } from "../../models/PartModel";
 import { inventoryService } from "../../api/PartAPIEndpoint";
+import { workshopService, Workshop } from "../../api/WorkshopAPIEndpoint";
+import AuthContext from "../../context/AuthProvider";
 
 interface AddItemModalProps {
 	open: boolean;
@@ -30,8 +34,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 	onClose,
 	onItemAdded,
 }) => {
+	const { isAdmin, isOwner, isMechanic } = React.useContext(AuthContext);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [workshops, setWorkshops] = useState<Workshop[]>([]);
+	const [loadingWorkshops, setLoadingWorkshops] = useState(false);
+
 	const [formData, setFormData] = useState<Omit<Part, "id">>({
 		name: "",
 		manufacturer: "",
@@ -40,7 +48,58 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		minimum_stock_level: 5,
 		category: "body",
 		supplier: "",
+		workshop_id: undefined, // Will be set automatically or by selection
 	});
+
+	// Fetch workshops for selection
+	useEffect(() => {
+		if (!open) return;
+
+		const fetchWorkshopData = async () => {
+			try {
+				setLoadingWorkshops(true);
+
+				// Get all workshops (works for all user roles)
+				const workshopList = await workshopService.getAllWorkshops();
+				setWorkshops(workshopList);
+
+				if (workshopList.length === 0) {
+					setError(
+						"No workshops found in the system. Please add a workshop first."
+					);
+					return;
+				}
+
+				// For non-admin users, try to determine their workshop
+				if (!isAdmin()) {
+					try {
+						// First, attempt to use getCurrentUserWorkshop if it works
+						const userWorkshop = await workshopService.getCurrentUserWorkshop();
+						setFormData((prev) => ({ ...prev, workshop_id: userWorkshop.id }));
+					} catch (error) {
+						console.log(
+							"Falling back to first available workshop for non-admin user"
+						);
+						// Fallback: For non-admin users, just use the first workshop
+						setFormData((prev) => ({
+							...prev,
+							workshop_id: workshopList[0].id,
+						}));
+					}
+				} else {
+					// For admin, default to first workshop but allow selection
+					setFormData((prev) => ({ ...prev, workshop_id: workshopList[0].id }));
+				}
+			} catch (error) {
+				console.error("Error fetching workshop data:", error);
+				setError("Failed to load workshop information. Please try again.");
+			} finally {
+				setLoadingWorkshops(false);
+			}
+		};
+
+		fetchWorkshopData();
+	}, [open, isAdmin, isOwner, isMechanic]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | { value: unknown; name?: string }>
@@ -52,6 +111,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 				"stock_quantity",
 				"price",
 				"minimum_stock_level",
+				"workshop_id",
 			].includes(name)
 				? parseFloat(value as string) || 0
 				: value,
@@ -64,18 +124,51 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		setError(null);
 
 		try {
-			const newPart = await inventoryService.createPart(formData);
+			// Validate workshop_id is present
+			if (!formData.workshop_id) {
+				throw new Error("Workshop selection is required");
+			}
+
+			// Ensure correct data types for numeric fields
+			const dataToSend = {
+				...formData,
+				price: Number(formData.price),
+				stock_quantity: Number(formData.stock_quantity),
+				minimum_stock_level: Number(formData.minimum_stock_level),
+			};
+
+			// Send to API
+			const newPart = await inventoryService.createPart(dataToSend);
 			onItemAdded(newPart);
 			onClose();
 		} catch (error) {
 			console.error("Error adding inventory item:", error);
-			setError("Failed to add inventory item. Please try again.");
+
+			// Extract meaningful error message if available
+			let errorMessage = "Failed to add inventory item. Please try again.";
+			if (error.response && error.response.data) {
+				// DRF typically returns error details in response.data
+				const errorData = error.response.data;
+				if (typeof errorData === "string") {
+					errorMessage = errorData;
+				} else if (typeof errorData === "object") {
+					// Extract first error message from the error object
+					const firstErrorKey = Object.keys(errorData)[0];
+					if (firstErrorKey) {
+						errorMessage = `${firstErrorKey}: ${errorData[firstErrorKey]}`;
+					}
+				}
+			} else if (error.message) {
+				errorMessage = error.message;
+			}
+
+			setError(errorMessage);
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	// Lista producentów/dostawców części
+	// List of manufacturers and suppliers (unchanged)
 	const manufacturers = [
 		{ value: "autopartner", label: "AutoPartner" },
 		{ value: "intercars", label: "InterCars" },
@@ -95,7 +188,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		{ value: "other", label: "Other" },
 	];
 
-	// Lista dostawców
 	const suppliers = [
 		"AutoPartner",
 		"InterCars",
@@ -140,6 +232,23 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
 			<form onSubmit={handleSubmit}>
 				<DialogContent dividers>
+					{error && (
+						<Alert severity="error" sx={{ mb: 2 }}>
+							{error}
+						</Alert>
+					)}
+
+					{/* Show notice about workshop selection for non-admin users */}
+					{!isAdmin() && workshops.length > 0 && formData.workshop_id && (
+						<Alert severity="info" sx={{ mb: 2 }}>
+							This item will be added to the workshop:{" "}
+							<strong>
+								{workshops.find((w) => w.id === formData.workshop_id)?.name ||
+									"Unknown"}
+							</strong>
+						</Alert>
+					)}
+
 					<Grid container spacing={2}>
 						<Grid item xs={12}>
 							<TextField
@@ -152,6 +261,37 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 								disabled={loading}
 								variant="outlined"
 							/>
+						</Grid>
+
+						{/* Workshop selection - visible to all users for now due to missing backend endpoint */}
+						<Grid item xs={12}>
+							<FormControl fullWidth required>
+								<InputLabel>Workshop</InputLabel>
+								<Select
+									label="Workshop"
+									name="workshop_id"
+									value={formData.workshop_id || ""}
+									onChange={handleChange}
+									disabled={
+										loading ||
+										loadingWorkshops ||
+										(!isAdmin() && workshops.length === 1)
+									}
+									startAdornment={
+										loadingWorkshops ? (
+											<InputAdornment position="start">
+												<CircularProgress size={20} />
+											</InputAdornment>
+										) : null
+									}
+								>
+									{workshops.map((workshop) => (
+										<MenuItem key={workshop.id} value={workshop.id}>
+											{workshop.name}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 						</Grid>
 
 						<Grid item xs={12} md={6}>
@@ -267,12 +407,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 							</FormControl>
 						</Grid>
 					</Grid>
-
-					{error && (
-						<Typography color="error" variant="body2" sx={{ mt: 2 }}>
-							{error}
-						</Typography>
-					)}
 				</DialogContent>
 
 				<DialogActions sx={{ px: 3, py: 2 }}>
@@ -283,7 +417,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 						type="submit"
 						variant="contained"
 						color="primary"
-						disabled={loading}
+						disabled={loading || loadingWorkshops}
 						sx={{
 							bgcolor: "#ff3c4e",
 							"&:hover": { bgcolor: "#d6303f" },

@@ -27,10 +27,17 @@ export const inventoryService = {
 
 	createPart: async (partData: Partial<Part>): Promise<Part> => {
 		try {
+			// Send the full data including workshop_id to the API
+			console.log("Sending part data to API:", partData);
+
 			const response = await api.post(BASE_URL, partData);
 			return response.data;
 		} catch (error) {
 			console.error("Error creating part:", error);
+			// Log more detailed error information
+			if (error.response) {
+				console.error("API error details:", error.response.data);
+			}
 			throw error;
 		}
 	},
