@@ -78,63 +78,55 @@ export const customerService = {
 	},
 
 	// Get customer vehicles
-	getCustomerVehicles: async (customerId: number) => {
+	getCustomerVehicles: async (customerId: number | undefined) => {
 		try {
-			console.log(`Fetching vehicles for customer ID: ${customerId}`);
+			console.log("Fetching vehicles for customer ID:", customerId);
 
-			// Spróbuj różne warianty
-			let response;
+			// If customerId is undefined, return empty array immediately
+			if (!customerId) {
+				console.log("Customer ID is undefined, skipping API call");
+				return [];
+			}
 
-			// Opcja 1: owner
+			// Try the first API endpoint pattern
 			try {
-				response = await api.get(`${API_URL}/vehicles/?owner=${customerId}`);
-				console.log("Option 1 (owner) worked:", response.data.length);
-			} catch (e) {
-				console.log("Option 1 (owner) failed:", e);
-			}
+				const response = await api.get(`${BASE_API_URL}/vehicles/`, {
+					params: { owner: customerId },
+				});
+				console.log("Option 1 (owner) worked:", customerId);
+				return response.data;
+			} catch (error) {
+				console.log("Option 1 (owner) failed:", error);
 
-			// Opcja 2: owner_id
-			if (
-				!response ||
-				response.data.length === 0 ||
-				response.data.some(
-					(v) => v.owner !== customerId && v.owner_id !== customerId
-				)
-			) {
+				// Try the fallback endpoint pattern
 				try {
-					response = await api.get(
-						`${API_URL}/vehicles/?owner_id=${customerId}`
-					);
-					console.log("Option 2 (owner_id) worked:", response.data.length);
-				} catch (e) {
-					console.log("Option 2 (owner_id) failed:", e);
+					const response = await api.get(`${BASE_API_URL}/vehicles/`, {
+						params: { owner_id: customerId },
+					});
+					console.log("Option 2 (owner_id) worked:", customerId);
+					return response.data;
+				} catch (secondError) {
+					console.log("Option 2 (owner_id) failed:", secondError);
+
+					// Last attempt - try client_id pattern
+					try {
+						const response = await api.get(
+							`${BASE_API_URL}/vehicles/client/${customerId}/`
+						);
+						console.log("Option 3 (client endpoint) worked");
+						return response.data;
+					} catch (thirdError) {
+						console.log(
+							"All options failed for customer vehicles:",
+							thirdError
+						);
+						return [];
+					}
 				}
 			}
-
-			// Opcja 3: client
-			if (
-				!response ||
-				response.data.length === 0 ||
-				response.data.some(
-					(v) => v.owner !== customerId && v.owner_id !== customerId
-				)
-			) {
-				try {
-					response = await api.get(`${API_URL}/vehicles/?client=${customerId}`);
-					console.log("Option 3 (client) worked:", response.data.length);
-				} catch (e) {
-					console.log("Option 3 (client) failed:", e);
-				}
-			}
-
-			console.log(`Final vehicles for customer ${customerId}:`, response.data);
-			return response.data;
 		} catch (error) {
-			console.error(
-				`Error fetching vehicles for customer ${customerId}:`,
-				error
-			);
-			throw error;
+			console.error("Error fetching customer vehicles:", error);
+			return [];
 		}
 	},
 };

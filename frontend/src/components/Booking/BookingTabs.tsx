@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Tabs, Tab } from "@mui/material";
+import { Tabs, Tab, Box } from "@mui/material";
+import { COLOR_PRIMARY } from "../../constants"; // Import your theme color
 
 interface BookingTabsProps {
 	bookingType: string;
@@ -11,36 +12,50 @@ const BookingTabs: React.FC<BookingTabsProps> = ({
 	onTabChange,
 }) => {
 	return (
-		<Box
-			sx={{
-				borderBottom: 1,
-				borderColor: "divider",
-				px: 3,
-				pt: 1,
-			}}
-		>
+		<Box sx={{ borderBottom: 1, borderColor: "divider" }}>
 			<Tabs
 				value={bookingType}
 				onChange={onTabChange}
-				aria-label="booking type tabs"
 				sx={{
-					"& .MuiTab-root": {
-						fontWeight: 500,
-						fontSize: "0.875rem",
-						color: "#555",
+					"& .MuiTabs-indicator": {
+						backgroundColor: COLOR_PRIMARY,
 					},
 					"& .Mui-selected": {
-						color: "#ff3c4e",
-						fontWeight: 600,
-					},
-					"& .MuiTabs-indicator": {
-						backgroundColor: "#ff3c4e",
+						color: COLOR_PRIMARY,
+						fontWeight: "bold",
 					},
 				}}
 			>
-				<Tab value="all" label="All Bookings" />
-				<Tab value="upcoming" label="Upcoming Bookings" />
-				<Tab value="past" label="Past Bookings" />
+				<Tab
+					label="All Bookings"
+					value="all"
+					sx={{
+						textTransform: "none",
+						"&.Mui-selected": {
+							color: COLOR_PRIMARY,
+						},
+					}}
+				/>
+				<Tab
+					label="Upcoming Bookings"
+					value="upcoming"
+					sx={{
+						textTransform: "none",
+						"&.Mui-selected": {
+							color: COLOR_PRIMARY,
+						},
+					}}
+				/>
+				<Tab
+					label="Past Bookings"
+					value="past"
+					sx={{
+						textTransform: "none",
+						"&.Mui-selected": {
+							color: COLOR_PRIMARY,
+						},
+					}}
+				/>
 			</Tabs>
 		</Box>
 	);

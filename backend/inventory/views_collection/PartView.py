@@ -72,10 +72,48 @@ class PartViewSet(BaseViewSet):
     
     @extend_schema(
         description="List all parts in inventory",
-        responses={200: PartSerializer(many=True)}
+        responses={200: PartSerializer(many=True)},
+        parameters=[
+            OpenApiParameter(
+                name="workshop_id", 
+                description="Filter parts by workshop ID", 
+                required=False, 
+                type=int
+            ),
+        ]
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        # Check if workshop filter is applied
+        workshop_id = request.query_params.get('workshop_id')
+        
+        # Check if user is admin
+        is_admin = request.user.is_staff or request.user.is_superuser
+        
+        # Get user's workshop if they are owner/mechanic
+        user_workshop_id = None
+        if hasattr(request.user, 'workshop'):
+            user_workshop_id = request.user.workshop.id
+        
+        # Get base queryset
+        queryset = self.service.repository.model.objects.all()
+        
+        # Apply filters based on role and parameters
+        if workshop_id:
+            # If a specific workshop ID is requested, filter for it
+            # (typically for admin users selecting a specific workshop)
+            part_ids = PartInventory.objects.filter(
+                workshop_id=workshop_id
+            ).values_list('part_id', flat=True)
+            queryset = queryset.filter(id__in=part_ids)
+        elif not is_admin and user_workshop_id:
+            # Non-admin users only see parts from their own workshop
+            part_ids = PartInventory.objects.filter(
+                workshop_id=user_workshop_id
+            ).values_list('part_id', flat=True)
+            queryset = queryset.filter(id__in=part_ids)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
     @extend_schema(
         description="Retrieve a specific part by ID",

@@ -73,4 +73,17 @@ export const inventoryService = {
 			throw error;
 		}
 	},
+
+	// New method to get parts by workshop ID
+	getPartsByWorkshop: async (workshopId: number): Promise<Part[]> => {
+		try {
+			const response = await api.get(`${BASE_URL}`, {
+				params: { workshop_id: workshopId },
+			});
+			return response.data;
+		} catch (error) {
+			console.error(`Error fetching parts for workshop ${workshopId}:`, error);
+			throw error;
+		}
+	},
 };

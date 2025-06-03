@@ -17,23 +17,29 @@ export const bookingService = {
 
 	// Get bookings for a specific client
 	getClientBookings: async (
-		clientId: number,
+		clientId: number | undefined,
 		startDate?: string,
 		endDate?: string
 	) => {
 		try {
-			let params: any = { client_id: clientId };
-
-			if (startDate && endDate) {
-				params.start_date = startDate;
-				params.end_date = endDate;
+			// Guard clause to prevent API calls with undefined clientId
+			if (!clientId) {
+				console.log("Client ID is undefined, skipping API call");
+				return [];
 			}
 
+			// Build params properly
+			const params: Record<string, any> = { client_id: clientId };
+
+			if (startDate) params.start_date = startDate;
+			if (endDate) params.end_date = endDate;
+
+			// Use client_id as a query param rather than part of the URL path
 			const response = await api.get(`${BASE_URL}/by_client/`, { params });
 			return response.data;
 		} catch (error) {
 			console.error(`Error fetching client bookings (ID: ${clientId}):`, error);
-			throw error;
+			return []; // Return empty array on error to prevent UI breaking
 		}
 	},
 

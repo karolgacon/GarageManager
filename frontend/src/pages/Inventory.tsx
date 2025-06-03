@@ -36,8 +36,12 @@ import CustomSnackbar, {
 	SnackbarState,
 } from "../components/Mainlayout/Snackbar";
 import EditItemModal from "../components/Inventory/EditItemModal";
+import AuthContext from "../context/AuthProvider";
+import { workshopService } from "../api/WorkshopAPIEndpoint";
 
 const Inventory = () => {
+	const { isAdmin, isOwner, isMechanic } = React.useContext(AuthContext);
+
 	const [parts, setParts] = useState<Part[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -65,11 +69,61 @@ const Inventory = () => {
 		try {
 			setLoading(true);
 			setError(null);
-			const data = await inventoryService.getAllParts();
-			setParts(data);
+
+			if (isAdmin()) {
+				// Admins see all parts
+				const data = await inventoryService.getAllParts();
+				setParts(data);
+			} else if (isOwner() || isMechanic()) {
+				try {
+					// Try to get user's workshop
+					const userWorkshop = await workshopService
+						.getCurrentUserWorkshop()
+						.catch((error) => {
+							if (error?.response?.status === 404) {
+								// User has no workshop assigned
+								throw new Error(
+									"You are not assigned to any workshop. Please contact an administrator."
+								);
+							}
+							throw error; // Re-throw other errors
+						});
+
+					if (userWorkshop && userWorkshop.id) {
+						const workshopParts = await inventoryService.getPartsByWorkshop(
+							userWorkshop.id
+						);
+						setParts(workshopParts);
+					} else {
+						throw new Error(
+							"Workshop information is incomplete. Please contact an administrator."
+						);
+					}
+				} catch (error) {
+					console.error("Error fetching workshop-specific parts:", error);
+
+					if (
+						error.message &&
+						error.message.includes("not assigned to any workshop")
+					) {
+						setError(error.message);
+					} else {
+						setError(
+							"Failed to load workshop inventory. Please try again later."
+						);
+					}
+
+					// Empty parts list when there's an error
+					setParts([]);
+				}
+			} else {
+				// Other users see nothing
+				setParts([]);
+			}
 		} catch (error) {
 			console.error("Error fetching parts:", error);
-			setError("Failed to load inventory items. Please try again later.");
+			setError("Failed to load inventory items. Please try again.");
+			setParts([]);
 		} finally {
 			setLoading(false);
 		}
@@ -281,9 +335,62 @@ const Inventory = () => {
 						{showFilters && <InventoryFilter />}
 
 						{error && (
-							<Box sx={{ p: 2, textAlign: "center", color: "error.main" }}>
-								<Typography>{error}</Typography>
-							</Box>
+							<Paper
+								elevation={1}
+								sx={{
+									p: 3,
+									mb: 3,
+									textAlign: "center",
+									bgcolor: error.includes("not assigned")
+										? "warning.light"
+										: "error.light",
+									color: error.includes("not assigned")
+										? "warning.contrastText"
+										: "error.contrastText",
+									borderRadius: 2,
+								}}
+							>
+								<Typography
+									variant="h6"
+									gutterBottom
+									sx={{ fontWeight: "medium" }}
+								>
+									{error.includes("not assigned")
+										? "Workshop Assignment Missing"
+										: "Error"}
+								</Typography>
+								<Typography variant="body1">{error}</Typography>
+
+								{error.includes("not assigned") && (
+									<Button
+										variant="contained"
+										color="primary"
+										sx={{ mt: 2 }}
+										onClick={() => (window.location.href = "/profile")}
+									>
+										Go to Profile
+									</Button>
+								)}
+							</Paper>
+						)}
+
+						{!loading && !error && parts.length === 0 && (
+							<Paper
+								elevation={1}
+								sx={{
+									p: 3,
+									textAlign: "center",
+									bgcolor: "background.paper",
+									borderRadius: 2,
+								}}
+							>
+								<Typography variant="h6">No Parts Available</Typography>
+								<Typography variant="body1" color="textSecondary">
+									{isAdmin()
+										? "No parts have been added to the inventory yet."
+										: "No parts are available in your workshop inventory."}
+								</Typography>
+							</Paper>
 						)}
 
 						{loading ? (

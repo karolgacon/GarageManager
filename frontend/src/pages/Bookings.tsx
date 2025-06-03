@@ -105,13 +105,20 @@ const Bookings: React.FC = () => {
 
 	// Load bookings when filters change
 	useEffect(() => {
-		loadBookings();
+		// Only load bookings if auth data is ready
+		if (
+			(auth.roles?.[0] !== "client" && auth.roles?.[0] !== "mechanic") ||
+			(auth.roles?.[0] === "client" && auth.user_id) ||
+			(auth.roles?.[0] === "mechanic" && auth.user_id)
+		) {
+			loadBookings();
+		}
 	}, [
 		selectedDate,
 		selectedWorkshop,
 		selectedMechanic,
 		auth.roles?.[0],
-		auth.user_id,
+		auth.user_id, // Make sure user_id changes trigger reload
 		calendarView,
 		bookingType,
 	]);
@@ -149,11 +156,19 @@ const Bookings: React.FC = () => {
 		}
 	};
 
+	// Update the loadBookings function to better handle errors
 	const loadBookings = async () => {
 		setLoading(true);
 		setError(null);
 		try {
-			let bookingsData;
+			let bookingsData = [];
+
+			// Skip loading if auth data isn't ready yet
+			if (auth.roles?.[0] === "client" && !auth.user_id) {
+				console.warn("User ID not available yet for client bookings");
+				setBookings([]);
+				return; // Will hit finally block to set loading to false
+			}
 
 			// Handle special booking types
 			if (bookingType === "upcoming") {
@@ -245,7 +260,9 @@ const Bookings: React.FC = () => {
 		} catch (err: any) {
 			console.error("Error loading bookings:", err);
 			setError(err.message || "Failed to load bookings");
+			setBookings([]); // Ensure we set empty bookings on error
 		} finally {
+			// Always set loading to false, even if there are errors
 			setLoading(false);
 		}
 	};

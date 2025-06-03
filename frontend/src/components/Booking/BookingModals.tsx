@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -10,12 +10,18 @@ import {
 	IconButton,
 	Grid,
 	Divider,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { format, parseISO } from "date-fns";
 import BookingForm from "./BookingForm";
+import AuthContext from "../../context/AuthProvider";
+import { vehicleService } from "../../api/VehicleAPIEndpoint";
 
 interface BookingModalsProps {
 	modalStates: {
@@ -41,6 +47,25 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 		isEditBookingModalOpen,
 		isViewBookingModalOpen,
 	} = modalStates;
+
+	const { auth } = useContext(AuthContext);
+	const [clientVehicles, setClientVehicles] = useState<any[]>([]);
+
+	useEffect(() => {
+		// Only fetch vehicles for clients
+		if (auth.roles?.[0] === "client" && auth.user_id) {
+			const fetchClientVehicles = async () => {
+				try {
+					const vehicles = await vehicleService.getClientVehicles(auth.user_id);
+					setClientVehicles(vehicles);
+				} catch (error) {
+					console.error("Error fetching client vehicles:", error);
+				}
+			};
+
+			fetchClientVehicles();
+		}
+	}, [auth.roles, auth.user_id]);
 
 	return (
 		<>
@@ -68,7 +93,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 					</Box>
 				</DialogTitle>
 				<DialogContent>
-					<BookingForm id="create-booking-form" onSubmit={onCreateBooking} />
+					<BookingForm
+						id="create-booking-form"
+						onSubmit={onCreateBooking}
+						clientVehicles={clientVehicles} // Pass the vehicles we already fetched
+						userRole={auth.roles?.[0]}
+						userId={auth.user_id}
+					/>
 				</DialogContent>
 				<DialogActions
 					sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}
@@ -129,6 +160,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							id="edit-booking-form"
 							initialData={selectedBookingData}
 							onSubmit={onUpdateBooking}
+							clientVehicles={clientVehicles} // Pass the vehicles we already fetched
+							userRole={auth.roles?.[0]}
+							userId={auth.user_id}
 						/>
 					)}
 				</DialogContent>

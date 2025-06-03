@@ -23,16 +23,23 @@ import { customerService } from "../../api/CustomerAPIEndpoint";
 import { UserService } from "../../api/UserAPIEndpoint";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
+// Add to the props interface:
 interface BookingFormProps {
+	id: string;
 	initialData?: any;
 	onSubmit: (data: any) => void;
-	id?: string;
+	clientVehicles?: any[]; // Add this prop
+	userRole?: string; // Add this prop
+	userId?: number; // Add this prop
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({
 	initialData,
 	onSubmit,
 	id = "booking-form",
+	clientVehicles, // Destructure the new prop
+	userRole, // Destructure the new prop
+	userId, // Destructure the new prop
 }) => {
 	const { auth } = useContext(AuthContext);
 	const [loading, setLoading] = useState(false);
@@ -74,6 +81,19 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		const loadInitialData = async () => {
 			setLoading(true);
 			try {
+				// Only load customer vehicles if they weren't passed as props
+				let vehiclesData = clientVehicles || [];
+
+				if (!vehiclesData.length && userRole === "client" && userId) {
+					try {
+						// Only fetch if we need to and have a valid ID
+						vehiclesData = await customerService.getCustomerVehicles(userId);
+					} catch (err) {
+						console.error("Error loading vehicles:", err);
+						vehiclesData = [];
+					}
+				}
+
 				// Load workshops
 				if (auth.roles?.[0] === "admin" || auth.roles?.[0] === "client") {
 					const workshopsData = await workshopService.getAllWorkshops();
@@ -95,9 +115,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 				// Load vehicles for client
 				if (auth.roles?.[0] === "client") {
 					// Use the existing function from CustomerAPIEndpoint
-					const vehiclesData = await customerService.getCustomerVehicles(
-						auth.user_id
-					);
 					setVehicles(vehiclesData);
 					setFormData((prev) => ({
 						...prev,
@@ -119,7 +136,14 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		};
 
 		loadInitialData();
-	}, [auth.roles, auth.user_id, auth.workshop_id]);
+	}, [
+		auth.roles,
+		auth.user_id,
+		auth.workshop_id,
+		clientVehicles,
+		userRole,
+		userId,
+	]);
 
 	// Load mechanics when workshop is selected
 	useEffect(() => {

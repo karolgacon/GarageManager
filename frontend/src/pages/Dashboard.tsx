@@ -37,14 +37,6 @@ const Dashboard: React.FC = () => {
 					}}
 				>
 					<h1>Welcome, {auth.username || "User"}!</h1>
-					<Button
-						variant="contained"
-						color="error"
-						onClick={logout}
-						sx={{ textTransform: "none" }}
-					>
-						Logout
-					</Button>
 				</Box>
 				{renderContent()}
 			</Box>

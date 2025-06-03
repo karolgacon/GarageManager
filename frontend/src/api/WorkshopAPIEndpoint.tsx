@@ -59,7 +59,13 @@ export const workshopService = {
 			const response = await api.get(`${BASE_URL}/my-workshop/`);
 			return response.data;
 		} catch (error) {
-			console.error("Error fetching current user workshop:", error);
+			if (error.response && error.response.status === 404) {
+				console.error("User is not assigned to any workshop");
+				error.userMessage =
+					"You are not assigned to any workshop. Please contact an administrator.";
+			} else {
+				console.error("Error fetching current user workshop:", error);
+			}
 			throw error;
 		}
 	},
