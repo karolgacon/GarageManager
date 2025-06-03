@@ -183,7 +183,7 @@ const HeaderBar = () => {
 									<ListItemText>My Profile</ListItemText>
 								</MenuItem>
 
-								<MenuItem onClick={() => handleMenuItemClick("/calendar")}>
+								<MenuItem onClick={() => handleMenuItemClick("/bookings")}>
 									<ListItemIcon>
 										<CalendarMonthIcon
 											fontSize="small"

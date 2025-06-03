@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_API_URL } from "../constants";
-import { api } from "../api";
+import  api  from "../api";
 
 export const diagnosticsService = {
 	// Get all diagnostics

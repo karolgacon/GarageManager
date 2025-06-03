@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-from workshops.models import Workshop  # Import the Workshop model if it exists
+from workshops.models import Service, Workshop
 
 class Vehicle(models.Model):
     BRAND_CHOICES = [
@@ -117,3 +117,43 @@ class MaintenanceSchedule(models.Model):
 
     def __str__(self):
         return f"Maintenance for {self.vehicle.registration_number} - {self.service_type}"
+
+class VehicleService(models.Model):
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('canceled', 'Canceled'),
+    ]
+    
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='service_records')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='vehicle_services')
+    workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='vehicle_services')
+    
+    service_date = models.DateField()
+    completion_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+    
+    mechanic_notes = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.vehicle.registration_number} - {self.service.name} ({self.status})"
+        
+    @property
+    def name(self):
+        """Return service name for compatibility with frontend"""
+        return self.service.name if self.service else "Unknown Service"
+        
+    @property
+    def vehicle_details(self):
+        """Return vehicle details for frontend display"""
+        if self.vehicle:
+            return {
+                'make': self.vehicle.brand,
+                'model': self.vehicle.model,
+                'registration_number': self.vehicle.registration_number,
+                'year': self.vehicle.year
+            }
+        return {}
