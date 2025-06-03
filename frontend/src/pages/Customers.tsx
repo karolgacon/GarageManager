@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Box, Container, Typography } from "@mui/material";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import CustomerHeader from "../components/Customer/CustomerHeader";
-import CustomerWorkshopSelector from "../components/Customer/CustomerWorkshopSelector";
+import WorkshopSelector from "../components/Common/WorkshopSelector";
 import CustomerTabs from "../components/Customer/CustomerTabs";
 import CustomerFilters from "../components/Customer/CustomerFilters";
 import CustomerList from "../components/Customer/CustomerList";
@@ -134,10 +134,13 @@ const Customers: React.FC = () => {
 
 				{/* Workshop Selector for Admin */}
 				{auth.roles?.[0] === "admin" && (
-					<CustomerWorkshopSelector
-						workshops={workshops}
-						selectedWorkshopId={selectedWorkshopId}
-						onWorkshopChange={handleWorkshopChange}
+					<WorkshopSelector
+						value={selectedWorkshopId}
+						onChange={(workshopId) => {
+							setSelectedWorkshopId(workshopId);
+							// No need to reset other selections as they don't exist in this component
+						}}
+						disabled={loading}
 					/>
 				)}
 

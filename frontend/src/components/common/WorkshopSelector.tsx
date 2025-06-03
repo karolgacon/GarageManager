@@ -32,7 +32,7 @@ interface Workshop {
 
 interface WorkshopSelectorProps {
 	value: number | null;
-	onChange: (workshopId: number | null) => void;
+	onChange?: (workshopId: number | null) => void; // Make onChange optional
 	disabled?: boolean;
 	error?: string;
 }
@@ -89,11 +89,20 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 	// Znajdź wybrany warsztat
 	const selectedWorkshop = workshops.find((w) => w.id === value);
 
+	// Add handler function to safely call onChange
+	const handleWorkshopChange = (newValue: Workshop | null) => {
+		if (typeof onChange === "function") {
+			onChange(newValue ? newValue.id : null);
+		} else {
+			console.warn("WorkshopSelector: onChange prop is not a function");
+		}
+	};
+
 	return (
 		<>
 			<Autocomplete
 				value={selectedWorkshop || null}
-				onChange={(_, newValue) => onChange(newValue ? newValue.id : null)}
+				onChange={(_, newValue) => handleWorkshopChange(newValue)}
 				options={filteredWorkshops}
 				getOptionLabel={(option) => option.name}
 				loading={loading}
@@ -127,31 +136,37 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 						}}
 					/>
 				)}
-				renderOption={(props, option) => (
-					<MenuItem {...props} component="li" sx={{ py: 1.5 }}>
-						<Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-							<Avatar sx={{ mr: 1.5, bgcolor: "#ff3c4e" }}>
-								<BuildIcon />
-							</Avatar>
-							<Box sx={{ flexGrow: 1 }}>
-								<Typography variant="subtitle1" fontWeight="medium">
-									{option.name}
-								</Typography>
-								<Typography
-									variant="body2"
-									color="text.secondary"
-									sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
-								>
-									<LocationOnIcon
-										fontSize="small"
-										sx={{ mr: 0.5, fontSize: "0.9rem" }}
-									/>
-									{option.location}
-								</Typography>
+				renderOption={(props, option) => {
+					// Fix the key warning by extracting the key and passing it directly
+					const { key, ...otherProps } = props;
+					return (
+						<MenuItem key={key} {...otherProps} component="li" sx={{ py: 1.5 }}>
+							<Box
+								sx={{ display: "flex", alignItems: "center", width: "100%" }}
+							>
+								<Avatar sx={{ mr: 1.5, bgcolor: "#ff3c4e" }}>
+									<BuildIcon />
+								</Avatar>
+								<Box sx={{ flexGrow: 1 }}>
+									<Typography variant="subtitle1" fontWeight="medium">
+										{option.name}
+									</Typography>
+									<Typography
+										variant="body2"
+										color="text.secondary"
+										sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+									>
+										<LocationOnIcon
+											fontSize="small"
+											sx={{ mr: 0.5, fontSize: "0.9rem" }}
+										/>
+										{option.location}
+									</Typography>
+								</Box>
 							</Box>
-						</Box>
-					</MenuItem>
-				)}
+						</MenuItem>
+					);
+				}}
 				noOptionsText={
 					<Box sx={{ p: 1, textAlign: "center" }}>
 						<Typography variant="body2" color="text.secondary">

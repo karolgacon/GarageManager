@@ -34,6 +34,8 @@ import ServiceTable from "../components/Service/ServiceTable";
 import CustomSnackbar, {
 	SnackbarState,
 } from "../components/Mainlayout/Snackbar";
+import AddServiceModal from "../components/Service/AddServiceModal";
+import EditServiceModal from "../components/Service/EditServiceModal";
 
 // Models
 import { Service } from "../models/ServiceModel";
@@ -46,9 +48,29 @@ import { vehicleService } from "../api/VehicleAPIEndpoint";
 import AuthContext from "../context/AuthProvider";
 import { COLOR_PRIMARY } from "../constants";
 
+// Transform API response to the format expected by ServiceTable
+const transformServiceData = (serviceData: any[]): Service[] => {
+	return serviceData.map((service) => ({
+		id: service.id,
+		name: service.name,
+		category: service.category,
+		price: service.price,
+		duration: service.estimated_duration, // poprawka!
+		description: service.description,
+		is_active: service.is_active ?? true, // jeśli masz to pole w API
+		vehicle: null, // dla admina nie ma pojazdu
+		_original: service,
+	}));
+};
+
 const Services: React.FC = () => {
 	// Auth context for user role and ID
 	const { auth } = useContext(AuthContext);
+
+	// Check if the user is an admin
+	const isAdmin = () => {
+		return auth.roles?.includes("admin") || auth.roles?.[0] === "admin";
+	};
 
 	// Tab state - only two tabs now: services and maintenance
 	const [activeTab, setActiveTab] = useState<number>(0);
@@ -76,22 +98,35 @@ const Services: React.FC = () => {
 		severity: "success",
 	});
 
+	// Modal states
+	const [addModalOpen, setAddModalOpen] = useState(false);
+	const [editModalOpen, setEditModalOpen] = useState(false);
+	const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
+
 	// Load data when tab changes
 	useEffect(() => {
 		if (auth.user_id) {
-			fetchUserVehicles();
+			if (isAdmin()) {
+				// Admin should see all services and maintenance schedules
+				fetchAllServices();
+				fetchAllMaintenanceSchedules();
+			} else {
+				// Regular client flow - fetch their vehicles first
+				fetchUserVehicles();
+			}
 		}
 	}, [auth.user_id]);
 
+	// For non-admin users, fetch services or maintenance schedules based on the active tab
 	useEffect(() => {
-		if (userVehicles.length > 0) {
+		if (!isAdmin() && userVehicles.length > 0) {
 			if (activeTab === 0) {
 				fetchClientServices();
 			} else if (activeTab === 1) {
 				fetchClientMaintenanceSchedules();
 			}
 		}
-	}, [activeTab, userVehicles]);
+	}, [activeTab, userVehicles, isAdmin]);
 
 	// Fetch client's vehicles
 	const fetchUserVehicles = async () => {
@@ -258,7 +293,7 @@ const Services: React.FC = () => {
 			setMaintenanceSchedules(allSchedules);
 		} catch (error) {
 			console.error("Error fetching maintenance schedules:", error);
-			setError("Failed to load your maintenance schedules. Please try again.");
+			setError("Failed to load all maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);
 		}
@@ -300,6 +335,48 @@ const Services: React.FC = () => {
 			setMaintenanceSchedules(updatedSchedules);
 		} catch (error) {
 			console.error("Error fetching due maintenance schedules:", error);
+		} finally {
+			setLoadingSchedules(false);
+		}
+	};
+
+	// Fetch all services - admin only
+	const fetchAllServices = async () => {
+		try {
+			setLoadingServices(true);
+			setError(null);
+
+			// Use the GET /api/v1/services/ endpoint for admin users
+			const allServices = await serviceService.getAllServices();
+			console.log(`Admin: Found ${allServices.length} total services (raw)`);
+
+			// Transform data to expected format
+			const transformedServices = transformServiceData(allServices);
+			console.log(`Admin: Transformed ${transformedServices.length} services`);
+
+			setServices(transformedServices);
+		} catch (error) {
+			console.error("Error fetching all services:", error);
+			setError("Failed to load all services. Please try again.");
+		} finally {
+			setLoadingServices(false);
+		}
+	};
+
+	// Fetch all maintenance schedules - admin only
+	const fetchAllMaintenanceSchedules = async () => {
+		try {
+			setLoadingSchedules(true);
+			setError(null);
+
+			const allSchedules = await maintenanceScheduleService.getAllSchedules();
+			console.log(
+				`Admin: Found ${allSchedules.length} total maintenance schedules`
+			);
+			setMaintenanceSchedules(allSchedules);
+		} catch (error) {
+			console.error("Error fetching all maintenance schedules:", error);
+			setError("Failed to load all maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);
 		}
@@ -350,6 +427,59 @@ const Services: React.FC = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
+	// Funkcje obsługi modali
+	const handleOpenAddModal = () => setAddModalOpen(true);
+	const handleCloseAddModal = () => setAddModalOpen(false);
+
+	const handleOpenEditModal = (service: Service) => {
+		setServiceToEdit(service);
+		setEditModalOpen(true);
+	};
+	const handleCloseEditModal = () => {
+		setEditModalOpen(false);
+		setServiceToEdit(null);
+	};
+
+	// Po dodaniu nowego serwisu
+	const handleServiceAdded = (newService: Service) => {
+		setSnackbar({
+			open: true,
+			message: "Service added successfully!",
+			severity: "success",
+		});
+		fetchAllServices();
+	};
+
+	// Po edycji serwisu
+	const handleServiceUpdated = (updatedService: Service) => {
+		setSnackbar({
+			open: true,
+			message: "Service updated successfully!",
+			severity: "success",
+		});
+		fetchAllServices();
+	};
+
+	const handleDeleteServices = async (ids: number[]) => {
+		try {
+			for (const id of ids) {
+				await serviceService.deleteService(id);
+			}
+			setSnackbar({
+				open: true,
+				message: "Service(s) deleted successfully!",
+				severity: "success",
+			});
+			fetchAllServices();
+		} catch (error) {
+			setSnackbar({
+				open: true,
+				message: "Failed to delete service(s).",
+				severity: "error",
+			});
+		}
+	};
+
 	return (
 		<Mainlayout>
 			<Container maxWidth="xl">
@@ -363,8 +493,22 @@ const Services: React.FC = () => {
 						}}
 					>
 						<Typography variant="h4" fontWeight="bold">
-							Your Vehicle Services
+							{isAdmin() ? "All Vehicle Services" : "Your Vehicle Services"}
 						</Typography>
+						{isAdmin() && (
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={fetchAllServices}
+								startIcon={<RefreshIcon />}
+								sx={{
+									bgcolor: COLOR_PRIMARY,
+									"&:hover": { bgcolor: "#d6303f" },
+								}}
+							>
+								Refresh Data
+							</Button>
+						)}
 					</Box>
 
 					{/* Tabs */}
@@ -419,295 +563,308 @@ const Services: React.FC = () => {
 						/>
 					</Box>
 
-					{loadingVehicles ? (
-						<Box sx={{ textAlign: "center", py: 5 }}>
-							<CircularProgress sx={{ color: COLOR_PRIMARY }} />
-						</Box>
-					) : userVehicles.length === 0 ? (
-						<Paper sx={{ p: 4, borderRadius: 2, textAlign: "center" }}>
-							<Typography variant="h6" gutterBottom>
-								No Vehicles Found
-							</Typography>
-							<Typography variant="body1" color="text.secondary" paragraph>
-								You need to add a vehicle to view service history and
-								maintenance schedules.
-							</Typography>
-							<Button
-								component={Link}
-								to="/vehicles/add"
-								variant="contained"
-								sx={{
-									bgcolor: COLOR_PRIMARY,
-									"&:hover": { bgcolor: "#d6303f" },
-								}}
-							>
-								Add Vehicle
-							</Button>
+					{/* --- ADMIN --- */}
+					{isAdmin() && activeTab === 0 && (
+						<Paper sx={{ p: 3, borderRadius: 2 }}>
+							<Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+								<Button
+									variant="contained"
+									color="primary"
+									onClick={handleOpenAddModal}
+									sx={{
+										bgcolor: COLOR_PRIMARY,
+										"&:hover": { bgcolor: "#d6303f" },
+									}}
+								>
+									Add Service
+								</Button>
+							</Box>
+							<ServiceTable
+								services={filteredServices}
+								onEditService={handleOpenEditModal}
+								onDeleteServices={handleDeleteServices}
+							/>
+							<AddServiceModal
+								open={addModalOpen}
+								onClose={handleCloseAddModal}
+								onServiceAdded={handleServiceAdded}
+							/>
+							<EditServiceModal
+								open={editModalOpen}
+								onClose={handleCloseEditModal}
+								onServiceUpdated={handleServiceUpdated}
+								service={serviceToEdit}
+							/>
 						</Paper>
-					) : (
-						<>
-							{/* Services Tab Content */}
-							{activeTab === 0 && (
-								<Paper sx={{ p: 3, borderRadius: 2 }}>
-									{loadingServices ? (
-										<Box sx={{ textAlign: "center", py: 5 }}>
-											<CircularProgress sx={{ color: COLOR_PRIMARY }} />
-										</Box>
-									) : error ? (
-										<Alert severity="error" sx={{ mb: 2 }}>
-											{error}
-											<Button
-												variant="outlined"
-												size="small"
-												sx={{
-													ml: 2,
-													color: COLOR_PRIMARY,
-													borderColor: COLOR_PRIMARY,
-												}}
-												onClick={fetchClientServices}
-											>
-												Retry
-											</Button>
-										</Alert>
-									) : filteredServices.length === 0 ? (
-										<Alert severity="info">
-											No service history found for your vehicles.
-										</Alert>
-									) : (
-										<Box>
-											<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-												Your Service History
-											</Typography>
+					)}
 
-											{filteredServices.map((service, index) => (
-												<Paper
-													key={`service-${service.id || index}`} // Use compound key
-													elevation={0}
-													sx={{
-														p: 2,
-														mb: 2,
-														border: "1px solid",
-														borderColor: "grey.300",
-														borderRadius: 2,
-													}}
+					{/* --- KLIENT --- */}
+					{!isAdmin() && activeTab === 0 && (
+						<Paper sx={{ p: 3, borderRadius: 2 }}>
+							{loadingServices ? (
+								<Box sx={{ textAlign: "center", py: 5 }}>
+									<CircularProgress sx={{ color: COLOR_PRIMARY }} />
+								</Box>
+							) : error ? (
+								<Alert severity="error" sx={{ mb: 2 }}>
+									{error}
+									<Button
+										variant="outlined"
+										size="small"
+										sx={{
+											ml: 2,
+											color: COLOR_PRIMARY,
+											borderColor: COLOR_PRIMARY,
+										}}
+										onClick={fetchClientServices}
+									>
+										Retry
+									</Button>
+								</Alert>
+							) : filteredServices.length === 0 ? (
+								<Alert severity="info">
+									No service history found for your vehicles.
+								</Alert>
+							) : (
+								<Box>
+									<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+										Your Service History
+									</Typography>
+									{filteredServices.map((service, index) => (
+										<Paper
+											key={`service-${service.id || index}`}
+											elevation={0}
+											sx={{
+												p: 2,
+												mb: 2,
+												border: "1px solid",
+												borderColor: "grey.300",
+												borderRadius: 2,
+											}}
+										>
+											<Grid container spacing={2}>
+												<Grid item xs={12} sm={8}>
+													<Typography variant="h6">{service.name}</Typography>
+													<Typography variant="body2" color="text.secondary">
+														{service.vehicle?.make} {service.vehicle?.model} (
+														{service.vehicle?.registration_number})
+													</Typography>
+													<Typography variant="body2" paragraph>
+														{service.description}
+													</Typography>
+													<Chip
+														label={service.status || "Unknown"}
+														size="small"
+														sx={{
+															bgcolor:
+																service.status === "completed"
+																	? "#e8f5e9"
+																	: service.status === "in_progress"
+																	? "#fff8e1"
+																	: "#f5f5f5",
+															color:
+																service.status === "completed"
+																	? "#2e7d32"
+																	: service.status === "in_progress"
+																	? "#f57c00"
+																	: "#757575",
+														}}
+													/>
+												</Grid>
+												<Grid
+													item
+													xs={12}
+													sm={4}
+													sx={{ textAlign: { sm: "right" } }}
 												>
-													<Grid container spacing={2}>
-														<Grid item xs={12} sm={8}>
-															<Typography variant="h6">
-																{service.name}
-															</Typography>
-															<Typography
-																variant="body2"
-																color="text.secondary"
-															>
-																{service.vehicle?.make} {service.vehicle?.model}{" "}
-																({service.vehicle?.registration_number})
-															</Typography>
-															<Typography variant="body2" paragraph>
-																{service.description}
-															</Typography>
-															<Chip
-																label={service.status || "Unknown"}
-																size="small"
-																sx={{
-																	bgcolor:
-																		service.status === "completed"
-																			? "#e8f5e9"
-																			: service.status === "in_progress"
-																			? "#fff8e1"
-																			: "#f5f5f5",
-																	color:
-																		service.status === "completed"
-																			? "#2e7d32"
-																			: service.status === "in_progress"
-																			? "#f57c00"
-																			: "#757575",
-																}}
-															/>
-														</Grid>
-														<Grid
-															item
-															xs={12}
-															sm={4}
-															sx={{ textAlign: { sm: "right" } }}
-														>
-															<Typography variant="body2">
-																<strong>Date:</strong>{" "}
-																{service.service_date
-																	? new Date(
-																			service.service_date
-																	  ).toLocaleDateString()
-																	: "Not scheduled"}
-															</Typography>
-															<Typography variant="body2">
-																<strong>Cost:</strong> ${service.cost || "0.00"}
-															</Typography>
-														</Grid>
-													</Grid>
-												</Paper>
-											))}
-										</Box>
-									)}
-								</Paper>
+													<Typography variant="body2">
+														<strong>Date:</strong>{" "}
+														{service.service_date
+															? new Date(
+																	service.service_date
+															  ).toLocaleDateString()
+															: "Not scheduled"}
+													</Typography>
+													<Typography variant="body2">
+														<strong>Cost:</strong> ${service.cost || "0.00"}
+													</Typography>
+												</Grid>
+											</Grid>
+										</Paper>
+									))}
+								</Box>
 							)}
+						</Paper>
+					)}
 
-							{/* Maintenance Tab Content */}
-							{activeTab === 1 && (
-								<Paper sx={{ p: 3, borderRadius: 2 }}>
-									{loadingSchedules ? (
-										<Box sx={{ textAlign: "center", py: 5 }}>
-											<CircularProgress sx={{ color: COLOR_PRIMARY }} />
-										</Box>
-									) : error ? (
-										<Alert severity="error" sx={{ mb: 2 }}>
-											{error}
-											<Button
-												variant="outlined"
-												size="small"
-												sx={{
-													ml: 2,
-													color: COLOR_PRIMARY,
-													borderColor: COLOR_PRIMARY,
-												}}
-												onClick={fetchClientMaintenanceSchedules}
-											>
-												Retry
-											</Button>
-										</Alert>
-									) : filteredSchedules.length === 0 ? (
-										<Alert severity="info">
-											No maintenance schedules found for your vehicles.
-										</Alert>
-									) : (
-										<Box>
+					{/* --- MAINTENANCE SCHEDULE --- */}
+					{activeTab === 1 && (
+						<Paper sx={{ p: 3, borderRadius: 2 }}>
+							{loadingSchedules ? (
+								<Box sx={{ textAlign: "center", py: 5 }}>
+									<CircularProgress sx={{ color: COLOR_PRIMARY }} />
+								</Box>
+							) : error ? (
+								<Alert severity="error" sx={{ mb: 2 }}>
+									{error}
+									<Button
+										variant="outlined"
+										size="small"
+										sx={{
+											ml: 2,
+											color: COLOR_PRIMARY,
+											borderColor: COLOR_PRIMARY,
+										}}
+										onClick={fetchClientMaintenanceSchedules}
+									>
+										Retry
+									</Button>
+								</Alert>
+							) : filteredSchedules.length === 0 ? (
+								<Alert severity="info">
+									No maintenance schedules found for your vehicles.
+								</Alert>
+							) : (
+								<Box>
+									<Box
+										sx={{
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+											mb: 2,
+										}}
+									>
+										<Typography variant="h6" fontWeight="bold">
+											{isAdmin()
+												? "All Maintenance Schedules"
+												: "Your Maintenance Schedule"}
+										</Typography>
+										<Button
+											variant="outlined"
+											size="small"
+											startIcon={<RefreshIcon />}
+											onClick={
+												isAdmin()
+													? fetchAllMaintenanceSchedules
+													: fetchDueMaintenanceSchedules
+											}
+											sx={{
+												borderColor: COLOR_PRIMARY,
+												color: COLOR_PRIMARY,
+											}}
+										>
+											{isAdmin() ? "Refresh All" : "Check Due Maintenance"}
+										</Button>
+									</Box>
+
+									{filteredSchedules.map((schedule, index) => (
+										<Paper
+											key={`schedule-${schedule.id || index}`} // Use compound key
+											elevation={0}
+											sx={{
+												p: 2,
+												mb: 2,
+												border: "1px solid",
+												borderColor: !schedule.status
+													? "grey.300"
+													: schedule.status === "overdue"
+													? COLOR_PRIMARY
+													: schedule.status === "pending"
+													? "warning.light"
+													: "success.light",
+												borderRadius: 2,
+											}}
+										>
 											<Box
 												sx={{
 													display: "flex",
 													justifyContent: "space-between",
-													alignItems: "center",
-													mb: 2,
+													alignItems: "flex-start",
 												}}
 											>
-												<Typography variant="h6" fontWeight="bold">
-													Your Maintenance Schedule
-												</Typography>
-												<Button
-													variant="outlined"
-													size="small"
-													startIcon={<RefreshIcon />}
-													onClick={fetchDueMaintenanceSchedules}
-													sx={{
-														borderColor: COLOR_PRIMARY,
-														color: COLOR_PRIMARY,
-													}}
-												>
-													Check Due Maintenance
-												</Button>
-											</Box>
-
-											{filteredSchedules.map((schedule, index) => (
-												<Paper
-													key={`schedule-${schedule.id || index}`} // Use compound key
-													elevation={0}
-													sx={{
-														p: 2,
-														mb: 2,
-														border: "1px solid",
-														borderColor: !schedule.status
-															? "grey.300"
-															: schedule.status === "overdue"
-															? COLOR_PRIMARY
-															: schedule.status === "pending"
-															? "warning.light"
-															: "success.light",
-														borderRadius: 2,
-													}}
-												>
-													<Box
-														sx={{
-															display: "flex",
-															justifyContent: "space-between",
-															alignItems: "flex-start",
-														}}
-													>
-														<Box>
-															<Typography variant="body1" fontWeight="bold">
-																{schedule.service_type}
-															</Typography>
-															<Typography
-																variant="body2"
-																color="text.secondary"
-															>
-																{schedule.vehicle_details?.make || "Unknown"}{" "}
-																{schedule.vehicle_details?.model || "Unknown"} (
-																{schedule.vehicle_details?.year || "Unknown"})
-															</Typography>
-															<Typography
-																variant="body2"
-																color="text.secondary"
-															>
-																Reg:{" "}
-																{schedule.vehicle_details
-																	?.registration_number || "Unknown"}
-															</Typography>
-															<Box sx={{ mt: 1 }}>
-																<Typography
-																	variant="caption"
-																	sx={{
-																		p: 0.5,
-																		borderRadius: 1,
-																		bgcolor:
-																			schedule.status === "overdue"
-																				? COLOR_PRIMARY
-																				: schedule.status === "pending"
-																				? "warning.light"
-																				: "success.light",
-																		color: "#fff",
-																	}}
-																>
-																	{schedule.status
-																		? schedule.status.toUpperCase()
-																		: "UNKNOWN"}
-																</Typography>
-															</Box>
-														</Box>
-														<Box>
-															<Typography variant="body2" align="right">
-																Due:{" "}
-																{schedule.due_date
-																	? new Date(
-																			schedule.due_date
-																	  ).toLocaleDateString()
-																	: "Unknown"}
-															</Typography>
-															{schedule.last_maintenance_date && (
-																<Typography
-																	variant="caption"
-																	color="text.secondary"
-																>
-																	Last Maintenance:{" "}
-																	{new Date(
-																		schedule.last_maintenance_date
-																	).toLocaleDateString()}
-																</Typography>
-															)}
-														</Box>
+												<Box>
+													<Typography variant="body1" fontWeight="bold">
+														{schedule.service_type}
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														{schedule.vehicle_details?.make || "Unknown"}{" "}
+														{schedule.vehicle_details?.model || "Unknown"} (
+														{schedule.vehicle_details?.year || "Unknown"})
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														Reg:{" "}
+														{schedule.vehicle_details?.registration_number ||
+															"Unknown"}
+													</Typography>
+													<Box sx={{ mt: 1 }}>
+														<Typography
+															variant="caption"
+															sx={{
+																p: 0.5,
+																borderRadius: 1,
+																bgcolor:
+																	schedule.status === "overdue"
+																		? COLOR_PRIMARY
+																		: schedule.status === "pending"
+																		? "warning.light"
+																		: "success.light",
+																color: "#fff",
+															}}
+														>
+															{schedule.status
+																? schedule.status.toUpperCase()
+																: "UNKNOWN"}
+														</Typography>
 													</Box>
-													{schedule.notes && (
-														<Box sx={{ mt: 1 }}>
-															<Typography variant="body2">
-																{schedule.notes}
-															</Typography>
-														</Box>
+												</Box>
+												<Box>
+													<Typography variant="body2" align="right">
+														Due:{" "}
+														{schedule.due_date
+															? new Date(schedule.due_date).toLocaleDateString()
+															: "Unknown"}
+													</Typography>
+													{schedule.last_maintenance_date && (
+														<Typography
+															variant="caption"
+															color="text.secondary"
+														>
+															Last Maintenance:{" "}
+															{new Date(
+																schedule.last_maintenance_date
+															).toLocaleDateString()}
+														</Typography>
 													)}
-												</Paper>
-											))}
-										</Box>
-									)}
-								</Paper>
+												</Box>
+											</Box>
+											{schedule.notes && (
+												<Box sx={{ mt: 1 }}>
+													<Typography variant="body2">
+														{schedule.notes}
+													</Typography>
+												</Box>
+											)}
+										</Paper>
+									))}
+								</Box>
 							)}
-						</>
+						</Paper>
 					)}
+
+					{/* Add Service Modal */}
+					<AddServiceModal
+						open={addModalOpen}
+						onClose={handleCloseAddModal}
+						onServiceAdded={handleServiceAdded}
+					/>
+
+					{/* Edit Service Modal */}
+					<EditServiceModal
+						open={editModalOpen}
+						onClose={handleCloseEditModal}
+						service={serviceToEdit}
+						onServiceUpdated={handleServiceUpdated}
+					/>
 				</Box>
 
 				{/* Snackbar */}

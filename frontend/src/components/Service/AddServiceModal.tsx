@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -21,6 +21,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { Service, SERVICE_CATEGORY_OPTIONS } from "../../models/ServiceModel";
 import { serviceService } from "../../api/ServiceAPIEndpoint";
+import { workshopService } from "../../api/WorkshopAPIEndpoint";
+import AuthContext from "../../context/AuthProvider";
 
 interface AddServiceModalProps {
 	open: boolean;
@@ -33,26 +35,37 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 	onClose,
 	onServiceAdded,
 }) => {
+	const { auth } = useContext(AuthContext);
+
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [formData, setFormData] = useState<Omit<Service, "id">>({
+	const [workshops, setWorkshops] = useState<any[]>([]);
+	const [formData, setFormData] = useState<any>({
 		name: "",
 		description: "",
 		price: 0,
-		duration: 60, // domyślny czas 60 minut
+		duration: 60,
 		category: "general",
 		is_active: true,
+		workshop_id: "", // <-- dodaj to pole
 	});
 
 	const [validationErrors, setValidationErrors] = useState<
 		Record<string, string>
 	>({});
 
+	// Pobierz warsztaty przy otwarciu modala
+	useEffect(() => {
+		if (open) {
+			workshopService.getAllWorkshops().then(setWorkshops);
+		}
+	}, [open]);
+
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | { value: unknown; name?: string }>
 	) => {
 		const { name, value } = e.target as HTMLInputElement;
-		setFormData((prev) => ({
+		setFormData((prev: any) => ({
 			...prev,
 			[name as string]: ["price", "duration"].includes(name)
 				? parseFloat(value as string) || 0
@@ -91,6 +104,10 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 			newErrors.duration = "Duration must be greater than 0";
 		}
 
+		if (!formData.workshop_id) {
+			newErrors.workshop_id = "Workshop selection is required";
+		}
+
 		setValidationErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -106,12 +123,13 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 		setError(null);
 
 		try {
-			// Ensure numeric values are numbers
-			const submitData = {
+			const submitData: any = {
 				...formData,
 				price: Number(formData.price),
-				duration: Number(formData.duration),
+				estimated_duration: Number(formData.duration),
 			};
+			delete submitData.duration;
+			delete submitData.is_active;
 
 			const newService = await serviceService.createService(submitData);
 			onServiceAdded(newService);
@@ -125,6 +143,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 				duration: 60,
 				category: "general",
 				is_active: true,
+				workshop_id: "",
 			});
 		} catch (error) {
 			console.error("Error adding service:", error);
@@ -249,6 +268,34 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								error={!!validationErrors.duration}
 								helperText={validationErrors.duration}
 							/>
+						</Grid>
+
+						<Grid item xs={12} md={6}>
+							<FormControl
+								fullWidth
+								required
+								error={!!validationErrors.workshop_id}
+							>
+								<InputLabel>Workshop</InputLabel>
+								<Select
+									label="Workshop"
+									name="workshop_id"
+									value={formData.workshop_id}
+									onChange={handleChange}
+									disabled={loading}
+								>
+									{workshops.map((ws) => (
+										<MenuItem key={ws.id} value={ws.id}>
+											{ws.name}
+										</MenuItem>
+									))}
+								</Select>
+								{validationErrors.workshop_id && (
+									<FormHelperText>
+										{validationErrors.workshop_id}
+									</FormHelperText>
+								)}
+							</FormControl>
 						</Grid>
 
 						<Grid item xs={12}>

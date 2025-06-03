@@ -1,6 +1,5 @@
-import axios from "axios";
+import api from "../api";
 import { BASE_API_URL } from "../constants";
-import  api  from "../api";
 
 export const diagnosticsService = {
 	// Get all diagnostics
@@ -19,43 +18,17 @@ export const diagnosticsService = {
 		try {
 			console.log(`Fetching diagnostics for vehicle ID: ${vehicleId}`);
 
-			// Try multiple endpoint patterns
-			try {
-				const response = await api.get(`${BASE_API_URL}/diagnostics/`, {
-					params: { vehicle_id: vehicleId },
-				});
-				console.log("Vehicle diagnostics fetched successfully:", response.data);
-				return response.data;
-			} catch (firstError) {
-				console.error("First diagnostics endpoint pattern failed:", firstError);
+			// Use the dedicated vehicle diagnostics endpoint
+			const response = await api.get(
+				`${BASE_API_URL}/diagnostics/vehicle/${vehicleId}/`
+			);
 
-				// Try another endpoint pattern
-				try {
-					const response = await api.get(
-						`${BASE_API_URL}/diagnostics/by_vehicle/`,
-						{
-							params: { vehicle_id: vehicleId },
-						}
-					);
-					return response.data;
-				} catch (secondError) {
-					console.error(
-						"Second diagnostics endpoint pattern failed:",
-						secondError
-					);
+			console.log(
+				`Received ${response.data.length} diagnostics for vehicle ${vehicleId}:`,
+				response.data
+			);
 
-					// Try a third pattern
-					try {
-						const response = await api.get(
-							`${BASE_API_URL}/vehicles/${vehicleId}/diagnostics/`
-						);
-						return response.data;
-					} catch (thirdError) {
-						console.error("All diagnostics endpoint patterns failed");
-						return []; // Return empty array rather than throwing
-					}
-				}
-			}
+			return response.data;
 		} catch (error) {
 			console.error(
 				`Error fetching diagnostics for vehicle ${vehicleId}:`,
@@ -73,6 +46,22 @@ export const diagnosticsService = {
 		} catch (error) {
 			console.error(`Error fetching diagnostic with ID ${id}:`, error);
 			throw error;
+		}
+	},
+
+	// Get critical diagnostics
+	getCriticalDiagnostics: async () => {
+		try {
+			console.log("Fetching critical diagnostics");
+			const response = await api.get(`${BASE_API_URL}/diagnostics/critical/`);
+			console.log(
+				`Received ${response.data.length} critical diagnostics:`,
+				response.data
+			);
+			return response.data;
+		} catch (error) {
+			console.error("Error fetching critical diagnostics:", error);
+			return []; // Return empty array on error
 		}
 	},
 };

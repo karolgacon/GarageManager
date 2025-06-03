@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Box, Paper } from "@mui/material";
+import {
+	Container,
+	Box,
+	Paper,
+	Typography,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
+} from "@mui/material";
 import { format, startOfWeek, endOfWeek, parseISO, addDays } from "date-fns";
 import AuthContext from "../context/AuthProvider";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
@@ -18,6 +27,7 @@ import BookingTabs from "../components/Booking/BookingTabs";
 import BookingFilters from "../components/Booking/BookingFilters";
 import BookingContent from "../components/Booking/BookingContent";
 import BookingModals from "../components/Booking/BookingModals";
+import WorkshopSelector from "../components/Common/WorkshopSelector";
 
 interface Workshop {
 	id: number;
@@ -506,14 +516,44 @@ const Bookings: React.FC = () => {
 
 					{/* Admin Workshop Selector */}
 					{auth.roles?.[0] === "admin" && (
-						<BookingWorkshopSelector
-							workshops={workshops}
-							mechanics={mechanics}
-							selectedWorkshop={selectedWorkshop}
-							selectedMechanic={selectedMechanic}
-							onWorkshopChange={handleWorkshopChange}
-							onMechanicChange={handleMechanicChange}
+						<WorkshopSelector
+							value={selectedWorkshop}
+							onChange={(workshopId) => {
+								setSelectedWorkshop(workshopId);
+							}}
+							disabled={loading}
 						/>
+					)}
+
+					{/* Mechanic Selector - only visible if a workshop is selected */}
+					{auth.roles?.[0] === "admin" && selectedWorkshop && (
+						<Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+							<Typography variant="h6" fontWeight="bold" gutterBottom>
+								Select Mechanic (Optional)
+							</Typography>
+							<Box sx={{ width: "100%" }}>
+								<FormControl fullWidth size="small">
+									<InputLabel id="mechanic-select-label">Mechanic</InputLabel>
+									<Select
+										labelId="mechanic-select-label"
+										id="mechanic-select"
+										value={selectedMechanic || ""}
+										label="Mechanic"
+										onChange={handleMechanicChange}
+										disabled={loading}
+									>
+										<MenuItem value="">
+											<em>All Mechanics</em>
+										</MenuItem>
+										{mechanics.map((mechanic) => (
+											<MenuItem key={mechanic.id} value={mechanic.id}>
+												{mechanic.first_name} {mechanic.last_name}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							</Box>
+						</Paper>
 					)}
 
 					{/* Main bookings UI */}

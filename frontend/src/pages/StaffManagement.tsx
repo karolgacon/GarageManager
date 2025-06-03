@@ -56,6 +56,7 @@ import CustomSnackbar, {
 import { workshopService } from "../api/WorkshopAPIEndpoint";
 import { staffService, StaffMember } from "../api/StaffAPIEndpoint";
 import { Workshop } from "../models/WorkshopModel";
+import WorkshopSelector from "../components/Common/WorkshopSelector";
 
 const StaffManagement: React.FC = () => {
 	const { auth, isAdmin, isOwner } = useContext(AuthContext);
@@ -592,35 +593,14 @@ const StaffManagement: React.FC = () => {
 
 	const renderWorkshopSelection = () => {
 		return (
-			<Paper sx={{ p: 4, textAlign: "center" }}>
-				<Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-					Select Workshop
-				</Typography>
-				<Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-					Choose a workshop to manage its staff members
-				</Typography>
-				<FormControl sx={{ minWidth: 300 }}>
-					<InputLabel id="workshop-select-label">Workshop</InputLabel>
-					<Select
-						labelId="workshop-select-label"
-						value={selectedWorkshopId || ""}
-						label="Workshop"
-						onChange={handleWorkshopChange}
-						disabled={loading}
-					>
-						{workshops.map((workshop) => (
-							<MenuItem key={workshop.id} value={workshop.id}>
-								{workshop.name} - {workshop.address}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
-				{loading && (
-					<Box sx={{ mt: 2 }}>
-						<CircularProgress color="error" size={24} />
-					</Box>
-				)}
-			</Paper>
+			<WorkshopSelector
+				value={selectedWorkshopId}
+				onChange={(workshopId) => {
+					setSelectedWorkshopId(workshopId);
+					setSelectedStaff(null); // Reset selected staff instead
+				}}
+				disabled={loading}
+			/>
 		);
 	};
 

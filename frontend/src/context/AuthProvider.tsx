@@ -107,7 +107,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	}, [auth]);
 
 	// Updated setAuth to also extract user_id from token if present
-	const setAuthWithUserId = (newAuth: IAuth) => {
+	const setAuthWithUserId = (newAuth: IAuth | null) => {
+		if (newAuth === null) {
+			// Handle null case for logout
+			setAuth({ isLoading: false });
+			return;
+		}
+
 		if (newAuth.token && !newAuth.user_id) {
 			try {
 				const tokenData = parseJwt(newAuth.token);

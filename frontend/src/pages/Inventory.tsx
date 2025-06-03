@@ -72,8 +72,20 @@ const Inventory = () => {
 
 			if (isAdmin()) {
 				// Admins see all parts
-				const data = await inventoryService.getAllParts();
-				setParts(data);
+				try {
+					const data = await inventoryService.getAllParts();
+					setParts(data);
+				} catch (err) {
+					console.error("Admin parts fetch error:", err);
+					if (err.response?.status === 500) {
+						setError(
+							"Server error: The inventory system is currently experiencing technical difficulties. Our team has been notified."
+						);
+					} else {
+						setError("Failed to load inventory items. Please try again.");
+					}
+					setParts([]);
+				}
 			} else if (isOwner() || isMechanic()) {
 				try {
 					// Try to get user's workshop

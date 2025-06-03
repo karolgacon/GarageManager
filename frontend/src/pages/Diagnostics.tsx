@@ -41,6 +41,7 @@ import { vehicleService } from "../api/VehicleAPIEndpoint";
 import { DiagnosticIssue } from "../models/DiagnosticIssue";
 import { Vehicle } from "../models/VehicleModel";
 import { Workshop } from "../models/WorkshopModel";
+import WorkshopSelector from "../components/Common/WorkshopSelector";
 
 const Diagnostics: React.FC = () => {
 	const { auth, isAdmin, isOwner, isMechanic, isClient } =
@@ -109,6 +110,8 @@ const Diagnostics: React.FC = () => {
 				if (isClient()) {
 					// Klient widzi tylko swoje pojazdy
 					vehiclesData = await vehicleService.getClientVehicles(auth.user_id);
+					// Set client's own ID as selected customer ID for consistency
+					setSelectedCustomerId(auth.user_id);
 				} else if (selectedCustomerId) {
 					// Admin/Właściciel/Mechanik z wybranym klientem
 					vehiclesData = await vehicleService.getClientVehicles(
@@ -302,7 +305,11 @@ const Diagnostics: React.FC = () => {
 						) : (
 							<Grid container spacing={2}>
 								{filteredCustomers.map((customer) => (
-									<Grid item xs={12} key={customer.id}>
+									<Grid
+										item
+										xs={12}
+										key={customer.id || `customer-${Math.random()}`}
+									>
 										<Card
 											sx={{
 												cursor: "pointer",
@@ -315,14 +322,21 @@ const Diagnostics: React.FC = () => {
 											onClick={() => {
 												setSelectedCustomerId(customer.id);
 												setSelectedClient(customer);
+												console.log("Selected customer:", customer);
 											}}
 										>
 											<CardContent>
 												<Typography variant="subtitle1" fontWeight="bold">
-													{customer.first_name} {customer.last_name}
+													{customer.first_name || ""} {customer.last_name || ""}
+													{!customer.first_name &&
+														!customer.last_name &&
+														"Customer Name Missing"}
 												</Typography>
 												<Typography variant="body2" color="text.secondary">
 													Phone: {customer.phone || "N/A"}
+												</Typography>
+												<Typography variant="body2" color="text.secondary">
+													Email: {customer.email || "N/A"}
 												</Typography>
 											</CardContent>
 										</Card>
@@ -447,6 +461,43 @@ const Diagnostics: React.FC = () => {
 						</FormControl>
 					)}
 				</Box>
+			</Paper>
+		);
+	};
+
+	const renderClientVehicleSelection = () => {
+		return (
+			<Paper sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+				<Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+					Select Your Vehicle:
+				</Typography>
+				{vehicles.length === 0 ? (
+					<Alert severity="info">You don't have any registered vehicles.</Alert>
+				) : (
+					<FormControl fullWidth>
+						<InputLabel id="client-vehicle-select-label">
+							Your Vehicle
+						</InputLabel>
+						<Select
+							labelId="client-vehicle-select-label"
+							id="client-vehicle-select"
+							value={selectedVehicleId || ""}
+							label="Vehicle"
+							onChange={handleVehicleChange}
+							disabled={loading}
+						>
+							<MenuItem value="">
+								<em>Select a vehicle</em>
+							</MenuItem>
+							{vehicles.map((vehicle) => (
+								<MenuItem key={vehicle.id} value={vehicle.id}>
+									{vehicle.brand} {vehicle.model} ({vehicle.registration_number}
+									)
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+				)}
 			</Paper>
 		);
 	};
@@ -597,32 +648,16 @@ const Diagnostics: React.FC = () => {
 
 	const renderWorkshopSelection = () => {
 		return (
-			<Paper sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-				<Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-					Select Workshop
-				</Typography>
-
-				<FormControl fullWidth>
-					<InputLabel id="workshop-select-label">Workshop</InputLabel>
-					<Select
-						labelId="workshop-select-label"
-						id="workshop-select"
-						value={selectedWorkshopId || ""}
-						label="Workshop"
-						onChange={handleWorkshopChange}
-						disabled={loading}
-					>
-						<MenuItem value="">
-							<em>Select a workshop</em>
-						</MenuItem>
-						{workshops.map((workshop) => (
-							<MenuItem key={workshop.id} value={workshop.id}>
-								{workshop.name}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
-			</Paper>
+			<WorkshopSelector
+				value={selectedWorkshopId}
+				onChange={(workshopId) => {
+					setSelectedWorkshopId(workshopId);
+					// Reset dependent selections
+					setSelectedCustomerId(null);
+					setSelectedVehicleId(null);
+				}}
+				disabled={loading}
+			/>
 		);
 	};
 
@@ -645,7 +680,8 @@ const Diagnostics: React.FC = () => {
 
 		return (
 			<>
-				{!isClient() && renderCustomerDetails()}
+				{/* Show customer details for non-clients OR vehicle selection for clients */}
+				{!isClient() ? renderCustomerDetails() : renderClientVehicleSelection()}
 				{selectedVehicleId && renderDiagnosticReport()}
 			</>
 		);

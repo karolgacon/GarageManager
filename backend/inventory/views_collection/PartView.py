@@ -100,7 +100,6 @@ class PartViewSet(BaseViewSet):
         # Apply filters based on role and parameters
         if workshop_id:
             # If a specific workshop ID is requested, filter for it
-            # (typically for admin users selecting a specific workshop)
             part_ids = PartInventory.objects.filter(
                 workshop_id=workshop_id
             ).values_list('part_id', flat=True)
@@ -112,7 +111,8 @@ class PartViewSet(BaseViewSet):
             ).values_list('part_id', flat=True)
             queryset = queryset.filter(id__in=part_ids)
         
-        serializer = self.get_serializer(queryset, many=True)
+        # FIX: Use serializer_class directly instead of get_serializer
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
     
     @extend_schema(
