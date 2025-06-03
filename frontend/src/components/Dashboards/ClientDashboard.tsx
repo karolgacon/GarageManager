@@ -47,6 +47,13 @@ const ClientDashboard: React.FC = () => {
 		const fetchClientData = async () => {
 			try {
 				setLoading(true);
+
+				// Check if auth is loading or not available
+				if (!auth || auth.isLoading) {
+					console.log("Auth data still loading");
+					return; // Will hit finally block
+				}
+
 				const clientId = auth.user_id;
 
 				if (!clientId) {
@@ -54,35 +61,79 @@ const ClientDashboard: React.FC = () => {
 					return;
 				}
 
-				// Get client vehicles
-				const vehicles = await vehicleService.getClientVehicles(clientId);
+				console.log(`Fetching dashboard data for client ID: ${clientId}`);
 
-				// Get upcoming bookings
-				const upcomingBookings = await bookingService.getUpcomingBookings();
+				// Get client vehicles - with error handling
+				let vehicles = [];
+				try {
+					vehicles = await vehicleService.getClientVehicles(clientId);
+					console.log(`Found ${vehicles.length} vehicles for client`);
+				} catch (vehicleError) {
+					console.error("Error fetching client vehicles:", vehicleError);
+					vehicles = []; // Ensure it's an empty array on error
+				}
 
-				// Get completed services for client's vehicles
+				// Get upcoming bookings - with error handling
+				let upcomingBookings = [];
+				try {
+					upcomingBookings = await bookingService.getUpcomingBookings();
+					console.log(`Found ${upcomingBookings.length} upcoming bookings`);
+				} catch (bookingError) {
+					console.error("Error fetching upcoming bookings:", bookingError);
+					upcomingBookings = []; // Ensure it's an empty array on error
+				}
+
+				// Get completed services for client's vehicles - with error handling
 				const vehicleIds = vehicles.map((v) => v.id);
-				const services =
-					vehicleIds.length > 0
-						? await Promise.all(
-								vehicleIds.map((id) => serviceService.getVehicleServices(id))
-						  )
-						: [];
-				const completedServices = services
-					.flat()
-					.filter((service) => service.status === "completed");
+				let completedServices = [];
 
-				// Get pending issues for client's vehicles
-				const diagnosticsPromises =
-					vehicleIds.length > 0
-						? vehicleIds.map((id) =>
-								diagnosticsService.getVehicleDiagnostics(id)
-						  )
-						: [];
-				const allDiagnostics = (await Promise.all(diagnosticsPromises)).flat();
-				const pendingIssues = allDiagnostics.filter(
-					(issue) => issue.status === "pending"
-				);
+				if (vehicleIds.length > 0) {
+					try {
+						const servicesPromises = vehicleIds.map((id) =>
+							serviceService.getVehicleServices(id).catch((err) => {
+								console.error(
+									`Error fetching services for vehicle ${id}:`,
+									err
+								);
+								return []; // Return empty array for this vehicle
+							})
+						);
+						const services = await Promise.all(servicesPromises);
+						completedServices = services
+							.flat()
+							.filter((service) => service && service.status === "completed");
+						console.log(`Found ${completedServices.length} completed services`);
+					} catch (serviceError) {
+						console.error("Error processing services:", serviceError);
+					}
+				}
+
+				// Get pending issues for client's vehicles - with error handling
+				let pendingIssues = [];
+				if (vehicleIds.length > 0) {
+					try {
+						const diagnosticsPromises = vehicleIds.map((id) =>
+							diagnosticsService.getVehicleDiagnostics(id).catch((err) => {
+								console.error(
+									`Error fetching diagnostics for vehicle ${id}:`,
+									err
+								);
+								return []; // Return empty array for this vehicle
+							})
+						);
+						const allDiagnostics = (
+							await Promise.all(diagnosticsPromises)
+						).flat();
+						pendingIssues = allDiagnostics.filter(
+							(issue) => issue && issue.status === "pending"
+						);
+						console.log(
+							`Found ${pendingIssues.length} pending diagnostic issues`
+						);
+					} catch (diagnosticsError) {
+						console.error("Error processing diagnostics:", diagnosticsError);
+					}
+				}
 
 				// Format vehicles data
 				const formattedVehicles = vehicles.map((vehicle) => ({

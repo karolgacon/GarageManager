@@ -74,12 +74,14 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 					localStorage.setItem("userRole", userDetails.role);
 					localStorage.setItem("userID", decoded.user_id.toString());
 
-					// Update authentication context
+					// Update authentication context with user_id
 					setAuth({
 						token: jwtToken,
 						roles: [userDetails.role],
 						username: userDetails.username,
 						is_active: userDetails.is_active,
+						user_id: decoded.user_id, // Add user_id from the decoded token
+						isLoading: false,
 					});
 
 					// Redirect based on account status and role

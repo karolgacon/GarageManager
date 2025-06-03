@@ -8,6 +8,7 @@ import CustomSnackbar, {
 } from "../components/Mainlayout/Snackbar";
 import { bookingService } from "../api/BookingAPIEndpoint";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
+import { UserService } from "../api/UserAPIEndpoint"; // Import userService
 
 // Import new components
 import BookingHeader from "../components/Booking/BookingHeader";
@@ -30,7 +31,7 @@ interface Mechanic {
 }
 
 const Bookings: React.FC = () => {
-	const { auth } = useContext(AuthContext);
+	const { auth, setAuth } = useContext(AuthContext);
 
 	// Snackbar state
 	const [snackbarState, setSnackbarState] = useState<SnackbarState>({
@@ -156,18 +157,62 @@ const Bookings: React.FC = () => {
 		}
 	};
 
-	// Update the loadBookings function to better handle errors
+	// Add this function to your component
+	const fetchUserInfo = async () => {
+		try {
+			const userInfo = await userService.getCurrentUser(); // You'll need to create this API service
+			if (userInfo && userInfo.id) {
+				// Update auth context with user ID
+				setAuth((prev) => ({
+					...prev,
+					user_id: userInfo.id,
+				}));
+			}
+		} catch (error) {
+			console.error("Error fetching user info:", error);
+			setError(
+				"Could not load your user information. Please refresh the page."
+			);
+		}
+	};
+
+	// Add this useEffect to trigger the user info fetch when needed
+	useEffect(() => {
+		if (auth.roles?.[0] === "client" && !auth.user_id && !auth.isLoading) {
+			console.log("Client user detected but no user_id, fetching user info");
+			fetchUserInfo();
+		}
+	}, [auth.roles, auth.user_id, auth.isLoading]);
+
+	// Update the loadBookings function with timeout and better error handling
 	const loadBookings = async () => {
 		setLoading(true);
 		setError(null);
+
+		// Create a timeout promise
+		const timeoutPromise = new Promise((_, reject) =>
+			setTimeout(() => reject(new Error("Request timed out")), 10000)
+		);
+
 		try {
 			let bookingsData = [];
 
-			// Skip loading if auth data isn't ready yet
-			if (auth.roles?.[0] === "client" && !auth.user_id) {
-				console.warn("User ID not available yet for client bookings");
-				setBookings([]);
-				return; // Will hit finally block to set loading to false
+			// Ensure auth is loaded
+			if (!auth || auth.isLoading) {
+				console.log("Auth data still loading");
+				return; // Will hit finally block
+			}
+
+			// Better client ID check for debugging
+			if (auth.roles?.[0] === "client") {
+				if (!auth.user_id) {
+					console.error("Client user_id is missing:", auth);
+					setError(
+						"Your user information is not fully loaded. Please try refreshing the page."
+					);
+					return; // Will hit finally block
+				}
+				console.log("Loading bookings for client ID:", auth.user_id);
 			}
 
 			// Handle special booking types
@@ -203,11 +248,25 @@ const Bookings: React.FC = () => {
 				// Get bookings based on user role
 				switch (auth.roles?.[0]) {
 					case "client":
-						bookingsData = await bookingService.getClientBookings(
-							auth.user_id,
-							startDate,
-							endDate
-						);
+						// For client case, use Promise.race to add timeout
+						try {
+							// Race between the API call and the timeout
+							bookingsData = await Promise.race([
+								bookingService.getClientBookings(
+									auth.user_id,
+									startDate,
+									endDate
+								),
+								timeoutPromise,
+							]);
+						} catch (clientError) {
+							if (clientError.message === "Request timed out") {
+								console.error("Client bookings request timed out");
+								setError("Request timed out. Please try again.");
+							} else {
+								throw clientError; // Re-throw to be caught by the outer catch
+							}
+						}
 						break;
 					case "mechanic":
 						bookingsData = await bookingService.getMechanicBookings(
@@ -256,13 +315,12 @@ const Bookings: React.FC = () => {
 				}
 			}
 
-			setBookings(bookingsData);
+			setBookings(bookingsData || []);
 		} catch (err: any) {
 			console.error("Error loading bookings:", err);
 			setError(err.message || "Failed to load bookings");
-			setBookings([]); // Ensure we set empty bookings on error
+			setBookings([]);
 		} finally {
-			// Always set loading to false, even if there are errors
 			setLoading(false);
 		}
 	};
@@ -425,6 +483,12 @@ const Bookings: React.FC = () => {
 	// Format today's date as "Today, May 29, 2025"
 	const formattedToday = format(new Date(), "MMMM dd, yyyy");
 
+	// Add this function to your Bookings component
+	const handleForceLoadingComplete = () => {
+		setLoading(false);
+		setError("Loading took too long. Please try refreshing the page.");
+	};
+
 	return (
 		<Mainlayout>
 			<CustomSnackbar
@@ -502,10 +566,12 @@ const Bookings: React.FC = () => {
 								daysOfWeek={daysOfWeek}
 								userRole={auth.roles?.[0]}
 								calendarView={calendarView}
-								selectedDate={selectedDate} // Dodaj tę linię
+								selectedDate={selectedDate}
 								onView={handleViewBooking}
 								onEdit={handleEditBooking}
 								onDelete={handleDeleteBooking}
+								onForceLoadingComplete={handleForceLoadingComplete}
+								onRefresh={loadBookings}
 							/>
 						</Paper>
 					)}

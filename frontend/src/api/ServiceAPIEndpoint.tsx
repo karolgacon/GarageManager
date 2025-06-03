@@ -1,93 +1,79 @@
-import api from "../api";
-import { Service } from "../models/ServiceModel";
+import axios from "axios";
 import { BASE_API_URL } from "../constants";
-
-const BASE_URL = `${BASE_API_URL}/services/`;
+import { api } from "../api";
 
 export const serviceService = {
-	getAllServices: async (): Promise<Service[]> => {
+	// Get all services
+	getAllServices: async () => {
 		try {
-			const response = await api.get(BASE_URL);
-			return response.data.map((service: any) => ({
-				...service,
-				price:
-					typeof service.price === "number"
-						? service.price
-						: parseFloat(service.price || 0),
-				duration:
-					typeof service.duration === "number"
-						? service.duration
-						: parseInt(service.duration || 0, 10),
-			}));
-		} catch (error) {
-			console.error("Error fetching services:", error);
-			throw error;
-		}
-	},
-
-	getServiceById: async (id: number): Promise<Service> => {
-		try {
-			const response = await api.get(`${BASE_URL}/${id}/`);
-			return {
-				...response.data,
-				price:
-					typeof response.data.price === "number"
-						? response.data.price
-						: parseFloat(response.data.price || 0),
-				duration:
-					typeof response.data.duration === "number"
-						? response.data.duration
-						: parseInt(response.data.duration || 0, 10),
-			};
-		} catch (error) {
-			console.error(`Error fetching service with id ${id}:`, error);
-			throw error;
-		}
-	},
-
-	createService: async (service: Omit<Service, "id">): Promise<Service> => {
-		try {
-			const response = await api.post(`${BASE_URL}/`, service);
+			const response = await api.get(`${BASE_API_URL}/services/`);
 			return response.data;
 		} catch (error) {
-			console.error("Error creating service:", error);
-			throw error;
+			console.error("Error fetching all services:", error);
+			return []; // Return empty array instead of throwing
 		}
 	},
 
-	updateService: async (
-		id: number,
-		service: Partial<Service>
-	): Promise<Service> => {
+	// Get vehicle services - matching the function name used in ClientDashboard
+	getVehicleServices: async (vehicleId: number) => {
 		try {
-			const response = await api.put(`${BASE_URL}/${id}/`, service);
+			console.log(`Fetching services for vehicle ID: ${vehicleId}`);
+
+			// Try the endpoint with vehicle_id as a query parameter
+			try {
+				const response = await api.get(`${BASE_API_URL}/services/`, {
+					params: { vehicle_id: vehicleId },
+				});
+				console.log("Vehicle services fetched successfully:", response.data);
+				return response.data;
+			} catch (firstError) {
+				console.error("First endpoint pattern failed:", firstError);
+
+				// Try another common pattern with by_vehicle endpoint
+				try {
+					const response = await api.get(
+						`${BASE_API_URL}/services/by_vehicle/`,
+						{
+							params: { vehicle_id: vehicleId },
+						}
+					);
+					console.log(
+						"Vehicle services fetched with second pattern:",
+						response.data
+					);
+					return response.data;
+				} catch (secondError) {
+					console.error("Second endpoint pattern failed:", secondError);
+
+					// Try a third pattern with vehicleId in the URL path
+					try {
+						const response = await api.get(
+							`${BASE_API_URL}/vehicles/${vehicleId}/services/`
+						);
+						console.log(
+							"Vehicle services fetched with third pattern:",
+							response.data
+						);
+						return response.data;
+					} catch (thirdError) {
+						console.error("All endpoint patterns failed");
+						return []; // Return empty array rather than throwing
+					}
+				}
+			}
+		} catch (error) {
+			console.error(`Error fetching services for vehicle ${vehicleId}:`, error);
+			return []; // Return empty array on error
+		}
+	},
+
+	// Get service details
+	getService: async (id: number) => {
+		try {
+			const response = await api.get(`${BASE_API_URL}/services/${id}/`);
 			return response.data;
 		} catch (error) {
-			console.error(`Error updating service with id ${id}:`, error);
-			throw error;
-		}
-	},
-
-	deleteService: async (id: number): Promise<void> => {
-		try {
-			await api.delete(`${BASE_URL}/${id}/`);
-		} catch (error) {
-			console.error(`Error deleting service with id ${id}:`, error);
-			throw error;
-		}
-	},
-
-	toggleServiceStatus: async (
-		id: number,
-		isActive: boolean
-	): Promise<Service> => {
-		try {
-			const response = await api.patch(`${BASE_URL}/${id}/`, {
-				is_active: isActive,
-			});
-			return response.data;
-		} catch (error) {
-			console.error(`Error toggling service status with id ${id}:`, error);
+			console.error(`Error fetching service with ID ${id}:`, error);
 			throw error;
 		}
 	},

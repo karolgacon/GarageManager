@@ -153,18 +153,21 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 				const tokenData = jwtDecode<CustomJwtPayload>(token);
 				console.log("Token data:", tokenData);
 
+				// Update authentication context with user_id
 				setAuth({
 					token,
-					roles: [userData.role], // Użyj roli z user data
-					username: userData.username, // Użyj username z user data
+					roles: [userData.role], // Use role from user data
+					username: userData.username, // Use username from user data
 					is_active: userData.is_active,
+					user_id: userData.id, // Add user_id from the userData
+					isLoading: false,
 				});
 
 				// Store in localStorage
 				localStorage.setItem("token", token);
 				localStorage.setItem("userRole", userData.role);
 				localStorage.setItem("username", userData.username);
-				localStorage.setItem("userID", userData.id.toString()); // Użyj id z user data
+				localStorage.setItem("userID", userData.id.toString()); // Use id from user data
 
 				// Set auth header for future requests
 				setAuthHeader(token);

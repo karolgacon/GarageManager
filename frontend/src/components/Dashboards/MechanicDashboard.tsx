@@ -10,6 +10,7 @@ import {
 	Chip,
 	Card,
 	CardContent,
+	Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import BuildIcon from "@mui/icons-material/Build";
@@ -27,6 +28,7 @@ import { bookingService } from "../../api/BookingAPIEndpoint";
 const MechanicDashboard: React.FC = () => {
 	const { auth } = useContext(AuthContext);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 	const [dashboardData, setDashboardData] = useState({
 		assignedTasks: 0,
 		pendingDiagnostics: 0,
@@ -40,11 +42,23 @@ const MechanicDashboard: React.FC = () => {
 		const fetchDashboardData = async () => {
 			try {
 				setLoading(true);
+				setError(null);
+
+				// Make sure auth is fully loaded
+				if (!auth || auth.isLoading) {
+					console.log("Auth data still loading");
+					return;
+				}
+
 				const mechanicId = auth.user_id;
 				const workshopId = auth.workshop_id;
 
 				if (!mechanicId || !workshopId) {
 					console.error("Mechanic ID or Workshop ID not found");
+					setError(
+						"Missing mechanic or workshop information. Please check your account profile."
+					);
+					setLoading(false);
 					return;
 				}
 
@@ -116,18 +130,54 @@ const MechanicDashboard: React.FC = () => {
 				});
 			} catch (error) {
 				console.error("Error fetching mechanic dashboard data:", error);
+				setError("Could not load dashboard data. Please try again later.");
 			} finally {
 				setLoading(false);
 			}
 		};
 
 		fetchDashboardData();
-	}, [auth.user_id, auth.workshop_id]);
+	}, [auth]); // Use the entire auth object as dependency
 
 	if (loading) {
 		return (
 			<Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
-				<CircularProgress color="error" />
+				<CircularProgress sx={{ color: COLOR_PRIMARY }} />
+			</Box>
+		);
+	}
+
+	if (error) {
+		return (
+			<Box sx={{ p: 3 }}>
+				<Alert severity="warning" sx={{ mb: 3 }}>
+					{error}
+				</Alert>
+				<Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+					<Typography variant="h6" gutterBottom>
+						Account Configuration Required
+					</Typography>
+					<Typography paragraph>
+						Your account may need to be properly configured with workshop
+						information. Please contact your administrator if this issue
+						persists.
+					</Typography>
+					<Button
+						variant="contained"
+						component={Link}
+						to="/profile"
+						sx={{
+							mr: 2,
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: "#d6303f" },
+						}}
+					>
+						View Profile
+					</Button>
+					<Button variant="outlined" component={Link} to="/">
+						Go to Home
+					</Button>
+				</Paper>
 			</Box>
 		);
 	}

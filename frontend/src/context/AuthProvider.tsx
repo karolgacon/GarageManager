@@ -18,26 +18,73 @@ interface IAuth {
 	roles?: string[];
 	username?: string;
 	is_active?: boolean;
+	user_id?: number;
+	isLoading?: boolean;
+}
+
+// Function to decode JWT token
+function parseJwt(token: string) {
+	try {
+		const base64Url = token.split(".")[1];
+		const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+		const jsonPayload = decodeURIComponent(
+			atob(base64)
+				.split("")
+				.map(function (c) {
+					return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+				})
+				.join("")
+		);
+		return JSON.parse(jsonPayload);
+	} catch (e) {
+		console.error("Error parsing JWT token:", e);
+		return null;
+	}
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [auth, setAuth] = useState<IAuth>(() => {
-		const savedToken = window.localStorage.getItem("token");
-		const savedRole = window.localStorage.getItem("userRole");
-		const savedUsername = window.localStorage.getItem("username");
-		if (savedToken && savedRole) {
-			return {
-				token: savedToken,
-				roles: [savedRole],
-				username: savedUsername || "",
-			};
-		}
-		return {};
+		// Mark as loading during initialization
+		return { isLoading: true };
 	});
 	const navigate = useNavigate();
 
+	// Initialize auth from localStorage
+	useEffect(() => {
+		const savedToken = window.localStorage.getItem("token");
+		const savedRole = window.localStorage.getItem("userRole");
+		const savedUsername = window.localStorage.getItem("username");
+		const savedUserId = window.localStorage.getItem("userID");
+
+		if (savedToken && savedRole) {
+			// Try to extract user_id from localStorage or token
+			let userId = savedUserId ? parseInt(savedUserId) : undefined;
+
+			if (!userId && savedToken) {
+				try {
+					const tokenData = parseJwt(savedToken);
+					userId = tokenData?.user_id;
+				} catch (e) {
+					console.error("Failed to parse JWT token", e);
+				}
+			}
+
+			setAuth({
+				token: savedToken,
+				roles: [savedRole],
+				username: savedUsername || "",
+				user_id: userId,
+				isLoading: false,
+			});
+		} else {
+			// Not logged in
+			setAuth({ isLoading: false });
+		}
+	}, []);
+
+	// Save auth data to localStorage when it changes
 	useEffect(() => {
 		if (auth?.token) {
 			window.localStorage.setItem("token", auth.token);
@@ -47,15 +94,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			if (auth.username) {
 				window.localStorage.setItem("username", auth.username);
 			}
-		} else {
+			if (auth.user_id) {
+				window.localStorage.setItem("user_id", auth.user_id.toString());
+			}
+		} else if (!auth.isLoading) {
+			// Clear storage when logged out (but not during initialization)
 			window.localStorage.removeItem("token");
 			window.localStorage.removeItem("userRole");
 			window.localStorage.removeItem("username");
+			window.localStorage.removeItem("user_id");
 		}
 	}, [auth]);
 
+	// Updated setAuth to also extract user_id from token if present
+	const setAuthWithUserId = (newAuth: IAuth) => {
+		if (newAuth.token && !newAuth.user_id) {
+			try {
+				const tokenData = parseJwt(newAuth.token);
+				// Check common JWT user ID fields
+				const userId = tokenData?.user_id || tokenData?.sub || tokenData?.id;
+				if (userId) {
+					newAuth.user_id = userId;
+				}
+			} catch (e) {
+				console.error("Failed to parse JWT token during auth update", e);
+			}
+		}
+		setAuth(newAuth);
+	};
+
 	const logout = () => {
-		setAuth({});
+		setAuth({ isLoading: false });
 		window.localStorage.clear();
 		navigate("/login", { replace: true });
 	};
@@ -67,7 +136,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	return (
 		<AuthContext.Provider
-			value={{ auth, setAuth, logout, isAdmin, isOwner, isMechanic, isClient }}
+			value={{
+				auth,
+				setAuth: setAuthWithUserId,
+				logout,
+				isAdmin,
+				isOwner,
+				isMechanic,
+				isClient,
+			}}
 		>
 			{children}
 		</AuthContext.Provider>

@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Services",
 			icon: <BuildIcon />,
 			path: "/services",
-			roles: ["admin", "owner", "mechanic"],
+			roles: ["admin", "owner", "mechanic","client"],
 		},
 		{
 			title: "Vehicles", // Nowa zakładka Vehicles
@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Diagnostics",
 			icon: <SettingsIcon />,
 			path: "/diagnostics",
-			roles: ["admin", "mechanic", "owner"],
+			roles: ["admin", "mechanic", "owner", "client"],
 		},
 		{
 			title: "Staff Management",
