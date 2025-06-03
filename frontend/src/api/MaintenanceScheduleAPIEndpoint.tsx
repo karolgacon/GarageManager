@@ -16,17 +16,17 @@ export const maintenanceScheduleService = {
 	// Get due maintenance schedules - use client filtering parameter
 	getDueSchedules: async (clientId?: number) => {
 		try {
-			// If a client ID is provided, use it as a query parameter
-			const params: any = {};
-			if (clientId) params.client_id = clientId;
+			// Add the client_id as a parameter if provided
+			const params = clientId ? { client_id: clientId } : {};
 
+			console.log(
+				`Fetching due maintenance schedules${
+					clientId ? ` for client ${clientId}` : ""
+				}`
+			);
 			const response = await api.get(
 				`${BASE_API_URL}/maintenance-schedules/due_schedules/`,
 				{ params }
-			);
-			console.log(
-				"Due maintenance schedules fetched successfully:",
-				response.data
 			);
 			return response.data;
 		} catch (error) {
@@ -62,12 +62,11 @@ export const maintenanceScheduleService = {
 	getClientSchedules: async (clientId: number) => {
 		try {
 			console.log(`Fetching maintenance schedules for client ID: ${clientId}`);
-			const response = await api.get(`${BASE_API_URL}/maintenance-schedules/`, {
-				params: { client_id: clientId },
-			});
-			console.log(
-				"Client maintenance schedules fetched successfully:",
-				response.data
+			const response = await api.get(
+				`${BASE_API_URL}/maintenance-schedules/by_client/`,
+				{
+					params: { client_id: clientId },
+				}
 			);
 			return response.data;
 		} catch (error) {

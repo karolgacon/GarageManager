@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	Box,
@@ -21,8 +21,10 @@ import {
 } from "@mui/material";
 import { Profile } from "../../models/ProfileModel";
 import { ProfileService } from "../../api/ProfileAPIEndpoint";
+import { LoyaltyService, LoyaltyPoints } from "../../api/LoyaltyAPIEndpoint";
 import CustomSnackbar, { SnackbarState } from "../Mainlayout/Snackbar";
 import { COLOR_PRIMARY } from "../../constants";
+import AuthContext from "../../context/AuthProvider";
 
 const ProfileComponent: React.FC = () => {
 	const [profile, setProfile] = useState<Profile | null>(null);
@@ -42,6 +44,20 @@ const ProfileComponent: React.FC = () => {
 		message: "",
 		severity: "success",
 	});
+	const [loyaltyPoints, setLoyaltyPoints] = useState<LoyaltyPoints | null>(
+		null
+	);
+	const [loyaltyLoading, setLoyaltyLoading] = useState<boolean>(false);
+	const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
+	const [isLoyaltyModalOpen, setIsLoyaltyModalOpen] = useState<boolean>(false);
+	const [loyaltyFormData, setLoyaltyFormData] = useState<
+		Partial<LoyaltyPoints>
+	>({
+		total_points: 0, // Zmienione z 'points'
+		membership_level: "bronze", // Zmienione z 'level'
+	});
+	const [pointsToAdd, setPointsToAdd] = useState<number>(0); // Dodany stan dla przyrostu punktów
+	const { auth } = useContext(AuthContext);
 	const navigate = useNavigate();
 
 	const showSnackbar = (
@@ -57,7 +73,15 @@ const ProfileComponent: React.FC = () => {
 
 	useEffect(() => {
 		fetchProfile();
-	}, []);
+
+		// Pobieraj punkty lojalnościowe tylko dla admina i klienta
+		if (
+			auth.roles &&
+			(auth.roles.includes("admin") || auth.roles.includes("client"))
+		) {
+			fetchLoyaltyPoints();
+		}
+	}, [auth.roles]);
 
 	const fetchProfile = async () => {
 		try {
@@ -94,6 +118,76 @@ const ProfileComponent: React.FC = () => {
 			}
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const fetchLoyaltyPoints = async () => {
+		try {
+			setLoyaltyLoading(true);
+			setLoyaltyError(null);
+
+			let pointsData;
+
+			// Różne działania zależnie od roli
+			if (auth.roles && auth.roles.includes("admin")) {
+				// Dla admina - pokaż punkty klienta którego edytuje, jeśli znany
+				if (profile && profile.user) {
+					try {
+						pointsData = await LoyaltyService.getClientLoyaltyPoints(
+							Number(profile.user)
+						);
+						console.log("Admin loaded loyalty points for client:", pointsData);
+					} catch (err: any) {
+						// Jeśli brak punktów (404), to nie jest błąd - po prostu inicjujemy formularz z ID klienta
+						if (err.response?.status === 404) {
+							console.log("No loyalty points for client, preparing empty form");
+							// Inicjalizacja formularza z ID klienta nawet gdy nie ma jeszcze punktów
+							setLoyaltyFormData({
+								total_points: 0,
+								membership_level: "bronze",
+								user: Number(profile.user), // Zmienione z 'client'
+							});
+						} else {
+							throw err; // Przekazujemy inne błędy dalej
+						}
+					}
+				}
+			} else if (auth.roles && auth.roles.includes("client")) {
+				// Dla klienta - pokaż jego własne punkty
+				try {
+					pointsData = await LoyaltyService.getUserLoyaltyStatus();
+				} catch (err: any) {
+					if (err.response?.status === 404) {
+						// Dla klienta, brak punktów nie jest błędem
+						console.log("Client has no loyalty points yet");
+					} else {
+						throw err;
+					}
+				}
+			}
+
+			setLoyaltyPoints(pointsData || null);
+
+			// Ustaw dane formularza jeśli są punkty
+			if (pointsData) {
+				setLoyaltyFormData({
+					total_points: pointsData.total_points, // Zmienione z 'points'
+					membership_level: pointsData.membership_level, // Zmienione z 'level'
+					user: pointsData.user, // Zmienione z 'client'
+				});
+			} else if (profile && profile.user) {
+				// Inicjalizacja pustego formularza
+				setLoyaltyFormData({
+					total_points: 0,
+					membership_level: "bronze",
+					user: Number(profile.user), // Zmienione z 'client'
+				});
+			}
+		} catch (err: any) {
+			console.error("Error fetching loyalty points:", err);
+			setLoyaltyError("Nie udało się pobrać punktów lojalnościowych");
+		} finally {
+			setLoyaltyLoading(false);
 		}
 	};
 
@@ -195,6 +289,175 @@ const ProfileComponent: React.FC = () => {
 			console.error("Error deleting profile:", err);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	// Funkcja otwierająca modal edycji punktów (tylko dla admina)
+	const handleEditLoyaltyPoints = () => {
+		// Upewnij się, że ID klienta jest zawsze ustawione przy otwieraniu modalu
+		if (profile && profile.user) {
+			// Aktualizuj formularz z ID klienta
+			setLoyaltyFormData((prev) => ({
+				...prev,
+				user: Number(profile.user), // Zmienione z 'client'
+				total_points: loyaltyPoints?.total_points || 0, // Zmienione z 'points'
+				membership_level: loyaltyPoints?.membership_level || "bronze", // Zmienione z 'level'
+			}));
+		} else {
+			// Jeśli nie ma profilu użytkownika lub ID, pokaż błąd
+			showSnackbar("Nie można edytować punktów - brak ID użytkownika", "error");
+			return;
+		}
+
+		setIsLoyaltyModalOpen(true);
+	};
+
+	// Funkcja do zmiany pól w formularzu
+	const handleLoyaltyChange = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+	) => {
+		const { name, value } = e.target;
+		setLoyaltyFormData((prev) => ({
+			...prev,
+			[name]: name === "total_points" ? Number(value) : value, // Zmienione z 'points'
+		}));
+	};
+
+	// Funkcja zapisująca punkty (tylko dla admina)
+	const handleLoyaltySubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!auth.roles?.includes("admin")) {
+			showSnackbar("Brak uprawnień do edycji punktów", "error");
+			return;
+		}
+
+		// Dodaj lepszą walidację
+		if (!loyaltyFormData.user && profile?.user) {
+			// Próba naprawy - użyj ID z profilu jeśli dostępne
+			setLoyaltyFormData((prev) => ({
+				...prev,
+				user: Number(profile.user), // Zmienione z 'client'
+			}));
+			console.log("Automatically set user ID from profile:", profile.user);
+		}
+
+		// Walidacja - sprawdź czy nadal brakuje ID klienta
+		if (!loyaltyFormData.user) {
+			console.error("Missing user ID in form data:", loyaltyFormData);
+			showSnackbar("Nie można zapisać punktów - brak ID użytkownika", "error");
+			return;
+		}
+
+		try {
+			setLoyaltyLoading(true);
+			console.log("Saving loyalty points with data:", loyaltyFormData);
+
+			let result;
+			if (loyaltyPoints?.id) {
+				// Aktualizacja istniejących punktów
+				result = await LoyaltyService.updateLoyaltyPoints(
+					loyaltyPoints.id,
+					loyaltyFormData
+				);
+			} else {
+				// Tworzenie nowych punktów
+				result = await LoyaltyService.createLoyaltyPoints({
+					user: loyaltyFormData.user, // Zmienione z 'client'
+					total_points: loyaltyFormData.total_points || 0, // Zmienione z 'points'
+					membership_level: loyaltyFormData.membership_level || "bronze", // Zmienione z 'level'
+					points_earned_this_year: 0,
+				} as LoyaltyPoints);
+			}
+
+			setLoyaltyPoints(result);
+			setIsLoyaltyModalOpen(false);
+			showSnackbar("Punkty lojalnościowe zaktualizowane", "success");
+		} catch (err: any) {
+			console.error("Error saving loyalty points:", err);
+			showSnackbar(
+				err.response?.data?.message || "Nie udało się zaktualizować punktów",
+				"error"
+			);
+		} finally {
+			setLoyaltyLoading(false);
+		}
+	};
+
+	// Dodaj nową funkcję do obsługi przyrostu punktów
+	const handleAddPoints = async () => {
+		if (!auth.roles?.includes("admin")) {
+			showSnackbar("Brak uprawnień do edycji punktów", "error");
+			return;
+		}
+
+		if (pointsToAdd <= 0) {
+			showSnackbar("Wprowadź dodatnią liczbę punktów", "error");
+			return;
+		}
+
+		try {
+			setLoyaltyLoading(true);
+
+			// Oblicz nową sumę punktów
+			const currentPoints = loyaltyPoints?.total_points || 0;
+			const newTotalPoints = currentPoints + pointsToAdd;
+
+			console.log(
+				`Dodawanie ${pointsToAdd} punktów. Stan przed: ${currentPoints}, po: ${newTotalPoints}`
+			);
+
+			let result;
+			if (loyaltyPoints?.id) {
+				// Aktualizacja istniejących punktów
+				// Funkcja określająca poziom na podstawie punktów
+				const determineMembershipLevel = (points: number): string => {
+					if (points >= 100) return "platinum";
+					if (points >= 50) return "gold";
+					if (points >= 20) return "silver";
+					return "bronze";
+				};
+
+				const newLevel = determineMembershipLevel(newTotalPoints);
+				if (newLevel !== loyaltyPoints?.membership_level) {
+					console.log(
+						`Aktualizacja poziomu z ${
+							loyaltyPoints?.membership_level || "bronze"
+						} na ${newLevel}`
+					);
+				}
+
+				result = await LoyaltyService.updateLoyaltyPoints(loyaltyPoints.id, {
+					...loyaltyFormData,
+					total_points: newTotalPoints,
+					membership_level: newLevel, // Automatyczna aktualizacja poziomu
+				});
+			} else if (profile?.user) {
+				// Tworzenie nowych punktów
+				result = await LoyaltyService.createLoyaltyPoints({
+					user: Number(profile.user),
+					total_points: newTotalPoints,
+					membership_level: "bronze", // Domyślny poziom dla nowych kont
+					points_earned_this_year: pointsToAdd,
+				} as LoyaltyPoints);
+			} else {
+				throw new Error("Brak ID użytkownika");
+			}
+
+			setLoyaltyPoints(result);
+			setPointsToAdd(0); // Reset pola po zapisie
+			showSnackbar(`Dodano ${pointsToAdd} punktów lojalnościowych`, "success");
+
+			// Odśwież dane
+			fetchLoyaltyPoints();
+		} catch (err: any) {
+			console.error("Error adding loyalty points:", err);
+			showSnackbar(
+				err.response?.data?.message || "Nie udało się dodać punktów",
+				"error"
+			);
+		} finally {
+			setLoyaltyLoading(false);
 		}
 	};
 
@@ -349,6 +612,179 @@ const ProfileComponent: React.FC = () => {
 							</Box>
 						</Box>
 					</Box>
+
+					{/* Loyalty Points Section - Only for admin and client */}
+					{(auth.roles?.includes("admin") ||
+						auth.roles?.includes("client")) && (
+						<>
+							<Divider />
+							<Box
+								sx={{
+									p: 3,
+									backgroundColor: "#f9fafb",
+									borderTop: "1px solid #e5e7eb",
+								}}
+							>
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "space-between",
+										alignItems: "center",
+									}}
+								>
+									<Box>
+										<Typography variant="h5" fontWeight="600" gutterBottom>
+											Program Lojalnościowy
+										</Typography>
+										<Typography variant="body2" color="text.secondary">
+											{auth.roles?.includes("client")
+												? "Twoje punkty i poziom w programie lojalnościowym"
+												: "Zarządzaj punktami klienta"}
+										</Typography>
+									</Box>
+
+									{/* Edit button only for admin */}
+									{auth.roles?.includes("admin") && (
+										<Button
+											variant="outlined"
+											onClick={handleEditLoyaltyPoints}
+											disabled={loyaltyLoading}
+										>
+											{loyaltyPoints ? "Edytuj punkty" : "Dodaj punkty"}
+										</Button>
+									)}
+								</Box>
+
+								{/* Loyalty Points Content */}
+								<Box sx={{ mt: 3 }}>
+									{loyaltyLoading ? (
+										<Box
+											sx={{
+												display: "flex",
+												alignItems: "center",
+												gap: 2,
+											}}
+										>
+											<CircularProgress size={20} />
+											<Typography>Ładowanie danych...</Typography>
+										</Box>
+									) : loyaltyError ? (
+										<Alert severity="error" sx={{ mb: 2 }}>
+											{loyaltyError}
+										</Alert>
+									) : loyaltyPoints ? (
+										<Box
+											sx={{
+												display: "flex",
+												flexDirection: "column",
+												gap: 2,
+											}}
+										>
+											<Box
+												sx={{
+													display: "flex",
+													py: 1.5,
+													borderBottom: "1px solid #f3f4f6",
+												}}
+											>
+												<Typography
+													variant="body2"
+													fontWeight="500"
+													sx={{ minWidth: 200 }}
+												>
+													Punkty lojalnościowe:
+												</Typography>
+												<Typography variant="body2" color="text.secondary">
+													{loyaltyPoints.total_points} pkt{" "}
+													{/* Zmienione z 'points' */}
+												</Typography>
+											</Box>
+
+											<Box sx={{ display: "flex", py: 1.5 }}>
+												<Typography
+													variant="body2"
+													fontWeight="500"
+													sx={{ minWidth: 200 }}
+												>
+													Poziom:
+												</Typography>
+												<Typography
+													variant="body2"
+													sx={{
+														// Kolory dla różnych poziomów członkostwa (wcześniej 'level')
+														color:
+															loyaltyPoints.membership_level === "gold"
+																? "#B8860B"
+																: loyaltyPoints.membership_level === "silver"
+																? "#808080"
+																: loyaltyPoints.membership_level === "bronze"
+																? "#CD7F32"
+																: loyaltyPoints.membership_level === "platinum"
+																? "#E5E4E2"
+																: "text.secondary",
+													}}
+												>
+													{loyaltyPoints.membership_level
+														.charAt(0)
+														.toUpperCase() +
+														loyaltyPoints.membership_level.slice(1)}{" "}
+													{/* Zmienione z 'level' */}
+												</Typography>
+											</Box>
+
+											{loyaltyPoints.last_updated && (
+												<Box sx={{ display: "flex", py: 1.5 }}>
+													<Typography
+														variant="body2"
+														fontWeight="500"
+														sx={{ minWidth: 200 }}
+													>
+														Ostatnia aktualizacja:
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														{new Date(
+															loyaltyPoints.last_updated
+														).toLocaleDateString()}
+													</Typography>
+												</Box>
+											)}
+										</Box>
+									) : (
+										<Typography color="text.secondary">
+											{auth.roles?.includes("client")
+												? "Nie masz jeszcze punktów lojalnościowych."
+												: "Ten klient nie ma jeszcze punktów lojalnościowych."}
+										</Typography>
+									)}
+								</Box>
+
+								{/* Dodany fragment dla admina - przyrost punktów */}
+								{auth.roles?.includes("admin") && loyaltyPoints && (
+									<Box sx={{ display: "flex", mt: 2, gap: 1 }}>
+										<TextField
+											label="Liczba punktów do dodania"
+											type="number"
+											size="small"
+											value={pointsToAdd}
+											onChange={(e) =>
+												setPointsToAdd(parseInt(e.target.value) || 0)
+											}
+											InputProps={{ inputProps: { min: 0 } }}
+											sx={{ width: 200 }}
+										/>
+										<Button
+											variant="contained"
+											onClick={handleAddPoints}
+											disabled={loyaltyLoading || pointsToAdd <= 0}
+											sx={{ backgroundColor: COLOR_PRIMARY }}
+										>
+											Dodaj punkty
+										</Button>
+									</Box>
+								)}
+							</Box>
+						</>
+					)}
 				</Paper>
 			) : (
 				/* Empty State */
@@ -480,6 +916,71 @@ const ProfileComponent: React.FC = () => {
 					</DialogActions>
 				</form>
 			</Dialog>
+
+			{/* Loyalty Points Modal - Only for admins */}
+			{auth.roles?.includes("admin") && (
+				<Dialog
+					open={isLoyaltyModalOpen}
+					onClose={() => setIsLoyaltyModalOpen(false)}
+					maxWidth="sm"
+					fullWidth
+				>
+					<DialogTitle>
+						{loyaltyPoints
+							? "Edytuj punkty lojalnościowe"
+							: "Dodaj punkty lojalnościowe"}
+					</DialogTitle>
+					<form onSubmit={handleLoyaltySubmit}>
+						<DialogContent>
+							<Box
+								sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}
+							>
+								<TextField
+									fullWidth
+									label="Liczba punktów"
+									name="total_points" // Zmienione z 'points'
+									type="number"
+									value={loyaltyFormData.total_points || 0} // Zmienione z 'points'
+									onChange={handleLoyaltyChange}
+									variant="outlined"
+									InputProps={{ inputProps: { min: 0 } }}
+								/>
+
+								<FormControl fullWidth>
+									<InputLabel>Poziom</InputLabel>
+									<Select
+										name="membership_level" // Zmienione z 'level'
+										value={loyaltyFormData.membership_level || "bronze"} // Zmienione z 'level'
+										onChange={handleLoyaltyChange}
+										label="Poziom"
+									>
+										<MenuItem value="bronze">Bronze</MenuItem>
+										<MenuItem value="silver">Silver</MenuItem>
+										<MenuItem value="gold">Gold</MenuItem>
+										<MenuItem value="platinum">Platinum</MenuItem>
+									</Select>
+								</FormControl>
+							</Box>
+						</DialogContent>
+						<DialogActions sx={{ p: 3, gap: 1 }}>
+							<Button
+								onClick={() => setIsLoyaltyModalOpen(false)}
+								variant="outlined"
+							>
+								Anuluj
+							</Button>
+							<Button
+								type="submit"
+								variant="contained"
+								disabled={loyaltyLoading}
+								sx={{ backgroundColor: COLOR_PRIMARY }}
+							>
+								{loyaltyLoading ? "Zapisywanie..." : "Zapisz"}
+							</Button>
+						</DialogActions>
+					</form>
+				</Dialog>
+			)}
 
 			<CustomSnackbar
 				snackbarState={snackbarState}

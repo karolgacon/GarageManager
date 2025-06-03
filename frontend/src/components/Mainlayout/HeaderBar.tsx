@@ -19,14 +19,14 @@ import EmailIcon from "@mui/icons-material/Email";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"; // Nowa ikona dla faktur
 import { COLOR_PRIMARY } from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 const HeaderBar = () => {
-	const { auth, setAuth } = useContext(AuthContext);
+	const { auth, logout, isAdmin, isOwner, isClient } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -49,12 +49,13 @@ const HeaderBar = () => {
 	};
 
 	const handleLogout = () => {
-		// Logic to logout
-		setAuth(null);
-		localStorage.removeItem("auth");
-		navigate("/login");
+		// Używamy gotowej funkcji logout z kontekstu
+		logout();
 		handleClose();
 	};
+
+	// Sprawdza, czy użytkownik powinien mieć dostęp do zakładki Invoices
+	const canAccessInvoices = isAdmin() || isOwner() || isClient();
 
 	return (
 		<Paper
@@ -91,8 +92,8 @@ const HeaderBar = () => {
 						display: "flex",
 						alignItems: "center",
 						gap: 3,
-						paddingRight: 3, // Dodaj padding z prawej strony
-						marginRight: isMobile ? 0 : 1, // Usuń marginRight na urządzeniach mobilnych
+						paddingRight: 3,
+						marginRight: isMobile ? 0 : 1,
 					}}
 				>
 					<IconButton size="small">
@@ -107,7 +108,7 @@ const HeaderBar = () => {
 							display: "flex",
 							alignItems: "center",
 							cursor: "pointer",
-							position: "relative", // Usuń marginRight: 3, skoro dodajemy padding do rodzica
+							position: "relative",
 						}}
 						onClick={handleProfileClick}
 					>
@@ -155,7 +156,7 @@ const HeaderBar = () => {
 						{
 							name: "offset",
 							options: {
-								offset: [0, 10], // [poziomo (ujemne wartości - w lewo), pionowo (dodatnie - w dół)]
+								offset: [0, 10],
 							},
 						},
 					]}
@@ -169,7 +170,7 @@ const HeaderBar = () => {
 								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
 								mt: 1.5,
 								minWidth: 200,
-								marginRight: 2, // Dodaj margines z prawej strony
+								marginRight: 2,
 							}}
 						>
 							<MenuList>
@@ -193,15 +194,18 @@ const HeaderBar = () => {
 									<ListItemText>Calendar</ListItemText>
 								</MenuItem>
 
-								<MenuItem onClick={() => handleMenuItemClick("/settings")}>
-									<ListItemIcon>
-										<SettingsIcon
-											fontSize="small"
-											sx={{ color: COLOR_PRIMARY }}
-										/>
-									</ListItemIcon>
-									<ListItemText>Settings</ListItemText>
-								</MenuItem>
+								{/* Zastąpienie Settings przez Invoices z odpowiednimi uprawnieniami */}
+								{canAccessInvoices && (
+									<MenuItem onClick={() => handleMenuItemClick("/invoices")}>
+										<ListItemIcon>
+											<ReceiptLongIcon
+												fontSize="small"
+												sx={{ color: COLOR_PRIMARY }}
+											/>
+										</ListItemIcon>
+										<ListItemText>Invoices</ListItemText>
+									</MenuItem>
+								)}
 
 								<Divider />
 

@@ -13,8 +13,25 @@ class MaintenanceScheduleRepository(BaseRepository):
         return cls.model.objects.filter(vehicle_id=vehicle_id)
 
     @classmethod
-    def get_due_maintenance_schedules(cls):
+    def get_due_maintenance_schedules(cls, client_id=None):
         """
         Pobiera harmonogramy przeglądów, które są zaległe.
+        Opcjonalnie filtruje po ID klienta, jeśli zostało podane.
         """
-        return cls.model.objects.filter(next_due_date__lte=date.today())
+        query = cls.model.objects.filter(next_due_date__lte=date.today())
+        
+        if client_id is not None:
+            # Filter by vehicles belonging to the client
+            query = query.filter(vehicle__client_id=client_id)
+            
+        return query
+
+    @classmethod
+    def get_maintenance_schedule_by_client(cls, client_id):
+        """
+        Pobiera harmonogram przeglądów dla wszystkich pojazdów danego klienta.
+        """
+        if client_id is None:
+            return cls.model.objects.none()
+            
+        return cls.model.objects.filter(vehicle__client_id=client_id)

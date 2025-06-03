@@ -73,6 +73,18 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 		(userRole === "client" &&
 			vehicle.owner_id === parseInt(localStorage.getItem("userId") || "0"));
 
+	// Dodaj sprawdzenie czy użytkownik jest właścicielem pojazdu
+	const canEdit =
+		userRole === "admin" ||
+		userRole === "owner" ||
+		(userRole === "client" &&
+			vehicle.owner_id === parseInt(localStorage.getItem("userId") || "0"));
+
+	const canDelete =
+		userRole === "admin" ||
+		(userRole === "client" &&
+			vehicle.owner_id === parseInt(localStorage.getItem("userId") || "0"));
+
 	return (
 		<Card
 			sx={{
@@ -214,22 +226,35 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						<InfoIcon />
 					</IconButton>
 				</Tooltip>
-				{canEditDelete && (
+				{(canEdit || canDelete) && (
 					<>
-						<Tooltip title="Edit">
-							<IconButton size="small" onClick={() => onEdit(vehicle.id)}>
-								<EditIcon />
-							</IconButton>
-						</Tooltip>
-						<Tooltip title="Delete">
-							<IconButton
-								size="small"
-								color="error"
-								onClick={() => onDelete(vehicle.id)}
-							>
-								<DeleteIcon />
-							</IconButton>
-						</Tooltip>
+						{canEdit && (
+							<Tooltip title="Edit">
+								<IconButton
+									size="small"
+									onClick={(e) => {
+										e.stopPropagation();
+										onEdit(vehicle.id);
+									}}
+								>
+									<EditIcon fontSize="small" />
+								</IconButton>
+							</Tooltip>
+						)}
+						{canDelete && (
+							<Tooltip title="Delete">
+								<IconButton
+									size="small"
+									color="error"
+									onClick={(e) => {
+										e.stopPropagation();
+										onDelete(vehicle.id);
+									}}
+								>
+									<DeleteIcon fontSize="small" />
+								</IconButton>
+							</Tooltip>
+						)}
 					</>
 				)}
 			</CardActions>

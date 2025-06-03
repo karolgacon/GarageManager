@@ -46,28 +46,62 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 	);
 	const vehicleFormRef = useRef<{ validateAndSubmit: () => boolean }>(null);
 
+	// Dodaj na początku komponentu
+	useEffect(() => {
+		// Zapobiegaj konfliktom aria-hidden gdy modal jest otwarty
+		if (open) {
+			const fixAriaHidden = () => {
+				document.getElementById("root")?.removeAttribute("aria-hidden");
+			};
+
+			// Uruchom naprawę po renderowaniu
+			fixAriaHidden();
+
+			// Uruchom ponownie po małym opóźnieniu (Material-UI może nadpisać)
+			const timer = setTimeout(fixAriaHidden, 100);
+			return () => clearTimeout(timer);
+		}
+	}, [open]);
+
 	// Pobierz dane pojazdu po otwarciu modalu
 	useEffect(() => {
-		if (open && vehicleId) {
-			fetchVehicleDetails(vehicleId);
-		}
-	}, [open, vehicleId]);
+		let isMounted = true;
 
-	const fetchVehicleDetails = async (id: number) => {
-		try {
-			setFetchLoading(true);
-			setError(null);
-			const vehicleData = await vehicleService.getVehicleById(id);
-			setVehicle(vehicleData);
-			setSelectedClientId(vehicleData.owner_id || null);
-			setSelectedWorkshopId(vehicleData.workshop_id || null);
-		} catch (err) {
-			console.error("Error fetching vehicle details:", err);
-			setError("Failed to load vehicle details");
-		} finally {
-			setFetchLoading(false);
+		const fetchVehicleData = async () => {
+			try {
+				console.log("Pobieranie danych pojazdu:", vehicleId);
+				setLoading(true);
+				setError(null);
+
+				const data = await vehicleService.getVehicleById(vehicleId);
+				console.log("Pobrane dane pojazdu:", data);
+
+				if (!data || !data.id) {
+					throw new Error("Pobrano niepełne dane pojazdu");
+				}
+
+				// Ustaw dane formularza tylko jeśli są kompletne
+				setVehicle(data);
+				setSelectedClientId(data.owner_id || null);
+				setSelectedWorkshopId(data.workshop_id || null);
+				setLoading(false);
+			} catch (err) {
+				console.error("Błąd podczas pobierania pojazdu:", err);
+				setError("Nie udało się pobrać danych pojazdu");
+				// NIE ZAMYKAJ MODALU!
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		if (open && vehicleId) {
+			fetchVehicleData();
 		}
-	};
+
+		return () => {
+			isMounted = false;
+		};
+	}, [open, vehicleId]);
 
 	const handleSubmit = async (updatedVehicleData: Partial<Vehicle>) => {
 		setLoading(true);
@@ -122,7 +156,16 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 	return (
 		<Dialog
 			open={open}
-			onClose={loading || fetchLoading ? undefined : onClose}
+			onClose={onClose}
+			onClick={(e) => e.stopPropagation()}
+			disableEnforceFocus // Dodaj tę opcję
+			keepMounted // Dodaj tę opcję
+			TransitionProps={{
+				onEnter: () => {
+					// Usuń aria-hidden z głównego kontenera
+					document.getElementById("root")?.removeAttribute("aria-hidden");
+				},
+			}}
 			fullWidth
 			maxWidth="md"
 			PaperProps={{ sx: { borderRadius: 2 } }}

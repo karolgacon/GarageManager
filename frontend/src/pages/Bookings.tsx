@@ -201,7 +201,7 @@ const Bookings: React.FC = () => {
 
 		// Create a timeout promise
 		const timeoutPromise = new Promise((_, reject) =>
-			setTimeout(() => reject(new Error("Request timed out")), 10000)
+			setTimeout(() => reject(new Error("Request timed out")), 20000)
 		);
 
 		try {
@@ -270,12 +270,22 @@ const Bookings: React.FC = () => {
 								timeoutPromise,
 							]);
 						} catch (clientError) {
+							console.error("Error loading bookings:", clientError);
+
+							// Bardziej informacyjny komunikat błędu dla użytkownika
 							if (clientError.message === "Request timed out") {
-								console.error("Client bookings request timed out");
-								setError("Request timed out. Please try again.");
+								setError(
+									"Server response took too long. Please try again later."
+								);
 							} else {
-								throw clientError; // Re-throw to be caught by the outer catch
+								setError(
+									"Failed to load bookings: " +
+										(clientError.message || "Unknown error")
+								);
 							}
+
+							// Nie wyrzucaj błędu dalej, obsłuż go tu
+							bookingsData = [];
 						}
 						break;
 					case "mechanic":
@@ -629,6 +639,7 @@ const Bookings: React.FC = () => {
 				onClose={handleModalClose}
 				onCreateBooking={handleCreateBooking}
 				onUpdateBooking={handleUpdateBooking}
+				onEditFromView={handleEditBooking} // Dodaj tę linię
 			/>
 		</Mainlayout>
 	);

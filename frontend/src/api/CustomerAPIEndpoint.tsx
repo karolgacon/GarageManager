@@ -17,12 +17,16 @@ export const customerService = {
 	},
 
 	// Get customer by ID - używamy prostego endpointu users/{id}
-	getCustomerById: async (id: number): Promise<Customer> => {
+	getCustomerById: async (id: number): Promise<any> => {
 		try {
+			console.log(`Fetching customer with ID ${id} from API`);
+			// Sprawdź, czy używasz właściwej ścieżki API
 			const response = await api.get(`${API_URL}/users/${id}/`);
+			console.log(`Customer API response for ID ${id}:`, response.data);
 			return response.data;
 		} catch (error) {
 			console.error(`Error fetching customer ${id}:`, error);
+			// Rzuć błąd, aby można go było obsłużyć w komponencie
 			throw error;
 		}
 	},
@@ -45,7 +49,10 @@ export const customerService = {
 		customerData: Partial<Customer>
 	): Promise<Customer> => {
 		try {
-			const response = await api.post(`${API_URL}/register/`, customerData);
+			const response = await api.post(
+				`${API_URL}/user/register/`,
+				customerData
+			);
 			return response.data;
 		} catch (error) {
 			console.error("Error creating customer:", error);

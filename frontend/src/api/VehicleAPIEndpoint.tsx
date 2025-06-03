@@ -15,12 +15,15 @@ export const vehicleService = {
 		}
 	},
 
-	getVehicleById: async (id: number): Promise<Vehicle> => {
+	getVehicleById: async (id: number): Promise<any> => {
 		try {
-			const response = await api.get(`${BASE_API_URL}${id}/`);
+			console.log(`Fetching vehicle with ID ${id} from API`);
+			// Upewnij się, że BASE_API_URL jest poprawne
+			const response = await api.get(`/api/v1/vehicles/${id}/`);
+			console.log(`Vehicle API response for ID ${id}:`, response.data);
 			return response.data;
 		} catch (error) {
-			console.error(`Error fetching vehicle with ID ${id}:`, error);
+			console.error(`Error fetching vehicle ${id}:`, error);
 			throw error;
 		}
 	},

@@ -227,6 +227,20 @@ const Vehicles: React.FC = () => {
 
 	// Handle editing a vehicle
 	const handleEditVehicle = (id: number) => {
+		console.log(`Trying to edit vehicle with ID: ${id}`);
+		// Sprawdź, czy pojazd rzeczywiście istnieje w danych
+		const vehicle = vehicles.find((v) => v.id === id);
+		console.log("Vehicle data:", vehicle);
+
+		if (!vehicle) {
+			setSnackbar({
+				open: true,
+				message: "Cannot find vehicle to edit",
+				severity: "error",
+			});
+			return;
+		}
+
 		setEditVehicleId(id);
 		setEditModalOpen(true);
 	};

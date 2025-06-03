@@ -119,14 +119,26 @@ const Services: React.FC = () => {
 
 	// For non-admin users, fetch services or maintenance schedules based on the active tab
 	useEffect(() => {
-		if (!isAdmin() && userVehicles.length > 0) {
-			if (activeTab === 0) {
-				fetchClientServices();
-			} else if (activeTab === 1) {
-				fetchClientMaintenanceSchedules();
+		let isMounted = true; // Track if component is mounted
+
+		const loadData = async () => {
+			if (!isAdmin() && auth.user_id) {
+				if (activeTab === 0) {
+					// Only fetch on tab change or initial load
+					await fetchClientServices();
+				} else if (activeTab === 1) {
+					await fetchClientMaintenanceSchedules();
+				}
 			}
-		}
-	}, [activeTab, userVehicles, isAdmin]);
+		};
+
+		loadData();
+
+		// Cleanup function
+		return () => {
+			isMounted = false;
+		};
+	}, [activeTab, auth.user_id]); // Remove isAdmin from dependencies
 
 	// Fetch client's vehicles
 	const fetchUserVehicles = async () => {
@@ -163,63 +175,27 @@ const Services: React.FC = () => {
 
 			if (!auth.user_id) {
 				setError("User information not available");
+				setLoadingServices(false);
 				return;
 			}
 
-			// Option 1: Get client's services directly if API supports it
-			try {
-				const clientServices = await serviceService.getClientServices(
-					auth.user_id
+			// Use the getClientServices method which we know works
+			const clientServices = await serviceService.getClientServices(
+				auth.user_id
+			);
+
+			// Only update state if services actually changed
+			const servicesChanged =
+				JSON.stringify(clientServices) !== JSON.stringify(services);
+
+			if (servicesChanged) {
+				console.log(
+					`Found ${clientServices?.length || 0} services for client ${
+						auth.user_id
+					}`
 				);
-				if (clientServices && Array.isArray(clientServices)) {
-					console.log(
-						`Found ${clientServices.length} services for client ${auth.user_id}`
-					);
-					setServices(clientServices);
-					return;
-				}
-			} catch (directError) {
-				console.error(
-					"Direct client services fetch failed, falling back to vehicle-by-vehicle method"
-				);
+				setServices(clientServices || []);
 			}
-
-			// Option 2: Fetch services for each vehicle if needed
-			if (userVehicles.length === 0) {
-				setServices([]);
-				return;
-			}
-
-			const vehicleIds = userVehicles.map((vehicle) => vehicle.id);
-			let allServices: Service[] = [];
-			const serviceIdsSet = new Set<number>(); // Track service IDs to prevent duplicates
-
-			// Fetch services for each vehicle
-			for (const vehicleId of vehicleIds) {
-				try {
-					const vehicleServices = await serviceService.getVehicleServices(
-						vehicleId
-					);
-					if (vehicleServices && Array.isArray(vehicleServices)) {
-						// Only add services that haven't been added yet
-						const uniqueServices = vehicleServices.filter((service) => {
-							if (!serviceIdsSet.has(service.id)) {
-								serviceIdsSet.add(service.id);
-								return true;
-							}
-							return false;
-						});
-						allServices = [...allServices, ...uniqueServices];
-					}
-				} catch (err) {
-					console.error(
-						`Error fetching services for vehicle ${vehicleId}:`,
-						err
-					);
-				}
-			}
-
-			setServices(allServices);
 		} catch (error) {
 			console.error("Error fetching client services:", error);
 			setError("Failed to load your service history. Please try again.");
@@ -239,61 +215,22 @@ const Services: React.FC = () => {
 				return;
 			}
 
-			// Option 1: Try to get all client schedules at once if endpoint supports it
-			try {
-				const clientSchedules =
-					await maintenanceScheduleService.getClientSchedules(auth.user_id);
-				if (clientSchedules && Array.isArray(clientSchedules)) {
-					console.log(
-						`Found ${clientSchedules.length} maintenance schedules for client ${auth.user_id}`
-					);
-					setMaintenanceSchedules(clientSchedules);
-					return;
-				}
-			} catch (directError) {
-				console.error(
-					"Direct client schedules fetch failed, falling back to vehicle-by-vehicle method"
+			// Use the new dedicated endpoint for client schedules
+			const clientSchedules =
+				await maintenanceScheduleService.getClientSchedules(auth.user_id);
+
+			if (clientSchedules && Array.isArray(clientSchedules)) {
+				console.log(
+					`Found ${clientSchedules.length} maintenance schedules for client ${auth.user_id}`
 				);
-			}
-
-			// Option 2: Fetch schedules for each vehicle if needed
-			if (userVehicles.length === 0) {
+				setMaintenanceSchedules(clientSchedules);
+			} else {
+				// Fallback to empty array if no schedules found
 				setMaintenanceSchedules([]);
-				return;
 			}
-
-			const vehicleIds = userVehicles.map((vehicle) => vehicle.id);
-			let allSchedules: MaintenanceSchedule[] = [];
-			const scheduleIdsSet = new Set<number>(); // Track schedule IDs to prevent duplicates
-
-			// Fetch maintenance schedules for each vehicle
-			for (const vehicleId of vehicleIds) {
-				try {
-					const vehicleSchedules =
-						await maintenanceScheduleService.getVehicleSchedules(vehicleId);
-					if (vehicleSchedules && Array.isArray(vehicleSchedules)) {
-						// Only add schedules that haven't been added yet
-						const uniqueSchedules = vehicleSchedules.filter((schedule) => {
-							if (!scheduleIdsSet.has(schedule.id)) {
-								scheduleIdsSet.add(schedule.id);
-								return true;
-							}
-							return false;
-						});
-						allSchedules = [...allSchedules, ...uniqueSchedules];
-					}
-				} catch (err) {
-					console.error(
-						`Error fetching maintenance for vehicle ${vehicleId}:`,
-						err
-					);
-				}
-			}
-
-			setMaintenanceSchedules(allSchedules);
 		} catch (error) {
 			console.error("Error fetching maintenance schedules:", error);
-			setError("Failed to load all maintenance schedules. Please try again.");
+			setError("Failed to load maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);
 		}

@@ -230,42 +230,81 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		// If validation fails, the form will display errors
 	};
 
+	// Dodaj validateForm i zaktualizuj handleSubmit
+
+	const validateForm = (): boolean => {
+		const finalErrors: string[] = [];
+
+		// Podstawowa walidacja
+		if (!vehicleData.brand || vehicleData.brand.trim() === "") {
+			finalErrors.push("Brand is required");
+		}
+		if (!vehicleData.model || vehicleData.model.trim() === "") {
+			finalErrors.push("Model is required");
+		}
+		if (
+			!vehicleData.registration_number ||
+			vehicleData.registration_number.trim() === ""
+		) {
+			finalErrors.push("Registration number is required");
+		}
+
+		// Walidacja zależna od roli
+		if (userRole !== "client" && !selectedClientId) {
+			finalErrors.push("Client selection is required");
+		}
+
+		if (
+			(userRole === "admin" || userRole === "client") &&
+			!selectedWorkshopId
+		) {
+			finalErrors.push("Workshop selection is required");
+		}
+
+		if (finalErrors.length > 0) {
+			setError(finalErrors.join(", "));
+			return false;
+		}
+
+		// Przygotuj dane do wysłania
+		const updatedData = { ...vehicleData };
+
+		if (userRole !== "client" && selectedClientId) {
+			updatedData.owner_id = selectedClientId;
+		}
+
+		if (selectedWorkshopId) {
+			updatedData.workshop_id = selectedWorkshopId;
+		}
+
+		setVehicleData(updatedData);
+		return true;
+	};
+
 	// Obsługa końcowego zatwierdzenia i wysłania danych
-	const handleSubmit = async () => {
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!validateForm()) return;
+
+		setLoading(true);
+		setError(null);
+
 		try {
-			setLoading(true);
-			setError(null);
+			// WAŻNE: Utwórz kopię danych bez pola id
+			const submitData = { ...vehicleData };
 
-			// Określenie warsztatu w zależności od roli
-			let workshopIdToUse = null;
+			// Usuń wszelkie id z danych przed wysłaniem
+			if ("id" in submitData) delete submitData.id;
 
-			if (userRole === "admin") {
-				// Admin może wybrać dowolny warsztat
-				workshopIdToUse = selectedWorkshopId;
-			} else if (userRole === "owner" || userRole === "mechanic") {
-				// Owner i mechanic przypisują pojazdy automatycznie do swojego warsztatu
-				workshopIdToUse = currentWorkshopId;
-			} else if (userRole === "client") {
-				// Klient może wybrać warsztat
-				workshopIdToUse = selectedWorkshopId;
-			}
+			console.log("Dane do wysłania:", submitData);
 
-			// Dodajemy ID klienta i warsztatu do pojazdu
-			const vehicleToAdd: Partial<Vehicle> = {
-				...vehicleData,
-				// Jeśli to klient, to przypisujemy pojazd do niego, w przeciwnym razie do wybranego klienta
-				owner_id: userRole === "client" ? undefined : selectedClientId,
-				workshop_id: workshopIdToUse,
-			};
-
-			const response = await vehicleService.createVehicle(
-				vehicleToAdd as Omit<Vehicle, "id">
-			);
-			onVehicleAdded(response);
+			const newVehicle = await vehicleService.createVehicle(submitData);
+			onVehicleAdded(newVehicle);
 			onClose();
-		} catch (err) {
-			console.error("Error adding vehicle:", err);
-			setError("Failed to add the vehicle. Please try again.");
+		} catch (error) {
+			console.error("Błąd podczas dodawania pojazdu:", error);
+			setError("Nie udało się dodać pojazdu. Spróbuj ponownie.");
 		} finally {
 			setLoading(false);
 		}

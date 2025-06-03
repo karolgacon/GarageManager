@@ -22,6 +22,9 @@ import { format, parseISO } from "date-fns";
 import BookingForm from "./BookingForm";
 import AuthContext from "../../context/AuthProvider";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
+import { customerService } from "../../api/CustomerAPIEndpoint";
+import { workshopService } from "../../api/WorkshopAPIEndpoint";
+import { bookingService } from "../../api/BookingAPIEndpoint";
 
 interface BookingModalsProps {
 	modalStates: {
@@ -33,6 +36,8 @@ interface BookingModalsProps {
 	onClose: (modalType: string) => void;
 	onCreateBooking: (data: any) => void;
 	onUpdateBooking: (data: any) => void;
+	onEditFromView?: (bookingId: number) => void; // Dodaj ten prop
+	onDeleteBooking?: (bookingId: number) => void; // Dodaj ten prop
 }
 
 const BookingModals: React.FC<BookingModalsProps> = ({
@@ -41,6 +46,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 	onClose,
 	onCreateBooking,
 	onUpdateBooking,
+	onEditFromView, // Dodaj ten parametr
+	onDeleteBooking, // Dodaj ten parametr
 }) => {
 	const {
 		isNewBookingModalOpen,
@@ -50,6 +57,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 
 	const { auth } = useContext(AuthContext);
 	const [clientVehicles, setClientVehicles] = useState<any[]>([]);
+	const [enrichedBookingData, setEnrichedBookingData] = useState<any>(null);
+	const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
 
 	useEffect(() => {
 		// Only fetch vehicles for clients
@@ -66,6 +75,119 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 			fetchClientVehicles();
 		}
 	}, [auth.roles, auth.user_id]);
+
+	// Dodaj console.log aby zdiagnozować problem
+	useEffect(() => {
+		if (isViewBookingModalOpen && selectedBookingData) {
+			console.log("Booking data:", selectedBookingData);
+		}
+	}, [isViewBookingModalOpen, selectedBookingData]);
+
+	// 2. Dodaj nowy stan do przechowywania wzbogaconych danych
+	useEffect(() => {
+		if (isViewBookingModalOpen && selectedBookingData) {
+			console.log("Original booking data:", selectedBookingData);
+
+			// 3. Dodaj funkcję pobierającą wszystkie potrzebne dane
+			const fetchAllBookingDetails = async () => {
+				setLoadingDetails(true);
+				try {
+					// Tworzymy kopię oryginalnych danych
+					const enriched = { ...selectedBookingData };
+					console.log(
+						"Starting data enrichment for booking:",
+						selectedBookingData.id
+					);
+
+					// Pobierz dane klienta
+					if (typeof selectedBookingData.client === "number") {
+						try {
+							console.log(
+								"Fetching client data for ID:",
+								selectedBookingData.client
+							);
+							// WAŻNE: Sprawdź czy endpoint jest poprawny!
+							const clientData = await customerService.getCustomerById(
+								selectedBookingData.client
+							);
+							console.log("Raw client API response:", clientData);
+							enriched.client = clientData;
+						} catch (err) {
+							console.error("Error loading client data:", err);
+							// Pokaż więcej informacji o błędzie
+							if (err.response) {
+								console.error("API error details:", err.response.data);
+								console.error("API error status:", err.response.status);
+							}
+							enriched.client = { first_name: "Unknown", last_name: "Client" };
+						}
+					}
+
+					// Pobierz dane pojazdu
+					if (typeof selectedBookingData.vehicle === "number") {
+						try {
+							const vehicleData = await vehicleService.getVehicleById(
+								selectedBookingData.vehicle
+							);
+							enriched.vehicle = vehicleData;
+							console.log("Vehicle data loaded:", vehicleData);
+						} catch (err) {
+							console.error("Error loading vehicle data:", err);
+							enriched.vehicle = { brand: "Unknown", model: "Vehicle" };
+						}
+					}
+
+					// Pobierz dane warsztatu
+					if (typeof selectedBookingData.workshop === "number") {
+						try {
+							const workshopData = await workshopService.getWorkshopById(
+								selectedBookingData.workshop
+							);
+							enriched.workshop = workshopData;
+							console.log("Workshop data loaded:", workshopData);
+						} catch (err) {
+							console.error("Error loading workshop data:", err);
+							enriched.workshop = { name: "Unknown Workshop" };
+						}
+					}
+
+					console.log("Enriched booking data:", enriched);
+					setEnrichedBookingData(enriched);
+				} catch (err) {
+					console.error("Error enriching booking data:", err);
+				} finally {
+					setLoadingDetails(false);
+				}
+			};
+
+			fetchAllBookingDetails();
+		}
+	}, [isViewBookingModalOpen, selectedBookingData]);
+
+	// Dodaj ten useEffect:
+	useEffect(() => {
+		if (isViewBookingModalOpen && selectedBookingData?.id) {
+			const fetchBookingDetails = async () => {
+				setLoadingDetails(true);
+				try {
+					// Użyj nowej funkcji do pobrania pełnych danych
+					const details = await bookingService.getBookingDetails(
+						selectedBookingData.id
+					);
+					console.log("Full booking details:", details);
+					setEnrichedBookingData(details);
+				} catch (error) {
+					console.error("Error loading booking details:", error);
+				} finally {
+					setLoadingDetails(false);
+				}
+			};
+
+			fetchBookingDetails();
+		} else {
+			setEnrichedBookingData(null);
+		}
+	}, [isViewBookingModalOpen, selectedBookingData]);
 
 	return (
 		<>
@@ -84,7 +206,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							alignItems: "center",
 						}}
 					>
-						<Typography variant="h5" fontWeight="bold">
+						<Typography variant="h4" fontWeight="bold">
 							Create New Booking
 						</Typography>
 						<IconButton onClick={() => onClose("new")}>
@@ -146,7 +268,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							alignItems: "center",
 						}}
 					>
-						<Typography variant="h5" fontWeight="bold">
+						<Typography variant="h4" fontWeight="bold">
 							Edit Booking
 						</Typography>
 						<IconButton onClick={() => onClose("edit")}>
@@ -204,12 +326,22 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				fullWidth
 			>
 				<DialogTitle>
-					<Typography variant="h5" fontWeight="bold">
-						Booking Details
-					</Typography>
+					{/* Poprawiona hierarchia nagłówków */}
+					<Box sx={{ display: "flex", justifyContent: "space-between" }}>
+						<Typography variant="h5" component="div">
+							Booking Details
+						</Typography>
+						<IconButton onClick={() => onClose("view")} aria-label="close">
+							<CloseIcon />
+						</IconButton>
+					</Box>
 				</DialogTitle>
 				<DialogContent>
-					{selectedBookingData && (
+					{loadingDetails ? (
+						<Typography align="center" sx={{ py: 3 }}>
+							Loading booking details...
+						</Typography>
+					) : enrichedBookingData ? (
 						<>
 							<Box sx={{ pt: 2 }}>
 								<Grid container spacing={2}>
@@ -218,10 +350,12 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Date
 										</Typography>
 										<Typography variant="body1">
-											{format(
-												parseISO(selectedBookingData.date),
-												"dd MMM yyyy"
-											)}
+											{enrichedBookingData.date
+												? format(
+														new Date(enrichedBookingData.date),
+														"dd MMM yyyy"
+												  )
+												: "Not specified"}
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
@@ -229,7 +363,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Time
 										</Typography>
 										<Typography variant="body1">
-											{format(parseISO(selectedBookingData.date), "HH:mm")}
+											{enrichedBookingData.date
+												? format(new Date(enrichedBookingData.date), "HH:mm")
+												: "Not specified"}
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
@@ -237,8 +373,11 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Client
 										</Typography>
 										<Typography variant="body1">
-											{selectedBookingData.client?.first_name}{" "}
-											{selectedBookingData.client?.last_name}
+											{enrichedBookingData.client &&
+											typeof enrichedBookingData.client === "object" &&
+											enrichedBookingData.client.first_name
+												? `${enrichedBookingData.client.first_name} ${enrichedBookingData.client.last_name}`
+												: "Not specified"}
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
@@ -249,19 +388,29 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											variant="body1"
 											sx={{
 												color:
-													selectedBookingData.status === "confirmed"
+													enrichedBookingData.status === "confirmed"
 														? "success.main"
-														: selectedBookingData.status === "pending"
+														: enrichedBookingData.status === "pending"
 														? "warning.main"
-														: selectedBookingData.status === "completed"
+														: enrichedBookingData.status === "in_progress"
+														? "primary.main"
+														: enrichedBookingData.status === "completed"
 														? "info.main"
-														: selectedBookingData.status === "cancelled"
+														: enrichedBookingData.status === "cancelled"
 														? "error.main"
 														: "text.primary",
 											}}
 										>
-											{selectedBookingData.status.charAt(0).toUpperCase() +
-												selectedBookingData.status.slice(1)}
+											{enrichedBookingData.status
+												? enrichedBookingData.status
+														.replace("_", " ")
+														.split(" ")
+														.map(
+															(word: string) =>
+																word.charAt(0).toUpperCase() + word.slice(1)
+														)
+														.join(" ")
+												: "Unknown"}
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
@@ -269,9 +418,16 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Vehicle
 										</Typography>
 										<Typography variant="body1">
-											{selectedBookingData.vehicle?.brand}{" "}
-											{selectedBookingData.vehicle?.model} (
-											{selectedBookingData.vehicle?.year})
+											{enrichedBookingData.vehicle &&
+											typeof enrichedBookingData.vehicle === "object"
+												? `${enrichedBookingData.vehicle.brand || ""} ${
+														enrichedBookingData.vehicle.model || ""
+												  } ${
+														enrichedBookingData.vehicle.year
+															? `(${enrichedBookingData.vehicle.year})`
+															: ""
+												  }`
+												: "Not specified"}
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
@@ -279,7 +435,16 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Service Type
 										</Typography>
 										<Typography variant="body1">
-											{selectedBookingData.service_type || "General Service"}
+											{enrichedBookingData.booking_type
+												? enrichedBookingData.booking_type
+														.replace("_", " ")
+														.split(" ")
+														.map(
+															(word: string) =>
+																word.charAt(0).toUpperCase() + word.slice(1)
+														)
+														.join(" ")
+												: "General Service"}
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
@@ -287,34 +452,14 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 											Workshop
 										</Typography>
 										<Typography variant="body1">
-											{selectedBookingData.workshop?.name}
+											{enrichedBookingData.workshop &&
+											typeof enrichedBookingData.workshop === "object"
+												? enrichedBookingData.workshop.name
+												: "Not specified"}
 										</Typography>
 									</Grid>
-									<Grid item xs={12}>
-										<Typography variant="subtitle2" color="text.secondary">
-											Assigned Mechanic
-										</Typography>
-										{selectedBookingData.mechanic ? (
-											<Typography variant="body1">
-												{selectedBookingData.mechanic.first_name}{" "}
-												{selectedBookingData.mechanic.last_name}
-											</Typography>
-										) : (
-											<Typography variant="body2" color="text.secondary">
-												Not assigned
-											</Typography>
-										)}
-									</Grid>
-									{selectedBookingData.note && (
-										<Grid item xs={12}>
-											<Typography variant="subtitle2" color="text.secondary">
-												Notes
-											</Typography>
-											<Typography variant="body1">
-												{selectedBookingData.note}
-											</Typography>
-										</Grid>
-									)}
+
+									{/* Pozostałe pola... */}
 								</Grid>
 							</Box>
 
@@ -323,9 +468,12 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							<Box sx={{ display: "flex", gap: 1, mt: 2 }}>
 								<Button
 									variant="outlined"
+									startIcon={<EditIcon />}
 									onClick={() => {
 										onClose("view");
-										onUpdateBooking(selectedBookingData.id);
+										if (onEditFromView && enrichedBookingData?.id) {
+											onEditFromView(enrichedBookingData.id);
+										}
 									}}
 									sx={{
 										flexGrow: 1,
@@ -339,9 +487,12 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 								<Button
 									variant="outlined"
 									color="error"
+									startIcon={<DeleteIcon />}
 									onClick={() => {
 										onClose("view");
-										onCreateBooking(selectedBookingData.id);
+										if (onDeleteBooking && enrichedBookingData?.id) {
+											onDeleteBooking(enrichedBookingData.id);
+										}
 									}}
 									sx={{ flexGrow: 1 }}
 								>
@@ -349,6 +500,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 								</Button>
 							</Box>
 						</>
+					) : (
+						<Typography>No booking data available</Typography>
 					)}
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3, justifyContent: "flex-end" }}>

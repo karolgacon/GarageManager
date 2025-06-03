@@ -214,4 +214,58 @@ export const bookingService = {
 			throw error;
 		}
 	},
+
+	// Get booking details with related data
+	getBookingDetails: async (id: number) => {
+		try {
+			// Pobierz podstawowe dane rezerwacji
+			const response = await api.get(`${BASE_API_URL}/appointments/${id}/`);
+			const bookingData = response.data;
+
+			// Pobierz dane powiązane
+			let enrichedData = { ...bookingData };
+
+			// Pobierz dane klienta jeśli dostępne
+			if (typeof bookingData.client === "number") {
+				try {
+					const clientResponse = await api.get(
+						`${BASE_API_URL}/users/${bookingData.client}/`
+					);
+					enrichedData.client = clientResponse.data;
+				} catch (clientError) {
+					console.error("Error fetching client details:", clientError);
+				}
+			}
+
+			// Pobierz dane pojazdu jeśli dostępne
+			if (typeof bookingData.vehicle === "number") {
+				try {
+					const vehicleResponse = await api.get(
+						`${BASE_API_URL}/vehicles/${bookingData.vehicle}/`
+					);
+					enrichedData.vehicle = vehicleResponse.data;
+				} catch (vehicleError) {
+					console.error("Error fetching vehicle details:", vehicleError);
+				}
+			}
+
+			// Pobierz dane warsztatu jeśli dostępne
+			if (typeof bookingData.workshop === "number") {
+				try {
+					const workshopResponse = await api.get(
+						`${BASE_API_URL}/workshops/${bookingData.workshop}/`
+					);
+					enrichedData.workshop = workshopResponse.data;
+				} catch (workshopError) {
+					console.error("Error fetching workshop details:", workshopError);
+				}
+			}
+
+			console.log("Enriched booking data:", enrichedData);
+			return enrichedData;
+		} catch (error) {
+			console.error(`Error fetching detailed booking with ID ${id}:`, error);
+			throw error;
+		}
+	},
 };
