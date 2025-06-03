@@ -122,7 +122,9 @@ const Mainlayout = ({ children }) => {
 					zIndex: 1300, // Wyższy z-index
 				}}
 			>
-				<Typography variant="caption">COPYRIGHT | GARAGEMASTER 2025</Typography>
+				<Typography variant="caption" component="div">
+					COPYRIGHT | GARAGEMASTER 2025
+				</Typography>
 			</Box>
 		</Box>
 	);

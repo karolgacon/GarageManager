@@ -340,7 +340,10 @@ const StaffManagement: React.FC = () => {
 													fontSize="0.75rem"
 												>
 													Joined From{" "}
-													{new Date(staff.created_at).toLocaleDateString()}
+													{staff.created_at &&
+													!isNaN(new Date(staff.created_at).getTime())
+														? new Date(staff.created_at).toLocaleDateString()
+														: "Not Available"}
 												</Typography>
 											</Box>
 										}
@@ -488,8 +491,10 @@ const StaffManagement: React.FC = () => {
 					<Box sx={{ display: "flex", alignItems: "center" }}>
 						<CalendarIcon sx={{ mr: 2, color: "#9E9E9E" }} />
 						<Typography component="span">
-							Hired {employmentStartDate.toLocaleDateString()}
+							Hired{" "}
+							{formatDate(selectedStaff.hired_date || selectedStaff.created_at)}
 							{selectedStaff.role !== "owner" &&
+								isValidEmploymentDays &&
 								` (${displayEmploymentDays} days ago)`}
 						</Typography>
 					</Box>
@@ -701,6 +706,13 @@ const StaffManagement: React.FC = () => {
 	const handleMenuClose = () => {
 		setAnchorEl(null);
 		setSelectedStaff(null);
+	};
+
+	// Add this helper function before the return statement
+	const formatDate = (dateString) => {
+		if (!dateString) return "Not Available";
+		const date = new Date(dateString);
+		return isNaN(date.getTime()) ? "Not Available" : date.toLocaleDateString();
 	};
 
 	return (

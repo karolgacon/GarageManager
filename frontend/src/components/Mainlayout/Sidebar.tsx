@@ -8,7 +8,7 @@ import {
 	Typography,
 	Drawer,
 } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import BuildIcon from "@mui/icons-material/Build";
@@ -16,7 +16,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BookIcon from "@mui/icons-material/Book";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar"; // Dodaj import ikony samochodu
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AuthContext from "../../context/AuthProvider";
 import {
 	COLOR_PRIMARY,
@@ -37,7 +37,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 	onClose,
 }) => {
 	const location = useLocation();
+	const navigate = useNavigate(); // Add navigate hook
 	const { auth } = useContext(AuthContext);
+
+	// Function to handle logo click
+	const handleLogoClick = () => {
+		navigate("/"); // Navigate to dashboard
+		if (isMobile && onClose) {
+			onClose(); // Close the drawer on mobile if logo is clicked
+		}
+	};
 
 	const navItems = [
 		{
@@ -56,13 +65,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Services",
 			icon: <BuildIcon />,
 			path: "/services",
-			roles: ["admin", "owner", "mechanic","client"],
+			roles: ["admin", "owner", "mechanic", "client"],
 		},
 		{
-			title: "Vehicles", // Nowa zakładka Vehicles
+			title: "Vehicles",
 			icon: <DirectionsCarIcon />,
 			path: "/vehicles",
-			roles: ["admin", "owner", "mechanic", "client"], // Role, które mają dostęp do tej zakładki
+			roles: ["admin", "owner", "mechanic", "client"],
 		},
 		{
 			title: "Customers",
@@ -100,10 +109,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 				height: "100%",
 				display: "flex",
 				flexDirection: "column",
-				// borderRight: `1px solid ${COLOR_LIGHT}`,
 				overflowY: "auto",
-				overflowX: "hidden", // Zapobiega poziomemu przewijaniu
-				maxWidth: "100%", // Zapobiega przekraczaniu szerokości
+				overflowX: "hidden",
+				maxWidth: "100%",
 			}}
 			onClick={isMobile ? onClose : undefined}
 		>
@@ -112,6 +120,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 					padding: "16px",
 					textAlign: "center",
 					mb: 2,
+					cursor: "pointer", // Add cursor pointer to indicate it's clickable
+				}}
+				onClick={(e) => {
+					e.stopPropagation(); // Prevent triggering the parent's onClick
+					handleLogoClick();
 				}}
 			>
 				<Box
@@ -127,6 +140,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 						sx={{
 							height: 60,
 							width: 60,
+							transition: "transform 0.2s ease-in-out", // Add transition for hover effect
+							"&:hover": {
+								transform: "scale(1.05)", // Subtle scale effect on hover
+							},
 						}}
 						alt="Garage Manager Logo"
 						src="/logo.png"
@@ -178,7 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		</Box>
 	);
 
-	// For mobile, render the sidebar in a drawer that can be toggled
+	// Mobile sidebar drawer
 	if (isMobile) {
 		return (
 			<Drawer
@@ -189,12 +206,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 					"& .MuiDrawer-paper": {
 						width: 240,
 						boxSizing: "border-box",
-						// borderRight: `1px solid ${COLOR_LIGHT}`,
 						borderRight: "none",
 					},
 				}}
 				ModalProps={{
-					keepMounted: true, // Better open performance on mobile
+					keepMounted: true,
 				}}
 			>
 				{sidebarContent}
@@ -202,7 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		);
 	}
 
-	// For desktop, render the sidebar normally
+	// Desktop sidebar
 	return (
 		<Drawer
 			variant="permanent"
@@ -212,7 +228,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 				"& .MuiDrawer-paper": {
 					width: 240,
 					boxSizing: "border-box",
-					// borderRight: `1px solid ${COLOR_LIGHT}`,
 					borderRight: "none",
 				},
 			}}
