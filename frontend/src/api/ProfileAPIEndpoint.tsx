@@ -7,7 +7,6 @@ export class ProfileService {
 	static async getProfile(userId: string) {
 		const token = localStorage.getItem("token");
 
-		// Dodaj debugging
 		console.log("Token:", token);
 		console.log("API URL:", API_URL);
 		console.log("Full URL:", `${API_URL}`);

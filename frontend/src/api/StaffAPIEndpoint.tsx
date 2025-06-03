@@ -10,7 +10,7 @@ export interface StaffMember {
 	role: string;
 	workshop_id: number;
 	created_at: string;
-	hired_date?: string; // Add this explicitly to match backend field
+	hired_date?: string;
 	current_status?: string;
 	performance_score?: number;
 	days_worked?: number;
@@ -31,28 +31,19 @@ export interface AttendanceRecord {
 const BASE_URL = `${BASE_API_URL}/staff`;
 
 export const staffService = {
-	// Pobierz wszystkich pracowników warsztatu
 	getWorkshopStaff: async (workshopId: number): Promise<StaffMember[]> => {
 		try {
-			// Używaj nowego endpoint staff
 			const response = await api.get(
 				`${BASE_API_URL}/workshops/${workshopId}/staff/`
 			);
-			console.log("Staff API response:", response.data);
 			return response.data;
 		} catch (error) {
-			console.error(`Error fetching staff for workshop ${workshopId}:`, error);
-
-			// Fallback - spróbuj przez mechanics endpoint
 			try {
 				const response = await api.get(
 					`${BASE_API_URL}/workshops/${workshopId}/mechanics/`
 				);
 				return response.data;
 			} catch (secondError) {
-				console.error("Mechanics endpoint failed:", secondError);
-
-				// Ostatnia próba - przez users endpoint
 				try {
 					const response = await api.get(`${BASE_API_URL}/users/`, {
 						params: {
@@ -65,25 +56,21 @@ export const staffService = {
 					);
 					return filteredStaff;
 				} catch (thirdError) {
-					console.error("Final attempt failed:", thirdError);
 					throw error;
 				}
 			}
 		}
 	},
 
-	// Pobierz pracownika po ID
 	getStaffById: async (id: number): Promise<StaffMember> => {
 		try {
 			const response = await api.get(`${BASE_URL}/${id}/`);
 			return response.data;
 		} catch (error) {
-			console.error(`Error fetching staff member ${id}:`, error);
 			throw error;
 		}
 	},
 
-	// Stwórz nowego pracownika
 	createStaff: async (
 		staffData: Partial<StaffMember>
 	): Promise<StaffMember> => {
@@ -91,12 +78,10 @@ export const staffService = {
 			const response = await api.post(`${BASE_URL}/`, staffData);
 			return response.data;
 		} catch (error) {
-			console.error("Error creating staff member:", error);
 			throw error;
 		}
 	},
 
-	// Aktualizuj pracownika
 	updateStaff: async (
 		id: number,
 		staffData: Partial<StaffMember>
@@ -105,22 +90,18 @@ export const staffService = {
 			const response = await api.put(`${BASE_URL}/${id}/`, staffData);
 			return response.data;
 		} catch (error) {
-			console.error(`Error updating staff member ${id}:`, error);
 			throw error;
 		}
 	},
 
-	// Usuń pracownika
 	deleteStaff: async (id: number): Promise<void> => {
 		try {
 			await api.delete(`${BASE_URL}/${id}/`);
 		} catch (error) {
-			console.error(`Error deleting staff member ${id}:`, error);
 			throw error;
 		}
 	},
 
-	// Aktualizuj status pracownika
 	updateStaffStatus: async (
 		id: number,
 		status: string
@@ -131,12 +112,10 @@ export const staffService = {
 			});
 			return response.data;
 		} catch (error) {
-			console.error(`Error updating staff status ${id}:`, error);
 			throw error;
 		}
 	},
 
-	// Metoda pobierania frekwencji
 	getStaffAttendance: async (
 		staffId: number,
 		month?: number,
