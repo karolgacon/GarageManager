@@ -55,13 +55,13 @@ interface Invoice {
 interface Payment {
 	id: number;
 	invoice: number;
-	amount_paid: number; 
+	amount_paid: number;
 	payment_method: string;
 	payment_date: string;
-	transaction_id: string; 
-	notes?: string; 
-	invoice_number?: string; 
-
+	transaction_id: string;
+	notes?: string;
+	invoice_number?: string;
+}
 const Invoices = () => {
 	const { auth, isAdmin, isOwner, isClient } = useContext(AuthContext);
 	const [tabValue, setTabValue] = useState(0);

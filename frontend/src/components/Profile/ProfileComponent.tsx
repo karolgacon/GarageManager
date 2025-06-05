@@ -171,7 +171,7 @@ const ProfileComponent: React.FC = () => {
 				setLoyaltyFormData({
 					total_points: 0,
 					membership_level: "bronze",
-					user: Number(profile.user),'
+					user: Number(profile.user),
 				});
 			}
 		} catch (err: any) {
