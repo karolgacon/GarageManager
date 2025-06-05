@@ -39,7 +39,6 @@ export const useCustomerActions = (
 	};
 
 	const handleViewCustomer = (customer: Customer) => {
-		console.log("handleViewCustomer called with customer:", customer);
 		setSelectedCustomer(customer);
 		setModalState("detail", true);
 	};
@@ -77,7 +76,6 @@ export const useCustomerActions = (
 			setModalState("delete", false);
 			setDeleteCustomerId(null);
 		} catch (err) {
-			console.error("Error deleting customer:", err);
 			setSnackbar({
 				open: true,
 				message: "Failed to delete customer",

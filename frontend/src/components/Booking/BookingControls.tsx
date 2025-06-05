@@ -46,7 +46,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 			onDateChange(addMonths(selectedDate, -1));
 		}
 
-		console.log(`Date changed from ${dateBeforeChange} to ${selectedDate}`);
 	};
 
 	const handleNavigateNext = () => {

@@ -58,7 +58,6 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 				setFilteredWorkshops(data);
 				setLoadError(null);
 			} catch (err) {
-				console.error("Error fetching workshops:", err);
 				setLoadError("Failed to load workshops list");
 			} finally {
 				setLoading(false);
@@ -90,7 +89,7 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 		if (typeof onChange === "function") {
 			onChange(newValue ? newValue.id : null);
 		} else {
-			console.warn("WorkshopSelector: onChange prop is not a function");
+			
 		}
 	};
 

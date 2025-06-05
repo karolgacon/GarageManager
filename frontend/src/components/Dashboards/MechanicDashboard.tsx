@@ -45,7 +45,6 @@ const MechanicDashboard: React.FC = () => {
 				setError(null);
 
 				if (!auth || auth.isLoading) {
-					console.log("Auth data still loading");
 					return;
 				}
 
@@ -53,7 +52,6 @@ const MechanicDashboard: React.FC = () => {
 				const workshopId = auth.workshop_id;
 
 				if (!mechanicId || !workshopId) {
-					console.error("Mechanic ID or Workshop ID not found");
 					setError(
 						"Missing mechanic or workshop information. Please check your account profile."
 					);
@@ -123,7 +121,6 @@ const MechanicDashboard: React.FC = () => {
 					})),
 				});
 			} catch (error) {
-				console.error("Error fetching mechanic dashboard data:", error);
 				setError("Could not load dashboard data. Please try again later.");
 			} finally {
 				setLoading(false);

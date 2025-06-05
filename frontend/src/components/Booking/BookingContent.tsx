@@ -67,7 +67,6 @@ const BookingContent: React.FC<BookingContentProps> = ({
 		let timeoutId: NodeJS.Timeout | null = null;
 
 		if (loading && loadingDuration >= 15) {
-			console.log("Loading timeout reached");
 			if (onForceLoadingComplete) onForceLoadingComplete();
 		}
 

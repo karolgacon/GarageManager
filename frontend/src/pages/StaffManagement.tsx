@@ -94,7 +94,6 @@ const StaffManagement: React.FC = () => {
 					const data = await workshopService.getAllWorkshops();
 					setWorkshops(data);
 				} catch (err) {
-					console.error("Error fetching workshops:", err);
 					setError("Failed to load workshops. Please try again.");
 				} finally {
 					setLoading(false);
@@ -115,7 +114,6 @@ const StaffManagement: React.FC = () => {
 					const data = await staffService.getWorkshopStaff(selectedWorkshopId);
 					setStaffMembers(data);
 				} catch (err) {
-					console.error("Error fetching staff:", err);
 					setError("Failed to load staff members. Please try again.");
 				} finally {
 					setLoading(false);
@@ -154,7 +152,6 @@ const StaffManagement: React.FC = () => {
 				setStaffMembers(data);
 			}
 		} catch (err) {
-			console.error("Error saving staff:", err);
 			setSnackbar({
 				open: true,
 				message: "Failed to save staff member. Please try again.",
@@ -181,7 +178,6 @@ const StaffManagement: React.FC = () => {
 					setStaffMembers(data);
 				}
 			} catch (err) {
-				console.error("Error deleting staff:", err);
 				setSnackbar({
 					open: true,
 					message: "Failed to delete staff member. Please try again.",
@@ -402,14 +398,10 @@ const StaffManagement: React.FC = () => {
 			);
 		}
 
-		console.log("Staff data:", selectedStaff);
-		console.log("Hired date:", selectedStaff.hired_date);
-		console.log("Created at:", selectedStaff.created_at);
 
 		const employmentStartDate = new Date(
 			selectedStaff.hired_date || selectedStaff.created_at
 		);
-		console.log("Parsed employment start date:", employmentStartDate);
 
 		const currentDate = new Date();
 		const employmentDays = Math.floor(
@@ -417,7 +409,6 @@ const StaffManagement: React.FC = () => {
 				(1000 * 60 * 60 * 24)
 		);
 
-		console.log("Calculated days:", employmentDays);
 
 		const isValidEmploymentDays = !isNaN(employmentDays) && employmentDays >= 0;
 		const displayEmploymentDays = isValidEmploymentDays ? employmentDays : 0;

@@ -25,7 +25,6 @@ export const useCustomerData = (
 			} else if (auth.workshop_id) {
 				data = await customerService.getWorkshopCustomers(auth.workshop_id);
 			} else {
-				console.error("No workshop ID available to fetch customers");
 				setCustomers([]);
 				setFilteredCustomers([]);
 				return;
@@ -34,7 +33,6 @@ export const useCustomerData = (
 			setCustomers(data);
 			setFilteredCustomers(data);
 		} catch (err) {
-			console.error("Error fetching customers:", err);
 			setError("Failed to load customers");
 		} finally {
 			setLoading(false);
@@ -43,17 +41,13 @@ export const useCustomerData = (
 
 	const fetchWorkshops = async () => {
 		try {
-			console.log("Fetching workshops...");
 			if (auth.roles?.[0] !== "admin") {
-				console.log("Non-admin user, not fetching workshops");
 				return; 
 			}
 
 			const data = await workshopService.getAllWorkshops();
-			console.log("Workshops fetched:", data);
 			setWorkshops(data || []); 
 		} catch (err) {
-			console.error("Error fetching workshops:", err);
 			setWorkshops([]); 
 		}
 	};

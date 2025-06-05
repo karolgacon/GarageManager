@@ -107,12 +107,10 @@ const ProfileComponent: React.FC = () => {
 			setError(null);
 		} catch (err: any) {
 			if (err.response?.status === 404) {
-				console.log("Profil nie istnieje - to jest OK");
 				setProfile(null);
 				setError(null);
 			} else {
 				setError("Nie udało się pobrać danych profilu. Spróbuj ponownie.");
-				console.error("Error fetching profile:", err);
 			}
 		} finally {
 			setLoading(false);
@@ -132,10 +130,8 @@ const ProfileComponent: React.FC = () => {
 						pointsData = await LoyaltyService.getClientLoyaltyPoints(
 							Number(profile.user)
 						);
-						console.log("Admin loaded loyalty points for client:", pointsData);
 					} catch (err: any) {
 						if (err.response?.status === 404) {
-							console.log("No loyalty points for client, preparing empty form");
 							setLoyaltyFormData({
 								total_points: 0,
 								membership_level: "bronze",
@@ -151,7 +147,6 @@ const ProfileComponent: React.FC = () => {
 					pointsData = await LoyaltyService.getUserLoyaltyStatus();
 				} catch (err: any) {
 					if (err.response?.status === 404) {
-						console.log("Client has no loyalty points yet");
 					} else {
 						throw err;
 					}
@@ -175,7 +170,6 @@ const ProfileComponent: React.FC = () => {
 				});
 			}
 		} catch (err: any) {
-			console.error("Error fetching loyalty points:", err);
 			setLoyaltyError("Nie udało się pobrać punktów lojalnościowych");
 		} finally {
 			setLoyaltyLoading(false);
@@ -249,7 +243,6 @@ const ProfileComponent: React.FC = () => {
 				err.response?.data?.message ||
 				"Nie udało się zapisać profilu. Spróbuj ponownie.";
 			showSnackbar(errorMessage, "error");
-			console.error("Error saving profile:", err);
 		} finally {
 			setLoading(false);
 		}
@@ -277,7 +270,6 @@ const ProfileComponent: React.FC = () => {
 				err.response?.data?.message ||
 				"Nie udało się usunąć profilu. Spróbuj ponownie.";
 			showSnackbar(errorMessage, "error");
-			console.error("Error deleting profile:", err);
 		} finally {
 			setLoading(false);
 		}
@@ -322,18 +314,15 @@ const ProfileComponent: React.FC = () => {
 				...prev,
 				user: Number(profile.user), 
 			}));
-			console.log("Automatically set user ID from profile:", profile.user);
 		}
 
 		if (!loyaltyFormData.user) {
-			console.error("Missing user ID in form data:", loyaltyFormData);
 			showSnackbar("Nie można zapisać punktów - brak ID użytkownika", "error");
 			return;
 		}
 
 		try {
 			setLoyaltyLoading(true);
-			console.log("Saving loyalty points with data:", loyaltyFormData);
 
 			let result;
 			if (loyaltyPoints?.id) {
@@ -354,7 +343,6 @@ const ProfileComponent: React.FC = () => {
 			setIsLoyaltyModalOpen(false);
 			showSnackbar("Punkty lojalnościowe zaktualizowane", "success");
 		} catch (err: any) {
-			console.error("Error saving loyalty points:", err);
 			showSnackbar(
 				err.response?.data?.message || "Nie udało się zaktualizować punktów",
 				"error"
@@ -381,10 +369,6 @@ const ProfileComponent: React.FC = () => {
 			const currentPoints = loyaltyPoints?.total_points || 0;
 			const newTotalPoints = currentPoints + pointsToAdd;
 
-			console.log(
-				`Dodawanie ${pointsToAdd} punktów. Stan przed: ${currentPoints}, po: ${newTotalPoints}`
-			);
-
 			let result;
 			if (loyaltyPoints?.id) {
 				const determineMembershipLevel = (points: number): string => {
@@ -396,10 +380,9 @@ const ProfileComponent: React.FC = () => {
 
 				const newLevel = determineMembershipLevel(newTotalPoints);
 				if (newLevel !== loyaltyPoints?.membership_level) {
-					console.log(
-						`Aktualizacja poziomu z ${
-							loyaltyPoints?.membership_level || "bronze"
-						} na ${newLevel}`
+					showSnackbar(
+						`Zmieniono poziom na ${newLevel.charAt(0).toUpperCase() + newLevel.slice(1)}`,
+						"info"
 					);
 				}
 
@@ -426,7 +409,6 @@ const ProfileComponent: React.FC = () => {
 
 			fetchLoyaltyPoints();
 		} catch (err: any) {
-			console.error("Error adding loyalty points:", err);
 			showSnackbar(
 				err.response?.data?.message || "Nie udało się dodać punktów",
 				"error"

@@ -83,7 +83,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					try {
 						vehiclesData = await customerService.getCustomerVehicles(userId);
 					} catch (err) {
-						console.error("Error loading vehicles:", err);
 						vehiclesData = [];
 					}
 				}
@@ -117,7 +116,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					setClients(clientsData);
 				}
 			} catch (err) {
-				console.error("Error loading initial data:", err);
 			} finally {
 				setLoading(false);
 			}
@@ -142,7 +140,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					);
 					setMechanics(mechanicsData);
 				} catch (err) {
-					console.error("Error loading mechanics:", err);
 				}
 			} else {
 				setMechanics([]);
@@ -164,7 +161,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					);
 					setAvailableSlots(slotsData);
 				} catch (err) {
-					console.error("Error loading available slots:", err);
 				}
 			}
 		};
@@ -184,7 +180,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					);
 					setVehicles(vehiclesData);
 				} catch (err) {
-					console.error("Error loading client vehicles:", err);
 				}
 			}
 		};

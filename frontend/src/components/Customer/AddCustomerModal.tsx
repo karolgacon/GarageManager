@@ -84,7 +84,6 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
             onCustomerAdded(newCustomer);
             handleClose();
         } catch (err: any) {
-            console.error("Error adding customer:", err);
             setError(err.response?.data?.message || "Failed to add customer");
         } finally {
             setLoading(false);

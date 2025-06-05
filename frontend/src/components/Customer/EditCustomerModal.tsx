@@ -102,7 +102,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             onCustomerUpdated(updatedCustomer);
             handleClose();
         } catch (err: any) {
-            console.error("Error updating customer:", err);
             setError(err.response?.data?.message || "Failed to update customer");
         } finally {
             setLoading(false);

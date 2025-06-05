@@ -91,7 +91,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 			onItemUpdated(updatedPart);
 			onClose();
 		} catch (error) {
-			console.error("Error updating item:", error);
 			setError("Failed to update item. Please try again.");
 		} finally {
 			setLoading(false);

@@ -67,7 +67,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 					const vehicles = await vehicleService.getClientVehicles(auth.user_id);
 					setClientVehicles(vehicles);
 				} catch (error) {
-					console.error("Error fetching client vehicles:", error);
 				}
 			};
 
@@ -77,39 +76,27 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData) {
-			console.log("Booking data:", selectedBookingData);
 		}
 	}, [isViewBookingModalOpen, selectedBookingData]);
 
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData) {
-			console.log("Original booking data:", selectedBookingData);
 
 			const fetchAllBookingDetails = async () => {
 				setLoadingDetails(true);
 				try {
 					const enriched = { ...selectedBookingData };
-					console.log(
-						"Starting data enrichment for booking:",
-						selectedBookingData.id
-					);
 
 					if (typeof selectedBookingData.client === "number") {
 						try {
-							console.log(
-								"Fetching client data for ID:",
-								selectedBookingData.client
-							);
+
 							const clientData = await customerService.getCustomerById(
 								selectedBookingData.client
 							);
-							console.log("Raw client API response:", clientData);
 							enriched.client = clientData;
 						} catch (err) {
-							console.error("Error loading client data:", err);
 							if (err.response) {
-								console.error("API error details:", err.response.data);
-								console.error("API error status:", err.response.status);
+
 							}
 							enriched.client = { first_name: "Unknown", last_name: "Client" };
 						}
@@ -121,9 +108,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 								selectedBookingData.vehicle
 							);
 							enriched.vehicle = vehicleData;
-							console.log("Vehicle data loaded:", vehicleData);
 						} catch (err) {
-							console.error("Error loading vehicle data:", err);
 							enriched.vehicle = { brand: "Unknown", model: "Vehicle" };
 						}
 					}
@@ -134,17 +119,14 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 								selectedBookingData.workshop
 							);
 							enriched.workshop = workshopData;
-							console.log("Workshop data loaded:", workshopData);
 						} catch (err) {
-							console.error("Error loading workshop data:", err);
 							enriched.workshop = { name: "Unknown Workshop" };
 						}
 					}
 
-					console.log("Enriched booking data:", enriched);
 					setEnrichedBookingData(enriched);
 				} catch (err) {
-					console.error("Error enriching booking data:", err);
+					setEnrichedBookingData(null);
 				} finally {
 					setLoadingDetails(false);
 				}
@@ -162,10 +144,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 					const details = await bookingService.getBookingDetails(
 						selectedBookingData.id
 					);
-					console.log("Full booking details:", details);
 					setEnrichedBookingData(details);
 				} catch (error) {
-					console.error("Error loading booking details:", error);
+					setEnrichedBookingData(null);
 				} finally {
 					setLoadingDetails(false);
 				}

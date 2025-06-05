@@ -311,17 +311,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				return;
 			}
 
-			console.log("Attempting to create profile with data:", {
-				first_name: profileData.firstName,
-				last_name: profileData.lastName,
-				phone: profileData.phone,
-				address: profileData.address,
-				city: profileData.city,
-				postal_code: profileData.postalCode,
-				country: profileData.country,
-				date_of_birth: profileData.dateOfBirth,
-			});
-
 			const response = await axios.post(
 				`${BASE_API_URL}/users/profile/`,
 				{
@@ -342,7 +331,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				}
 			);
 
-			console.log("Profile created successfully:", response.data);
+
 
 			showSnackbar(
 				"Profile completed successfully! Welcome to GarageManager!",
@@ -352,9 +341,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				navigate("/home");
 			}, 2000);
 		} catch (err: any) {
-			console.error("Profile setup error:", err);
-			console.error("Error response data:", err.response?.data);
-			console.error("Error status:", err.response?.status);
+
 
 			if (axios.isAxiosError(err)) {
 				if (err.response?.status === 401) {

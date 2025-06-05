@@ -20,7 +20,6 @@ const UserList: React.FC = () => {
             setError(null);
         } catch (err) {
             setError('Nie udało się pobrać listy użytkowników. Spróbuj ponownie.');
-            console.error('Error fetching users:', err);
         } finally {
             setLoading(false);
         }

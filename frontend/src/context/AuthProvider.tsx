@@ -36,7 +36,6 @@ function parseJwt(token: string) {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (e) {
-		console.error("Error parsing JWT token:", e);
 		return null;
 	}
 }
@@ -63,7 +62,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 					const tokenData = parseJwt(savedToken);
 					userId = tokenData?.user_id;
 				} catch (e) {
-					console.error("Failed to parse JWT token", e);
 				}
 			}
 
@@ -113,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 					newAuth.user_id = userId;
 				}
 			} catch (e) {
-				console.error("Failed to parse JWT token during auth update", e);
+				
 			}
 		}
 		setAuth(newAuth);

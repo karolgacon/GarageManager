@@ -42,14 +42,14 @@ import CustomSnackbar, {
 interface Invoice {
 	id: number;
 	client: number;
-	amount: number; 
-	discount: number; 
-	issue_date: string; 
+	amount: number;
+	discount: number;
+	issue_date: string;
 	due_date: string;
 	status: string;
-	tax_rate: number; 
-	description?: string; 
-	client_name?: string; 
+	tax_rate: number;
+	description?: string;
+	client_name?: string;
 }
 
 interface Payment {
@@ -90,6 +90,11 @@ const Invoices = () => {
 		message: "",
 		severity: "success",
 	});
+
+	const [selectedInvoiceDetails, setSelectedInvoiceDetails] =
+		useState<Invoice | null>(null);
+	const [openInvoiceDetailsDialog, setOpenInvoiceDetailsDialog] =
+		useState(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -141,14 +146,11 @@ const Invoices = () => {
 						setPayments(validPayments);
 					}
 				} catch (err: any) {
-					console.error("Błąd podczas pobierania danych:", err);
 					setError("Nie udało się pobrać danych faktur i płatności.");
 				} finally {
 					setLoading(false);
 				}
 			} catch (err) {
-				console.error("Błąd pobierania z API, używam danych testowych", err);
-
 				const mockInvoices = [
 					{
 						id: 1,
@@ -207,7 +209,7 @@ const Invoices = () => {
 					setPayments(mockPayments);
 				}
 
-				setError(null); 
+				setError(null);
 				setLoading(false);
 			}
 		};
@@ -253,10 +255,10 @@ const Invoices = () => {
 			const invoiceData = {
 				client: parseInt(newInvoice.client),
 				amount: totalAmount,
-				discount: 0, 
+				discount: 0,
 				due_date: newInvoice.due_date,
 				status: "pending",
-				tax_rate: 0.23, 
+				tax_rate: 0.23,
 				description: newInvoice.items
 					.map(
 						(item) => `${item.description} (${item.quantity} x ${item.price})`
@@ -273,7 +275,6 @@ const Invoices = () => {
 				severity: "success",
 			});
 		} catch (err) {
-			console.error("Błąd podczas tworzenia faktury:", err);
 			setSnackbar({
 				open: true,
 				message: "Nie udało się utworzyć faktury",
@@ -307,7 +308,6 @@ const Invoices = () => {
 				severity: "success",
 			});
 		} catch (err) {
-			console.error("Błąd podczas tworzenia płatności:", err);
 			setSnackbar({
 				open: true,
 				message: "Nie udało się zrealizować płatności",
@@ -316,8 +316,16 @@ const Invoices = () => {
 		}
 	};
 
-	const handleDownloadInvoice = (invoiceId: number) => {
-		console.log("Pobieranie faktury o ID:", invoiceId);
+	const handleDownloadInvoice = (invoiceId: number) => {};
+
+	const handleViewInvoice = (invoice: Invoice) => {
+		setSelectedInvoiceDetails(invoice);
+		setOpenInvoiceDetailsDialog(true);
+	};
+
+	const handleCloseInvoiceDetailsDialog = () => {
+		setOpenInvoiceDetailsDialog(false);
+		setSelectedInvoiceDetails(null);
 	};
 
 	const renderInvoiceStatus = (status: string) => {
@@ -345,10 +353,7 @@ const Invoices = () => {
 	const renderInvoiceActions = (invoice: Invoice) => {
 		return (
 			<Box sx={{ display: "flex", gap: 1 }}>
-				<IconButton
-					size="small"
-					onClick={() => console.log("Podgląd faktury", invoice.id)}
-				>
+				<IconButton size="small" onClick={() => handleViewInvoice(invoice)}>
 					<VisibilityIcon fontSize="small" />
 				</IconButton>
 
@@ -376,13 +381,11 @@ const Invoices = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-
 	const formatDate = (dateString) => {
 		if (!dateString) return "N/A";
 		const date = new Date(dateString);
 		return !isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date";
 	};
-
 
 	const formatAmount = (amount) => {
 		const numAmount = Number(amount || 0);
@@ -754,6 +757,152 @@ const Invoices = () => {
 						sx={{ backgroundColor: COLOR_PRIMARY }}
 					>
 						Pay Now
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			<Dialog
+				open={openInvoiceDetailsDialog}
+				onClose={handleCloseInvoiceDetailsDialog}
+				maxWidth="md"
+				fullWidth
+			>
+				<DialogTitle>
+					Invoice Details -{" "}
+					{selectedInvoiceDetails?.id
+						? `INV-${selectedInvoiceDetails.id.toString().padStart(3, "0")}`
+						: ""}
+				</DialogTitle>
+				<DialogContent dividers>
+					{selectedInvoiceDetails && (
+						<Box sx={{ p: 2 }}>
+							<Grid container spacing={2}>
+								<Grid item xs={12} md={6}>
+									<Typography variant="subtitle1" fontWeight="bold">
+										Client Information
+									</Typography>
+									<Typography variant="body1">
+										{selectedInvoiceDetails.client_name ||
+											`Client #${selectedInvoiceDetails.client}`}
+									</Typography>
+								</Grid>
+								<Grid item xs={12} md={6}>
+									<Typography variant="subtitle1" fontWeight="bold">
+										Invoice Details
+									</Typography>
+									<Typography variant="body2">
+										Status: {selectedInvoiceDetails.status}
+									</Typography>
+									<Typography variant="body2">
+										Issue Date:{" "}
+										{formatDate(
+											selectedInvoiceDetails.issue_date ||
+												selectedInvoiceDetails.date
+										)}
+									</Typography>
+									<Typography variant="body2">
+										Due Date: {formatDate(selectedInvoiceDetails.due_date)}
+									</Typography>
+								</Grid>
+								<Grid item xs={12}>
+									<Typography
+										variant="subtitle1"
+										fontWeight="bold"
+										sx={{ mt: 2 }}
+									>
+										Financial Summary
+									</Typography>
+									<Box
+										sx={{
+											mt: 1,
+											p: 2,
+											bgcolor: "#f5f5f5",
+											borderRadius: 1,
+										}}
+									>
+										<Grid container spacing={2}>
+											<Grid item xs={6}>
+												<Typography variant="body2">Subtotal:</Typography>
+											</Grid>
+											<Grid item xs={6} textAlign="right">
+												<Typography variant="body2">
+													{formatAmount(
+														selectedInvoiceDetails.amount /
+															(1 + (selectedInvoiceDetails.tax_rate || 0))
+													)}
+												</Typography>
+											</Grid>
+											{selectedInvoiceDetails.discount > 0 && (
+												<>
+													<Grid item xs={6}>
+														<Typography variant="body2">Discount:</Typography>
+													</Grid>
+													<Grid item xs={6} textAlign="right">
+														<Typography variant="body2" color="error">
+															-{formatAmount(selectedInvoiceDetails.discount)}
+														</Typography>
+													</Grid>
+												</>
+											)}
+											<Grid item xs={6}>
+												<Typography variant="body2">
+													Tax (
+													{(
+														(selectedInvoiceDetails.tax_rate || 0) * 100
+													).toFixed(0)}
+													%):
+												</Typography>
+											</Grid>
+											<Grid item xs={6} textAlign="right">
+												<Typography variant="body2">
+													{formatAmount(
+														(selectedInvoiceDetails.amount *
+															(selectedInvoiceDetails.tax_rate || 0)) /
+															(1 + (selectedInvoiceDetails.tax_rate || 0))
+													)}
+												</Typography>
+											</Grid>
+											<Grid item xs={6}>
+												<Typography variant="body2" fontWeight="bold">
+													Total Amount:
+												</Typography>
+											</Grid>
+											<Grid item xs={6} textAlign="right">
+												<Typography variant="body2" fontWeight="bold">
+													{formatAmount(selectedInvoiceDetails.amount)}
+												</Typography>
+											</Grid>
+										</Grid>
+									</Box>
+								</Grid>
+							</Grid>
+						</Box>
+					)}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCloseInvoiceDetailsDialog}>Close</Button>
+					{selectedInvoiceDetails?.status.toLowerCase() === "pending" &&
+						isClient() && (
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={() => {
+									handleCloseInvoiceDetailsDialog();
+									handleOpenPaymentDialog(selectedInvoiceDetails);
+								}}
+							>
+								Pay Now
+							</Button>
+						)}
+					<Button
+						variant="outlined"
+						onClick={() => {
+							handleCloseInvoiceDetailsDialog();
+							selectedInvoiceDetails &&
+								handleDownloadInvoice(selectedInvoiceDetails.id);
+						}}
+					>
+						Download
 					</Button>
 				</DialogActions>
 			</Dialog>

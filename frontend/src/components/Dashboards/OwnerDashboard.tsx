@@ -92,7 +92,16 @@ const OwnerDashboard: React.FC = () => {
 					})),
 				});
 			} catch (error) {
-				console.error("Error fetching workshop data:", error);
+				setWorkshopData({
+					name: "Error",
+					location: "Unable to load data",
+					mechanicCount: 0,
+					customerCount: 0,
+					vehicleCount: 0,
+					todayBookings: 0,
+					inventoryItems: 0,
+					recentMechanics: [],
+				});
 			} finally {
 				setLoading(false);
 			}

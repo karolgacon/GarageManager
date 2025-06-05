@@ -129,7 +129,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
 			onServiceUpdated(updatedService);
 			onClose();
 		} catch (error) {
-			console.error("Error updating service:", error);
 			setError("Failed to update service. Please try again.");
 		} finally {
 			setLoading(false);

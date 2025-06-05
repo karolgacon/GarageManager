@@ -26,7 +26,6 @@ const UserDetail: React.FC = () => {
                 setError(null);
             } catch (err) {
                 setError("Nie udało się pobrać szczegółów użytkownika.");
-                console.error("Error fetching user:", err);
             } finally {
                 setLoading(false);
             }
@@ -38,7 +37,8 @@ const UserDetail: React.FC = () => {
                 const profileData = await ProfileService.getProfile(parseInt(id));
                 setProfile(profileData);
             } catch (err) {
-                console.warn("Brak profilu dla użytkownika.");
+                setProfile(null);
+                setError("Nie udało się pobrać profilu użytkownika.");
             } finally {
                 setProfileLoading(false);
             }
@@ -56,7 +56,6 @@ const UserDetail: React.FC = () => {
                 navigate("/users");
             } catch (err) {
                 setError("Nie udało się usunąć użytkownika.");
-                console.error("Error deleting user:", err);
             }
         }
     };

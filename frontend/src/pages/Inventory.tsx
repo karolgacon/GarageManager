@@ -75,7 +75,6 @@ const Inventory = () => {
 					const data = await inventoryService.getAllParts();
 					setParts(data);
 				} catch (err) {
-					console.error("Admin parts fetch error:", err);
 					if (err.response?.status === 500) {
 						setError(
 							"Server error: The inventory system is currently experiencing technical difficulties. Our team has been notified."
@@ -109,7 +108,6 @@ const Inventory = () => {
 						);
 					}
 				} catch (error) {
-					console.error("Error fetching workshop-specific parts:", error);
 
 					if (
 						error.message &&
@@ -128,7 +126,6 @@ const Inventory = () => {
 				setParts([]);
 			}
 		} catch (error) {
-			console.error("Error fetching parts:", error);
 			setError("Failed to load inventory items. Please try again.");
 			setParts([]);
 		} finally {
@@ -201,7 +198,6 @@ const Inventory = () => {
 				severity: "success",
 			});
 		} catch (error) {
-			console.error("Error deleting parts:", error);
 			setSnackbar({
 				open: true,
 				message: "Failed to delete items. Please try again.",

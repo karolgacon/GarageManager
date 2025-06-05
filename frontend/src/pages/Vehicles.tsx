@@ -66,32 +66,23 @@ const Vehicles: React.FC = () => {
 			let data: Vehicle[];
 			const userRole = auth.roles?.[0];
 
-			console.log("User role:", userRole); 
-			console.log("Auth object:", auth); 
-
 			if (userRole === "admin") {
-				console.log("Fetching all vehicles for admin");
 				data = await vehicleService.getAllVehicles();
 			} else if (userRole === "client") {
-				console.log("Fetching current user vehicles for client");
 				data = await vehicleService.getCurrentUserVehicles();
 			} else if (["owner", "mechanic"].includes(userRole || "")) {
 				if (auth.workshopId) {
-					console.log("Fetching workshop vehicles");
 					data = await vehicleService.getWorkshopVehicles(auth.workshopId);
 				} else {
-					console.log("Fetching current user vehicles (fallback)");
 					data = await vehicleService.getCurrentUserVehicles();
 				}
 			} else {
 				data = [];
 			}
 
-			console.log("Fetched vehicles:", data); 
 			setVehicles(data);
 			setFilteredVehicles(data);
 		} catch (err: any) {
-			console.error("Error fetching vehicles:", err);
 			setError("Failed to load vehicles. Please try again.");
 		} finally {
 			setLoading(false);
@@ -119,7 +110,6 @@ const Vehicles: React.FC = () => {
 			const data = await vehicleService.getVehiclesDueForMaintenance();
 			setFilteredVehicles(data);
 		} catch (err) {
-			console.error("Error fetching maintenance vehicles:", err);
 			const dueForMaintenance = vehicles.filter(
 				(vehicle) =>
 					vehicle.next_service_due &&
@@ -180,7 +170,6 @@ const Vehicles: React.FC = () => {
 			const data = await vehicleService.getVehiclesByBrand(brand);
 			setFilteredVehicles(data);
 		} catch (err) {
-			console.error(`Error fetching vehicles by brand ${brand}:`, err);
 			const filteredByBrand = vehicles.filter(
 				(vehicle) => vehicle.brand.toLowerCase() === brand.toLowerCase()
 			);
@@ -196,7 +185,6 @@ const Vehicles: React.FC = () => {
 			setSelectedVehicle(vehicle);
 			setDetailDialogOpen(true);
 		} catch (err) {
-			console.error("Error fetching vehicle details:", err);
 			setSnackbar({
 				open: true,
 				message: "Failed to load vehicle details",
@@ -206,9 +194,7 @@ const Vehicles: React.FC = () => {
 	};
 
 	const handleEditVehicle = (id: number) => {
-		console.log(`Trying to edit vehicle with ID: ${id}`);
 		const vehicle = vehicles.find((v) => v.id === id);
-		console.log("Vehicle data:", vehicle);
 
 		if (!vehicle) {
 			setSnackbar({
@@ -254,7 +240,6 @@ const Vehicles: React.FC = () => {
 			setDeleteDialogOpen(false);
 			setDeleteVehicleId(null);
 		} catch (err) {
-			console.error("Error deleting vehicle:", err);
 			setSnackbar({
 				open: true,
 				message: "Failed to delete vehicle",

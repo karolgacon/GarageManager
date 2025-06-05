@@ -64,12 +64,10 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 
 		const fetchVehicleData = async () => {
 			try {
-				console.log("Pobieranie danych pojazdu:", vehicleId);
 				setLoading(true);
 				setError(null);
 
 				const data = await vehicleService.getVehicleById(vehicleId);
-				console.log("Pobrane dane pojazdu:", data);
 
 				if (!data || !data.id) {
 					throw new Error("Pobrano niepełne dane pojazdu");
@@ -80,7 +78,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				setSelectedWorkshopId(data.workshop_id || null);
 				setLoading(false);
 			} catch (err) {
-				console.error("Błąd podczas pobierania pojazdu:", err);
 				setError("Nie udało się pobrać danych pojazdu");
 			} finally {
 				setLoading(false);
@@ -120,11 +117,10 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			onVehicleUpdated(response);
 			onClose();
 		} catch (err) {
-			console.error("Error updating vehicle:", err);
 
 			if (err.response) {
-				console.error("Response data:", err.response.data);
-				console.error("Response status:", err.response.status);
+				const errorMessage = err.response.data?.detail || "Nie udało się zaktualizować pojazdu.";
+				setError(errorMessage);
 			}
 
 			setError("Failed to update the vehicle. Please try again.");

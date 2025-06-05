@@ -49,25 +49,20 @@ const ClientDashboard: React.FC = () => {
 				setLoading(true);
 
 				if (!auth || auth.isLoading) {
-					console.log("Auth data still loading");
 					return; 
 				}
 
 				const clientId = auth.user_id;
 
 				if (!clientId) {
-					console.error("Client ID not found");
 					return;
 				}
 
-				console.log(`Fetching dashboard data for client ID: ${clientId}`);
 
 				let vehicles = [];
 				try {
 					vehicles = await vehicleService.getClientVehicles(clientId);
-					console.log(`Found ${vehicles.length} vehicles for client`);
 				} catch (vehicleError) {
-					console.error("Error fetching client vehicles:", vehicleError);
 					vehicles = []; 
 				}
 
@@ -75,9 +70,7 @@ const ClientDashboard: React.FC = () => {
 				let upcomingBookings = [];
 				try {
 					upcomingBookings = await bookingService.getUpcomingBookings();
-					console.log(`Found ${upcomingBookings.length} upcoming bookings`);
 				} catch (bookingError) {
-					console.error("Error fetching upcoming bookings:", bookingError);
 					upcomingBookings = []; 
 				}
 
@@ -88,10 +81,6 @@ const ClientDashboard: React.FC = () => {
 					try {
 						const servicesPromises = vehicleIds.map((id) =>
 							serviceService.getVehicleServices(id).catch((err) => {
-								console.error(
-									`Error fetching services for vehicle ${id}:`,
-									err
-								);
 								return []; 
 							})
 						);
@@ -99,9 +88,7 @@ const ClientDashboard: React.FC = () => {
 						completedServices = services
 							.flat()
 							.filter((service) => service && service.status === "completed");
-						console.log(`Found ${completedServices.length} completed services`);
 					} catch (serviceError) {
-						console.error("Error processing services:", serviceError);
 					}
 				}
 
@@ -110,10 +97,6 @@ const ClientDashboard: React.FC = () => {
 					try {
 						const diagnosticsPromises = vehicleIds.map((id) =>
 							diagnosticsService.getVehicleDiagnostics(id).catch((err) => {
-								console.error(
-									`Error fetching diagnostics for vehicle ${id}:`,
-									err
-								);
 								return []; 
 							})
 						);
@@ -123,11 +106,8 @@ const ClientDashboard: React.FC = () => {
 						pendingIssues = allDiagnostics.filter(
 							(issue) => issue && issue.status === "pending"
 						);
-						console.log(
-							`Found ${pendingIssues.length} pending diagnostic issues`
-						);
 					} catch (diagnosticsError) {
-						console.error("Error processing diagnostics:", diagnosticsError);
+						pendingIssues = [];
 					}
 				}
 
@@ -162,7 +142,14 @@ const ClientDashboard: React.FC = () => {
 					nextAppointment,
 				});
 			} catch (error) {
-				console.error("Error fetching client dashboard data:", error);
+				setDashboardData({
+					vehicles: 0,
+					upcomingBookings: 0,
+					completedServices: 0,
+					pendingIssues: 0,
+					userVehicles: [],
+					nextAppointment: null,
+				});
 			} finally {
 				setLoading(false);
 			}

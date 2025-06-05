@@ -141,7 +141,6 @@ const Services: React.FC = () => {
 				);
 			}
 		} catch (error) {
-			console.error("Error fetching user vehicles:", error);
 			setError("Failed to load your vehicles. Please try again.");
 		} finally {
 			setLoadingVehicles(false);
@@ -167,15 +166,9 @@ const Services: React.FC = () => {
 				JSON.stringify(clientServices) !== JSON.stringify(services);
 
 			if (servicesChanged) {
-				console.log(
-					`Found ${clientServices?.length || 0} services for client ${
-						auth.user_id
-					}`
-				);
 				setServices(clientServices || []);
 			}
 		} catch (error) {
-			console.error("Error fetching client services:", error);
 			setError("Failed to load your service history. Please try again.");
 		} finally {
 			setLoadingServices(false);
@@ -196,15 +189,11 @@ const Services: React.FC = () => {
 				await maintenanceScheduleService.getClientSchedules(auth.user_id);
 
 			if (clientSchedules && Array.isArray(clientSchedules)) {
-				console.log(
-					`Found ${clientSchedules.length} maintenance schedules for client ${auth.user_id}`
-				);
 				setMaintenanceSchedules(clientSchedules);
 			} else {
 				setMaintenanceSchedules([]);
 			}
 		} catch (error) {
-			console.error("Error fetching maintenance schedules:", error);
 			setError("Failed to load maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);
@@ -241,7 +230,7 @@ const Services: React.FC = () => {
 
 			setMaintenanceSchedules(updatedSchedules);
 		} catch (error) {
-			console.error("Error fetching due maintenance schedules:", error);
+			setError("Failed to load due maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);
 		}
@@ -253,14 +242,11 @@ const Services: React.FC = () => {
 			setError(null);
 
 			const allServices = await serviceService.getAllServices();
-			console.log(`Admin: Found ${allServices.length} total services (raw)`);
 
 			const transformedServices = transformServiceData(allServices);
-			console.log(`Admin: Transformed ${transformedServices.length} services`);
 
 			setServices(transformedServices);
 		} catch (error) {
-			console.error("Error fetching all services:", error);
 			setError("Failed to load all services. Please try again.");
 		} finally {
 			setLoadingServices(false);
@@ -273,12 +259,8 @@ const Services: React.FC = () => {
 			setError(null);
 
 			const allSchedules = await maintenanceScheduleService.getAllSchedules();
-			console.log(
-				`Admin: Found ${allSchedules.length} total maintenance schedules`
-			);
 			setMaintenanceSchedules(allSchedules);
 		} catch (error) {
-			console.error("Error fetching all maintenance schedules:", error);
 			setError("Failed to load all maintenance schedules. Please try again.");
 		} finally {
 			setLoadingSchedules(false);

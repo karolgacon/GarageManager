@@ -56,7 +56,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 				setFilteredClients(data);
 				setLoadError(null);
 			} catch (err) {
-				console.error("Error fetching clients:", err);
 				setLoadError("Failed to load clients list");
 			} finally {
 				setLoading(false);

@@ -270,14 +270,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			const submitData = { ...vehicleData };
 
 			if ("id" in submitData) delete submitData.id;
-
-			console.log("Dane do wysłania:", submitData);
-
 			const newVehicle = await vehicleService.createVehicle(submitData);
 			onVehicleAdded(newVehicle);
 			onClose();
 		} catch (error) {
-			console.error("Błąd podczas dodawania pojazdu:", error);
 			setError("Nie udało się dodać pojazdu. Spróbuj ponownie.");
 		} finally {
 			setLoading(false);

@@ -86,7 +86,6 @@ const Diagnostics: React.FC = () => {
 					const data = await workshopService.getAllWorkshops();
 					setWorkshops(data);
 				} catch (err) {
-					console.error("Error fetching workshops:", err);
 					setError("Failed to load workshops. Please try again.");
 				} finally {
 					setLoading(false);
@@ -129,7 +128,6 @@ const Diagnostics: React.FC = () => {
 					);
 				}
 
-				console.log("Filtered vehicles:", vehiclesData);
 				setVehicles(vehiclesData);
 
 				if (vehiclesData.length === 1) {
@@ -140,7 +138,6 @@ const Diagnostics: React.FC = () => {
 					setSelectedVehicle(null);
 				}
 			} catch (err) {
-				console.error("Error fetching vehicles:", err);
 				setError("Failed to load vehicles. Please try again.");
 			} finally {
 				setLoading(false);
@@ -168,7 +165,6 @@ const Diagnostics: React.FC = () => {
 					const data = await diagnosticsService.getVehicleDiagnostics(
 						selectedVehicleId
 					);
-					console.log("Fetched diagnostics:", data);
 					setDiagnosticIssues(data);
 					setDebugInfo(JSON.stringify(data, null, 2));
 
@@ -176,7 +172,6 @@ const Diagnostics: React.FC = () => {
 						vehicles.find((v) => v.id === selectedVehicleId) || null;
 					setSelectedVehicle(vehicle);
 				} catch (err) {
-					console.error("Error fetching diagnostics:", err);
 					setError(`Failed to load diagnostic issues: ${err.message}`);
 				} finally {
 					setLoading(false);
@@ -309,7 +304,6 @@ const Diagnostics: React.FC = () => {
 											onClick={() => {
 												setSelectedCustomerId(customer.id);
 												setSelectedClient(customer);
-												console.log("Selected customer:", customer);
 											}}
 										>
 											<CardContent>

@@ -30,6 +30,7 @@ import { COLOR_PRIMARY } from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { set } from "date-fns";
 
 interface Notification {
 	id: number;
@@ -81,7 +82,7 @@ const HeaderBar = () => {
 			});
 			setNotifications(response.data);
 		} catch (error) {
-			console.error("Error fetching notifications:", error);
+			setNotifications([]);
 		} finally {
 			setNotificationsLoading(false);
 		}
@@ -103,7 +104,7 @@ const HeaderBar = () => {
 			});
 			setEmails(response.data);
 		} catch (error) {
-			console.error("Error fetching emails:", error);
+			setEmails([]);
 		} finally {
 			setEmailsLoading(false);
 		}
@@ -146,7 +147,13 @@ const HeaderBar = () => {
 				);
 			}
 		} catch (error) {
-			console.error("Error marking notification as read:", error);
+			setNotifications((prevNotifications) =>
+				prevNotifications.map((notification) =>
+					notification.id === notificationId
+						? { ...notification, read_status: false }
+						: notification
+				)
+			);
 		}
 	};
 
@@ -188,7 +195,14 @@ const HeaderBar = () => {
 				);
 			}
 		} catch (error) {
-			console.error("Error marking all as read:", error);
+			if (isEmail) {
+				setEmails((prevEmails) =>
+					prevEmails.map((email) => ({
+						...email,
+						read_status: false,
+					}))
+				);
+			}
 		}
 	};
 

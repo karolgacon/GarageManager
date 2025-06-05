@@ -143,7 +143,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 				workshop_id: "",
 			});
 		} catch (error) {
-			console.error("Error adding service:", error);
 			setError("Failed to add service. Please try again.");
 		} finally {
 			setLoading(false);

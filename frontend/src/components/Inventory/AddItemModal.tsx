@@ -73,9 +73,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 						const userWorkshop = await workshopService.getCurrentUserWorkshop();
 						setFormData((prev) => ({ ...prev, workshop_id: userWorkshop.id }));
 					} catch (error) {
-						console.log(
-							"Falling back to first available workshop for non-admin user"
-						);
 						setFormData((prev) => ({
 							...prev,
 							workshop_id: workshopList[0].id,
@@ -85,7 +82,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 					setFormData((prev) => ({ ...prev, workshop_id: workshopList[0].id }));
 				}
 			} catch (error) {
-				console.error("Error fetching workshop data:", error);
 				setError("Failed to load workshop information. Please try again.");
 			} finally {
 				setLoadingWorkshops(false);
@@ -133,7 +129,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 			onItemAdded(newPart);
 			onClose();
 		} catch (error) {
-			console.error("Error adding inventory item:", error);
 
 			let errorMessage = "Failed to add inventory item. Please try again.";
 			if (error.response && error.response.data) {

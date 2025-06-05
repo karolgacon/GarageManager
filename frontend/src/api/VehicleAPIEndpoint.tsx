@@ -15,7 +15,7 @@ export const vehicleService = {
 
 	getVehicleById: async (id: number): Promise<any> => {
 		try {
-			const response = await api.get(`/api/v1/vehicles/${id}/`);
+			const response = await api.get(`/vehicles/${id}/`);
 			return response.data;
 		} catch (error) {
 			throw error;

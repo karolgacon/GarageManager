@@ -41,7 +41,6 @@ const RequireAuth = ({ requiredRole }) => {
 						}
 					}
 				} catch (e) {
-					console.error("Invalid token or user details:", e);
 					localStorage.removeItem("userRole");
 					localStorage.removeItem("token");
 					navigate("/login", { replace: true });

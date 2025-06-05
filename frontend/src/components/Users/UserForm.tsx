@@ -35,7 +35,6 @@ const UserForm: React.FC<UserFormProps> = ({ mode = 'create' }) => {
                     setFormData(userData); 
                 } catch (err) {
                     setError('Nie udało się pobrać danych użytkownika');
-                    console.error('Error fetching user:', err);
                 } finally {
                     setLoading(false);
                 }
@@ -66,7 +65,6 @@ const UserForm: React.FC<UserFormProps> = ({ mode = 'create' }) => {
         } catch (err: any) {
             const errorMsg = err.response?.data?.detail || 'Nie udało się zapisać użytkownika.';
             setError(errorMsg);
-            console.error('Error saving user:', err);
         } finally {
             setSubmitting(false);
         }

@@ -117,26 +117,14 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 			setLoading(true);
 
 			try {
-				console.log("Starting registration...");
-				const registerRes = await axios.post(`${BASE_API_URL}/user/register/`, {
-					username: formData.username,
-					email: formData.email,
-					password: formData.password,
-				});
-				console.log("Registration successful:", registerRes.data);
-
-				console.log("Attempting login...");
 				const loginRes = await axios.post(`${BASE_API_URL}/user/login/`, {
 					email: formData.email,
 					password: formData.password,
 				});
-				console.log("Login successful:", loginRes.data);
 
 				const token = loginRes.data.token;
 				const userData = loginRes.data.user;
 
-				console.log("Extracted token:", token);
-				console.log("User data:", userData);
 
 				if (!token || typeof token !== "string") {
 					throw new Error(
@@ -144,9 +132,8 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 					);
 				}
 
-				console.log("Decoding token...");
 				const tokenData = jwtDecode<CustomJwtPayload>(token);
-				console.log("Token data:", tokenData);
+
 
 				setAuth({
 					token,
@@ -179,9 +166,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 					}, 2000);
 				}
 			} catch (err: any) {
-				console.error("Registration error:", err);
-				console.error("Error response:", err.response?.data);
-				console.error("Error status:", err.response?.status);
 				handleError(err);
 			} finally {
 				setLoading(false);

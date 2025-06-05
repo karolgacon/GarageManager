@@ -126,7 +126,6 @@ const Bookings: React.FC = () => {
 			const response = await workshopService.getAllWorkshops();
 			setWorkshops(response);
 		} catch (err) {
-			console.error("Error fetching workshops:", err);
 		}
 	};
 
@@ -135,7 +134,6 @@ const Bookings: React.FC = () => {
 			const response = await workshopService.getWorkshopMechanics(workshopId);
 			setMechanics(response);
 		} catch (err) {
-			console.error("Error fetching mechanics:", err);
 		}
 	};
 
@@ -147,7 +145,6 @@ const Bookings: React.FC = () => {
 				setSelectedWorkshop(workshopData.id);
 			}
 		} catch (err) {
-			console.error("Error fetching owner's workshop:", err);
 			showSnackbar("Could not load your workshop information", "error");
 		}
 	};
@@ -162,7 +159,6 @@ const Bookings: React.FC = () => {
 				}));
 			}
 		} catch (error) {
-			console.error("Error fetching user info:", error);
 			setError(
 				"Could not load your user information. Please refresh the page."
 			);
@@ -171,7 +167,6 @@ const Bookings: React.FC = () => {
 
 	useEffect(() => {
 		if (auth.roles?.[0] === "client" && !auth.user_id && !auth.isLoading) {
-			console.log("Client user detected but no user_id, fetching user info");
 			fetchUserInfo();
 		}
 	}, [auth.roles, auth.user_id, auth.isLoading]);
@@ -188,19 +183,16 @@ const Bookings: React.FC = () => {
 			let bookingsData = [];
 
 			if (!auth || auth.isLoading) {
-				console.log("Auth data still loading");
 				return; 
 			}
 
 			if (auth.roles?.[0] === "client") {
 				if (!auth.user_id) {
-					console.error("Client user_id is missing:", auth);
 					setError(
 						"Your user information is not fully loaded. Please try refreshing the page."
 					);
 					return; 
 				}
-				console.log("Loading bookings for client ID:", auth.user_id);
 			}
 
 			if (bookingType === "upcoming") {
@@ -243,7 +235,6 @@ const Bookings: React.FC = () => {
 								timeoutPromise,
 							]);
 						} catch (clientError) {
-							console.error("Error loading bookings:", clientError);
 
 							if (clientError.message === "Request timed out") {
 								setError(
@@ -304,7 +295,6 @@ const Bookings: React.FC = () => {
 
 			setBookings(bookingsData || []);
 		} catch (err: any) {
-			console.error("Error loading bookings:", err);
 			setError(err.message || "Failed to load bookings");
 			setBookings([]);
 		} finally {

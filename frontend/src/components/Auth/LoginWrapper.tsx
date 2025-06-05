@@ -83,7 +83,6 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 						redirectBasedOnRole(userDetails.role);
 					}
 				} catch (fetchErr) {
-					console.error("Error fetching user details:", fetchErr);
 					setError("Could not fetch user data.");
 				}
 			} catch (err: any) {

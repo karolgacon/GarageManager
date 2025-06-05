@@ -60,7 +60,13 @@ const AdminDashboard: React.FC = () => {
 					criticalIssues: criticalDiagnostics.length,
 				});
 			} catch (error) {
-				console.error("Error fetching dashboard stats:", error);
+				setStats({
+					totalUsers: 0,
+					totalWorkshops: 0,
+					totalBookings: 0,
+					activeServices: 0,
+					criticalIssues: 0,
+				});
 			} finally {
 				setLoading(false);
 			}
