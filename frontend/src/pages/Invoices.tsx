@@ -98,118 +98,56 @@ const Invoices = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			setLoading(true);
+			setError(null);
+
 			try {
-				setLoading(true);
-				setError(null);
+				const [invoicesResponse, paymentsResponse] = await Promise.all([
+					api.get("/invoices/"),
+					api.get("/payments/"),
+				]);
 
-				try {
-					const invoicesResponse = await api.get("/invoices/");
+				const validInvoices = Array.isArray(invoicesResponse.data)
+					? invoicesResponse.data.map((invoice) => ({
+							...invoice,
+							number: invoice.id
+								? `INV-${invoice.id.toString().padStart(3, "0")}`
+								: "N/A",
+							date: invoice.issue_date,
+							total_amount: Number(invoice.amount || 0),
+					  }))
+					: [];
 
-					const validInvoices = Array.isArray(invoicesResponse.data)
-						? invoicesResponse.data.map((invoice) => ({
-								...invoice,
-								number: invoice.id
-									? `INV-${invoice.id.toString().padStart(3, "0")}`
-									: "N/A",
-								date: invoice.issue_date,
-								total_amount: Number(invoice.amount || 0),
-						  }))
-						: [];
-
-					const paymentsResponse = await api.get("/payments/");
-
-					const validPayments = Array.isArray(paymentsResponse.data)
-						? paymentsResponse.data.map((payment) => ({
-								...payment,
-								amount: Number(payment.amount_paid || 0),
-								status: "completed",
-						  }))
-						: [];
-
-					if (isClient()) {
-						setInvoices(
-							validInvoices.filter(
-								(invoice: Invoice) => invoice.client === auth.user_id
-							)
-						);
-						setPayments(
-							validPayments.filter((payment: Payment) =>
-								validInvoices.find(
-									(invoice: Invoice) =>
-										invoice.id === payment.invoice &&
-										invoice.client === auth.user_id
-								)
-							)
-						);
-					} else {
-						setInvoices(validInvoices);
-						setPayments(validPayments);
-					}
-				} catch (err: any) {
-					setError("Nie udało się pobrać danych faktur i płatności.");
-				} finally {
-					setLoading(false);
-				}
-			} catch (err) {
-				const mockInvoices = [
-					{
-						id: 1,
-						number: "INV-2025-001",
-						date: "2025-05-15",
-						due_date: "2025-06-15",
-						amount: 250.99,
-						status: "pending",
-						client: 1,
-						client_name: "John Doe",
-						discount: 0,
-						tax_rate: 0,
-					},
-					{
-						id: 2,
-						number: "INV-2025-002",
-						date: "2025-05-10",
-						due_date: "2025-06-10",
-						amount: 450.5,
-						status: "paid",
-						client: 2,
-						client_name: "Jane Smith",
-						discount: 0,
-						tax_rate: 0,
-					},
-				];
-
-				const mockPayments = [
-					{
-						id: 1,
-						invoice: 2,
-						invoice_number: "INV-2025-002",
-						amount_paid: 450.5,
-						payment_date: "2025-05-12",
-						payment_method: "card",
-						status: "completed",
-						transaction_id: "txn_123456",
-					},
-				];
+				const validPayments = Array.isArray(paymentsResponse.data)
+					? paymentsResponse.data.map((payment) => ({
+							...payment,
+							amount: Number(payment.amount_paid || 0),
+							status: "completed",
+					  }))
+					: [];
 
 				if (isClient()) {
 					setInvoices(
-						mockInvoices.filter((invoice) => invoice.client === auth.user_id)
+						validInvoices.filter(
+							(invoice: Invoice) => invoice.client === auth.user_id
+						)
 					);
 					setPayments(
-						mockPayments.filter((payment) =>
-							mockInvoices.find(
-								(invoice) =>
+						validPayments.filter((payment: Payment) =>
+							validInvoices.find(
+								(invoice: Invoice) =>
 									invoice.id === payment.invoice &&
 									invoice.client === auth.user_id
 							)
 						)
 					);
 				} else {
-					setInvoices(mockInvoices);
-					setPayments(mockPayments);
+					setInvoices(validInvoices);
+					setPayments(validPayments);
 				}
-
-				setError(null);
+			} catch (err: any) {
+				setError("Nie udało się pobrać danych faktur i płatności.");
+			} finally {
 				setLoading(false);
 			}
 		};

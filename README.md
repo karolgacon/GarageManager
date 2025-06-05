@@ -20,6 +20,10 @@ GarageManager to kompleksowy system do zarządzania warsztatem samochodowym. Poz
 
 ![Diagram ERD](erd_diagram.svg)
 
+## 🏗️ Schemat Architektury
+
+![Diagram Architektury](architecture.svg)
+
 ## 🛠️ Technologie
 
 **Backend:**
@@ -64,8 +68,11 @@ pip install -r requirements.txt
 # Migracje bazy danych
 python manage.py migrate
 
-# Uruchomienie serwera
-python manage.py runserver
+# Uruchomienie backendu i frontendu
+docker-compose up -d --build
+
+# Uruchomienie testów
+pytest
 
 # Worker powiadomień (osobny terminal)
 python notifications/notification_worker.py
@@ -95,11 +102,5 @@ npm run dev
 ## 🤝 Wkład
 
 Chcesz pomóc? Otwórz Pull Request lub zgłoś Issue!
-
-## 📄 Licencja
-
-MIT License
-
----
 
 © 2025 GarageManager. Wszelkie prawa zastrzeżone.

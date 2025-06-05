@@ -22,6 +22,8 @@ import {
 	DialogActions,
 	Snackbar,
 	Alert,
+	Card,
+	CardContent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -29,7 +31,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import InventoryTable from "../components/Inventory/InventoryTable";
 import InventoryFilter from "../components/Inventory/InventoryFilter";
-import AddItemModal from "../components/Inventory/AddItemModal"; 
+import AddItemModal from "../components/Inventory/AddItemModal";
 import { inventoryService } from "../api/PartAPIEndpoint";
 import { Part } from "../models/PartModel";
 import CustomSnackbar, {
@@ -38,9 +40,13 @@ import CustomSnackbar, {
 import EditItemModal from "../components/Inventory/EditItemModal";
 import AuthContext from "../context/AuthProvider";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 const Inventory = () => {
 	const { isAdmin, isOwner, isMechanic } = React.useContext(AuthContext);
+	const theme = useTheme();
+	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
 	const [parts, setParts] = useState<Part[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -50,7 +56,7 @@ const Inventory = () => {
 	const [rowsPerPage, setRowsPerPage] = useState(4);
 	const [showFilters, setShowFilters] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [partsToDelete, setPartsToDelete] = useState<number[]>([]);
 	const [snackbar, setSnackbar] = useState<SnackbarState>({
@@ -94,7 +100,7 @@ const Inventory = () => {
 									"You are not assigned to any workshop. Please contact an administrator."
 								);
 							}
-							throw error; 
+							throw error;
 						});
 
 					if (userWorkshop && userWorkshop.id) {
@@ -108,7 +114,6 @@ const Inventory = () => {
 						);
 					}
 				} catch (error) {
-
 					if (
 						error.message &&
 						error.message.includes("not assigned to any workshop")
@@ -239,7 +244,7 @@ const Inventory = () => {
 		if (filter === "All Orders") return matchesSearch;
 		if (filter === "In Stock") return matchesSearch && part.stock_quantity > 0;
 		if (filter === "Low Stock") {
-			const minStock = part.minimum_stock_level || 5; 
+			const minStock = part.minimum_stock_level || 5;
 			return (
 				matchesSearch &&
 				part.stock_quantity > 0 &&
@@ -257,11 +262,96 @@ const Inventory = () => {
 	const currentParts = filteredParts.slice(indexOfFirstPart, indexOfLastPart);
 	const pageCount = Math.ceil(filteredParts.length / rowsPerPage);
 
+	const renderMobilePartCard = (part: Part) => {
+		return (
+			<Card
+				key={part.id}
+				sx={{
+					mb: 2,
+					borderLeft: "4px solid",
+					borderLeftColor:
+						part.stock_quantity <= 0
+							? "error.main"
+							: part.stock_quantity <= (part.minimum_stock_level || 5)
+							? "warning.main"
+							: "success.main",
+				}}
+			>
+				<CardContent>
+					<Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+						{part.name}
+					</Typography>
+
+					<Grid container spacing={1}>
+						<Grid item xs={6}>
+							<Typography variant="body2" color="text.secondary">
+								ID: {part.id}
+							</Typography>
+						</Grid>
+						<Grid item xs={6}>
+							<Typography variant="body2" color="text.secondary">
+								Quantity: {part.stock_quantity}
+							</Typography>
+						</Grid>
+						<Grid item xs={6}>
+							<Typography variant="body2" color="text.secondary">
+								Manufacturer: {part.manufacturer}
+							</Typography>
+						</Grid>
+						<Grid item xs={6}>
+							<Typography variant="body2" color="text.secondary">
+								Category: {part.category}
+							</Typography>
+						</Grid>
+					</Grid>
+
+					<Box
+						sx={{
+							mt: 2,
+							display: "flex",
+							justifyContent: "space-between",
+						}}
+					>
+						<Button
+							size="small"
+							onClick={() => handleEditPart(part)}
+							variant="outlined"
+						>
+							Edit
+						</Button>
+						<Button
+							size="small"
+							color="error"
+							onClick={() => handleDeleteParts([part.id])}
+							variant="outlined"
+						>
+							Delete
+						</Button>
+					</Box>
+				</CardContent>
+			</Card>
+		);
+	};
+
 	return (
 		<Mainlayout>
-			<Container maxWidth="xl">
-				<Box sx={{ width: "100%" }}>
-					<Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+			<Container
+				maxWidth="xl"
+				sx={{
+					overflow: "hidden",
+					px: { xs: 1, sm: 2, md: 3 },
+				}}
+			>
+				<Box sx={{ width: "100%", py: { xs: 2, sm: 3 } }}>
+					<Box
+						sx={{
+							display: "flex",
+							justifyContent: "space-between",
+							mb: 3,
+							flexDirection: { xs: "column", sm: "row" },
+							gap: { xs: 2, sm: 0 },
+						}}
+					>
 						<Button
 							variant="contained"
 							startIcon={<AddIcon />}
@@ -270,17 +360,35 @@ const Inventory = () => {
 								bgcolor: "#ff3c4e",
 								"&:hover": { bgcolor: "#d6303f" },
 								borderRadius: 1,
+								width: { xs: "100%", sm: "auto" },
 							}}
 						>
 							Add Item
 						</Button>
 					</Box>
 
-					<Paper sx={{ p: 2, mb: 2, borderRadius: 1 }}>
+					<Paper
+						sx={{
+							p: { xs: 1, sm: 2 },
+							mb: 2,
+							borderRadius: 1,
+							maxWidth: "100%",
+						}}
+					>
 						<Box
-							sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+							sx={{
+								display: "flex",
+								flexDirection: { xs: "column", sm: "row" },
+								justifyContent: "space-between",
+								gap: 2,
+								mb: 2,
+							}}
 						>
-							<FormControl sx={{ minWidth: 200 }}>
+							<FormControl
+								sx={{
+									minWidth: { xs: "100%", sm: 200 },
+								}}
+							>
 								<Select
 									value={filter}
 									onChange={handleFilterChange}
@@ -298,13 +406,23 @@ const Inventory = () => {
 								</Select>
 							</FormControl>
 
-							<Box sx={{ display: "flex", gap: 1 }}>
+							<Box
+								sx={{
+									display: "flex",
+									gap: 1,
+									width: { xs: "100%", sm: "auto" },
+									flexDirection: { xs: "column", sm: "row" },
+								}}
+							>
 								<TextField
-									placeholder="Search by name, producent ID or other..."
+									placeholder="Search..."
 									size="small"
 									value={searchTerm}
 									onChange={handleSearchChange}
-									sx={{ minWidth: 300 }}
+									sx={{
+										width: { xs: "100%", sm: 300 },
+										minWidth: { xs: "auto", sm: 200 },
+									}}
 									InputProps={{
 										startAdornment: (
 											<InputAdornment position="start">
@@ -318,7 +436,10 @@ const Inventory = () => {
 									variant="outlined"
 									startIcon={<FilterListIcon />}
 									onClick={toggleFilters}
-									sx={{ borderRadius: 1 }}
+									sx={{
+										borderRadius: 1,
+										width: { xs: "100%", sm: "auto" },
+									}}
 								>
 									Filters
 								</Button>
@@ -390,23 +511,36 @@ const Inventory = () => {
 							<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
 								<CircularProgress />
 							</Box>
+						) : isMobile ? (
+							<Box>
+								{currentParts.map((part) => renderMobilePartCard(part))}
+							</Box>
 						) : (
-							<InventoryTable
-								parts={currentParts}
-								onDeleteParts={handleDeleteParts}
-								onEditPart={handleEditPart}
-							/>
+							<Box sx={{ overflowX: "auto" }}>
+								<InventoryTable
+									parts={currentParts}
+									onDeleteParts={handleDeleteParts}
+									onEditPart={handleEditPart}
+								/>
+							</Box>
 						)}
 
 						<Box
 							sx={{
 								display: "flex",
+								flexDirection: { xs: "column", sm: "row" },
 								justifyContent: "space-between",
-								alignItems: "center",
+								alignItems: { xs: "flex-start", sm: "center" },
 								mt: 2,
+								gap: 2,
 							}}
 						>
-							<FormControl sx={{ minWidth: 80 }}>
+							<FormControl
+								sx={{
+									minWidth: { xs: "100%", sm: 80 },
+									width: { xs: "100%", sm: "auto" },
+								}}
+							>
 								<Select
 									value={rowsPerPage}
 									onChange={handleRowsPerPageChange}
@@ -426,12 +560,26 @@ const Inventory = () => {
 								</Select>
 							</FormControl>
 
-							<Pagination
-								count={pageCount}
-								page={page}
-								onChange={handlePageChange}
-								color="primary"
-							/>
+							<Box
+								sx={{
+									width: { xs: "100%", sm: "auto" },
+									display: "flex",
+									justifyContent: { xs: "center", sm: "flex-end" },
+								}}
+							>
+								<Pagination
+									count={pageCount}
+									page={page}
+									onChange={handlePageChange}
+									color="primary"
+									size="small"
+									sx={{
+										"& .MuiPaginationItem-root": {
+											minWidth: { xs: "30px", sm: "auto" },
+										},
+									}}
+								/>
+							</Box>
 						</Box>
 					</Paper>
 				</Box>
@@ -452,6 +600,8 @@ const Inventory = () => {
 				<Dialog
 					open={deleteDialogOpen}
 					onClose={() => setDeleteDialogOpen(false)}
+					fullWidth={isMobile}
+					maxWidth="xs"
 				>
 					<DialogTitle>Confirm Delete</DialogTitle>
 					<DialogContent>
