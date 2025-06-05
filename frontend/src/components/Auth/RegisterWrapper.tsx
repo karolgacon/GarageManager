@@ -117,6 +117,12 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 			setLoading(true);
 
 			try {
+				const registerRes = await axios.post(`${BASE_API_URL}/user/register/`, {
+					username: formData.username,
+					email: formData.email,
+					password: formData.password,
+				});
+
 				const loginRes = await axios.post(`${BASE_API_URL}/user/login/`, {
 					email: formData.email,
 					password: formData.password,
@@ -124,7 +130,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 
 				const token = loginRes.data.token;
 				const userData = loginRes.data.user;
-
 
 				if (!token || typeof token !== "string") {
 					throw new Error(
@@ -134,20 +139,19 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 
 				const tokenData = jwtDecode<CustomJwtPayload>(token);
 
-
 				setAuth({
 					token,
 					roles: [userData.role],
-					username: userData.username, 
+					username: userData.username,
 					is_active: userData.is_active,
-					user_id: userData.id, 
+					user_id: userData.id,
 					isLoading: false,
 				});
 
 				localStorage.setItem("token", token);
 				localStorage.setItem("userRole", userData.role);
 				localStorage.setItem("username", userData.username);
-				localStorage.setItem("userID", userData.id.toString()); 
+				localStorage.setItem("userID", userData.id.toString());
 
 				setAuthHeader(token);
 
@@ -186,8 +190,7 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 		};
 
 		useImperativeHandle(ref, () => ({
-			triggerPendingAction: () => {
-			},
+			triggerPendingAction: () => {},
 		}));
 
 		const togglePasswordVisibility = () => {
@@ -311,7 +314,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 									I agree to the Terms and Conditions
 								</label>
 							</div>
-
 
 							{error && (
 								<div
