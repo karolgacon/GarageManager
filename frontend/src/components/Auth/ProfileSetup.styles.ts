@@ -6,45 +6,45 @@ const useProfileSetupStyles = createUseStyles({
 		flexDirection: "column",
 		alignItems: "center",
 		width: "100%",
-		maxWidth: "500px", // Zwiększone z 400px
+		maxWidth: "500px",
 		margin: "0 auto",
 	},
 	formCard: {
 		backgroundColor: "white",
-		borderRadius: "16px", // Większy radius
-		padding: "50px", // Zwiększone z 40px
+		borderRadius: "16px",
+		padding: "50px",
 		width: "100%",
-		boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)", // Większy cień
+		boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)", 
 		border: "1px solid #E5E7EB",
-		minHeight: "500px", // Minimalna wysokość
+		minHeight: "500px", 
 	},
 	formTitle: {
-		fontSize: "28px", // Zwiększone z 24px
+		fontSize: "28px", 
 		fontWeight: "600",
 		color: "#1F2937",
 		marginBottom: "8px",
 		textAlign: "center",
 	},
 	formSubtitle: {
-		fontSize: "16px", // Zwiększone z 14px
+		fontSize: "16px", 
 		color: "#6B7280",
 		textAlign: "center",
-		marginBottom: "35px", // Zwiększone z 30px
+		marginBottom: "35px", 
 	},
 	formField: {
 		position: "relative",
-		marginBottom: "24px", // Zwiększone z 20px
+		marginBottom: "24px", 
 	},
 	input: {
 		width: "100%",
-		padding: "16px 20px", // Zwiększone z 12px 16px
+		padding: "16px 20px", 
 		border: "1px solid #D1D5DB",
-		borderRadius: "12px", // Zwiększone z 8px
-		fontSize: "16px", // Zwiększone z 14px
+		borderRadius: "12px", 
+		fontSize: "16px", 
 		backgroundColor: "#F9FAFB",
 		transition: "all 0.2s ease",
 		boxSizing: "border-box",
-		minHeight: "52px", // Dodana minimalna wysokość
+		minHeight: "52px", 
 		"&:focus": {
 			outline: "none",
 			borderColor: "#FF3B57",
@@ -57,19 +57,19 @@ const useProfileSetupStyles = createUseStyles({
 	},
 	buttonGroup: {
 		display: "flex",
-		gap: "16px", // Zwiększone z 12px
-		marginTop: "40px", // Zwiększone z 30px
+		gap: "16px", 
+		marginTop: "40px", 
 	},
 	button: {
 		flex: 1,
-		padding: "16px 24px", // Zwiększone z 12px 20px
-		borderRadius: "12px", // Zwiększone z 8px
-		fontSize: "16px", // Zwiększone z 14px
-		fontWeight: "600", // Zwiększone z 500
+		padding: "16px 24px", 
+		borderRadius: "12px", 
+		fontSize: "16px", 
+		fontWeight: "600", 
 		cursor: "pointer",
 		transition: "all 0.2s ease",
 		border: "none",
-		minHeight: "52px", // Zwiększone z 44px
+		minHeight: "52px",
 		"&:disabled": {
 			opacity: 0.6,
 			cursor: "not-allowed",
@@ -87,7 +87,7 @@ const useProfileSetupStyles = createUseStyles({
 	secondaryButton: {
 		backgroundColor: "white",
 		color: "#374151",
-		border: "2px solid #D1D5DB", // Grubsza ramka
+		border: "2px solid #D1D5DB", 
 		"&:hover": {
 			backgroundColor: "#F9FAFB",
 			borderColor: "#9CA3AF",
@@ -96,7 +96,7 @@ const useProfileSetupStyles = createUseStyles({
 	skipButton: {
 		backgroundColor: "transparent",
 		color: "#6B7280",
-		border: "2px solid #D1D5DB", // Grubsza ramka
+		border: "2px solid #D1D5DB", 
 		"&:hover": {
 			backgroundColor: "#F9FAFB",
 			borderColor: "#9CA3AF",
@@ -104,10 +104,10 @@ const useProfileSetupStyles = createUseStyles({
 	},
 	progressBar: {
 		width: "100%",
-		height: "6px", // Zwiększone z 4px
+		height: "6px", 
 		backgroundColor: "#E5E7EB",
 		borderRadius: "3px",
-		marginBottom: "25px", // Zwiększone z 20px
+		marginBottom: "25px", 
 		overflow: "hidden",
 	},
 	progressFill: {
@@ -118,8 +118,8 @@ const useProfileSetupStyles = createUseStyles({
 	},
 	stepIndicator: {
 		textAlign: "center",
-		marginBottom: "25px", // Zwiększone z 20px
-		fontSize: "16px", // Zwiększone z 14px
+		marginBottom: "25px", 
+		fontSize: "16px", 
 		color: "#6B7280",
 		fontWeight: "500",
 	},
@@ -127,14 +127,13 @@ const useProfileSetupStyles = createUseStyles({
 		backgroundColor: "#FEF2F2",
 		border: "1px solid #FECACA",
 		color: "#DC2626",
-		padding: "16px 20px", // Zwiększone z 12px
-		borderRadius: "12px", // Zwiększone z 8px
-		fontSize: "15px", // Zwiększone z 14px
-		marginTop: "25px", // Zwiększone z 20px
+		padding: "16px 20px", 
+		borderRadius: "12px", 
+		fontSize: "15px",
+		marginTop: "25px", 
 		textAlign: "center",
 		fontWeight: "500",
 	},
-	// Nowy styl dla ostrzeżenia na górze
 	warningMessage: {
 		backgroundColor: "#FEF3C7",
 		border: "1px solid #F59E0B",

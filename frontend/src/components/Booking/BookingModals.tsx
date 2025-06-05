@@ -36,8 +36,8 @@ interface BookingModalsProps {
 	onClose: (modalType: string) => void;
 	onCreateBooking: (data: any) => void;
 	onUpdateBooking: (data: any) => void;
-	onEditFromView?: (bookingId: number) => void; // Dodaj ten prop
-	onDeleteBooking?: (bookingId: number) => void; // Dodaj ten prop
+	onEditFromView?: (bookingId: number) => void; 
+	onDeleteBooking?: (bookingId: number) => void; 
 }
 
 const BookingModals: React.FC<BookingModalsProps> = ({
@@ -46,8 +46,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 	onClose,
 	onCreateBooking,
 	onUpdateBooking,
-	onEditFromView, // Dodaj ten parametr
-	onDeleteBooking, // Dodaj ten parametr
+	onEditFromView, 
+	onDeleteBooking, 
 }) => {
 	const {
 		isNewBookingModalOpen,
@@ -61,7 +61,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 	const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
 
 	useEffect(() => {
-		// Only fetch vehicles for clients
 		if (auth.roles?.[0] === "client" && auth.user_id) {
 			const fetchClientVehicles = async () => {
 				try {
@@ -76,37 +75,31 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 		}
 	}, [auth.roles, auth.user_id]);
 
-	// Dodaj console.log aby zdiagnozować problem
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData) {
 			console.log("Booking data:", selectedBookingData);
 		}
 	}, [isViewBookingModalOpen, selectedBookingData]);
 
-	// 2. Dodaj nowy stan do przechowywania wzbogaconych danych
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData) {
 			console.log("Original booking data:", selectedBookingData);
 
-			// 3. Dodaj funkcję pobierającą wszystkie potrzebne dane
 			const fetchAllBookingDetails = async () => {
 				setLoadingDetails(true);
 				try {
-					// Tworzymy kopię oryginalnych danych
 					const enriched = { ...selectedBookingData };
 					console.log(
 						"Starting data enrichment for booking:",
 						selectedBookingData.id
 					);
 
-					// Pobierz dane klienta
 					if (typeof selectedBookingData.client === "number") {
 						try {
 							console.log(
 								"Fetching client data for ID:",
 								selectedBookingData.client
 							);
-							// WAŻNE: Sprawdź czy endpoint jest poprawny!
 							const clientData = await customerService.getCustomerById(
 								selectedBookingData.client
 							);
@@ -114,7 +107,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							enriched.client = clientData;
 						} catch (err) {
 							console.error("Error loading client data:", err);
-							// Pokaż więcej informacji o błędzie
 							if (err.response) {
 								console.error("API error details:", err.response.data);
 								console.error("API error status:", err.response.status);
@@ -123,7 +115,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						}
 					}
 
-					// Pobierz dane pojazdu
 					if (typeof selectedBookingData.vehicle === "number") {
 						try {
 							const vehicleData = await vehicleService.getVehicleById(
@@ -137,7 +128,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						}
 					}
 
-					// Pobierz dane warsztatu
 					if (typeof selectedBookingData.workshop === "number") {
 						try {
 							const workshopData = await workshopService.getWorkshopById(
@@ -164,13 +154,11 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 		}
 	}, [isViewBookingModalOpen, selectedBookingData]);
 
-	// Dodaj ten useEffect:
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData?.id) {
 			const fetchBookingDetails = async () => {
 				setLoadingDetails(true);
 				try {
-					// Użyj nowej funkcji do pobrania pełnych danych
 					const details = await bookingService.getBookingDetails(
 						selectedBookingData.id
 					);
@@ -191,7 +179,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 
 	return (
 		<>
-			{/* Create Booking Modal */}
 			<Dialog
 				open={isNewBookingModalOpen}
 				onClose={() => onClose("new")}
@@ -218,7 +205,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 					<BookingForm
 						id="create-booking-form"
 						onSubmit={onCreateBooking}
-						clientVehicles={clientVehicles} // Pass the vehicles we already fetched
+						clientVehicles={clientVehicles} 
 						userRole={auth.roles?.[0]}
 						userId={auth.user_id}
 					/>
@@ -253,7 +240,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				</DialogActions>
 			</Dialog>
 
-			{/* Edit Booking Modal */}
 			<Dialog
 				open={isEditBookingModalOpen}
 				onClose={() => onClose("edit")}
@@ -282,7 +268,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							id="edit-booking-form"
 							initialData={selectedBookingData}
 							onSubmit={onUpdateBooking}
-							clientVehicles={clientVehicles} // Pass the vehicles we already fetched
+							clientVehicles={clientVehicles} 
 							userRole={auth.roles?.[0]}
 							userId={auth.user_id}
 						/>
@@ -318,7 +304,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				</DialogActions>
 			</Dialog>
 
-			{/* View Booking Modal */}
 			<Dialog
 				open={isViewBookingModalOpen}
 				onClose={() => onClose("view")}
@@ -326,7 +311,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				fullWidth
 			>
 				<DialogTitle>
-					{/* Poprawiona hierarchia nagłówków */}
 					<Box sx={{ display: "flex", justifyContent: "space-between" }}>
 						<Typography variant="h5" component="div">
 							Booking Details
@@ -459,11 +443,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 
-									{/* Pozostałe pola... */}
 								</Grid>
 							</Box>
 
-							{/* Action buttons section */}
 							<Divider sx={{ my: 3 }} />
 							<Box sx={{ display: "flex", gap: 1, mt: 2 }}>
 								<Button

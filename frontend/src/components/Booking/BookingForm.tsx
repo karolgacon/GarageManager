@@ -11,7 +11,6 @@ import {
 	FormHelperText,
 	CircularProgress,
 } from "@mui/material";
-// Remove the Button import from here
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -23,23 +22,22 @@ import { customerService } from "../../api/CustomerAPIEndpoint";
 import { UserService } from "../../api/UserAPIEndpoint";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-// Add to the props interface:
 interface BookingFormProps {
 	id: string;
 	initialData?: any;
 	onSubmit: (data: any) => void;
-	clientVehicles?: any[]; // Add this prop
-	userRole?: string; // Add this prop
-	userId?: number; // Add this prop
+	clientVehicles?: any[];
+	userRole?: string;
+	userId?: number;
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({
 	initialData,
 	onSubmit,
 	id = "booking-form",
-	clientVehicles, // Destructure the new prop
-	userRole, // Destructure the new prop
-	userId, // Destructure the new prop
+	clientVehicles,
+	userRole,
+	userId,
 }) => {
 	const { auth } = useContext(AuthContext);
 	const [loading, setLoading] = useState(false);
@@ -60,7 +58,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	const [clients, setClients] = useState<any[]>([]);
 	const [availableSlots, setAvailableSlots] = useState<any[]>([]);
 
-	// Initialize form with data if editing
 	useEffect(() => {
 		if (initialData) {
 			setFormData({
@@ -76,17 +73,14 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		}
 	}, [initialData]);
 
-	// Load workshops, mechanics, vehicles based on role
 	useEffect(() => {
 		const loadInitialData = async () => {
 			setLoading(true);
 			try {
-				// Only load customer vehicles if they weren't passed as props
 				let vehiclesData = clientVehicles || [];
 
 				if (!vehiclesData.length && userRole === "client" && userId) {
 					try {
-						// Only fetch if we need to and have a valid ID
 						vehiclesData = await customerService.getCustomerVehicles(userId);
 					} catch (err) {
 						console.error("Error loading vehicles:", err);
@@ -94,12 +88,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					}
 				}
 
-				// Load workshops
 				if (auth.roles?.[0] === "admin" || auth.roles?.[0] === "client") {
 					const workshopsData = await workshopService.getAllWorkshops();
 					setWorkshops(workshopsData);
 				} else if (auth.roles?.[0] === "owner") {
-					// Owner already has workshop_id
 					if (auth.workshop_id) {
 						const workshopData = await workshopService.getWorkshopById(
 							auth.workshop_id
@@ -112,9 +104,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					}
 				}
 
-				// Load vehicles for client
 				if (auth.roles?.[0] === "client") {
-					// Use the existing function from CustomerAPIEndpoint
 					setVehicles(vehiclesData);
 					setFormData((prev) => ({
 						...prev,
@@ -122,9 +112,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					}));
 				}
 
-				// For owners and admins, load clients list
 				if (auth.roles?.[0] === "owner" || auth.roles?.[0] === "admin") {
-					// Use the existing function from UserAPIEndpoint
 					const clientsData = await UserService.getClients();
 					setClients(clientsData);
 				}
@@ -145,7 +133,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		userId,
 	]);
 
-	// Load mechanics when workshop is selected
 	useEffect(() => {
 		const loadMechanics = async () => {
 			if (formData.workshop_id) {
@@ -165,7 +152,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		loadMechanics();
 	}, [formData.workshop_id]);
 
-	// Load available slots when workshop and date change
 	useEffect(() => {
 		const loadAvailableSlots = async () => {
 			if (formData.workshop_id && formData.date) {
@@ -186,7 +172,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		loadAvailableSlots();
 	}, [formData.workshop_id, formData.date]);
 
-	// Load vehicles when client is selected (for admin/owner)
 	useEffect(() => {
 		const loadClientVehicles = async () => {
 			if (
@@ -216,7 +201,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 			[name as string]: value,
 		});
 
-		// Clear error when field is changed
 		if (errors[name as string]) {
 			setErrors({
 				...errors,
@@ -263,7 +247,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 			return;
 		}
 
-		// Prepare data for submission
 		const bookingData = {
 			date: formData.date.toISOString(),
 			vehicle_id: formData.vehicle_id,
@@ -286,7 +269,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		);
 	}
 
-	// Stwórz własny motyw dla komponentów daty/czasu
 	const dateTimePickerTheme = createTheme({
 		palette: {
 			primary: {
@@ -377,7 +359,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	return (
 		<Box component="form" id={id} onSubmit={handleSubmit} sx={{ mt: 2 }}>
 			<Grid container spacing={3}>
-				{/* Date and Time */}
 				<Grid item xs={12} md={6}>
 					<ThemeProvider theme={dateTimePickerTheme}>
 						<LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -391,7 +372,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 										error: !!errors.date,
 										helperText: errors.date,
 									},
-									// Dostosujmy dokładnie styl kalendarza
 									calendarHeader: {
 										sx: {
 											"& .MuiPickersCalendarHeader-label": {
@@ -423,7 +403,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											},
 										},
 									},
-									// Dodatkowe style dla selektora czasu
 									digitalClockItem: {
 										sx: {
 											"&.MuiMenuItem-root.Mui-selected": {
@@ -434,7 +413,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											},
 										},
 									},
-									// Style dla przycisków AM/PM
 									ampmSelection: {
 										sx: {
 											"& .MuiTimeClock-amButton.Mui-selected": {
@@ -447,7 +425,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											},
 										},
 									},
-									// Selektor minut/godzin
 									timeSelection: {
 										sx: {
 											"& .MuiTabs-indicator": {
@@ -458,7 +435,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											},
 										},
 									},
-									// Komórki czasu w selektorze czasu
 									digital: {
 										sx: {
 											"& .MuiClockNumber-root.Mui-selected": {
@@ -469,7 +445,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											},
 										},
 									},
-									// Przyciski OK/Cancel - dodatkowy !important
 									actionBar: {
 										sx: {
 											"& .MuiButton-root": {
@@ -496,7 +471,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 									"& .MuiInputLabel-root.Mui-focused": {
 										color: "#ff3c4e",
 									},
-									// Dodatkowe style globalne dla komponentów selektora czasu
 									"& .MuiClockPicker-root": {
 										"& .MuiClock-pin": {
 											backgroundColor: "#ff3c4e !important",
@@ -508,7 +482,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 											border: "14px solid #ff3c4e !important",
 										},
 									},
-									// Styl dla siatki selektora czasu
 									"& .MuiDigitalClockItem-root.Mui-selected": {
 										backgroundColor: "#ff3c4e !important",
 									},
@@ -518,7 +491,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</ThemeProvider>
 				</Grid>
 
-				{/* Workshop selection (for admin and client) */}
 				{auth.roles?.[0] === "admin" && (
 					<Grid item xs={12} md={6}>
 						<FormControl fullWidth error={!!errors.workshop_id}>
@@ -553,7 +525,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</Grid>
 				)}
 
-				{/* Owner and admin need to select client */}
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") && (
 					<Grid item xs={12} md={6}>
 						<FormControl fullWidth error={!!errors.client_id}>
@@ -588,7 +559,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</Grid>
 				)}
 
-				{/* Vehicle selection */}
 				<Grid item xs={12} md={6}>
 					<FormControl fullWidth error={!!errors.vehicle_id}>
 						<InputLabel>Vehicle</InputLabel>
@@ -626,7 +596,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</FormControl>
 				</Grid>
 
-				{/* Service Type */}
 				<Grid item xs={12} md={6}>
 					<FormControl fullWidth error={!!errors.service_type}>
 						<InputLabel>Service Type</InputLabel>
@@ -660,7 +629,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</FormControl>
 				</Grid>
 
-				{/* Mechanic selection (optional) */}
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") && (
 					<Grid item xs={12} md={6}>
 						<FormControl fullWidth disabled={mechanics.length === 0}>
@@ -700,7 +668,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					</Grid>
 				)}
 
-				{/* Status (only for admin, owner) */}
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") &&
 					initialData && (
 						<Grid item xs={12} md={6}>
@@ -733,7 +700,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 						</Grid>
 					)}
 
-				{/* Notes */}
 				<Grid item xs={12}>
 					<TextField
 						name="notes"
@@ -760,23 +726,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 						}}
 					/>
 				</Grid>
-
-				{/* Submit button */}
-				{/* <Grid item xs={12}>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                        <Button
-                            variant="contained"
-                            type="submit"
-                            sx={{
-                                bgcolor: "#ff3c4e",
-                                "&:hover": { bgcolor: "#d6303f" },
-                                px: 4,
-                            }}
-                        >
-                            {initialData ? "Update Booking" : "Create Booking"}
-                        </Button>
-                    </Box>
-                </Grid> */}
 			</Grid>
 		</Box>
 	);

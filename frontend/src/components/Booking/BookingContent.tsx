@@ -43,23 +43,18 @@ const BookingContent: React.FC<BookingContentProps> = ({
 	onForceLoadingComplete,
 	onRefresh,
 }) => {
-	// Add state to track loading duration
 	const [loadingDuration, setLoadingDuration] = useState(0);
 
-	// Reset and track loading duration
 	useEffect(() => {
 		let intervalId: NodeJS.Timeout | null = null;
 
 		if (loading) {
-			// Reset counter when loading starts
 			setLoadingDuration(0);
 
-			// Start counting seconds
 			intervalId = setInterval(() => {
 				setLoadingDuration((prev) => prev + 1);
 			}, 1000);
 		} else {
-			// Reset when not loading
 			setLoadingDuration(0);
 		}
 
@@ -68,7 +63,6 @@ const BookingContent: React.FC<BookingContentProps> = ({
 		};
 	}, [loading]);
 
-	// Force loading to complete after timeout
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout | null = null;
 
@@ -158,7 +152,6 @@ const BookingContent: React.FC<BookingContentProps> = ({
 
 	return (
 		<>
-			{/* Calendar or list view */}
 			<Box sx={{ bgcolor: "white", p: 3 }}>
 				{view === "calendar" ? (
 					<BookingCalendarView

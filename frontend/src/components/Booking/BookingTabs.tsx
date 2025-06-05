@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs, Tab, Box } from "@mui/material";
-import { COLOR_PRIMARY } from "../../constants"; // Import your theme color
+import { COLOR_PRIMARY } from "../../constants"; 
 
 interface BookingTabsProps {
 	bookingType: string;

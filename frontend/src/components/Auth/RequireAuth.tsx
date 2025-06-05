@@ -18,12 +18,10 @@ const RequireAuth = ({ requiredRole }) => {
 					const tokenData = jwtDecode<CustomJwtPayload>(token);
 
 					if (tokenData.role) {
-						// Jeśli rola jest w tokenie, zapisz ją w localStorage
 						localStorage.setItem("userRole", tokenData.role);
 						localStorage.setItem("userID", tokenData.user_id.toString());
 						setIsLoading(false);
 					} else {
-						// Jeśli rola nie jest w tokenie, pobierz dane użytkownika z backendu
 						const response = await axios.get(
 							`${BASE_API_URL}/user/${tokenData.user_id}`,
 							{

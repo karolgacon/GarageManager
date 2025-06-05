@@ -31,52 +31,51 @@ interface ProfileData {
 	dateOfBirth: string;
 }
 
-// Styled components z dokładnie takimi samymi stylami
 const StyledContainer = styled(Box)({
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
 	width: "100%",
-	maxWidth: "650px", // Zwiększone z 500px
+	maxWidth: "650px", 
 	margin: "0 auto",
 });
 
 const StyledFormCard = styled(Paper)({
 	backgroundColor: "white",
 	borderRadius: "16px",
-	padding: "40px 60px", // Zmienione z "50px" - mniej padding góra/dół, więcej boki
+	padding: "40px 60px",
 	width: "100%",
 	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
 	border: "1px solid #E5E7EB",
-	minHeight: "400px", // Zmniejszone z 500px
+	minHeight: "400px", 
 });
 
 const StyledFormTitle = styled(Typography)({
-	fontSize: "26px", // Zmniejszone z 28px
+	fontSize: "26px", 
 	fontWeight: "600",
 	color: "#1F2937",
-	marginBottom: "6px", // Zmniejszone z 8px
+	marginBottom: "6px",
 	textAlign: "center",
 });
 
 const StyledFormSubtitle = styled(Typography)({
-	fontSize: "15px", // Zmniejszone z 16px
+	fontSize: "15px",
 	color: "#6B7280",
 	textAlign: "center",
-	marginBottom: "30px", // Zmniejszone z 35px
+	marginBottom: "30px", 
 });
 
 const StyledTextField = styled(TextField)({
 	width: "100%",
-	marginBottom: "20px", // Zmniejszone z 24px
+	marginBottom: "20px", 
 	"& .MuiOutlinedInput-root": {
 		padding: "0",
 		borderRadius: "12px",
 		backgroundColor: "#F9FAFB",
 		"& input": {
-			padding: "14px 20px", // Zmniejszone z 16px góra/dół
+			padding: "14px 20px",
 			fontSize: "16px",
-			minHeight: "16px", // Zmniejszone
+			minHeight: "16px", 
 		},
 		"& fieldset": {
 			border: "1px solid #D1D5DB",
@@ -104,17 +103,17 @@ const StyledTextField = styled(TextField)({
 const StyledButtonGroup = styled(Box)({
 	display: "flex",
 	gap: "16px",
-	marginTop: "30px", // Zmniejszone z 40px
+	marginTop: "30px",
 });
 
 const StyledButton = styled(Button)({
 	flex: 1,
-	padding: "14px 24px", // Zmniejszone z 16px góra/dół
+	padding: "14px 24px", 
 	borderRadius: "12px",
 	fontSize: "16px",
 	fontWeight: "600",
 	textTransform: "none",
-	minHeight: "48px", // Zmniejszone z 52px
+	minHeight: "48px", 
 	transition: "all 0.2s ease",
 });
 
@@ -158,7 +157,7 @@ const StyledProgressBar = styled(LinearProgress)({
 	height: "6px",
 	backgroundColor: "#E5E7EB",
 	borderRadius: "3px",
-	marginBottom: "20px", // Zmniejszone z 25px
+	marginBottom: "20px", 
 	"& .MuiLinearProgress-bar": {
 		backgroundColor: "#FF3B57",
 		borderRadius: "3px",
@@ -167,8 +166,8 @@ const StyledProgressBar = styled(LinearProgress)({
 
 const StyledStepIndicator = styled(Typography)({
 	textAlign: "center",
-	marginBottom: "20px", // Zmniejszone z 25px
-	fontSize: "15px", // Zmniejszone z 16px
+	marginBottom: "20px", 
+	fontSize: "15px", 
 	color: "#6B7280",
 	fontWeight: "500",
 });
@@ -178,8 +177,8 @@ const StyledErrorAlert = styled(Alert)({
 	border: "1px solid #FECACA",
 	color: "#DC2626",
 	borderRadius: "12px",
-	fontSize: "14px", // Zmniejszone z 15px
-	marginTop: "20px", // Zmniejszone z 25px
+	fontSize: "14px", 
+	marginTop: "20px", 
 	fontWeight: "500",
 	"& .MuiAlert-icon": {
 		display: "none",

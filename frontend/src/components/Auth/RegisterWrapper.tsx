@@ -72,7 +72,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 				...prev,
 				[field]: value,
 			}));
-			// Clear error when user starts typing
 			if (error) setError(null);
 		};
 
@@ -118,7 +117,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 			setLoading(true);
 
 			try {
-				// 1. Register the user
 				console.log("Starting registration...");
 				const registerRes = await axios.post(`${BASE_API_URL}/user/register/`, {
 					username: formData.username,
@@ -127,7 +125,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 				});
 				console.log("Registration successful:", registerRes.data);
 
-				// 2. Automatically log in the user after registration
 				console.log("Attempting login...");
 				const loginRes = await axios.post(`${BASE_API_URL}/user/login/`, {
 					email: formData.email,
@@ -135,7 +132,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 				});
 				console.log("Login successful:", loginRes.data);
 
-				// Get token from the response - your API returns it as 'token', not 'access'
 				const token = loginRes.data.token;
 				const userData = loginRes.data.user;
 
@@ -148,33 +144,28 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 					);
 				}
 
-				// 3. Set auth context and localStorage
 				console.log("Decoding token...");
 				const tokenData = jwtDecode<CustomJwtPayload>(token);
 				console.log("Token data:", tokenData);
 
-				// Update authentication context with user_id
 				setAuth({
 					token,
-					roles: [userData.role], // Use role from user data
-					username: userData.username, // Use username from user data
+					roles: [userData.role],
+					username: userData.username, 
 					is_active: userData.is_active,
-					user_id: userData.id, // Add user_id from the userData
+					user_id: userData.id, 
 					isLoading: false,
 				});
 
-				// Store in localStorage
 				localStorage.setItem("token", token);
 				localStorage.setItem("userRole", userData.role);
 				localStorage.setItem("username", userData.username);
-				localStorage.setItem("userID", userData.id.toString()); // Use id from user data
+				localStorage.setItem("userID", userData.id.toString()); 
 
-				// Set auth header for future requests
 				setAuthHeader(token);
 
 				setSuccess(true);
 
-				// 4. Call the callback for profile setup
 				if (onRegistrationComplete) {
 					onRegistrationComplete({
 						...registerRes.data,
@@ -183,7 +174,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 						userData,
 					});
 				} else {
-					// Default behavior - redirect to home after 2 seconds
 					setTimeout(() => {
 						navigate("/home");
 					}, 2000);
@@ -213,7 +203,6 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 
 		useImperativeHandle(ref, () => ({
 			triggerPendingAction: () => {
-				// Implementation if needed
 			},
 		}));
 
@@ -339,7 +328,7 @@ const RegisterWrapper = forwardRef<RegisterWrapperHandle, RegisterWrapperProps>(
 								</label>
 							</div>
 
-							{/* Error message */}
+
 							{error && (
 								<div
 									style={{

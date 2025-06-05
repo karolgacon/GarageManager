@@ -17,7 +17,7 @@ const useStyles = createUseStyles({
         display: 'inline-block',
     },
     image: {
-        width: '300px', // Larger logo
+        width: '300px',
         height: 'auto',
         marginBottom: '20px',
         borderRadius: '40%',

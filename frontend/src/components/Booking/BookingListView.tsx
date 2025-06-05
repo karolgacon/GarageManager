@@ -48,7 +48,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 		setPage(0);
 	};
 
-	// Status color and styling
 	const getStatusChip = (status: string) => {
 		let color: "success" | "warning" | "error" | "info" | "default" = "default";
 
@@ -79,7 +78,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 		);
 	};
 
-	// Format date and time
 	const formatDateTime = (dateStr: string) => {
 		if (!dateStr) return { date: "N/A", time: "N/A" };
 
@@ -109,7 +107,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 		);
 	}
 
-	// Check user permissions
 	const canEdit = (booking: any) => {
 		return (
 			["admin", "owner"].includes(userRole) ||
@@ -121,7 +118,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 		);
 	};
 
-	// Check if booking is cancellable (e.g., not in the past and not completed)
 	const canCancel = (booking: any) => {
 		if (booking.status === "completed" || booking.status === "cancelled") {
 			return false;
@@ -160,7 +156,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 										key={booking.id}
 										sx={{
 											"& td": { fontSize: "0.875rem" },
-											// Add subtle background color based on status
 											bgcolor:
 												booking.status === "cancelled"
 													? "rgba(244, 67, 54, 0.05)"
@@ -202,7 +197,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 												</IconButton>
 											</Tooltip>
 
-											{/* Edit button - only if user has edit permissions */}
 											{canEdit(booking) && (
 												<Tooltip title="Edit Booking">
 													<IconButton
@@ -215,7 +209,6 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 												</Tooltip>
 											)}
 
-											{/* Cancel button - only if booking is cancellable */}
 											{canCancel(booking) && (
 												<Tooltip title="Cancel Booking">
 													<IconButton

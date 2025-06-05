@@ -37,11 +37,8 @@ const BookingWorkshopSelector: React.FC<BookingWorkshopSelectorProps> = ({
 	onWorkshopChange,
 	onMechanicChange,
 }) => {
-	// Konfiguracja dla wszystkich komponentów Select
 	const selectMenuProps = {
-		// Prevent scrollbar shift
 		disableScrollLock: true,
-		// Control positioning of the dropdown to prevent layout shift
 		anchorOrigin: {
 			vertical: "bottom",
 			horizontal: "left",
@@ -50,7 +47,6 @@ const BookingWorkshopSelector: React.FC<BookingWorkshopSelectorProps> = ({
 			vertical: "top",
 			horizontal: "left",
 		},
-		// Set a fixed height to prevent content jumping
 		PaperProps: {
 			style: {
 				maxHeight: 224,

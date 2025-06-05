@@ -8,15 +8,15 @@ const useStyles = createUseStyles({
 		justifyContent: "space-between",
 		width: "100%",
 		height: "100vh",
-		maxWidth: "480px", // Slightly wider to match screenshot
+		maxWidth: "480px", 
 		padding: "30px 20px",
 		boxSizing: "border-box",
 		fontFamily: "'Outfit','Poppins', 'Roboto', sans-serif",
 	},
 	formCard: {
 		backgroundColor: "#FFFFFF",
-		borderRadius: "12px", // More rounded corners
-		boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", // Softer shadow
+		borderRadius: "12px", 
+		boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", 
 		padding: "40px",
 		width: "100%",
 		height: "55vh",
@@ -28,7 +28,7 @@ const useStyles = createUseStyles({
 		fontWeight: "700",
 		marginBottom: "30px",
 		color: "#333",
-		textAlign: "center", // Left-aligned title
+		textAlign: "center",
 	},
 	formField: {
 		width: "100%",
@@ -40,13 +40,13 @@ const useStyles = createUseStyles({
 		padding: "15px",
 		fontSize: "15px",
 		fontWeight: "500",
-		border: "1px dashed #ccc", // Dashed border as shown in screenshot
+		border: "1px dashed #ccc", 
 		borderRadius: "4px",
 		boxSizing: "border-box",
-		color: "#000", // Lighter color to match the image
-		backgroundColor: "transparent", // Ensure background is transparent
+		color: "#000", 
+		backgroundColor: "transparent", 
 		"&::placeholder": {
-			color: "#aaaaaa", // Also lighten placeholder text
+			color: "#aaaaaa", 
 		},
 		"&:focus": {
 			outline: "none",
@@ -86,7 +86,7 @@ const useStyles = createUseStyles({
 		width: "18px",
 		height: "18px",
 		border: "1px solid #ccc",
-		borderRadius: "50%", // Circular checkbox as in the screenshot
+		borderRadius: "50%",
 		marginRight: "8px",
 		cursor: "pointer",
 		position: "relative",

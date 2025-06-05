@@ -38,7 +38,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	onEdit,
 	onDelete,
 }) => {
-	// Generate time slots (7AM to 7PM)
 	const timeSlots = [
 		"07:00 am",
 		"08:00 am",
@@ -55,7 +54,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 		"07:00 pm",
 	];
 
-	// Funkcja renderująca tytuł kalendarza
 	const renderCalendarTitle = () => {
 		if (calendarView === "day" && daysOfWeek.length > 0) {
 			return (
@@ -81,7 +79,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 		return null;
 	};
 
-	// Helper to get bookings for a specific time and day
 	const getBookingsForTimeAndDay = (timeStr: string, date: Date) => {
 		const hour = parseInt(timeStr.split(":")[0]);
 		const isPm = timeStr.includes("pm");
@@ -92,7 +89,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 		return bookings.filter((booking) => {
 			if (!booking.date) return false;
 
-			// Utwórz datę ze string'a i ustaw czas lokalny
 			const bookingDate = new Date(booking.date);
 			const bookingDateStr = format(bookingDate, "yyyy-MM-dd");
 			const bookingHour = bookingDate.getHours();
@@ -121,25 +117,16 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 		);
 	}
 
-	// W funkcji renderującej widok miesiąca:
 	const renderMonthCalendar = () => {
-		// Najpierw sprawdzamy, na jaki dzień tygodnia przypada pierwszy dzień
-		// w zestawie daysOfWeek i odpowiednio układamy grid
+		const firstDayOfWeekIndex = daysOfWeek[0].date.getDay();
 
-		// Potrzebujemy wiedzieć, jaki dzień tygodnia jest pierwszy w naszym zestawie
-		const firstDayOfWeekIndex = daysOfWeek[0].date.getDay(); // 0 = niedziela, 1 = poniedziałek, itd.
-
-		// Podziel dni na tygodnie, zaczynając od niedzieli
 		const weeks = [];
-		let currentWeek = Array(firstDayOfWeekIndex).fill(null); // Wypełnij pustymi miejscami dni przed pierwszym dniem
+		let currentWeek = Array(firstDayOfWeekIndex).fill(null);
 
 		daysOfWeek.forEach((day) => {
-			const dayOfWeek = day.date.getDay(); // 0 = niedziela, 1 = poniedziałek, itd.
+			const dayOfWeek = day.date.getDay();
 
-			// Jeśli to niedziela, a mamy już jakieś dni w obecnym tygodniie,
-			// dodaj aktualny tydzień do tablicy tygodni i zacznij nowy tydzień
 			if (dayOfWeek === 0 && currentWeek.length > 0) {
-				// Uzupełnij brakujące dni do końca tygodnia
 				while (currentWeek.length < 7) {
 					currentWeek.push(null);
 				}
@@ -147,11 +134,9 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				currentWeek = [];
 			}
 
-			// Dodaj dzień do obecnego tygodnia
 			currentWeek.push(day);
 		});
 
-		// Dodaj ostatni tydzień (jeśli jest niepełny, uzupełnij nullami)
 		if (currentWeek.length > 0) {
 			while (currentWeek.length < 7) {
 				currentWeek.push(null);
@@ -161,14 +146,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 
 		return (
 			<Box sx={{ width: "100%", p: 1 }}>
-				{/* Nagłówki dni tygodnia */}
 				<Box sx={{ display: "flex", mb: 1 }}>
 					{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
 						<Box
 							key={day}
 							sx={{
-								flex: "1 0 14.28%", // Dokładnie 1/7 szerokości (z niewielkim marginesem bezpieczeństwa)
-								maxWidth: "14.28%", // Maksymalna szerokość
+								flex: "1 0 14.28%",
+								maxWidth: "14.28%",
 								textAlign: "center",
 								p: 1,
 								fontWeight: "bold",
@@ -182,12 +166,10 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 					))}
 				</Box>
 
-				{/* Siatka kalendarza */}
 				{weeks.map((week, weekIndex) => (
 					<Box key={weekIndex} sx={{ display: "flex", mb: 1 }}>
 						{week.map((day, dayIndex) => {
 							if (day === null) {
-								// Pusta komórka dla dni poza miesiącem
 								return (
 									<Box
 										key={`empty-${dayIndex}`}
@@ -205,7 +187,7 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							const isToday =
 								format(day.date, "yyyy-MM-dd") ===
 								format(new Date(), "yyyy-MM-dd");
-							const isWeekend = dayIndex === 0 || dayIndex === 6; // niedziela lub sobota
+							const isWeekend = dayIndex === 0 || dayIndex === 6;
 
 							const dayBookings = bookings.filter((booking) => {
 								const bookingDate = format(
@@ -320,14 +302,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							);
 						})}
 
-						{/* Dodaj puste komórki, jeśli tydzień ma mniej niż 7 dni */}
 						{Array.from({ length: Math.max(0, 7 - week.length) }).map(
 							(_, i) => (
 								<Box
 									key={`empty-${i}`}
 									sx={{
-										flex: "1 0 14.28%", // Dokładnie 1/7 szerokości
-										maxWidth: "14.28%", // Maksymalna szerokość
+										flex: "1 0 14.28%",
+										maxWidth: "14.28%",
 										height: 120,
 										border: "1px solid #e0e0e0",
 										bgcolor: "#f5f5f5",
@@ -340,8 +321,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 			</Box>
 		);
 	};
-
-	// Usunąć podwójną implementację widoku miesiąca i wykorzystać funkcję renderMonthCalendar
 
 	if (calendarView === "month" && daysOfWeek.length > 0) {
 		return (
@@ -370,7 +349,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				overflowX: "auto",
 			}}
 		>
-			{/* Dodano renderCalendarTitle dla widoków dnia i tygodnia */}
 			<Box
 				sx={{
 					borderBottom: "1px solid #e0e0e0",
@@ -382,14 +360,12 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				{renderCalendarTitle()}
 			</Box>
 
-			{/* Header row with days */}
 			<Box sx={{ display: "flex", borderBottom: "1px solid #eeeeee" }}>
-				{/* Empty cell for time column */}
 				<Box
 					sx={{
-						width: 80, // Zmniejszone z 100
+						width: 80,
 						flexShrink: 0,
-						p: 1.5, // Zmniejszone z 2
+						p: 1.5,
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
@@ -397,7 +373,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 					}}
 				></Box>
 
-				{/* Day columns */}
 				{daysOfWeek.map((day, index) => (
 					<Box
 						key={index}
@@ -431,7 +406,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				))}
 			</Box>
 
-			{/* Time rows */}
 			{timeSlots.map((time, timeIndex) => (
 				<Box
 					key={time}
@@ -442,12 +416,11 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 						height: 80,
 					}}
 				>
-					{/* Time column */}
 					<Box
 						sx={{
-							width: 80, // Zmniejszone z 100
+							width: 80,
 							flexShrink: 0,
-							p: 1.5, // Zmniejszone z 2
+							p: 1.5,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
@@ -459,14 +432,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							sx={{
 								color: "text.secondary",
 								fontWeight: 400,
-								fontSize: "0.75rem", // Zmniejszone z 0.8rem
+								fontSize: "0.75rem",
 							}}
 						>
 							{time}
 						</Typography>
 					</Box>
 
-					{/* Day columns with bookings */}
 					{daysOfWeek.map((day, dayIndex) => {
 						const dayBookings = getBookingsForTimeAndDay(time, day.date);
 
@@ -502,8 +474,8 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 											flexDirection: "column",
 											justifyContent: "center",
 											cursor: "pointer",
-											overflow: "hidden", // Zapobiega wystawaniu treści
-											width: "100%", // Ustaw pełną szerokość
+											overflow: "hidden",
+											width: "100%",
 											"&:hover": {
 												boxShadow: 3,
 												bgcolor: "#e0354b",
@@ -511,7 +483,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 										}}
 										onClick={() => onView(booking.id)}
 									>
-										{/* Jedna linia z ikoną i tytułem - zmniejszone marginesy i padding */}
 										<Box
 											sx={{
 												display: "flex",
@@ -526,7 +497,7 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 													height: 18,
 													bgcolor: "rgba(255,255,255,0.3)",
 													mr: 0.5,
-													minWidth: 18, // Zapobiega zmniejszeniu ikony
+													minWidth: 18,
 												}}
 											>
 												<DirectionsCarIcon sx={{ fontSize: 12 }} />
@@ -540,14 +511,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 													overflow: "hidden",
 													textOverflow: "ellipsis",
 													flexGrow: 1,
-													flexShrink: 1, // Pozwala na zmniejszenie, jeśli potrzeba
+													flexShrink: 1,
 												}}
 											>
 												{booking.service_type || "Vehicle Maintenance"}
 											</Typography>
 										</Box>
 
-										{/* Drugi wiersz z nazwiskiem klienta - tylko jeśli jest miejsce */}
 										{booking.client && (
 											<Typography
 												variant="caption"

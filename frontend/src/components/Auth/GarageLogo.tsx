@@ -8,20 +8,20 @@ const useStyles = createUseStyles({
 		marginBottom: "20px",
 	},
 	logo: {
-		width: "200px", // Increased size from 60px to 80px
+		width: "200px",
 		height: "auto",
 		marginBottom: "1px",
 	},
 	logoText: {
-		fontFamily: '"Poppins", sans-serif', // Changed to a more geometric font
-		fontSize: "24px", // Larger font size
+		fontFamily: '"Poppins", sans-serif',
+		fontSize: "24px",
 		fontWeight: "600",
 		margin: "5px 0 3px",
 		letterSpacing: "0.5px",
 	},
 	tagline: {
 		fontSize: "12px",
-		color: "#FF3B57", // Accent red color for tagline
+		color: "#FF3B57",
 		fontWeight: "500",
 		letterSpacing: "1px",
 		textTransform: "uppercase",

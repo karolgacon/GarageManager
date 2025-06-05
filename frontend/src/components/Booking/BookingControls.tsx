@@ -36,7 +36,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
 	const handleNavigatePrevious = () => {
-		// Dodaj płynne przejście
 		const dateBeforeChange = new Date(selectedDate);
 
 		if (calendarView === "day") {
@@ -47,7 +46,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 			onDateChange(addMonths(selectedDate, -1));
 		}
 
-		// Opcjonalnie: sprawdź czy zakres widoczności się zmienił znacząco
 		console.log(`Date changed from ${dateBeforeChange} to ${selectedDate}`);
 	};
 
@@ -61,7 +59,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 		}
 	};
 
-	// Format the current view period for display
 	const getFormattedPeriod = () => {
 		if (calendarView === "day") {
 			return format(selectedDate, "MMMM d, yyyy");
@@ -78,10 +75,8 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 	};
 
 	const handleViewChange = (newView: string) => {
-		// Zapobiega odświeżaniu przy kliknięciu na ten sam widok
 		if (newView === calendarView) return;
 
-		// Płynniejsze przejście przy zmianie widoku
 		onCalendarViewChange(newView);
 	};
 
@@ -110,7 +105,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 				{formattedToday}
 			</Typography>
 
-			{/* Navigation controls */}
 			<Box
 				sx={{
 					display: "flex",
@@ -160,7 +154,7 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 					"& .MuiToggleButton-root": {
 						px: 2,
 						py: 0.5,
-						transition: "all 0.2s ease-in-out", // Dodaj płynne przejście
+						transition: "all 0.2s ease-in-out", 
 						"&.Mui-selected": {
 							bgcolor: "#ff3c4e",
 							color: "#fff",

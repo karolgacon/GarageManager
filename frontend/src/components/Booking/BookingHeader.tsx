@@ -26,7 +26,6 @@ const BookingHeader: React.FC<BookingHeaderProps> = ({
 				Bookings
 			</Typography>
 
-			{/* Only show NEW BOOKING button if not an admin without a workshop selection */}
 			{(userRole !== "admin" || (userRole === "admin" && selectedWorkshop)) && (
 				<Button
 					variant="contained"

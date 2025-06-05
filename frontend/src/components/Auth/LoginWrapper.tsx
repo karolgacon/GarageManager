@@ -8,8 +8,6 @@ import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "../../authorization/CustomJwtPayload";
 import { useNavigate } from "react-router-dom";
 import GarageLogo from "./GarageLogo";
-// Import an eye icon from a library like react-icons or use SVG directly
-// Example with SVG:
 const EyeIcon = () => (
 	<svg
 		width="20"
@@ -57,34 +55,28 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 				const data = res.data;
 				const jwtToken = data.token;
 
-				// Decode token to get user data
 				const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
 
 				try {
-					// Get user details first
 					const userDetailsRes = await axios.get(
 						`${BASE_API_URL}/user/${decoded.user_id}/`
 					);
 					const userDetails = userDetailsRes.data;
 
-					// Set token only after we confirm user details are valid
 					setAuthHeader(jwtToken);
 
-					// Store role in localStorage
 					localStorage.setItem("userRole", userDetails.role);
 					localStorage.setItem("userID", decoded.user_id.toString());
 
-					// Update authentication context with user_id
 					setAuth({
 						token: jwtToken,
 						roles: [userDetails.role],
 						username: userDetails.username,
 						is_active: userDetails.is_active,
-						user_id: decoded.user_id, // Add user_id from the decoded token
+						user_id: decoded.user_id, 
 						isLoading: false,
 					});
 
-					// Redirect based on account status and role
 					if (!userDetails.is_active) {
 						setError("Your account has not been activated yet.");
 					} else {
@@ -113,11 +105,8 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 
 		useImperativeHandle(ref, () => ({
 			triggerPendingAction: () => {
-				// Implementation if needed
 			},
 		}));
-
-		// Modified to use React Router's navigate instead of window.location
 		const redirectBasedOnRole = (role: string) => {
 			switch (role) {
 				case "admin":

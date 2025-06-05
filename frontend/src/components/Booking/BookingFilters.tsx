@@ -38,7 +38,6 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 	onViewChange,
 	onRefresh,
 }) => {
-	// Konfiguracja dla wszystkich komponentów Select
 	const selectMenuProps = {
 		disableScrollLock: true,
 		anchorOrigin: {
@@ -69,7 +68,6 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 			}}
 		>
 			<Grid container spacing={3} alignItems="center">
-				{/* Only show date picker for "all" view */}
 				{bookingType === "all" && (
 					<Grid item xs={12} md={12}>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -126,7 +124,6 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 					</Grid>
 				)}
 
-				{/* Refresh button and view toggle */}
 				<Grid item xs={12}>
 					<Box
 						sx={{

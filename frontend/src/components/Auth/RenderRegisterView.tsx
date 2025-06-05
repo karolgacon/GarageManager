@@ -26,7 +26,6 @@ const RenderRegisterView: React.FC<RenderRegisterViewProps> = ({
     };
 
     const handleSubmit = () => {
-        // Basic validation
         if (Object.values(formData).some(value => value === "")) {
             setError("Wszystkie pola są wymagane.");
             return;
@@ -37,10 +36,8 @@ const RenderRegisterView: React.FC<RenderRegisterViewProps> = ({
             return;
         }
 
-        // Remove confirmPassword before sending to backend
         const { confirmPassword, ...userData } = formData;
 
-        // Register with client role
         handleRegistration(userData, "client");
     };
 

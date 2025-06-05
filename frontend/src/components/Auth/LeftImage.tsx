@@ -8,13 +8,13 @@ const useStyles = createUseStyles({
         gap: '12px',
     },
     image: {
-        height: '80px', // Larger logo
+        height: '80px',
         width: 'auto',
     },
     fosterFlowTitle: {
         fontFamily: "Poly",
         fontSize: '24px',
-        color: '#FFFFFF', // White color
+        color: '#FFFFFF',
         margin: 0,
     },
 });

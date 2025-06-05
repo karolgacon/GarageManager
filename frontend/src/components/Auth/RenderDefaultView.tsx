@@ -12,7 +12,7 @@ const RenderDefaultView: React.FC<RenderDefaultViewProps> = ({ handleSignIn, set
     const [error, setError] = useState<string | null>(null);
 
     const handleSignInClick = () => {
-        setError(null); // Resetujemy poprzednie błędy
+        setError(null); 
 
         if (!email || !password) {
             setError("Proszę wprowadzić oba pola.");
@@ -66,7 +66,7 @@ const RenderDefaultView: React.FC<RenderDefaultViewProps> = ({ handleSignIn, set
                 onClick={handleSignInClick}
                 fullWidth
                 sx={{
-                    backgroundColor: "#FF2D55", // Red color
+                    backgroundColor: "#FF2D55", 
                     color: "#fff",
                     fontSize: "13px",
                     fontWeight: "600",
@@ -85,7 +85,7 @@ const RenderDefaultView: React.FC<RenderDefaultViewProps> = ({ handleSignIn, set
             </Button>
 
             <Button
-                onClick={() => setCurrentView("register")} // Changed to a new "register" view
+                onClick={() => setCurrentView("register")} 
                 fullWidth
                 sx={{
                     backgroundColor: "#DC143C",

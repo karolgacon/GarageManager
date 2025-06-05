@@ -35,7 +35,6 @@ const BookingList: React.FC<BookingListProps> = ({
 	onDelete,
 	userRole,
 }) => {
-	// Function to render status chip
 	const getStatusChip = (status: string) => {
 		let color:
 			| "default"
