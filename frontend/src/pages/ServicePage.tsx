@@ -20,16 +20,15 @@ import {
 	DialogActions,
 	DialogTitle,
 	DialogContent,
-	Chip, // Add Chip here since it's used in your component
+	Chip, 
 } from "@mui/material";
-import { Link } from "react-router-dom"; // Add this import for the Link component
+import { Link } from "react-router-dom"; 
 import SearchIcon from "@mui/icons-material/Search";
 import BuildIcon from "@mui/icons-material/Build";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 
-// Components
 import ServiceTable from "../components/Service/ServiceTable";
 import CustomSnackbar, {
 	SnackbarState,
@@ -37,94 +36,78 @@ import CustomSnackbar, {
 import AddServiceModal from "../components/Service/AddServiceModal";
 import EditServiceModal from "../components/Service/EditServiceModal";
 
-// Models
 import { Service } from "../models/ServiceModel";
 import { MaintenanceSchedule } from "../models/MaintenanceScheduleModel";
 
-// API Services
 import { serviceService } from "../api/ServiceAPIEndpoint";
 import { maintenanceScheduleService } from "../api/MaintenanceScheduleAPIEndpoint";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
 import AuthContext from "../context/AuthProvider";
 import { COLOR_PRIMARY } from "../constants";
 
-// Transform API response to the format expected by ServiceTable
 const transformServiceData = (serviceData: any[]): Service[] => {
 	return serviceData.map((service) => ({
 		id: service.id,
 		name: service.name,
 		category: service.category,
 		price: service.price,
-		duration: service.estimated_duration, // poprawka!
+		duration: service.estimated_duration, 
 		description: service.description,
-		is_active: service.is_active ?? true, // jeśli masz to pole w API
-		vehicle: null, // dla admina nie ma pojazdu
+		is_active: service.is_active ?? true, 
+		vehicle: null, 
 		_original: service,
 	}));
 };
 
 const Services: React.FC = () => {
-	// Auth context for user role and ID
 	const { auth } = useContext(AuthContext);
 
-	// Check if the user is an admin
 	const isAdmin = () => {
 		return auth.roles?.includes("admin") || auth.roles?.[0] === "admin";
 	};
 
-	// Tab state - only two tabs now: services and maintenance
 	const [activeTab, setActiveTab] = useState<number>(0);
 
-	// Services states
 	const [services, setServices] = useState<Service[]>([]);
 	const [loadingServices, setLoadingServices] = useState(false);
 
-	// Maintenance schedules states
 	const [maintenanceSchedules, setMaintenanceSchedules] = useState<
 		MaintenanceSchedule[]
 	>([]);
 	const [loadingSchedules, setLoadingSchedules] = useState(false);
 
-	// Common states
 	const [error, setError] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [userVehicles, setUserVehicles] = useState<any[]>([]);
 	const [loadingVehicles, setLoadingVehicles] = useState(false);
 
-	// Snackbar state
 	const [snackbar, setSnackbar] = useState<SnackbarState>({
 		open: false,
 		message: "",
 		severity: "success",
 	});
 
-	// Modal states
 	const [addModalOpen, setAddModalOpen] = useState(false);
 	const [editModalOpen, setEditModalOpen] = useState(false);
 	const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
 
-	// Load data when tab changes
 	useEffect(() => {
 		if (auth.user_id) {
 			if (isAdmin()) {
-				// Admin should see all services and maintenance schedules
 				fetchAllServices();
 				fetchAllMaintenanceSchedules();
 			} else {
-				// Regular client flow - fetch their vehicles first
 				fetchUserVehicles();
 			}
 		}
 	}, [auth.user_id]);
 
-	// For non-admin users, fetch services or maintenance schedules based on the active tab
 	useEffect(() => {
-		let isMounted = true; // Track if component is mounted
+		let isMounted = true; 
 
 		const loadData = async () => {
 			if (!isAdmin() && auth.user_id) {
 				if (activeTab === 0) {
-					// Only fetch on tab change or initial load
 					await fetchClientServices();
 				} else if (activeTab === 1) {
 					await fetchClientMaintenanceSchedules();
@@ -134,13 +117,11 @@ const Services: React.FC = () => {
 
 		loadData();
 
-		// Cleanup function
 		return () => {
 			isMounted = false;
 		};
-	}, [activeTab, auth.user_id]); // Remove isAdmin from dependencies
+	}, [activeTab, auth.user_id]); 
 
-	// Fetch client's vehicles
 	const fetchUserVehicles = async () => {
 		try {
 			setLoadingVehicles(true);
@@ -167,7 +148,6 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Fetch services for client's vehicles only - more efficient method
 	const fetchClientServices = async () => {
 		try {
 			setLoadingServices(true);
@@ -179,12 +159,10 @@ const Services: React.FC = () => {
 				return;
 			}
 
-			// Use the getClientServices method which we know works
 			const clientServices = await serviceService.getClientServices(
 				auth.user_id
 			);
 
-			// Only update state if services actually changed
 			const servicesChanged =
 				JSON.stringify(clientServices) !== JSON.stringify(services);
 
@@ -204,7 +182,6 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Fetch maintenance schedules for client's vehicles
 	const fetchClientMaintenanceSchedules = async () => {
 		try {
 			setLoadingSchedules(true);
@@ -215,7 +192,6 @@ const Services: React.FC = () => {
 				return;
 			}
 
-			// Use the new dedicated endpoint for client schedules
 			const clientSchedules =
 				await maintenanceScheduleService.getClientSchedules(auth.user_id);
 
@@ -225,7 +201,6 @@ const Services: React.FC = () => {
 				);
 				setMaintenanceSchedules(clientSchedules);
 			} else {
-				// Fallback to empty array if no schedules found
 				setMaintenanceSchedules([]);
 			}
 		} catch (error) {
@@ -236,21 +211,17 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Fetch overdue and upcoming maintenance
 	const fetchDueMaintenanceSchedules = async () => {
 		try {
 			setLoadingSchedules(true);
 			setError(null);
 
-			// Pass the client ID to get only this client's due schedules
 			const dueSchedules = await maintenanceScheduleService.getDueSchedules(
 				auth.user_id
 			);
 
-			// Highlight these in the UI with appropriate status
 			const updatedSchedules = [...maintenanceSchedules];
 
-			// Mark matching schedules as due/overdue
 			dueSchedules.forEach((dueSchedule) => {
 				const index = updatedSchedules.findIndex(
 					(s) => s.id === dueSchedule.id
@@ -261,7 +232,6 @@ const Services: React.FC = () => {
 						status: "overdue",
 					};
 				} else {
-					// If the schedule wasn't loaded before, add it to the list
 					updatedSchedules.push({
 						...dueSchedule,
 						status: "overdue",
@@ -277,17 +247,14 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Fetch all services - admin only
 	const fetchAllServices = async () => {
 		try {
 			setLoadingServices(true);
 			setError(null);
 
-			// Use the GET /api/v1/services/ endpoint for admin users
 			const allServices = await serviceService.getAllServices();
 			console.log(`Admin: Found ${allServices.length} total services (raw)`);
 
-			// Transform data to expected format
 			const transformedServices = transformServiceData(allServices);
 			console.log(`Admin: Transformed ${transformedServices.length} services`);
 
@@ -300,7 +267,6 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Fetch all maintenance schedules - admin only
 	const fetchAllMaintenanceSchedules = async () => {
 		try {
 			setLoadingSchedules(true);
@@ -319,7 +285,6 @@ const Services: React.FC = () => {
 		}
 	};
 
-	// Filter services based on search term
 	const filteredServices = services.filter((service) => {
 		const matchesSearch =
 			service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -336,7 +301,6 @@ const Services: React.FC = () => {
 		return matchesSearch;
 	});
 
-	// Filter maintenance schedules based on search term
 	const filteredSchedules = maintenanceSchedules.filter((schedule) => {
 		const matchesSearch =
 			schedule.service_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -354,17 +318,14 @@ const Services: React.FC = () => {
 		return matchesSearch;
 	});
 
-	// Handle tab change
 	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
 		setActiveTab(newValue);
 	};
 
-	// Handle snackbar close
 	const handleSnackbarClose = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-	// Funkcje obsługi modali
 	const handleOpenAddModal = () => setAddModalOpen(true);
 	const handleCloseAddModal = () => setAddModalOpen(false);
 
@@ -377,7 +338,6 @@ const Services: React.FC = () => {
 		setServiceToEdit(null);
 	};
 
-	// Po dodaniu nowego serwisu
 	const handleServiceAdded = (newService: Service) => {
 		setSnackbar({
 			open: true,
@@ -387,7 +347,6 @@ const Services: React.FC = () => {
 		fetchAllServices();
 	};
 
-	// Po edycji serwisu
 	const handleServiceUpdated = (updatedService: Service) => {
 		setSnackbar({
 			open: true,
@@ -448,7 +407,6 @@ const Services: React.FC = () => {
 						)}
 					</Box>
 
-					{/* Tabs */}
 					<Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
 						<Tabs
 							value={activeTab}
@@ -482,7 +440,6 @@ const Services: React.FC = () => {
 						</Tabs>
 					</Box>
 
-					{/* Search field */}
 					<Box sx={{ mb: 3 }}>
 						<TextField
 							fullWidth
@@ -500,7 +457,6 @@ const Services: React.FC = () => {
 						/>
 					</Box>
 
-					{/* --- ADMIN --- */}
 					{isAdmin() && activeTab === 0 && (
 						<Paper sx={{ p: 3, borderRadius: 2 }}>
 							<Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
@@ -535,7 +491,6 @@ const Services: React.FC = () => {
 						</Paper>
 					)}
 
-					{/* --- KLIENT --- */}
 					{!isAdmin() && activeTab === 0 && (
 						<Paper sx={{ p: 3, borderRadius: 2 }}>
 							{loadingServices ? (
@@ -634,7 +589,6 @@ const Services: React.FC = () => {
 						</Paper>
 					)}
 
-					{/* --- MAINTENANCE SCHEDULE --- */}
 					{activeTab === 1 && (
 						<Paper sx={{ p: 3, borderRadius: 2 }}>
 							{loadingSchedules ? (
@@ -696,7 +650,7 @@ const Services: React.FC = () => {
 
 									{filteredSchedules.map((schedule, index) => (
 										<Paper
-											key={`schedule-${schedule.id || index}`} // Use compound key
+											key={`schedule-${schedule.id || index}`} 
 											elevation={0}
 											sx={{
 												p: 2,
@@ -788,14 +742,12 @@ const Services: React.FC = () => {
 						</Paper>
 					)}
 
-					{/* Add Service Modal */}
 					<AddServiceModal
 						open={addModalOpen}
 						onClose={handleCloseAddModal}
 						onServiceAdded={handleServiceAdded}
 					/>
 
-					{/* Edit Service Modal */}
 					<EditServiceModal
 						open={editModalOpen}
 						onClose={handleCloseEditModal}
@@ -804,7 +756,6 @@ const Services: React.FC = () => {
 					/>
 				</Box>
 
-				{/* Snackbar */}
 				<CustomSnackbar
 					snackbarState={snackbar}
 					onClose={handleSnackbarClose}

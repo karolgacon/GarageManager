@@ -45,7 +45,6 @@ interface AddVehicleModalProps {
 	currentWorkshopId?: number | null;
 }
 
-// Niestandardowy styl łączników między krokami
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
 	[`&.${stepConnectorClasses.alternativeLabel}`]: {
 		top: 22,
@@ -69,7 +68,6 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
 	},
 }));
 
-// Stylizowane ikony kroków
 const ColorlibStepIconRoot = styled("div")<{
 	ownerState: { completed?: boolean; active?: boolean };
 }>(({ theme, ownerState }) => ({
@@ -92,7 +90,6 @@ const ColorlibStepIconRoot = styled("div")<{
 	}),
 }));
 
-// Komponenty ikon dla kroków w zależności od roli
 function ColorlibStepIcon(props: any) {
 	const { active, completed, className, icon, userRole } = props;
 
@@ -143,14 +140,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		currentWorkshopId || null
 	);
 
-	// Stan dla formularza etapowego
 	const [activeStep, setActiveStep] = useState(0);
 	const [vehicleData, setVehicleData] = useState<Partial<Vehicle>>({});
 
-	// Create a ref for the VehicleForm
 	const vehicleFormRef = useRef<{ validateAndSubmit: () => boolean }>(null);
 
-	// Zdefiniowanie kroków formularza
 	const steps =
 		userRole === "admin"
 			? [
@@ -163,20 +157,17 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			? ["Vehicle Details", "Select Workshop", "Review & Submit"]
 			: ["Select Client", "Vehicle Details", "Review & Submit"];
 
-	// Na zmianę warsztatów aktualizujemy wybrany warsztat
 	useEffect(() => {
 		if (userRole !== "client") {
 			setSelectedWorkshopId(currentWorkshopId || null);
 		}
 	}, [currentWorkshopId, userRole]);
 
-	// Resetuj formularz po otwarciu
 	useEffect(() => {
 		if (open) {
 			setActiveStep(0);
 			setVehicleData({});
 			setSelectedClientId(null);
-			// Nie resetujemy warsztatów dla klientów, aby mogli od razu wybrać
 			if (userRole !== "client") {
 				setSelectedWorkshopId(currentWorkshopId || null);
 			}
@@ -184,9 +175,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		}
 	}, [open, currentWorkshopId, userRole]);
 
-	// Obsługa przejścia do następnego kroku
 	const handleNext = () => {
-		// Walidacja kroku przed przejściem dalej
 		if (activeStep === 0) {
 			if (userRole !== "client" && !selectedClientId) {
 				setError("Please select a client before proceeding");
@@ -194,7 +183,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			}
 		}
 
-		// Walidacja kroku wyboru warsztatu dla klienta
 		if (activeStep === 1 && userRole === "client") {
 			if (!selectedWorkshopId) {
 				setError("Please select a workshop for your vehicle");
@@ -202,40 +190,31 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			}
 		}
 
-		// Add validation for admin selecting a workshop
 		if (userRole === "admin" && activeStep === 2 && !selectedWorkshopId) {
 			setError("Please select a workshop for this vehicle");
 			return;
 		}
 
-		// Przejście do następnego kroku
 		setActiveStep((prevStep) => prevStep + 1);
 		setError(null);
 	};
 
-	// Obsługa powrotu do poprzedniego kroku
 	const handleBack = () => {
 		setActiveStep((prevStep) => prevStep - 1);
 		setError(null);
 	};
 
-	// Update the handleVehicleDataSave function to use the ref
 	const handleVehicleDataSave = () => {
-		// If we're on the vehicle form step, validate and get data from the ref
 		if (vehicleFormRef.current && vehicleFormRef.current.validateAndSubmit()) {
-			// Form validation succeeded, the form's onSubmit would have been called
-			// Continue with the flow
+
 			handleNext();
 		}
-		// If validation fails, the form will display errors
 	};
 
-	// Dodaj validateForm i zaktualizuj handleSubmit
 
 	const validateForm = (): boolean => {
 		const finalErrors: string[] = [];
 
-		// Podstawowa walidacja
 		if (!vehicleData.brand || vehicleData.brand.trim() === "") {
 			finalErrors.push("Brand is required");
 		}
@@ -249,7 +228,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			finalErrors.push("Registration number is required");
 		}
 
-		// Walidacja zależna od roli
 		if (userRole !== "client" && !selectedClientId) {
 			finalErrors.push("Client selection is required");
 		}
@@ -266,7 +244,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			return false;
 		}
 
-		// Przygotuj dane do wysłania
 		const updatedData = { ...vehicleData };
 
 		if (userRole !== "client" && selectedClientId) {
@@ -281,7 +258,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		return true;
 	};
 
-	// Obsługa końcowego zatwierdzenia i wysłania danych
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -291,10 +267,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		setError(null);
 
 		try {
-			// WAŻNE: Utwórz kopię danych bez pola id
 			const submitData = { ...vehicleData };
 
-			// Usuń wszelkie id z danych przed wysłaniem
 			if ("id" in submitData) delete submitData.id;
 
 			console.log("Dane do wysłania:", submitData);
@@ -310,10 +284,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		}
 	};
 
-	// Renderuj zawartość bieżącego kroku
 	const renderStepContent = () => {
 		if (userRole === "admin") {
-			// Special flow for admin
 			switch (activeStep) {
 				case 0:
 					return (
@@ -354,10 +326,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							</Box>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} // Just update the state, don't navigate
+								onSubmit={setVehicleData} 
 								isLoading={loading}
 								error={error}
-								enableInternalButtons={false} // Don't show the internal button
+								enableInternalButtons={false} 
 							/>
 						</Box>
 					);
@@ -391,7 +363,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					return null;
 			}
 		} else if (userRole !== "client") {
-			// Existing code for owner/mechanic
 			switch (activeStep) {
 				case 0:
 					return (
@@ -432,10 +403,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							</Box>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} // Just update the state, don't navigate
+								onSubmit={setVehicleData} 
 								isLoading={loading}
 								error={error}
-								enableInternalButtons={false} // Don't show the internal button
+								enableInternalButtons={false}
 							/>
 						</Box>
 					);
@@ -445,7 +416,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					return null;
 			}
 		} else {
-			// Existing code for client
 			switch (activeStep) {
 				case 0:
 					return (
@@ -465,10 +435,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							</Typography>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} // Just update the state, don't navigate
+								onSubmit={setVehicleData} 
 								isLoading={loading}
 								error={error}
-								enableInternalButtons={false} // Don't show the internal button
+								enableInternalButtons={false} 
 							/>
 						</Box>
 					);
@@ -505,7 +475,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		}
 	};
 
-	// Renderuj krok przeglądu
 	const renderReviewStep = () => {
 		return (
 			<Box>
@@ -524,8 +493,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 2, // Reduced from p: 3
-						mb: 2, // Reduced from mb: 3
+						p: 2, 
+						mb: 2, 
 						borderRadius: 2,
 						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 					}}
@@ -621,8 +590,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					<Paper
 						variant="outlined"
 						sx={{
-							p: 2, // Reduced from p: 3
-							mb: 2, // Reduced from mb: 3
+							p: 2, 
+							mb: 2, 
 							borderRadius: 2,
 							boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 						}}
@@ -652,8 +621,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 2, // Reduced from p: 3
-						mb: 2, // Reduced from mb: 3
+						p: 2, 
+						mb: 2, 
 						borderRadius: 2,
 						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
 					}}
@@ -697,11 +666,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			fullWidth
 			fullScreen={fullScreen}
 			maxWidth="md"
-			scroll="paper" // Use paper scroll mode for better scrolling
+			scroll="paper" 
 			PaperProps={{
 				sx: {
 					borderRadius: { xs: 0, sm: 2 },
-					maxHeight: "90vh", // Ensure it doesn't take the entire screen
+					maxHeight: "90vh",
 				},
 			}}
 		>
@@ -736,7 +705,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			</DialogTitle>
 
 			<DialogContent sx={{ p: 0 }}>
-				{/* Pasek postępu */}
 				<Box sx={{ bgcolor: "#f8f8f8", px: 3, py: 2 }}>
 					<Stepper
 						alternativeLabel
@@ -780,7 +748,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					</Alert>
 				)}
 
-				{/* Zawartość kroku - remove fixed height and maxHeight properties */}
 				<Box
 					sx={{
 						px: 3,
@@ -790,7 +757,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					{renderStepContent()}
 				</Box>
 
-				{/* Indykator ładowania */}
 				{loading && (
 					<Box
 						sx={{
@@ -858,7 +824,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 						<Button
 							variant="contained"
 							onClick={() => {
-								// Check which step we're on
 								if (
 									(activeStep === 1 &&
 										userRole !== "client" &&
@@ -866,10 +831,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 									(activeStep === 0 && userRole === "client") ||
 									(activeStep === 1 && userRole === "admin")
 								) {
-									// We're on the vehicle form step
 									handleVehicleDataSave();
 								} else {
-									// We're on a different step (client selection or workshop selection)
 									handleNext();
 								}
 							}}

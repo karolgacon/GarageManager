@@ -55,7 +55,6 @@ const CustomerFilters: React.FC<CustomerFiltersProps> = ({ onFilterChange }) => 
                     alignItems: "center",
                 }}
             >
-                {/* Search field */}
                 <TextField
                     placeholder="Search customers..."
                     value={searchTerm}
@@ -70,7 +69,6 @@ const CustomerFilters: React.FC<CustomerFiltersProps> = ({ onFilterChange }) => 
                     }}
                 />
 
-                {/* Status filter */}
                 <FormControl sx={{ minWidth: 150 }}>
                     <InputLabel>Status</InputLabel>
                     <Select
@@ -85,7 +83,6 @@ const CustomerFilters: React.FC<CustomerFiltersProps> = ({ onFilterChange }) => 
                     </Select>
                 </FormControl>
 
-                {/* Loyalty level filter */}
                 <FormControl sx={{ minWidth: 150 }}>
                     <InputLabel>Loyalty Level</InputLabel>
                     <Select

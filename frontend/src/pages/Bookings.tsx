@@ -17,9 +17,8 @@ import CustomSnackbar, {
 } from "../components/Mainlayout/Snackbar";
 import { bookingService } from "../api/BookingAPIEndpoint";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
-import { UserService } from "../api/UserAPIEndpoint"; // Import userService
+import { UserService } from "../api/UserAPIEndpoint"; 
 
-// Import new components
 import BookingHeader from "../components/Booking/BookingHeader";
 import BookingWorkshopSelector from "../components/Booking/BookingWorkshopSelector";
 import BookingControls from "../components/Booking/BookingControls";
@@ -43,14 +42,12 @@ interface Mechanic {
 const Bookings: React.FC = () => {
 	const { auth, setAuth } = useContext(AuthContext);
 
-	// Snackbar state
 	const [snackbarState, setSnackbarState] = useState<SnackbarState>({
 		open: false,
 		message: "",
 		severity: "info",
 	});
 
-	// View states
 	const [view, setView] = useState<string>("calendar");
 	const [calendarView, setCalendarView] = useState<string>("week");
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -59,13 +56,11 @@ const Bookings: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [bookingType, setBookingType] = useState<string>("all");
 
-	// Admin filters
 	const [workshops, setWorkshops] = useState<Workshop[]>([]);
 	const [mechanics, setMechanics] = useState<Mechanic[]>([]);
 	const [selectedWorkshop, setSelectedWorkshop] = useState<number | null>(null);
 	const [selectedMechanic, setSelectedMechanic] = useState<number | null>(null);
 
-	// Modal states
 	const [isNewBookingModalOpen, setIsNewBookingModalOpen] = useState(false);
 	const [isEditBookingModalOpen, setIsEditBookingModalOpen] = useState(false);
 	const [isViewBookingModalOpen, setIsViewBookingModalOpen] = useState(false);
@@ -74,15 +69,12 @@ const Bookings: React.FC = () => {
 	);
 	const [selectedBookingData, setSelectedBookingData] = useState<any>(null);
 
-	// State to control visibility of bookings UI
 	const [showBookingsUI, setShowBookingsUI] = useState(false);
 
-	// Function to handle closing the snackbar
 	const handleCloseSnackbar = () => {
 		setSnackbarState((prev) => ({ ...prev, open: false }));
 	};
 
-	// Function to show a snackbar message
 	const showSnackbar = (
 		message: string,
 		severity: "success" | "error" | "warning" | "info"
@@ -94,17 +86,14 @@ const Bookings: React.FC = () => {
 		});
 	};
 
-	// Initial workshop loading
 	useEffect(() => {
 		if (auth.roles?.[0] === "admin") {
 			fetchWorkshops();
 		} else if (auth.roles?.[0] === "owner") {
-			// Zamiast korzystać z auth.workshop_id, pobierz warsztat właściciela z API
 			fetchOwnerWorkshop();
 		}
 	}, [auth.roles]);
 
-	// Show bookings UI after workshop selection
 	useEffect(() => {
 		if (auth.roles?.[0] === "admin" && selectedWorkshop) {
 			fetchMechanics(selectedWorkshop);
@@ -114,9 +103,7 @@ const Bookings: React.FC = () => {
 		}
 	}, [selectedWorkshop, auth.roles]);
 
-	// Load bookings when filters change
 	useEffect(() => {
-		// Only load bookings if auth data is ready
 		if (
 			(auth.roles?.[0] !== "client" && auth.roles?.[0] !== "mechanic") ||
 			(auth.roles?.[0] === "client" && auth.user_id) ||
@@ -129,12 +116,11 @@ const Bookings: React.FC = () => {
 		selectedWorkshop,
 		selectedMechanic,
 		auth.roles?.[0],
-		auth.user_id, // Make sure user_id changes trigger reload
+		auth.user_id, 
 		calendarView,
 		bookingType,
 	]);
 
-	// Data fetching functions
 	const fetchWorkshops = async () => {
 		try {
 			const response = await workshopService.getAllWorkshops();
@@ -155,7 +141,6 @@ const Bookings: React.FC = () => {
 
 	const fetchOwnerWorkshop = async () => {
 		try {
-			// Pobierz warsztat dla zalogowanego właściciela
 			const workshopData = await workshopService.getCurrentUserWorkshop();
 			if (workshopData) {
 				setWorkshops([workshopData]);
@@ -167,12 +152,10 @@ const Bookings: React.FC = () => {
 		}
 	};
 
-	// Add this function to your component
 	const fetchUserInfo = async () => {
 		try {
-			const userInfo = await userService.getCurrentUser(); // You'll need to create this API service
+			const userInfo = await userService.getCurrentUser();
 			if (userInfo && userInfo.id) {
-				// Update auth context with user ID
 				setAuth((prev) => ({
 					...prev,
 					user_id: userInfo.id,
@@ -186,7 +169,6 @@ const Bookings: React.FC = () => {
 		}
 	};
 
-	// Add this useEffect to trigger the user info fetch when needed
 	useEffect(() => {
 		if (auth.roles?.[0] === "client" && !auth.user_id && !auth.isLoading) {
 			console.log("Client user detected but no user_id, fetching user info");
@@ -194,12 +176,10 @@ const Bookings: React.FC = () => {
 		}
 	}, [auth.roles, auth.user_id, auth.isLoading]);
 
-	// Update the loadBookings function with timeout and better error handling
 	const loadBookings = async () => {
 		setLoading(true);
 		setError(null);
 
-		// Create a timeout promise
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error("Request timed out")), 20000)
 		);
@@ -207,25 +187,22 @@ const Bookings: React.FC = () => {
 		try {
 			let bookingsData = [];
 
-			// Ensure auth is loaded
 			if (!auth || auth.isLoading) {
 				console.log("Auth data still loading");
-				return; // Will hit finally block
+				return; 
 			}
 
-			// Better client ID check for debugging
 			if (auth.roles?.[0] === "client") {
 				if (!auth.user_id) {
 					console.error("Client user_id is missing:", auth);
 					setError(
 						"Your user information is not fully loaded. Please try refreshing the page."
 					);
-					return; // Will hit finally block
+					return; 
 				}
 				console.log("Loading bookings for client ID:", auth.user_id);
 			}
 
-			// Handle special booking types
 			if (bookingType === "upcoming") {
 				bookingsData = await bookingService.getUpcomingBookings();
 			} else if (bookingType === "past") {
@@ -233,7 +210,6 @@ const Bookings: React.FC = () => {
 			} else {
 				let startDate, endDate;
 
-				// Set date range based on calendar view
 				if (calendarView === "day") {
 					startDate = format(selectedDate, "yyyy-MM-dd");
 					endDate = format(selectedDate, "yyyy-MM-dd");
@@ -255,12 +231,9 @@ const Bookings: React.FC = () => {
 					endDate = format(lastDayOfMonth, "yyyy-MM-dd");
 				}
 
-				// Get bookings based on user role
 				switch (auth.roles?.[0]) {
 					case "client":
-						// For client case, use Promise.race to add timeout
 						try {
-							// Race between the API call and the timeout
 							bookingsData = await Promise.race([
 								bookingService.getClientBookings(
 									auth.user_id,
@@ -272,7 +245,6 @@ const Bookings: React.FC = () => {
 						} catch (clientError) {
 							console.error("Error loading bookings:", clientError);
 
-							// Bardziej informacyjny komunikat błędu dla użytkownika
 							if (clientError.message === "Request timed out") {
 								setError(
 									"Server response took too long. Please try again later."
@@ -284,7 +256,6 @@ const Bookings: React.FC = () => {
 								);
 							}
 
-							// Nie wyrzucaj błędu dalej, obsłuż go tu
 							bookingsData = [];
 						}
 						break;
@@ -296,7 +267,6 @@ const Bookings: React.FC = () => {
 						);
 						break;
 					case "owner":
-						// Użyj selectedWorkshop zamiast auth.workshop_id
 						if (selectedWorkshop) {
 							bookingsData = await bookingService.getWorkshopBookings(
 								selectedWorkshop,
@@ -310,14 +280,12 @@ const Bookings: React.FC = () => {
 					case "admin":
 						if (selectedWorkshop) {
 							if (selectedMechanic) {
-								// Admin filters by both workshop and mechanic
 								bookingsData = await bookingService.getMechanicBookings(
 									selectedMechanic,
 									startDate,
 									endDate
 								);
 							} else {
-								// Admin filters by workshop only
 								bookingsData = await bookingService.getWorkshopBookings(
 									selectedWorkshop,
 									startDate,
@@ -325,7 +293,6 @@ const Bookings: React.FC = () => {
 								);
 							}
 						} else {
-							// Admin hasn't selected a workshop yet
 							bookingsData = [];
 						}
 						break;
@@ -362,14 +329,13 @@ const Bookings: React.FC = () => {
 
 	const handleCalendarViewChange = (view: string) => {
 		setCalendarView(view);
-		// Reset booking type when changing calendar view
 		setBookingType("all");
 	};
 
 	const handleWorkshopChange = (event: any) => {
 		const workshopId = event.target.value;
 		setSelectedWorkshop(workshopId);
-		setSelectedMechanic(null); // Reset mechanic when workshop changes
+		setSelectedMechanic(null);
 	};
 
 	const handleMechanicChange = (event: any) => {
@@ -383,7 +349,6 @@ const Bookings: React.FC = () => {
 		setBookingType(newValue);
 	};
 
-	// Handle booking actions
 	const handleViewBooking = async (bookingId: number) => {
 		try {
 			const bookingData = await bookingService.getBooking(bookingId);
@@ -409,7 +374,7 @@ const Bookings: React.FC = () => {
 		try {
 			await bookingService.deleteBooking(bookingId);
 			showSnackbar("Booking cancelled successfully", "success");
-			loadBookings(); // Reload bookings after deletion
+			loadBookings();
 		} catch (error) {
 			showSnackbar("Error cancelling booking", "error");
 		}
@@ -420,7 +385,7 @@ const Bookings: React.FC = () => {
 			await bookingService.createBooking(bookingData);
 			setIsNewBookingModalOpen(false);
 			showSnackbar("Booking created successfully", "success");
-			loadBookings(); // Reload bookings after creation
+			loadBookings();
 		} catch (error) {
 			showSnackbar("Error creating booking", "error");
 		}
@@ -433,13 +398,12 @@ const Bookings: React.FC = () => {
 			await bookingService.updateBooking(selectedBookingId, bookingData);
 			setIsEditBookingModalOpen(false);
 			showSnackbar("Booking updated successfully", "success");
-			loadBookings(); // Reload bookings after update
+			loadBookings(); 
 		} catch (error) {
 			showSnackbar("Error updating booking", "error");
 		}
 	};
 
-	// Helper function to close modal based on type
 	const handleModalClose = (modalType: string) => {
 		if (modalType === "new") {
 			setIsNewBookingModalOpen(false);
@@ -450,7 +414,6 @@ const Bookings: React.FC = () => {
 		}
 	};
 
-	// Generate days of the week for calendar header
 	const getDaysForView = () => {
 		if (calendarView === "day") {
 			return [
@@ -470,7 +433,6 @@ const Bookings: React.FC = () => {
 				};
 			});
 		} else {
-			// For month view, get all days of the month
 			const firstDay = new Date(
 				selectedDate.getFullYear(),
 				selectedDate.getMonth(),
@@ -500,10 +462,8 @@ const Bookings: React.FC = () => {
 
 	const daysOfWeek = getDaysForView();
 
-	// Format today's date as "Today, May 29, 2025"
 	const formattedToday = format(new Date(), "MMMM dd, yyyy");
 
-	// Add this function to your Bookings component
 	const handleForceLoadingComplete = () => {
 		setLoading(false);
 		setError("Loading took too long. Please try refreshing the page.");
@@ -517,14 +477,12 @@ const Bookings: React.FC = () => {
 			/>
 			<Container maxWidth="xl" sx={{ py: 4 }}>
 				<Box sx={{ mb: 4, bgcolor: "#f0f3f5", borderRadius: 2, p: 4 }}>
-					{/* Header with title and actions */}
 					<BookingHeader
 						userRole={auth.roles?.[0]}
 						selectedWorkshop={selectedWorkshop}
 						onAddBooking={() => setIsNewBookingModalOpen(true)}
 					/>
 
-					{/* Admin Workshop Selector */}
 					{auth.roles?.[0] === "admin" && (
 						<WorkshopSelector
 							value={selectedWorkshop}
@@ -535,7 +493,6 @@ const Bookings: React.FC = () => {
 						/>
 					)}
 
-					{/* Mechanic Selector - only visible if a workshop is selected */}
 					{auth.roles?.[0] === "admin" && selectedWorkshop && (
 						<Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
 							<Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -566,7 +523,6 @@ const Bookings: React.FC = () => {
 						</Paper>
 					)}
 
-					{/* Main bookings UI */}
 					{showBookingsUI && (
 						<Paper
 							elevation={0}
@@ -577,7 +533,6 @@ const Bookings: React.FC = () => {
 								bgcolor: "#ffffff",
 							}}
 						>
-							{/* Calendar view controls */}
 							<BookingControls
 								formattedToday={formattedToday}
 								calendarView={calendarView}
@@ -586,7 +541,6 @@ const Bookings: React.FC = () => {
 								onDateChange={handleDateChange}
 							/>
 
-							{/* Booking type tabs */}
 							{(auth.roles?.[0] === "client" ||
 								auth.roles?.[0] === "mechanic") && (
 								<BookingTabs
@@ -595,7 +549,6 @@ const Bookings: React.FC = () => {
 								/>
 							)}
 
-							{/* Date picker and filters */}
 							<BookingFilters
 								bookingType={bookingType}
 								calendarView={calendarView}
@@ -606,7 +559,6 @@ const Bookings: React.FC = () => {
 								onRefresh={loadBookings}
 							/>
 
-							{/* Booking content - calendar or list view */}
 							<BookingContent
 								loading={loading}
 								error={error}
@@ -628,7 +580,6 @@ const Bookings: React.FC = () => {
 				</Box>
 			</Container>
 
-			{/* All modals */}
 			<BookingModals
 				modalStates={{
 					isNewBookingModalOpen,
@@ -639,7 +590,7 @@ const Bookings: React.FC = () => {
 				onClose={handleModalClose}
 				onCreateBooking={handleCreateBooking}
 				onUpdateBooking={handleUpdateBooking}
-				onEditFromView={handleEditBooking} // Dodaj tę linię
+				onEditFromView={handleEditBooking} 
 			/>
 		</Mainlayout>
 	);

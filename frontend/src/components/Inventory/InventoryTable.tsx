@@ -24,14 +24,14 @@ import { Part } from "../../models/PartModel";
 
 interface InventoryTableProps {
 	parts: Part[];
-	onDeleteParts?: (ids: number[]) => void; // Callback dla usuwania wielu części
-	onEditPart?: (part: Part) => void; // Nowa prop dla edycji
+	onDeleteParts?: (ids: number[]) => void; 
+	onEditPart?: (part: Part) => void; 
 }
 
 const InventoryTable: React.FC<InventoryTableProps> = ({
 	parts,
 	onDeleteParts,
-	onEditPart, // Dodaj nową prop
+	onEditPart, 
 }) => {
 	const [sortColumn, setSortColumn] = useState<string | null>(null);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -71,7 +71,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 
 	const isSelected = (id: number) => selectedParts.indexOf(id) !== -1;
 
-	// Obsługa menu akcji
 	const handleMenuOpen = (
 		event: React.MouseEvent<HTMLElement>,
 		partId: number
@@ -85,7 +84,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 		setMenuAnchorEl(null);
 	};
 
-	// Obsługa usuwania pojedynczej części
 	const handleDeletePart = () => {
 		if (activePartId !== null && onDeleteParts) {
 			onDeleteParts([activePartId]);
@@ -93,7 +91,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 		handleMenuClose();
 	};
 
-	// Obsługa usuwania wielu części
 	const handleDeleteSelected = () => {
 		if (selectedParts.length > 0 && onDeleteParts) {
 			onDeleteParts(selectedParts);
@@ -101,7 +98,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 		}
 	};
 
-	// Zaktualizuj kolumny, aby odpowiadały danym z backendu:
 	const columns = [
 		{ id: "id", label: "ID", sortable: true },
 		{ id: "name", label: "Product name", sortable: true },
@@ -123,7 +119,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 		);
 	};
 
-	// Apply sorting to the parts if a sort column is selected
 	const sortedParts = [...parts];
 	if (sortColumn) {
 		sortedParts.sort((a, b) => {
@@ -269,7 +264,6 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 				</Table>
 			</TableContainer>
 
-			{/* Menu kontekstowe dla akcji na pojedynczej części */}
 			<Menu
 				anchorEl={menuAnchorEl}
 				open={Boolean(menuAnchorEl)}

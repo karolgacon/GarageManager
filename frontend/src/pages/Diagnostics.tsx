@@ -71,7 +71,6 @@ const Diagnostics: React.FC = () => {
 	const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 	const [debugInfo, setDebugInfo] = useState<string>("");
 
-	// Use custom hook for customer data
 	const {
 		customers,
 		filteredCustomers,
@@ -79,7 +78,6 @@ const Diagnostics: React.FC = () => {
 		error: customersError,
 	} = useCustomerData(auth, selectedWorkshopId);
 
-	// Fetch workshops for admin users
 	useEffect(() => {
 		const fetchWorkshops = async () => {
 			if (isAdmin()) {
@@ -99,21 +97,17 @@ const Diagnostics: React.FC = () => {
 		fetchWorkshops();
 	}, [isAdmin]);
 
-	// Fetch vehicles based on selected customer or current user (if client)
 	useEffect(() => {
 		const fetchVehicles = async () => {
 			try {
 				setLoading(true);
-				setVehicles([]); // Wyczyść poprzednie pojazdy
+				setVehicles([]); 
 				let vehiclesData: Vehicle[] = [];
 
 				if (isClient()) {
-					// Klient widzi tylko swoje pojazdy
 					vehiclesData = await vehicleService.getClientVehicles(auth.user_id);
-					// Set client's own ID as selected customer ID for consistency
 					setSelectedCustomerId(auth.user_id);
 				} else if (selectedCustomerId) {
-					// Admin/Właściciel/Mechanik z wybranym klientem
 					vehiclesData = await vehicleService.getClientVehicles(
 						selectedCustomerId
 					);
@@ -122,7 +116,6 @@ const Diagnostics: React.FC = () => {
 					);
 					setSelectedClient(client);
 				} else if (isOwner() || isMechanic()) {
-					// Pokaż wszystkie pojazdy w warsztacie dla właściciela/mechanika
 					if (auth.workshop_id) {
 						vehiclesData = await vehicleService.getWorkshopVehicles(
 							auth.workshop_id
@@ -130,7 +123,6 @@ const Diagnostics: React.FC = () => {
 					}
 				}
 
-				// Filtruj pojazdy, aby upewnić się, że są przypisane do wybranego warsztatu
 				if (selectedWorkshopId) {
 					vehiclesData = vehiclesData.filter(
 						(vehicle) => vehicle.workshop_id === selectedWorkshopId
@@ -140,12 +132,10 @@ const Diagnostics: React.FC = () => {
 				console.log("Filtered vehicles:", vehiclesData);
 				setVehicles(vehiclesData);
 
-				// Automatycznie wybierz pierwszy pojazd, jeśli istnieje tylko jeden
 				if (vehiclesData.length === 1) {
 					setSelectedVehicleId(vehiclesData[0].id);
 					setSelectedVehicle(vehiclesData[0]);
 				} else {
-					// Zresetuj wybrany pojazd, jeśli brak pojazdów lub jest ich wiele
 					setSelectedVehicleId(null);
 					setSelectedVehicle(null);
 				}
@@ -165,17 +155,16 @@ const Diagnostics: React.FC = () => {
 		selectedCustomerId,
 		auth.user_id,
 		auth.workshop_id,
-		selectedWorkshopId, // Dodano zależność od wybranego warsztatu
+		selectedWorkshopId, 
 		filteredCustomers,
 	]);
 
-	// Fetch diagnostic issues when a vehicle is selected
 	useEffect(() => {
 		const fetchDiagnosticIssues = async () => {
 			if (selectedVehicleId) {
 				try {
 					setLoading(true);
-					setDiagnosticIssues([]); // Clear previous diagnostics
+					setDiagnosticIssues([]); 
 					const data = await diagnosticsService.getVehicleDiagnostics(
 						selectedVehicleId
 					);
@@ -183,7 +172,6 @@ const Diagnostics: React.FC = () => {
 					setDiagnosticIssues(data);
 					setDebugInfo(JSON.stringify(data, null, 2));
 
-					// Find the selected vehicle details
 					const vehicle =
 						vehicles.find((v) => v.id === selectedVehicleId) || null;
 					setSelectedVehicle(vehicle);
@@ -252,7 +240,6 @@ const Diagnostics: React.FC = () => {
 		}
 	};
 
-	// Group diagnostic issues by category
 	const criticalIssues = diagnosticIssues.filter(
 		(issue) => issue.severity?.toLowerCase() === "critical"
 	);
@@ -539,7 +526,6 @@ const Diagnostics: React.FC = () => {
 							</Alert>
 						) : (
 							<>
-								{/* Tabela ze wszystkimi problemami */}
 								<TableContainer>
 									<Table size="small">
 										<TableHead>
@@ -587,7 +573,6 @@ const Diagnostics: React.FC = () => {
 									</Table>
 								</TableContainer>
 
-								{/* Sekcja krytycznych problemów - tylko jeśli istnieją */}
 								{criticalIssues.length > 0 && (
 									<Box sx={{ mt: 4 }}>
 										<Box
@@ -652,7 +637,6 @@ const Diagnostics: React.FC = () => {
 				value={selectedWorkshopId}
 				onChange={(workshopId) => {
 					setSelectedWorkshopId(workshopId);
-					// Reset dependent selections
 					setSelectedCustomerId(null);
 					setSelectedVehicleId(null);
 				}}
@@ -680,7 +664,6 @@ const Diagnostics: React.FC = () => {
 
 		return (
 			<>
-				{/* Show customer details for non-clients OR vehicle selection for clients */}
 				{!isClient() ? renderCustomerDetails() : renderClientVehicleSelection()}
 				{selectedVehicleId && renderDiagnosticReport()}
 			</>

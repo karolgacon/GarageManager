@@ -47,14 +47,13 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 		duration: 60,
 		category: "general",
 		is_active: true,
-		workshop_id: "", // <-- dodaj to pole
+		workshop_id: "", 
 	});
 
 	const [validationErrors, setValidationErrors] = useState<
 		Record<string, string>
 	>({});
 
-	// Pobierz warsztaty przy otwarciu modala
 	useEffect(() => {
 		if (open) {
 			workshopService.getAllWorkshops().then(setWorkshops);
@@ -72,7 +71,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 				: value,
 		}));
 
-		// Clear validation error when field is edited
 		if (validationErrors[name]) {
 			setValidationErrors((prev) => {
 				const newErrors = { ...prev };
@@ -135,7 +133,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 			onServiceAdded(newService);
 			onClose();
 
-			// Reset form
 			setFormData({
 				name: "",
 				description: "",
@@ -154,7 +151,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 	};
 
 	const handleClose = () => {
-		// Reset form and errors on close
 		setValidationErrors({});
 		setError(null);
 		onClose();

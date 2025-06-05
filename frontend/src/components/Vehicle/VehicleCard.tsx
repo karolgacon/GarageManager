@@ -33,13 +33,11 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 	showWorkshopInfo = false,
 	userRole = "",
 }) => {
-	// Helper function to capitalize text
 	const capitalizeFirstLetter = (text: string | undefined): string => {
 		if (!text) return "Unknown";
 		return text.charAt(0).toUpperCase() + text.slice(1);
 	};
 
-	// Funkcja do określania koloru statusu
 	const getStatusColor = (status: string | undefined) => {
 		if (!status) return "default";
 
@@ -55,25 +53,21 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 		}
 	};
 
-	// Format status text safely
 	const formatStatus = (status: string | undefined) => {
 		if (!status) return "Unknown";
 		return status.charAt(0).toUpperCase() + status.slice(1);
 	};
 
-	// Sprawdzanie czy pojazd wymaga przeglądu
 	const isMaintenanceDue =
 		vehicle.next_service_due != null
 			? new Date(vehicle.next_service_due) <= new Date()
 			: false;
 
-	// Check if user has permission to edit/delete
 	const canEditDelete =
 		["admin", "owner"].includes(userRole) ||
 		(userRole === "client" &&
 			vehicle.owner_id === parseInt(localStorage.getItem("userId") || "0"));
 
-	// Dodaj sprawdzenie czy użytkownik jest właścicielem pojazdu
 	const canEdit =
 		userRole === "admin" ||
 		userRole === "owner" ||
@@ -174,7 +168,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						</Typography>
 					)}
 
-					{vehicle.mileage != null && ( // This checks for both null and undefined
+					{vehicle.mileage != null && ( 
 						<Typography
 							variant="body2"
 							color="text.secondary"

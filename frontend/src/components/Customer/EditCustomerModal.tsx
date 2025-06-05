@@ -50,7 +50,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Update form data when customer changes
     useEffect(() => {
         if (customer) {
             setFormData({
@@ -79,13 +78,11 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             setLoading(true);
             setError(null);
 
-            // Validate required fields
             if (!formData.username || !formData.email || !formData.first_name || !formData.last_name) {
                 setError("Please fill in all required fields");
                 return;
             }
 
-            // Prepare update data
             const updateData = {
                 username: formData.username,
                 email: formData.email,
@@ -135,7 +132,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 )}
 
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    {/* Basic Information */}
                     <Grid item xs={12}>
                         <Typography variant="h6" gutterBottom>
                             Basic Information
@@ -215,7 +211,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                         </FormControl>
                     </Grid>
 
-                    {/* Contact Information */}
                     <Grid item xs={12}>
                         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
                             Contact Information

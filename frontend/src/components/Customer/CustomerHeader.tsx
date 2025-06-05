@@ -41,7 +41,6 @@ const CustomerHeader: React.FC<CustomerHeaderProps> = ({
 				{getSectionTitle()}
 			</Typography>
 
-			{/* Add customer button */}
 			{(selectedWorkshopId || userRole !== "admin") && (
 				<Button
 					variant="contained"

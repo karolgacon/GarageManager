@@ -86,7 +86,6 @@ const StaffManagement: React.FC = () => {
 		password: "",
 	});
 
-	// Fetch workshops for admin users
 	useEffect(() => {
 		const fetchWorkshops = async () => {
 			if (isAdmin()) {
@@ -108,7 +107,6 @@ const StaffManagement: React.FC = () => {
 		fetchWorkshops();
 	}, [isAdmin, isOwner, auth.workshop_id]);
 
-	// Fetch staff members when workshop is selected
 	useEffect(() => {
 		const fetchStaffMembers = async () => {
 			if (selectedWorkshopId) {
@@ -128,12 +126,10 @@ const StaffManagement: React.FC = () => {
 		fetchStaffMembers();
 	}, [selectedWorkshopId]);
 
-	// Usuń mockową funkcję fetchWorkshopStaff i zastąp handleSubmit prawdziwym API
 	const handleSubmit = async () => {
 		try {
 			setLoading(true);
 			if (editingStaff) {
-				// Update existing staff member
 				await staffService.updateStaff(editingStaff.id, formData);
 				setSnackbar({
 					open: true,
@@ -141,7 +137,6 @@ const StaffManagement: React.FC = () => {
 					severity: "success",
 				});
 			} else {
-				// Create new staff member
 				const newStaffData = {
 					...formData,
 					workshop_id: selectedWorkshopId!,
@@ -154,7 +149,6 @@ const StaffManagement: React.FC = () => {
 				});
 			}
 			handleCloseDialog();
-			// Refresh staff list
 			if (selectedWorkshopId) {
 				const data = await staffService.getWorkshopStaff(selectedWorkshopId);
 				setStaffMembers(data);
@@ -182,7 +176,6 @@ const StaffManagement: React.FC = () => {
 					severity: "success",
 				});
 				handleMenuClose();
-				// Refresh staff list
 				if (selectedWorkshopId) {
 					const data = await staffService.getWorkshopStaff(selectedWorkshopId);
 					setStaffMembers(data);
@@ -409,12 +402,10 @@ const StaffManagement: React.FC = () => {
 			);
 		}
 
-		// Add debugging to see the actual values
 		console.log("Staff data:", selectedStaff);
 		console.log("Hired date:", selectedStaff.hired_date);
 		console.log("Created at:", selectedStaff.created_at);
 
-		// Calculate employment duration
 		const employmentStartDate = new Date(
 			selectedStaff.hired_date || selectedStaff.created_at
 		);
@@ -428,13 +419,11 @@ const StaffManagement: React.FC = () => {
 
 		console.log("Calculated days:", employmentDays);
 
-		// Check for invalid dates
 		const isValidEmploymentDays = !isNaN(employmentDays) && employmentDays >= 0;
 		const displayEmploymentDays = isValidEmploymentDays ? employmentDays : 0;
 
 		return (
 			<Paper sx={{ p: 3, height: "600px", overflow: "auto" }}>
-				{/* Header */}
 				<Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
 					<Avatar
 						sx={{
@@ -473,7 +462,6 @@ const StaffManagement: React.FC = () => {
 
 				<Divider sx={{ mb: 3 }} />
 
-				{/* Contact Information */}
 				<Box sx={{ mb: 3 }}>
 					<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
 						Contact Information
@@ -502,7 +490,6 @@ const StaffManagement: React.FC = () => {
 
 				<Divider sx={{ mb: 3 }} />
 
-				{/* Performance */}
 				<Box>
 					<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
 						Performance
@@ -602,7 +589,7 @@ const StaffManagement: React.FC = () => {
 				value={selectedWorkshopId}
 				onChange={(workshopId) => {
 					setSelectedWorkshopId(workshopId);
-					setSelectedStaff(null); // Reset selected staff instead
+					setSelectedStaff(null); 
 				}}
 				disabled={loading}
 			/>
@@ -644,7 +631,6 @@ const StaffManagement: React.FC = () => {
 		);
 	};
 
-	// Add these missing handler functions:
 	const handleWorkshopChange = (event: any) => {
 		setSelectedWorkshopId(event.target.value as number);
 	};
@@ -708,7 +694,6 @@ const StaffManagement: React.FC = () => {
 		setSelectedStaff(null);
 	};
 
-	// Add this helper function before the return statement
 	const formatDate = (dateString) => {
 		if (!dateString) return "Not Available";
 		const date = new Date(dateString);
@@ -744,7 +729,6 @@ const StaffManagement: React.FC = () => {
 					{renderMainContent()}
 				</Box>
 
-				{/* Add/Edit Staff Dialog */}
 				<Dialog
 					open={openDialog}
 					onClose={handleCloseDialog}
@@ -836,7 +820,6 @@ const StaffManagement: React.FC = () => {
 					</DialogActions>
 				</Dialog>
 
-				{/* Action Menu */}
 				<Menu
 					anchorEl={anchorEl}
 					open={Boolean(anchorEl)}

@@ -39,32 +39,28 @@ import CustomSnackbar, {
 	SnackbarState,
 } from "../components/Mainlayout/Snackbar";
 
-// Interfejsy dla danych
-// Interfejs Invoice
 interface Invoice {
 	id: number;
 	client: number;
-	amount: number; // zamiast total_amount
-	discount: number; // brakujące pole
-	issue_date: string; // zamiast date
+	amount: number; 
+	discount: number; 
+	issue_date: string; 
 	due_date: string;
 	status: string;
-	tax_rate: number; // brakujące pole
-	description?: string; // brakujące pole
-	client_name?: string; // pole dodatkowe dla UI
+	tax_rate: number; 
+	description?: string; 
+	client_name?: string; 
 }
 
-// Interfejs Payment
 interface Payment {
 	id: number;
 	invoice: number;
-	amount_paid: number; // zamiast amount
+	amount_paid: number; 
 	payment_method: string;
 	payment_date: string;
-	transaction_id: string; // brakujące pole
-	notes?: string; // brakujące pole
-	invoice_number?: string; // pole dodatkowe dla UI
-}
+	transaction_id: string; 
+	notes?: string; 
+	invoice_number?: string; 
 
 const Invoices = () => {
 	const { auth, isAdmin, isOwner, isClient } = useContext(AuthContext);
@@ -74,7 +70,6 @@ const Invoices = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	// Stan dla dialogu tworzenia faktury
 	const [openCreateDialog, setOpenCreateDialog] = useState(false);
 	const [newInvoice, setNewInvoice] = useState({
 		client: "",
@@ -83,7 +78,6 @@ const Invoices = () => {
 		items: [{ description: "", quantity: 1, price: 0 }],
 	});
 
-	// Stan dla dialogu płatności
 	const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 	const [paymentDetails, setPaymentDetails] = useState({
@@ -91,54 +85,42 @@ const Invoices = () => {
 		payment_method: "card",
 	});
 
-	// Stan dla powiadomień
 	const [snackbar, setSnackbar] = useState<SnackbarState>({
 		open: false,
 		message: "",
 		severity: "success",
 	});
 
-	// Pobieranie danych
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setLoading(true);
 				setError(null);
 
-				// Pobierz faktury
 				try {
 					const invoicesResponse = await api.get("/invoices/");
 
-					// Dodaj sprawdzenie, czy dane są poprawne
 					const validInvoices = Array.isArray(invoicesResponse.data)
 						? invoicesResponse.data.map((invoice) => ({
 								...invoice,
-								// Generuj numer faktury jeśli brak
 								number: invoice.id
 									? `INV-${invoice.id.toString().padStart(3, "0")}`
 									: "N/A",
-								// Użyj issue_date jako date dla spójności z UI
 								date: invoice.issue_date,
-								// Użyj amount zamiast total_amount dla spójności z UI
 								total_amount: Number(invoice.amount || 0),
 						  }))
 						: [];
 
-					// Pobierz płatności
 					const paymentsResponse = await api.get("/payments/");
 
-					// Dodaj sprawdzenie, czy dane są poprawne
 					const validPayments = Array.isArray(paymentsResponse.data)
 						? paymentsResponse.data.map((payment) => ({
 								...payment,
-								// Użyj amount_paid jako amount dla UI
 								amount: Number(payment.amount_paid || 0),
-								// Dodaj status dla płatności (model backendu nie ma tego pola)
 								status: "completed",
 						  }))
 						: [];
 
-					// Teraz użyj tych zwalidowanych danych
 					if (isClient()) {
 						setInvoices(
 							validInvoices.filter(
@@ -155,7 +137,6 @@ const Invoices = () => {
 							)
 						);
 					} else {
-						// Admin i właściciel widzą wszystkie faktury
 						setInvoices(validInvoices);
 						setPayments(validPayments);
 					}
@@ -168,7 +149,6 @@ const Invoices = () => {
 			} catch (err) {
 				console.error("Błąd pobierania z API, używam danych testowych", err);
 
-				// Dane testowe do użycia podczas rozwoju
 				const mockInvoices = [
 					{
 						id: 1,
@@ -227,7 +207,7 @@ const Invoices = () => {
 					setPayments(mockPayments);
 				}
 
-				setError(null); // Czyścimy błąd, bo mamy dane testowe
+				setError(null); 
 				setLoading(false);
 			}
 		};
@@ -235,22 +215,18 @@ const Invoices = () => {
 		fetchData();
 	}, [auth.user_id, isClient]);
 
-	// Obsługa zmiany zakładek
 	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
 		setTabValue(newValue);
 	};
 
-	// Otwórz dialog tworzenia faktury
 	const handleOpenCreateDialog = () => {
 		setOpenCreateDialog(true);
 	};
 
-	// Zamknij dialog tworzenia faktury
 	const handleCloseCreateDialog = () => {
 		setOpenCreateDialog(false);
 	};
 
-	// Dodaj element faktury
 	const handleAddInvoiceItem = () => {
 		setNewInvoice({
 			...newInvoice,
@@ -258,7 +234,6 @@ const Invoices = () => {
 		});
 	};
 
-	// Usuń element faktury
 	const handleRemoveInvoiceItem = (index: number) => {
 		const updatedItems = [...newInvoice.items];
 		updatedItems.splice(index, 1);
@@ -268,23 +243,20 @@ const Invoices = () => {
 		});
 	};
 
-	// Zapisz nową fakturę
 	const handleSaveInvoice = async () => {
 		try {
-			// Oblicz całkowitą kwotę z pozycji faktury
 			const totalAmount = newInvoice.items.reduce(
 				(sum, item) => sum + item.quantity * item.price,
 				0
 			);
 
-			// Przygotuj dane zgodnie z modelem backendu
 			const invoiceData = {
 				client: parseInt(newInvoice.client),
 				amount: totalAmount,
-				discount: 0, // Domyślnie bez rabatu
+				discount: 0, 
 				due_date: newInvoice.due_date,
 				status: "pending",
-				tax_rate: 0.23, // Domyślna stawka VAT (23%)
+				tax_rate: 0.23, 
 				description: newInvoice.items
 					.map(
 						(item) => `${item.description} (${item.quantity} x ${item.price})`
@@ -292,7 +264,6 @@ const Invoices = () => {
 					.join("; "),
 			};
 
-			// Wywołanie API
 			await api.post("/api/v1/invoices/", invoiceData);
 
 			handleCloseCreateDialog();
@@ -311,7 +282,6 @@ const Invoices = () => {
 		}
 	};
 
-	// Otwórz dialog płatności
 	const handleOpenPaymentDialog = (invoice: Invoice) => {
 		setSelectedInvoice(invoice);
 		setPaymentDetails({
@@ -321,23 +291,14 @@ const Invoices = () => {
 		setOpenPaymentDialog(true);
 	};
 
-	// Zamknij dialog płatności
 	const handleClosePaymentDialog = () => {
 		setOpenPaymentDialog(false);
 		setSelectedInvoice(null);
 	};
 
-	// Zapisz płatność
 	const handleSavePayment = async () => {
 		try {
 			if (!selectedInvoice) return;
-
-			// Wysyłanie danych do API...
-			// await api.post("/api/v1/payments/", {
-			//   invoice: selectedInvoice.id,
-			//   amount: paymentDetails.amount,
-			//   payment_method: paymentDetails.payment_method,
-			// });
 
 			handleClosePaymentDialog();
 			setSnackbar({
@@ -355,15 +316,11 @@ const Invoices = () => {
 		}
 	};
 
-	// Pobierz fakturę (PDF)
 	const handleDownloadInvoice = (invoiceId: number) => {
-		// Tutaj kod do pobrania PDF faktury
 		console.log("Pobieranie faktury o ID:", invoiceId);
 	};
 
-	// Funkcja wyświetlająca status faktury z odpowiednim kolorem
 	const renderInvoiceStatus = (status: string) => {
-		// Dodaj sprawdzenie czy status w ogóle istnieje
 		if (!status) {
 			return <Chip label="Unknown" color="default" size="small" />;
 		}
@@ -385,11 +342,9 @@ const Invoices = () => {
 		return <Chip label={status} color={color as any} size="small" />;
 	};
 
-	// Funkcja tworząca akcje dostępne dla faktury w zależności od roli
 	const renderInvoiceActions = (invoice: Invoice) => {
 		return (
 			<Box sx={{ display: "flex", gap: 1 }}>
-				{/* Wszyscy mogą wyświetlić fakturę */}
 				<IconButton
 					size="small"
 					onClick={() => console.log("Podgląd faktury", invoice.id)}
@@ -397,7 +352,6 @@ const Invoices = () => {
 					<VisibilityIcon fontSize="small" />
 				</IconButton>
 
-				{/* Wszyscy mogą pobrać fakturę */}
 				<IconButton
 					size="small"
 					onClick={() => handleDownloadInvoice(invoice.id)}
@@ -405,7 +359,6 @@ const Invoices = () => {
 					<GetAppIcon fontSize="small" />
 				</IconButton>
 
-				{/* Tylko klient może dokonać płatności za fakturę oczekującą */}
 				{isClient() && invoice.status.toLowerCase() === "pending" && (
 					<IconButton
 						size="small"
@@ -419,21 +372,17 @@ const Invoices = () => {
 		);
 	};
 
-	// Handle closing the snackbar
 	const handleSnackbarClose = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-	// Popraw formatowanie dat w tabelach
 
-	// Bezpieczniejsza funkcja formatowania dat
 	const formatDate = (dateString) => {
 		if (!dateString) return "N/A";
 		const date = new Date(dateString);
 		return !isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date";
 	};
 
-	// Dodaj pomocniczą funkcję formatowania kwot
 
 	const formatAmount = (amount) => {
 		const numAmount = Number(amount || 0);
@@ -444,7 +393,6 @@ const Invoices = () => {
 		<Mainlayout>
 			<Container maxWidth="xl">
 				<Box sx={{ py: 3 }}>
-					{/* Header with add button */}
 					<Box
 						sx={{
 							display: "flex",
@@ -457,7 +405,6 @@ const Invoices = () => {
 							Invoices & Payments
 						</Typography>
 
-						{/* Tylko admin i właściciel mogą tworzyć faktury */}
 						{(isAdmin() || isOwner()) && (
 							<Button
 								variant="contained"
@@ -485,7 +432,6 @@ const Invoices = () => {
 							<Tab label="Payments" />
 						</Tabs>
 
-						{/* Zawartość zakładki Invoices */}
 						{tabValue === 0 && (
 							<Box sx={{ p: 3 }}>
 								{loading ? (
@@ -543,7 +489,6 @@ const Invoices = () => {
 							</Box>
 						)}
 
-						{/* Zawartość zakładki Payments */}
 						{tabValue === 1 && (
 							<Box sx={{ p: 3 }}>
 								{loading ? (
@@ -616,7 +561,6 @@ const Invoices = () => {
 				</Box>
 			</Container>
 
-			{/* Dialog tworzenia faktury - tylko dla admin i owner */}
 			{(isAdmin() || isOwner()) && (
 				<Dialog
 					open={openCreateDialog}
@@ -637,7 +581,6 @@ const Invoices = () => {
 										}
 										label="Client"
 									>
-										{/* Tutaj opcje klientów - w praktyce pobierane z API */}
 										<MenuItem value="1">Client 1</MenuItem>
 										<MenuItem value="2">Client 2</MenuItem>
 									</Select>
@@ -653,7 +596,6 @@ const Invoices = () => {
 										}
 										label="Booking"
 									>
-										{/* Tutaj opcje rezerwacji - w praktyce pobierane z API */}
 										<MenuItem value="1">Booking #1</MenuItem>
 										<MenuItem value="2">Booking #2</MenuItem>
 									</Select>
@@ -755,7 +697,6 @@ const Invoices = () => {
 				</Dialog>
 			)}
 
-			{/* Dialog dokonywania płatności - tylko dla klienta */}
 			<Dialog
 				open={openPaymentDialog}
 				onClose={handleClosePaymentDialog}
@@ -817,7 +758,6 @@ const Invoices = () => {
 				</DialogActions>
 			</Dialog>
 
-			{/* Snackbar dla powiadomień */}
 			<CustomSnackbar snackbarState={snackbar} onClose={handleSnackbarClose} />
 		</Mainlayout>
 	);

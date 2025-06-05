@@ -32,7 +32,7 @@ interface Workshop {
 
 interface WorkshopSelectorProps {
 	value: number | null;
-	onChange?: (workshopId: number | null) => void; // Make onChange optional
+	onChange?: (workshopId: number | null) => void; 
 	disabled?: boolean;
 	error?: string;
 }
@@ -49,7 +49,6 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [filteredWorkshops, setFilteredWorkshops] = useState<Workshop[]>([]);
 
-	// Pobierz listę warsztatów
 	useEffect(() => {
 		const fetchWorkshops = async () => {
 			try {
@@ -69,7 +68,6 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 		fetchWorkshops();
 	}, []);
 
-	// Filtrowanie warsztatów po wprowadzeniu zapytania
 	useEffect(() => {
 		if (searchQuery.trim() === "") {
 			setFilteredWorkshops(workshops);
@@ -86,10 +84,8 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 		setFilteredWorkshops(filtered);
 	}, [searchQuery, workshops]);
 
-	// Znajdź wybrany warsztat
 	const selectedWorkshop = workshops.find((w) => w.id === value);
 
-	// Add handler function to safely call onChange
 	const handleWorkshopChange = (newValue: Workshop | null) => {
 		if (typeof onChange === "function") {
 			onChange(newValue ? newValue.id : null);
@@ -137,7 +133,6 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 					/>
 				)}
 				renderOption={(props, option) => {
-					// Fix the key warning by extracting the key and passing it directly
 					const { key, ...otherProps } = props;
 					return (
 						<MenuItem key={key} {...otherProps} component="li" sx={{ py: 1.5 }}>

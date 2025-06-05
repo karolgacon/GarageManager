@@ -7,7 +7,7 @@ export interface User {
 	first_name?: string;
 	last_name?: string;
 	full_name?: string;
-	roles: string[]; // Zmienione z role na roles jako tablica
+	roles: string[]; 
 	is_active?: boolean;
 	date_joined?: string;
 	last_login?: string;
@@ -15,8 +15,7 @@ export interface User {
 	phone_number?: string;
 	avatar?: string;
 	address?: string;
-	profile?: Profile; // Dodajemy zagnieżdżony profil
-}
+	profile?: Profile; 
 
 export const USER_ROLES = [
 	{ value: "admin", label: "Administrator" },
@@ -31,6 +30,6 @@ export const defaultUser: User = {
 	username: "",
 	first_name: "",
 	last_name: "",
-	roles: ["client"], // Zmiana z role na roles
+	roles: ["client"], 
 	is_active: true,
 };

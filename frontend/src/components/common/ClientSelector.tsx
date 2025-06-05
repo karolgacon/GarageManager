@@ -47,7 +47,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [filteredClients, setFilteredClients] = useState<Client[]>([]);
 
-	// Pobierz listę klientów
 	useEffect(() => {
 		const fetchClients = async () => {
 			try {
@@ -67,7 +66,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 		fetchClients();
 	}, []);
 
-	// Filtrowanie klientów po wprowadzeniu zapytania
 	useEffect(() => {
 		if (searchQuery.trim() === "") {
 			setFilteredClients(clients);
@@ -87,7 +85,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 		setFilteredClients(filtered);
 	}, [searchQuery, clients]);
 
-	// Funkcja pomocnicza do wyświetlania nazwy klienta
 	const getClientDisplayName = (client: Client) => {
 		if (client.full_name) return client.full_name;
 		if (client.first_name && client.last_name)
@@ -96,7 +93,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 		return client.email;
 	};
 
-	// Znajdź wybranego klienta
 	const selectedClient = clients.find((c) => c.id === value);
 
 	return (

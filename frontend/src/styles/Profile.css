@@ -29,7 +29,7 @@
     color: #666;
 }
 
-/* Profile Details Display */
+
 .profile-details {
     padding: 15px;
     background-color: #f9f9f9;
@@ -62,7 +62,7 @@
     justify-content: center;
 }
 
-/* Form Styling */
+
 .profile-form {
     padding: 15px;
     background-color: #f9f9f9;
@@ -96,7 +96,7 @@
     justify-content: center;
 }
 
-/* Buttons */
+
 .edit-button,
 .delete-button,
 .submit-button,

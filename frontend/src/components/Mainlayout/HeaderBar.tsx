@@ -31,7 +31,6 @@ import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Notification type definition
 interface Notification {
 	id: number;
 	message: string;
@@ -47,30 +46,25 @@ const HeaderBar = () => {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-	// State for profile menu
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
 
-	// State for notifications dropdown
 	const [notificationAnchorEl, setNotificationAnchorEl] =
 		useState<null | HTMLElement>(null);
 	const notificationOpen = Boolean(notificationAnchorEl);
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [notificationsLoading, setNotificationsLoading] = useState(false);
 
-	// State for emails dropdown
 	const [emailAnchorEl, setEmailAnchorEl] = useState<null | HTMLElement>(null);
 	const emailOpen = Boolean(emailAnchorEl);
 	const [emails, setEmails] = useState<Notification[]>([]);
 	const [emailsLoading, setEmailsLoading] = useState(false);
 
-	// Fetch notifications and emails on component mount
 	useEffect(() => {
 		fetchNotifications();
 		fetchEmails();
 	}, []);
 
-	// Function to fetch notifications from backend
 	const fetchNotifications = async () => {
 		if (!auth?.accessToken) return;
 
@@ -93,7 +87,6 @@ const HeaderBar = () => {
 		}
 	};
 
-	// Function to fetch emails from backend
 	const fetchEmails = async () => {
 		if (!auth?.accessToken) return;
 
@@ -116,7 +109,6 @@ const HeaderBar = () => {
 		}
 	};
 
-	// Function to mark notification as read
 	const markAsRead = async (
 		notificationId: number,
 		isEmail: boolean = false
@@ -136,7 +128,6 @@ const HeaderBar = () => {
 				}
 			);
 
-			// Update local state
 			if (isEmail) {
 				setEmails((prevEmails) =>
 					prevEmails.map((email) =>
@@ -159,7 +150,6 @@ const HeaderBar = () => {
 		}
 	};
 
-	// Function to mark all as read
 	const markAllAsRead = async (isEmail: boolean = false) => {
 		if (!auth?.accessToken) return;
 
@@ -185,7 +175,6 @@ const HeaderBar = () => {
 				)
 			);
 
-			// Update local state
 			if (isEmail) {
 				setEmails((prevEmails) =>
 					prevEmails.map((email) => ({ ...email, read_status: true }))
@@ -203,27 +192,22 @@ const HeaderBar = () => {
 		}
 	};
 
-	// Handle notification click
 	const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
 		setNotificationAnchorEl(event.currentTarget);
 	};
 
-	// Handle email click
 	const handleEmailClick = (event: React.MouseEvent<HTMLElement>) => {
 		setEmailAnchorEl(event.currentTarget);
 	};
 
-	// Handle notification close
 	const handleNotificationClose = () => {
 		setNotificationAnchorEl(null);
 	};
 
-	// Handle email close
 	const handleEmailClose = () => {
 		setEmailAnchorEl(null);
 	};
 
-	// Profile menu handlers
 	const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
 	};
@@ -242,16 +226,13 @@ const HeaderBar = () => {
 		handleClose();
 	};
 
-	// Get unread counts
 	const unreadNotificationsCount = notifications.filter(
 		(n) => !n.read_status
 	).length;
 	const unreadEmailsCount = emails.filter((e) => !e.read_status).length;
 
-	// Determine if user can access invoices
 	const canAccessInvoices = isAdmin() || isOwner() || isClient();
 
-	// Function to format notification date
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
 		return date.toLocaleString();
@@ -339,7 +320,6 @@ const HeaderBar = () => {
 				</Box>
 			</Box>
 
-			{/* Email Dropdown */}
 			{emailOpen && (
 				<Popper
 					open={true}
@@ -461,7 +441,6 @@ const HeaderBar = () => {
 				</Popper>
 			)}
 
-			{/* Notifications Dropdown */}
 			{notificationOpen && (
 				<Popper
 					open={true}
@@ -585,7 +564,6 @@ const HeaderBar = () => {
 				</Popper>
 			)}
 
-			{/* Profile Menu (keeping the existing menu) */}
 			{open && (
 				<Popper
 					open={true}

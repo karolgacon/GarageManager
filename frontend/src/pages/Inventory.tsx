@@ -29,7 +29,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import InventoryTable from "../components/Inventory/InventoryTable";
 import InventoryFilter from "../components/Inventory/InventoryFilter";
-import AddItemModal from "../components/Inventory/AddItemModal"; // Import the new component
+import AddItemModal from "../components/Inventory/AddItemModal"; 
 import { inventoryService } from "../api/PartAPIEndpoint";
 import { Part } from "../models/PartModel";
 import CustomSnackbar, {
@@ -50,7 +50,7 @@ const Inventory = () => {
 	const [rowsPerPage, setRowsPerPage] = useState(4);
 	const [showFilters, setShowFilters] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [isAddModalOpen, setIsAddModalOpen] = useState(false); // New state for modal
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [partsToDelete, setPartsToDelete] = useState<number[]>([]);
 	const [snackbar, setSnackbar] = useState<SnackbarState>({
@@ -71,7 +71,6 @@ const Inventory = () => {
 			setError(null);
 
 			if (isAdmin()) {
-				// Admins see all parts
 				try {
 					const data = await inventoryService.getAllParts();
 					setParts(data);
@@ -88,17 +87,15 @@ const Inventory = () => {
 				}
 			} else if (isOwner() || isMechanic()) {
 				try {
-					// Try to get user's workshop
 					const userWorkshop = await workshopService
 						.getCurrentUserWorkshop()
 						.catch((error) => {
 							if (error?.response?.status === 404) {
-								// User has no workshop assigned
 								throw new Error(
 									"You are not assigned to any workshop. Please contact an administrator."
 								);
 							}
-							throw error; // Re-throw other errors
+							throw error; 
 						});
 
 					if (userWorkshop && userWorkshop.id) {
@@ -125,11 +122,9 @@ const Inventory = () => {
 						);
 					}
 
-					// Empty parts list when there's an error
 					setParts([]);
 				}
 			} else {
-				// Other users see nothing
 				setParts([]);
 			}
 		} catch (error) {
@@ -169,7 +164,6 @@ const Inventory = () => {
 		setShowFilters(!showFilters);
 	};
 
-	// Handle adding new item
 	const handleAddItem = () => {
 		setIsAddModalOpen(true);
 	};
@@ -187,13 +181,11 @@ const Inventory = () => {
 		});
 	};
 
-	// Handle part deletion
 	const handleDeleteParts = (ids: number[]) => {
 		setPartsToDelete(ids);
 		setDeleteDialogOpen(true);
 	};
 
-	// Confirm and execute deletion
 	const confirmDelete = async () => {
 		try {
 			setLoading(true);
@@ -201,7 +193,6 @@ const Inventory = () => {
 				await inventoryService.deletePart(id);
 			}
 
-			// Remove deleted parts from state
 			setParts(parts.filter((part) => !partsToDelete.includes(part.id)));
 
 			setSnackbar({
@@ -223,7 +214,6 @@ const Inventory = () => {
 		}
 	};
 
-	// Handle part edit
 	const handleEditPart = (part: Part) => {
 		setPartToEdit(part);
 		setIsEditModalOpen(true);
@@ -240,24 +230,20 @@ const Inventory = () => {
 		});
 	};
 
-	// Handle snackbar close
 	const handleSnackbarClose = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-	// Filter parts based on search term and selected filter
 	const filteredParts = parts.filter((part) => {
-		// First apply text search
 		const matchesSearch =
 			part.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			part.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			part.supplier?.toLowerCase().includes(searchTerm.toLowerCase());
 
-		// Then apply dropdown filter
 		if (filter === "All Orders") return matchesSearch;
 		if (filter === "In Stock") return matchesSearch && part.stock_quantity > 0;
 		if (filter === "Low Stock") {
-			const minStock = part.minimum_stock_level || 5; // Default minimum stock level if not specified
+			const minStock = part.minimum_stock_level || 5; 
 			return (
 				matchesSearch &&
 				part.stock_quantity > 0 &&
@@ -270,7 +256,6 @@ const Inventory = () => {
 		return matchesSearch;
 	});
 
-	// Calculate pagination
 	const indexOfLastPart = page * rowsPerPage;
 	const indexOfFirstPart = indexOfLastPart - rowsPerPage;
 	const currentParts = filteredParts.slice(indexOfFirstPart, indexOfLastPart);
@@ -455,14 +440,12 @@ const Inventory = () => {
 					</Paper>
 				</Box>
 
-				{/* Add Item Modal */}
 				<AddItemModal
 					open={isAddModalOpen}
 					onClose={handleAddModalClose}
 					onItemAdded={handleItemAdded}
 				/>
 
-				{/* Edit Item Modal - new */}
 				<EditItemModal
 					open={isEditModalOpen}
 					onClose={() => setIsEditModalOpen(false)}
@@ -470,7 +453,6 @@ const Inventory = () => {
 					part={partToEdit}
 				/>
 
-				{/* Delete Confirmation Dialog */}
 				<Dialog
 					open={deleteDialogOpen}
 					onClose={() => setDeleteDialogOpen(false)}
@@ -503,7 +485,6 @@ const Inventory = () => {
 					</DialogActions>
 				</Dialog>
 
-				{/* Success/Error Snackbar */}
 				<CustomSnackbar
 					snackbarState={snackbar}
 					onClose={handleSnackbarClose}

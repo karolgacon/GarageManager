@@ -17,7 +17,7 @@ interface CustomerListProps {
 	loading: boolean;
 	error: string | null;
 	userRole: string;
-	onView: (customer: Customer) => void; // ✅ Zmienione z (id: number) na (customer: Customer)
+	onView: (customer: Customer) => void;
 	onEdit: (id: number) => void;
 	onDelete: (id: number) => void;
 	onRetry: () => void;
@@ -85,7 +85,7 @@ const CustomerList: React.FC<CustomerListProps> = ({
 				>
 					<CustomerCard
 						customer={customer}
-						onView={onView} // ✅ Teraz przekazuje Customer object
+						onView={onView} 
 						onEdit={onEdit}
 						onDelete={onDelete}
 						userRole={userRole}

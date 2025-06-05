@@ -22,7 +22,6 @@ import { serviceService } from "../../api/ServiceAPIEndpoint";
 import { diagnosticsService } from "../../api/DiagnosticsAPIEndpoint";
 
 const AdminDashboard: React.FC = () => {
-	// State remains the same
 	const [loading, setLoading] = useState(true);
 	const [stats, setStats] = useState({
 		totalUsers: 0,
@@ -32,13 +31,11 @@ const AdminDashboard: React.FC = () => {
 		criticalIssues: 0,
 	});
 
-	// useEffect for fetching data remains the same
 	useEffect(() => {
 		const fetchStats = async () => {
 			try {
 				setLoading(true);
 
-				// Using existing endpoints to gather statistics
 				const usersPromise = UserService.getUsers();
 				const workshopsPromise = workshopService.getAllWorkshops();
 				const bookingsPromise = bookingService.getAllBookings();
@@ -86,7 +83,6 @@ const AdminDashboard: React.FC = () => {
 				System Overview
 			</Typography>
 
-			{/* Stats Cards */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={2.4}>
 					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
@@ -169,7 +165,6 @@ const AdminDashboard: React.FC = () => {
 				</Grid>
 			</Grid>
 
-			{/* Quick Actions and System Health - matched height with display:flex and height:100% */}
 			<Grid container spacing={3}>
 				<Grid item xs={12} md={6} sx={{ display: "flex" }}>
 					<Paper
@@ -370,7 +365,6 @@ const AdminDashboard: React.FC = () => {
 								</Box>
 							</Box>
 
-							{/* Additional section to balance the layout */}
 							<Box sx={{ mt: 4, pt: 2, borderTop: "1px solid #f0f0f0" }}>
 								<Typography
 									variant="body2"

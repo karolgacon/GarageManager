@@ -44,7 +44,6 @@ const MechanicDashboard: React.FC = () => {
 				setLoading(true);
 				setError(null);
 
-				// Make sure auth is fully loaded
 				if (!auth || auth.isLoading) {
 					console.log("Auth data still loading");
 					return;
@@ -62,14 +61,12 @@ const MechanicDashboard: React.FC = () => {
 					return;
 				}
 
-				// Get assigned services
 				const services = await serviceService.getAllServices();
 				const assignedServices = services.filter(
 					(service) =>
 						service.assigned_to === mechanicId && service.status === "assigned"
 				);
 
-				// Get diagnostics requiring attention
 				const diagnostics = await diagnosticsService.getAllDiagnostics();
 				const pendingDiagnostics = diagnostics.filter(
 					(diag) => diag.status === "pending" && diag.assigned_to === mechanicId
@@ -79,7 +76,6 @@ const MechanicDashboard: React.FC = () => {
 						diag.severity === "critical" && diag.workshop_id === workshopId
 				);
 
-				// Get today's completed tasks
 				const today = new Date().toISOString().split("T")[0];
 				const completedToday = services.filter(
 					(service) =>
@@ -89,13 +85,11 @@ const MechanicDashboard: React.FC = () => {
 						service.completion_date.startsWith(today)
 				);
 
-				// Get vehicles in service
 				const vehicles = await vehicleService.getWorkshopVehicles(workshopId);
 				const inServiceVehicles = vehicles.filter(
 					(vehicle) => vehicle.status === "in_service"
 				);
 
-				// Get today's bookings/tasks
 				const bookings = await bookingService.getWorkshopBookings(workshopId);
 				const todayBookings = bookings.filter(
 					(booking) =>
@@ -137,7 +131,7 @@ const MechanicDashboard: React.FC = () => {
 		};
 
 		fetchDashboardData();
-	}, [auth]); // Use the entire auth object as dependency
+	}, [auth]); 
 
 	if (loading) {
 		return (
@@ -184,7 +178,6 @@ const MechanicDashboard: React.FC = () => {
 
 	return (
 		<Box>
-			{/* Stats Cards */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>
 					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
@@ -255,7 +248,6 @@ const MechanicDashboard: React.FC = () => {
 				</Grid>
 			</Grid>
 
-			{/* Today's Tasks and Critical Issues */}
 			<Grid container spacing={3}>
 				<Grid item xs={12} md={8}>
 					<Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>

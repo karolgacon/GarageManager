@@ -9,10 +9,9 @@ const useStyles = createUseStyles({
 		flexDirection: "column",
 		justifyContent: "center",
 		alignItems: "center",
-		backgroundColor: "#F2F4F7", // Light gray background from screenshot
+		backgroundColor: "#F2F4F7", 
 		overflow: "hidden",
 		position: "relative",
-		// padding: "20px",
 	},
 	footer: {
 		position: "absolute",
@@ -24,7 +23,7 @@ const useStyles = createUseStyles({
 		fontSize: "12px",
 		fontWeight: "500",
 		letterSpacing: "1px",
-		backgroundColor: "#FF3B57", // Red footer
+		backgroundColor: "#FF3B57", 
 		color: "black",
 	},
 });

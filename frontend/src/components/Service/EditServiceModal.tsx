@@ -50,7 +50,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
 		Record<string, string>
 	>({});
 
-	// Update form data when service changes
 	useEffect(() => {
 		if (service) {
 			setFormData({
@@ -70,7 +69,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
 				: value,
 		}));
 
-		// Clear validation error when field is edited
 		if (validationErrors[name]) {
 			setValidationErrors((prev) => {
 				const newErrors = { ...prev };
@@ -118,7 +116,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
 		setError(null);
 
 		try {
-			// Ensure numeric values are numbers
 			const submitData = {
 				...formData,
 				price: Number(formData.price),
@@ -140,7 +137,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
 	};
 
 	const handleClose = () => {
-		// Reset errors on close
 		setValidationErrors({});
 		setError(null);
 		onClose();

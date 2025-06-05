@@ -30,10 +30,10 @@ interface VehicleFormProps {
 	onSubmit?: (data: Partial<Vehicle>) => void;
 	isLoading?: boolean;
 	error?: string | null;
-	enableInternalButtons?: boolean; // Add this prop with default value false
+	enableInternalButtons?: boolean; 
 }
 
-// Modify your component definition to receive the ref properly
+
 const VehicleForm = forwardRef<
 	{ validateAndSubmit: () => boolean },
 	VehicleFormProps
@@ -49,12 +49,10 @@ const VehicleForm = forwardRef<
 	const [formData, setFormData] = useState<Partial<Vehicle>>(initialData);
 	const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-	// Aktualizuj formularz, gdy zmienią się dane inicjalne
 	useEffect(() => {
 		setFormData(initialData);
 	}, [initialData]);
 
-	// Obsługa zmiany pól formularza
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setFormData({
@@ -62,7 +60,6 @@ const VehicleForm = forwardRef<
 			[name]: value,
 		});
 
-		// Wyczyść błąd dla tego pola
 		if (formErrors[name]) {
 			setFormErrors({
 				...formErrors,
@@ -71,7 +68,6 @@ const VehicleForm = forwardRef<
 		}
 	};
 
-	// Walidacja formularza
 	const validateForm = (): boolean => {
 		const errors: Record<string, string> = {};
 
@@ -110,7 +106,6 @@ const VehicleForm = forwardRef<
 		return Object.keys(errors).length === 0;
 	};
 
-	// Obsługa zatwierdzenia formularza
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
@@ -119,7 +114,6 @@ const VehicleForm = forwardRef<
 		}
 	};
 
-	// Modify validateAndSubmit to return the result of validateForm
 	const validateAndSubmit = () => {
 		if (validateForm()) {
 			if (onSubmit) {
@@ -130,7 +124,6 @@ const VehicleForm = forwardRef<
 		return false;
 	};
 
-	// Use useImperativeHandle correctly with the ref from props
 	useImperativeHandle(ref, () => ({
 		validateAndSubmit,
 	}));
@@ -139,7 +132,6 @@ const VehicleForm = forwardRef<
 		<Box component="form" onSubmit={handleSubmit}>
 			<Grid container spacing={2}>
 				{" "}
-				{/* Reduce spacing from 3 to 2 */}
 				<Grid item xs={12} sm={6}>
 					<TextField
 						fullWidth
@@ -310,7 +302,6 @@ const VehicleForm = forwardRef<
 				</Box>
 			)}
 
-			{/* Only show the submit button if enableInternalButtons is true */}
 			{enableInternalButtons && (
 				<Box sx={{ mt: 3, textAlign: "right" }}>
 					<Button

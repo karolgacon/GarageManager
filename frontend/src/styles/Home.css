@@ -80,17 +80,17 @@ body {
 }
 
 .user-management {
-    background-color: #ff3850; /* Jasna czerwień */
+    background-color: #ff3850; 
     color: white;
 }
 
 .current-user {
-    background-color: #d70026; /* Ciemna czerwień */
+    background-color: #d70026; 
     color: white;
 }
 
 .recently-added {
-    background-color: #1c1e2e; /* Granatowy */
+    background-color: #1c1e2e; 
     color: white;
 }
 
@@ -218,7 +218,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f1f1f4; /* Biały z obrazka */
+    background-color: #f1f1f4; 
     color: #1c1e2e;
     padding: 16px;
     border-radius: 50px;

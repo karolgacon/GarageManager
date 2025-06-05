@@ -1,6 +1,6 @@
 export interface Vehicle {
 	id: number;
-	brand: string; // Changed from make to brand
+	brand: string;
 	model: string;
 	year: number;
 	registration_number: string;
@@ -43,7 +43,7 @@ export const VEHICLE_STATUS_TYPES = [
 
 export const defaultVehicle: Vehicle = {
 	id: 0,
-	brand: "", // Changed from make to brand
+	brand: "",
 	model: "",
 	year: new Date().getFullYear(),
 	registration_number: "",

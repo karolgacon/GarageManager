@@ -48,10 +48,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		minimum_stock_level: 5,
 		category: "body",
 		supplier: "",
-		workshop_id: undefined, // Will be set automatically or by selection
+		workshop_id: undefined, 
 	});
 
-	// Fetch workshops for selection
 	useEffect(() => {
 		if (!open) return;
 
@@ -59,7 +58,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 			try {
 				setLoadingWorkshops(true);
 
-				// Get all workshops (works for all user roles)
 				const workshopList = await workshopService.getAllWorkshops();
 				setWorkshops(workshopList);
 
@@ -70,24 +68,20 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 					return;
 				}
 
-				// For non-admin users, try to determine their workshop
 				if (!isAdmin()) {
 					try {
-						// First, attempt to use getCurrentUserWorkshop if it works
 						const userWorkshop = await workshopService.getCurrentUserWorkshop();
 						setFormData((prev) => ({ ...prev, workshop_id: userWorkshop.id }));
 					} catch (error) {
 						console.log(
 							"Falling back to first available workshop for non-admin user"
 						);
-						// Fallback: For non-admin users, just use the first workshop
 						setFormData((prev) => ({
 							...prev,
 							workshop_id: workshopList[0].id,
 						}));
 					}
 				} else {
-					// For admin, default to first workshop but allow selection
 					setFormData((prev) => ({ ...prev, workshop_id: workshopList[0].id }));
 				}
 			} catch (error) {
@@ -124,12 +118,10 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		setError(null);
 
 		try {
-			// Validate workshop_id is present
 			if (!formData.workshop_id) {
 				throw new Error("Workshop selection is required");
 			}
 
-			// Ensure correct data types for numeric fields
 			const dataToSend = {
 				...formData,
 				price: Number(formData.price),
@@ -137,22 +129,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 				minimum_stock_level: Number(formData.minimum_stock_level),
 			};
 
-			// Send to API
 			const newPart = await inventoryService.createPart(dataToSend);
 			onItemAdded(newPart);
 			onClose();
 		} catch (error) {
 			console.error("Error adding inventory item:", error);
 
-			// Extract meaningful error message if available
 			let errorMessage = "Failed to add inventory item. Please try again.";
 			if (error.response && error.response.data) {
-				// DRF typically returns error details in response.data
 				const errorData = error.response.data;
 				if (typeof errorData === "string") {
 					errorMessage = errorData;
 				} else if (typeof errorData === "object") {
-					// Extract first error message from the error object
 					const firstErrorKey = Object.keys(errorData)[0];
 					if (firstErrorKey) {
 						errorMessage = `${firstErrorKey}: ${errorData[firstErrorKey]}`;
@@ -168,7 +156,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		}
 	};
 
-	// List of manufacturers and suppliers (unchanged)
 	const manufacturers = [
 		{ value: "autopartner", label: "AutoPartner" },
 		{ value: "intercars", label: "InterCars" },
@@ -238,7 +225,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 						</Alert>
 					)}
 
-					{/* Show notice about workshop selection for non-admin users */}
 					{!isAdmin() && workshops.length > 0 && formData.workshop_id && (
 						<Alert severity="info" sx={{ mb: 2 }}>
 							This item will be added to the workshop:{" "}
@@ -263,7 +249,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 							/>
 						</Grid>
 
-						{/* Workshop selection - visible to all users for now due to missing backend endpoint */}
 						<Grid item xs={12}>
 							<FormControl fullWidth required>
 								<InputLabel>Workshop</InputLabel>

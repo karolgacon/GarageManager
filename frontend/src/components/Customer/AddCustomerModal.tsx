@@ -59,14 +59,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
             setLoading(true);
             setError(null);
 
-            // Validate required fields
             if (!formData.username || !formData.email || !formData.first_name || 
                 !formData.last_name || !formData.password) {
                 setError("Please fill in all required fields");
                 return;
             }
 
-            // Prepare customer data
             const customerData = {
                 username: formData.username,
                 email: formData.email,
@@ -125,7 +123,6 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                 )}
 
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    {/* Basic Information */}
                     <Grid item xs={12}>
                         <Typography variant="h6" gutterBottom>
                             Basic Information
@@ -198,7 +195,6 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                         </FormControl>
                     </Grid>
 
-                    {/* Contact Information */}
                     <Grid item xs={12}>
                         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
                             Contact Information

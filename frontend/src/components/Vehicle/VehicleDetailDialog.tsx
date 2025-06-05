@@ -31,13 +31,11 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 }) => {
 	if (!vehicle) return null;
 
-	// Formatowanie daty do czytelnego formatu
 	const formatDate = (dateString?: string) => {
 		if (!dateString) return "N/A";
 		return new Date(dateString).toLocaleDateString();
 	};
 
-	// Funkcja do określania koloru statusu
 	const getStatusColor = (status: string | undefined) => {
 		if (!status) return "default";
 
@@ -53,12 +51,10 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 		}
 	};
 
-	// Sprawdzanie czy pojazd wymaga przeglądu
 	const isMaintenanceDue = vehicle.next_service_due
 		? new Date(vehicle.next_service_due) <= new Date()
 		: false;
 
-	// Add the helper function
 	const capitalizeFirstLetter = (text: string | undefined): string => {
 		if (!text) return "Unknown";
 		return text.charAt(0).toUpperCase() + text.slice(1);

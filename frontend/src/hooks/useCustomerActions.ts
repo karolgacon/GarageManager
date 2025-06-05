@@ -38,20 +38,17 @@ export const useCustomerActions = (
 		setModalStates((prev) => ({ ...prev, [modal]: isOpen }));
 	};
 
-	// Handle viewing customer details
 	const handleViewCustomer = (customer: Customer) => {
 		console.log("handleViewCustomer called with customer:", customer);
 		setSelectedCustomer(customer);
 		setModalState("detail", true);
 	};
 
-	// Handle editing a customer
 	const handleEditCustomer = (id: number) => {
 		setEditCustomerId(id);
 		setModalState("edit", true);
 	};
 
-	// Handle deleting a customer
 	const handleDeleteCustomer = (id: number) => {
 		const customer = customers.find((c) => c.id === id);
 		setSelectedCustomer(customer || null);
@@ -59,7 +56,6 @@ export const useCustomerActions = (
 		setModalState("delete", true);
 	};
 
-	// Confirm delete a customer
 	const confirmDeleteCustomer = async () => {
 		if (!deleteCustomerId) return;
 
@@ -67,7 +63,6 @@ export const useCustomerActions = (
 			setDeleteLoading(true);
 			await customerService.deleteCustomer(deleteCustomerId);
 
-			// Remove customer from local state
 			const updatedCustomers = customers.filter(
 				(customer) => customer.id !== deleteCustomerId
 			);
@@ -93,7 +88,6 @@ export const useCustomerActions = (
 		}
 	};
 
-	// Handle adding a new customer
 	const handleCustomerAdded = (customer: Customer) => {
 		const updatedCustomers = [...customers, customer];
 		setFilteredCustomers(updatedCustomers);
@@ -105,7 +99,6 @@ export const useCustomerActions = (
 		});
 	};
 
-	// Handle updating a customer
 	const handleCustomerUpdated = (updatedCustomer: Customer) => {
 		const updatedCustomers = customers.map((customer) =>
 			customer.id === updatedCustomer.id ? updatedCustomer : customer
@@ -120,7 +113,6 @@ export const useCustomerActions = (
 		});
 	};
 
-	// Handle closing the snackbar
 	const handleSnackbarClose = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
@@ -131,7 +123,7 @@ export const useCustomerActions = (
 		editCustomerId,
 		deleteLoading,
 		modalStates,
-		handleViewCustomer, // Teraz przyjmuje Customer object zamiast ID
+		handleViewCustomer, 
 		handleEditCustomer,
 		handleDeleteCustomer,
 		handleCustomerAdded,

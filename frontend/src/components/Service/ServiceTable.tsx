@@ -75,7 +75,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 
 	const isSelected = (id: number) => selectedServices.indexOf(id) !== -1;
 
-	// Menu akcji
 	const handleMenuOpen = (
 		event: React.MouseEvent<HTMLElement>,
 		serviceId: number
@@ -89,7 +88,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		setMenuAnchorEl(null);
 	};
 
-	// Usuwanie pojedynczej usługi
 	const handleDeleteService = () => {
 		if (activeServiceId !== null && onDeleteServices) {
 			onDeleteServices([activeServiceId]);
@@ -97,7 +95,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		handleMenuClose();
 	};
 
-	// Edycja usługi
 	const handleEditService = () => {
 		if (activeServiceId !== null && onEditService) {
 			const serviceToEdit = services.find(
@@ -110,7 +107,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		handleMenuClose();
 	};
 
-	// Przełączanie statusu aktywności
 	const handleToggleStatus = () => {
 		if (activeServiceId !== null && onToggleStatus) {
 			const service = services.find((s) => s.id === activeServiceId);
@@ -121,7 +117,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		handleMenuClose();
 	};
 
-	// Usuwanie wybranych usług
 	const handleDeleteSelected = () => {
 		if (selectedServices.length > 0 && onDeleteServices) {
 			onDeleteServices(selectedServices);
@@ -150,7 +145,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		);
 	};
 
-	// Sortowanie usług
 	const sortedServices = [...services];
 	if (sortColumn) {
 		sortedServices.sort((a, b) => {
@@ -167,14 +161,12 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 		});
 	}
 
-	// Format ceny
 	const formatPrice = (price: number | string) => {
 		const numPrice =
 			typeof price === "number" ? price : parseFloat(price || "0");
 		return `$${numPrice.toFixed(2)}`;
 	};
 
-	// Format czasu trwania
 	const formatDuration = (minutes: number) => {
 		const hours = Math.floor(minutes / 60);
 		const mins = minutes % 60;
@@ -315,7 +307,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 				</Table>
 			</TableContainer>
 
-			{/* Menu kontekstowe dla akcji na pojedynczej usłudze */}
 			<Menu
 				anchorEl={menuAnchorEl}
 				open={Boolean(menuAnchorEl)}

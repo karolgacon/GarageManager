@@ -19,7 +19,7 @@ import { Customer } from "../../models/CustomerModel";
 
 interface CustomerCardProps {
 	customer: Customer;
-	onView: (customer: Customer) => void; // ✅ Zmienione z (id: number) na (customer: Customer)
+	onView: (customer: Customer) => void; 
 	onEdit: (id: number) => void;
 	onDelete: (id: number) => void;
 	userRole: string;
@@ -47,7 +47,7 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 		handleClose();
 		switch (action) {
 			case "view":
-				onView(customer); // ✅ Przekazuje cały obiekt customer
+				onView(customer); 
 				break;
 			case "edit":
 				onEdit(customer.id);
@@ -86,10 +86,9 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 				},
 				cursor: "pointer",
 			}}
-			onClick={() => onView(customer)} // ✅ Już prawidłowo przekazuje customer
+			onClick={() => onView(customer)} 
 		>
 			<CardContent sx={{ flexGrow: 1, p: 2 }}>
-				{/* Header with avatar and menu */}
 				<Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
 					<Avatar
 						src={customer.profile?.photo}
@@ -125,7 +124,6 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					</Box>
 				</Box>
 
-				{/* Customer info */}
 				<Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
 					{customer.first_name} {customer.last_name}
 				</Typography>
@@ -134,7 +132,6 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					@{customer.username}
 				</Typography>
 
-				{/* Contact info */}
 				<Box sx={{ mb: 2 }}>
 					<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
 						<EmailIcon fontSize="small" color="action" />
@@ -153,7 +150,6 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					)}
 				</Box>
 
-				{/* Status and loyalty points */}
 				<Box
 					sx={{
 						display: "flex",
@@ -176,7 +172,6 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 				</Box>
 			</CardContent>
 
-			{/* Action menu */}
 			<Menu
 				anchorEl={anchorEl}
 				open={open}

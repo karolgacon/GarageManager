@@ -48,10 +48,9 @@ const ClientDashboard: React.FC = () => {
 			try {
 				setLoading(true);
 
-				// Check if auth is loading or not available
 				if (!auth || auth.isLoading) {
 					console.log("Auth data still loading");
-					return; // Will hit finally block
+					return; 
 				}
 
 				const clientId = auth.user_id;
@@ -63,27 +62,25 @@ const ClientDashboard: React.FC = () => {
 
 				console.log(`Fetching dashboard data for client ID: ${clientId}`);
 
-				// Get client vehicles - with error handling
 				let vehicles = [];
 				try {
 					vehicles = await vehicleService.getClientVehicles(clientId);
 					console.log(`Found ${vehicles.length} vehicles for client`);
 				} catch (vehicleError) {
 					console.error("Error fetching client vehicles:", vehicleError);
-					vehicles = []; // Ensure it's an empty array on error
+					vehicles = []; 
 				}
 
-				// Get upcoming bookings - with error handling
+				
 				let upcomingBookings = [];
 				try {
 					upcomingBookings = await bookingService.getUpcomingBookings();
 					console.log(`Found ${upcomingBookings.length} upcoming bookings`);
 				} catch (bookingError) {
 					console.error("Error fetching upcoming bookings:", bookingError);
-					upcomingBookings = []; // Ensure it's an empty array on error
+					upcomingBookings = []; 
 				}
 
-				// Get completed services for client's vehicles - with error handling
 				const vehicleIds = vehicles.map((v) => v.id);
 				let completedServices = [];
 
@@ -95,7 +92,7 @@ const ClientDashboard: React.FC = () => {
 									`Error fetching services for vehicle ${id}:`,
 									err
 								);
-								return []; // Return empty array for this vehicle
+								return []; 
 							})
 						);
 						const services = await Promise.all(servicesPromises);
@@ -108,7 +105,6 @@ const ClientDashboard: React.FC = () => {
 					}
 				}
 
-				// Get pending issues for client's vehicles - with error handling
 				let pendingIssues = [];
 				if (vehicleIds.length > 0) {
 					try {
@@ -118,7 +114,7 @@ const ClientDashboard: React.FC = () => {
 									`Error fetching diagnostics for vehicle ${id}:`,
 									err
 								);
-								return []; // Return empty array for this vehicle
+								return []; 
 							})
 						);
 						const allDiagnostics = (
@@ -135,7 +131,6 @@ const ClientDashboard: React.FC = () => {
 					}
 				}
 
-				// Format vehicles data
 				const formattedVehicles = vehicles.map((vehicle) => ({
 					id: vehicle.id,
 					brand: vehicle.make || vehicle.brand,
@@ -146,7 +141,6 @@ const ClientDashboard: React.FC = () => {
 					status: vehicle.maintenance_status || "good",
 				}));
 
-				// Get next appointment (first upcoming booking)
 				const nextAppointment =
 					upcomingBookings.length > 0
 						? {
@@ -187,7 +181,6 @@ const ClientDashboard: React.FC = () => {
 
 	return (
 		<Box>
-			{/* Stats Cards */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>
 					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
@@ -265,9 +258,7 @@ const ClientDashboard: React.FC = () => {
 				</Grid>
 			</Grid>
 
-			{/* Main panels - Reorganized to single row */}
 			<Grid container spacing={3}>
-				{/* Your Vehicles Panel */}
 				<Grid item xs={12} md={4}>
 					<Paper
 						elevation={2}
@@ -347,7 +338,6 @@ const ClientDashboard: React.FC = () => {
 								</Box>
 							) : (
 								<List sx={{ p: 0, mb: 2, flex: 1 }}>
-									{/* Show only the first 2 vehicles with simplified display */}
 									{dashboardData.userVehicles.slice(0, 2).map((vehicle) => (
 										<ListItem
 											key={vehicle.id}
@@ -411,7 +401,6 @@ const ClientDashboard: React.FC = () => {
 					</Paper>
 				</Grid>
 
-				{/* Next Appointment Panel */}
 				<Grid item xs={12} md={4}>
 					<Paper
 						elevation={2}
@@ -524,7 +513,6 @@ const ClientDashboard: React.FC = () => {
 					</Paper>
 				</Grid>
 
-				{/* Quick Actions Panel */}
 				<Grid item xs={12} md={4}>
 					<Paper
 						elevation={2}

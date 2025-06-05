@@ -32,7 +32,7 @@ const UserForm: React.FC<UserFormProps> = ({ mode = 'create' }) => {
                 try {
                     setLoading(true);
                     const userData = await UserService.getUser(parseInt(id));
-                    setFormData(userData); // Ustawiamy dane użytkownika bez profilu
+                    setFormData(userData); 
                 } catch (err) {
                     setError('Nie udało się pobrać danych użytkownika');
                     console.error('Error fetching user:', err);
@@ -57,7 +57,6 @@ const UserForm: React.FC<UserFormProps> = ({ mode = 'create' }) => {
             let createdUser = formData;
 
             if (mode === 'create') {
-                // Tworzenie użytkownika
                 const newUser = await UserService.createUser(formData);
                 navigate('/users');
             } else if (mode === 'edit' && id) {

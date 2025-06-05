@@ -72,7 +72,6 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({
 					{issue.description}
 				</Typography>
 
-				{/* Symptoms section */}
 				<Box mb={3}>
 					<Typography
 						variant="h6"
@@ -93,7 +92,6 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({
 					</List>
 				</Box>
 
-				{/* Causes section */}
 				<Box mb={3}>
 					<Typography
 						variant="h6"
@@ -114,7 +112,6 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({
 					</List>
 				</Box>
 
-				{/* Solutions section */}
 				<Box>
 					<Typography
 						variant="h6"

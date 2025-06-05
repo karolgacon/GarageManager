@@ -33,7 +33,6 @@ const CustomerModals: React.FC<CustomerModalsProps> = ({
 	onCustomerUpdated,
 	onConfirmDelete,
 }) => {
-	// Close detail modal when edit modal is opened
 	useEffect(() => {
 		if (modalStates.edit && modalStates.detail) {
 			onClose("detail");

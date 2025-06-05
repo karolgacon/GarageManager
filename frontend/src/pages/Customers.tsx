@@ -21,7 +21,6 @@ const Customers: React.FC = () => {
 		null
 	);
 
-	// Custom hooks for data management
 	const {
 		customers,
 		filteredCustomers,
@@ -47,13 +46,11 @@ const Customers: React.FC = () => {
 		handleSnackbarClose,
 	} = useCustomerActions(customers, setFilteredCustomers);
 
-	// Check if user has permission to access this page
 	const hasPermission = () => {
 		const userRole = auth.roles?.[0];
 		return ["admin", "owner", "mechanic"].includes(userRole || "");
 	};
 
-	// Handle tab changes
 	const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
 		setActiveTab(newValue);
 
@@ -72,12 +69,10 @@ const Customers: React.FC = () => {
 		}
 	};
 
-	// Handle workshop selection (for admin)
 	const handleWorkshopChange = (workshopId: number) => {
 		setSelectedWorkshopId(workshopId);
 	};
 
-	// Function to filter customers
 	const handleFilterChange = (filters: any) => {
 		const { searchTerm, status, loyaltyLevel } = filters;
 
@@ -125,41 +120,34 @@ const Customers: React.FC = () => {
 	return (
 		<Mainlayout>
 			<Container maxWidth="xl" sx={{ py: 3 }}>
-				{/* Header */}
 				<CustomerHeader
 					userRole={auth.roles?.[0]}
 					selectedWorkshopId={selectedWorkshopId}
 					onAddCustomer={() => setModalState("add", true)}
 				/>
 
-				{/* Workshop Selector for Admin */}
 				{auth.roles?.[0] === "admin" && (
 					<WorkshopSelector
 						value={selectedWorkshopId}
 						onChange={(workshopId) => {
 							setSelectedWorkshopId(workshopId);
-							// No need to reset other selections as they don't exist in this component
 						}}
 						disabled={loading}
 					/>
 				)}
 
-				{/* Main Content */}
 				{(selectedWorkshopId || auth.roles?.[0] !== "admin") && (
 					<>
-						{/* Tabs */}
 						<CustomerTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
-						{/* Filters */}
 						<CustomerFilters onFilterChange={handleFilterChange} />
 
-						{/* Customer List */}
 						<CustomerList
 							customers={filteredCustomers}
 							loading={loading}
 							error={error}
 							userRole={auth.roles?.[0] || ""}
-							onView={handleViewCustomer} // ✅ Teraz przekazuje Customer object
+							onView={handleViewCustomer} 
 							onEdit={handleEditCustomer}
 							onDelete={handleDeleteCustomer}
 							onRetry={fetchCustomers}
@@ -168,7 +156,6 @@ const Customers: React.FC = () => {
 				)}
 			</Container>
 
-			{/* Modals and Dialogs */}
 			<CustomerModals
 				modalStates={modalStates}
 				selectedCustomer={selectedCustomer}

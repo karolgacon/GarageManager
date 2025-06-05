@@ -22,7 +22,6 @@ interface IAuth {
 	isLoading?: boolean;
 }
 
-// Function to decode JWT token
 function parseJwt(token: string) {
 	try {
 		const base64Url = token.split(".")[1];
@@ -46,12 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [auth, setAuth] = useState<IAuth>(() => {
-		// Mark as loading during initialization
 		return { isLoading: true };
 	});
 	const navigate = useNavigate();
 
-	// Initialize auth from localStorage
 	useEffect(() => {
 		const savedToken = window.localStorage.getItem("token");
 		const savedRole = window.localStorage.getItem("userRole");
@@ -59,7 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		const savedUserId = window.localStorage.getItem("userID");
 
 		if (savedToken && savedRole) {
-			// Try to extract user_id from localStorage or token
 			let userId = savedUserId ? parseInt(savedUserId) : undefined;
 
 			if (!userId && savedToken) {
@@ -79,12 +75,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				isLoading: false,
 			});
 		} else {
-			// Not logged in
 			setAuth({ isLoading: false });
 		}
 	}, []);
 
-	// Save auth data to localStorage when it changes
 	useEffect(() => {
 		if (auth?.token) {
 			window.localStorage.setItem("token", auth.token);
@@ -98,7 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				window.localStorage.setItem("user_id", auth.user_id.toString());
 			}
 		} else if (!auth.isLoading) {
-			// Clear storage when logged out (but not during initialization)
 			window.localStorage.removeItem("token");
 			window.localStorage.removeItem("userRole");
 			window.localStorage.removeItem("username");
@@ -106,10 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	}, [auth]);
 
-	// Updated setAuth to also extract user_id from token if present
 	const setAuthWithUserId = (newAuth: IAuth | null) => {
 		if (newAuth === null) {
-			// Handle null case for logout
 			setAuth({ isLoading: false });
 			return;
 		}
@@ -117,7 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		if (newAuth.token && !newAuth.user_id) {
 			try {
 				const tokenData = parseJwt(newAuth.token);
-				// Check common JWT user ID fields
 				const userId = tokenData?.user_id || tokenData?.sub || tokenData?.id;
 				if (userId) {
 					newAuth.user_id = userId;

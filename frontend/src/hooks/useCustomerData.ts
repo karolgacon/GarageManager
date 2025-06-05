@@ -8,7 +8,7 @@ export const useCustomerData = (
 ) => {
 	const [customers, setCustomers] = useState<any[]>([]);
 	const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
-	const [workshops, setWorkshops] = useState<any[]>([]); // Initialize as empty array, not undefined
+	const [workshops, setWorkshops] = useState<any[]>([]); 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -46,21 +46,20 @@ export const useCustomerData = (
 			console.log("Fetching workshops...");
 			if (auth.roles?.[0] !== "admin") {
 				console.log("Non-admin user, not fetching workshops");
-				return; // Non-admin doesn't need workshop list
+				return; 
 			}
 
 			const data = await workshopService.getAllWorkshops();
 			console.log("Workshops fetched:", data);
-			setWorkshops(data || []); // Ensure we set an empty array if data is null/undefined
+			setWorkshops(data || []); 
 		} catch (err) {
 			console.error("Error fetching workshops:", err);
-			// Don't set error state here, as workshops are optional
-			setWorkshops([]); // Set empty array on error
+			setWorkshops([]); 
 		}
 	};
 
 	useEffect(() => {
-		// Only fetch customers if we have the necessary info
+		
 		if (
 			auth.user_id &&
 			(auth.roles?.[0] === "admin" || auth.workshop_id || selectedWorkshopId)
@@ -70,7 +69,7 @@ export const useCustomerData = (
 	}, [auth.user_id, auth.roles, auth.workshop_id, selectedWorkshopId]);
 
 	useEffect(() => {
-		// Always try to fetch workshops for admin users
+		
 		if (auth.user_id && auth.roles?.[0] === "admin") {
 			fetchWorkshops();
 		}

@@ -71,7 +71,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 		}
 	};
 
-	// Fixed the null reference error by using optional chaining
 	const isVip = customer?.loyalty_points && customer.loyalty_points > 100;
 
 	const handleVehicleClick = (vehicle) => {
@@ -79,7 +78,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 		setVehicleDialogOpen(true);
 	};
 
-	// Helper function to capitalize first letter
 	const capitalizeFirstLetter = (text: string | undefined): string => {
 		if (!text) return "";
 		return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
@@ -121,7 +119,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 
 				<DialogContent>
 					<Grid container spacing={3}>
-						{/* Basic Information */}
 						<Grid item xs={12} md={6}>
 							<Typography variant="h6" gutterBottom>
 								Basic Information
@@ -177,7 +174,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 							</Box>
 						</Grid>
 
-						{/* Account Information */}
 						<Grid item xs={12} md={6}>
 							<Typography variant="h6" gutterBottom>
 								Account Information
@@ -214,7 +210,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 							</Box>
 						</Grid>
 
-						{/* Loyalty Information */}
 						{customer.loyalty_points !== undefined && (
 							<Grid item xs={12}>
 								<Divider sx={{ my: 2 }} />
@@ -233,7 +228,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 							</Grid>
 						)}
 
-						{/* Workshop Information */}
 						{customer.workshop_name && (
 							<Grid item xs={12}>
 								<Divider sx={{ my: 2 }} />
@@ -246,7 +240,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 							</Grid>
 						)}
 
-						{/* Contact Preferences */}
 						{customer.profile?.preferred_contact_method && (
 							<Grid item xs={12}>
 								<Divider sx={{ my: 2 }} />
@@ -262,7 +255,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 							</Grid>
 						)}
 
-						{/* Vehicles Information */}
 						{vehicles.length > 0 && (
 							<Grid item xs={12}>
 								<Divider sx={{ my: 2 }} />
@@ -312,7 +304,6 @@ const CustomerDetailDialog: React.FC<CustomerDetailDialogProps> = ({
 				</DialogActions>
 			</Dialog>
 
-			{/* Vehicle Detail Dialog */}
 			{selectedVehicle && (
 				<VehicleDetailDialog
 					open={vehicleDialogOpen}

@@ -7,7 +7,7 @@ import { Profile } from "../../models/ProfileModel";
 import "../../styles/UserDetail.css";
 
 const UserDetail: React.FC = () => {
-    const { id } = useParams<{ id?: string }>(); // ✅ Obsługa `undefined`
+    const { id } = useParams<{ id?: string }>(); 
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -85,7 +85,6 @@ const UserDetail: React.FC = () => {
                 </div>
             </div>
 
-            {/* Sekcja profilu */}
             <div className="user-profile-section">
                 <h2>Profil użytkownika</h2>
                 {profileLoading ? (
@@ -109,7 +108,6 @@ const UserDetail: React.FC = () => {
                             </p>
                         </div>
 
-                        {/* Dodaj przycisk edycji profilu */}
                     </div>
                 ) : (
                     <p>Brak dodatkowego profilu.</p>

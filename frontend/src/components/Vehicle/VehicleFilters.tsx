@@ -17,7 +17,6 @@ import {
 	VEHICLE_STATUS_TYPES,
 } from "../../models/VehicleModel";
 
-// Lista popularnych marek samochodów
 const POPULAR_CAR_BRANDS = [
 	{ value: "", label: "All Brands" },
 	{ value: "toyota", label: "Toyota" },
@@ -82,7 +81,6 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 
 	return (
 		<Box sx={{ mb: 3 }}>
-			{/* Search bar */}
 			<TextField
 				fullWidth
 				variant="outlined"
@@ -110,7 +108,6 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 				}}
 			/>
 
-			{/* Advanced filters */}
 			{expanded && (
 				<Box sx={{ p: 2, bgcolor: "#f5f5f5", borderRadius: 1, mb: 2 }}>
 					<Grid container spacing={2}>

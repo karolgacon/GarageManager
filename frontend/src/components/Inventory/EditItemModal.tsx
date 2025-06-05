@@ -45,7 +45,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 		supplier: "",
 	});
 
-	// Update form data when part changes
 	useEffect(() => {
 		if (part) {
 			setFormData({
@@ -78,7 +77,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 		setError(null);
 
 		try {
-			// Ensure numeric values are numbers
 			const submitData = {
 				...formData,
 				price: Number(formData.price),
@@ -100,7 +98,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 		}
 	};
 
-	// Lista producentów/dostawców części
 	const manufacturers = [
 		{ value: "autopartner", label: "AutoPartner" },
 		{ value: "intercars", label: "InterCars" },
@@ -120,7 +117,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 		{ value: "other", label: "Other" },
 	];
 
-	// Lista dostawców
 	const suppliers = [
 		"AutoPartner",
 		"InterCars",

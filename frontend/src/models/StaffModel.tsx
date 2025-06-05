@@ -9,7 +9,6 @@ export interface StaffMember {
 	created_at: string;
 	updated_at?: string;
 	is_active: boolean;
-	// Dodatkowe pola dla trackingu pracy
 	days_worked?: number;
 	total_work_days?: number;
 	current_status?: "working" | "vacation" | "sick_leave" | "offline";

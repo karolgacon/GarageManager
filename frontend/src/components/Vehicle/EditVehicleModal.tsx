@@ -46,24 +46,19 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 	);
 	const vehicleFormRef = useRef<{ validateAndSubmit: () => boolean }>(null);
 
-	// Dodaj na początku komponentu
 	useEffect(() => {
-		// Zapobiegaj konfliktom aria-hidden gdy modal jest otwarty
 		if (open) {
 			const fixAriaHidden = () => {
 				document.getElementById("root")?.removeAttribute("aria-hidden");
 			};
 
-			// Uruchom naprawę po renderowaniu
 			fixAriaHidden();
 
-			// Uruchom ponownie po małym opóźnieniu (Material-UI może nadpisać)
 			const timer = setTimeout(fixAriaHidden, 100);
 			return () => clearTimeout(timer);
 		}
 	}, [open]);
 
-	// Pobierz dane pojazdu po otwarciu modalu
 	useEffect(() => {
 		let isMounted = true;
 
@@ -80,7 +75,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 					throw new Error("Pobrano niepełne dane pojazdu");
 				}
 
-				// Ustaw dane formularza tylko jeśli są kompletne
 				setVehicle(data);
 				setSelectedClientId(data.owner_id || null);
 				setSelectedWorkshopId(data.workshop_id || null);
@@ -88,7 +82,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			} catch (err) {
 				console.error("Błąd podczas pobierania pojazdu:", err);
 				setError("Nie udało się pobrać danych pojazdu");
-				// NIE ZAMYKAJ MODALU!
 			} finally {
 				setLoading(false);
 			}
@@ -108,14 +101,10 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 		setError(null);
 
 		try {
-			// Create a clean copy without read-only properties
 			const cleanData = { ...updatedVehicleData };
-
-			// Remove read-only properties that are calculated on the backend
 			delete cleanData.owner_name;
 			delete cleanData.workshop_name;
 
-			// Handle owner_id and workshop_id
 			if (userRole !== "client" && selectedClientId) {
 				cleanData.owner_id = selectedClientId;
 			}
@@ -124,7 +113,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				cleanData.workshop_id = selectedWorkshopId;
 			}
 
-			// Now send the cleaned data to the API
 			const response = await vehicleService.updateVehicle(
 				vehicleId!,
 				cleanData
@@ -134,7 +122,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 		} catch (err) {
 			console.error("Error updating vehicle:", err);
 
-			// Log more detailed error information
 			if (err.response) {
 				console.error("Response data:", err.response.data);
 				console.error("Response status:", err.response.status);
@@ -146,7 +133,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 		}
 	};
 
-	// Zamknij modal, gdy zmieni się vehicleId (po usunięciu pojazdu)
 	useEffect(() => {
 		if (!vehicleId) {
 			onClose();
@@ -158,11 +144,10 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			open={open}
 			onClose={onClose}
 			onClick={(e) => e.stopPropagation()}
-			disableEnforceFocus // Dodaj tę opcję
-			keepMounted // Dodaj tę opcję
+			disableEnforceFocus 
+			keepMounted
 			TransitionProps={{
 				onEnter: () => {
-					// Usuń aria-hidden z głównego kontenera
 					document.getElementById("root")?.removeAttribute("aria-hidden");
 				},
 			}}
@@ -205,7 +190,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				) : (
 					vehicle && (
 						<>
-							{/* Wybór klienta - widoczny tylko dla admin, owner i mechanic */}
 							{userRole !== "client" && (
 								<Box sx={{ mb: 3 }}>
 									<Typography
@@ -223,7 +207,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 								</Box>
 							)}
 
-							{/* Wybór warsztatu - widoczny tylko dla admina */}
 							{userRole === "admin" && (
 								<Box sx={{ mb: 3 }}>
 									<Typography
@@ -241,7 +224,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 								</Box>
 							)}
 
-							{/* Dla owner i mechanic - tylko informacja o przypisaniu do ich warsztatu */}
 							{(userRole === "owner" || userRole === "mechanic") &&
 								currentWorkshopId && (
 									<Box sx={{ mb: 3 }}>
@@ -285,7 +267,6 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				</Button>
 				<Button
 					onClick={() => {
-						// Wywołaj metodę validateAndSubmit z formularza
 						if (vehicleFormRef.current) {
 							vehicleFormRef.current.validateAndSubmit();
 						}

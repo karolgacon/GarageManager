@@ -26,7 +26,6 @@ import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import { staffService } from "../../api/StaffAPIEndpoint";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
-// Fix the import to use PartAPIEndpoint instead of InventoryAPIEndpoint
 import { inventoryService } from "../../api/PartAPIEndpoint";
 
 const OwnerDashboard: React.FC = () => {
@@ -48,21 +47,16 @@ const OwnerDashboard: React.FC = () => {
 			try {
 				setLoading(true);
 
-				// Get current workshop data
 				const workshop = await workshopService.getCurrentUserWorkshop();
 
-				// Get workshop staff
 				const mechanics = await staffService.getWorkshopStaff(workshop.id);
 
-				// Get workshop customers
 				const customers = await workshopService.getWorkshopCustomers(
 					workshop.id
 				);
 
-				// Get workshop vehicles
 				const vehicles = await vehicleService.getWorkshopVehicles(workshop.id);
 
-				// Get today's bookings
 				const allBookings = await bookingService.getWorkshopBookings(
 					workshop.id
 				);
@@ -73,7 +67,6 @@ const OwnerDashboard: React.FC = () => {
 						booking.appointment_date.startsWith(today)
 				);
 
-				// Fix the method call to use getPartsByWorkshop instead of getWorkshopInventory
 				const inventory = await inventoryService.getPartsByWorkshop(
 					workshop.id
 				);
@@ -118,7 +111,6 @@ const OwnerDashboard: React.FC = () => {
 
 	return (
 		<Box>
-			{/* Workshop Header - Simplified to remove the wide red bar */}
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" gutterBottom fontWeight="bold">
 					{workshopData.name}
@@ -128,7 +120,6 @@ const OwnerDashboard: React.FC = () => {
 				</Typography>
 			</Box>
 
-			{/* Stats Cards */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={2.4}>
 					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
@@ -215,7 +206,6 @@ const OwnerDashboard: React.FC = () => {
 				</Grid>
 			</Grid>
 
-			{/* Quick Actions and Staff Overview */}
 			<Grid container spacing={3}>
 				<Grid item xs={12} md={6} sx={{ display: "flex" }}>
 					<Paper

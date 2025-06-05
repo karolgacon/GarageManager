@@ -37,14 +37,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 	onClose,
 }) => {
 	const location = useLocation();
-	const navigate = useNavigate(); // Add navigate hook
+	const navigate = useNavigate(); 
 	const { auth } = useContext(AuthContext);
 
-	// Function to handle logo click
 	const handleLogoClick = () => {
-		navigate("/"); // Navigate to dashboard
+		navigate("/"); 
 		if (isMobile && onClose) {
-			onClose(); // Close the drawer on mobile if logo is clicked
+			onClose();
 		}
 	};
 
@@ -120,10 +119,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 					padding: "16px",
 					textAlign: "center",
 					mb: 2,
-					cursor: "pointer", // Add cursor pointer to indicate it's clickable
+					cursor: "pointer", 
 				}}
 				onClick={(e) => {
-					e.stopPropagation(); // Prevent triggering the parent's onClick
+					e.stopPropagation(); 
 					handleLogoClick();
 				}}
 			>
@@ -140,9 +139,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 						sx={{
 							height: 60,
 							width: 60,
-							transition: "transform 0.2s ease-in-out", // Add transition for hover effect
+							transition: "transform 0.2s ease-in-out", 
 							"&:hover": {
-								transform: "scale(1.05)", // Subtle scale effect on hover
+								transform: "scale(1.05)", 
 							},
 						}}
 						alt="Garage Manager Logo"
@@ -195,7 +194,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 		</Box>
 	);
 
-	// Mobile sidebar drawer
 	if (isMobile) {
 		return (
 			<Drawer
@@ -218,7 +216,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 		);
 	}
 
-	// Desktop sidebar
 	return (
 		<Drawer
 			variant="permanent"

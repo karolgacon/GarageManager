@@ -35,11 +35,9 @@ const Vehicles: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const { auth } = useContext(AuthContext);
 
-	// States for filters
 	const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
 	const [activeTab, setActiveTab] = useState<string>("all");
 
-	// States for dialogs and modals
 	const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 	const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 	const [addModalOpen, setAddModalOpen] = useState(false);
@@ -49,19 +47,17 @@ const Vehicles: React.FC = () => {
 	const [deleteVehicleId, setDeleteVehicleId] = useState<number | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
 
-	// State for notifications
 	const [snackbar, setSnackbar] = useState<SnackbarState>({
 		open: false,
 		message: "",
 		severity: "success",
 	});
 
-	// Fetch vehicles data when component loads or role changes
 	useEffect(() => {
 		fetchVehicles();
-	}, [auth.roles]); // Updated from auth.role to auth.roles to match your state variable
+	}, [auth.roles]); 
 
-	// Function to fetch vehicles data based on user role
+
 	const fetchVehicles = async () => {
 		try {
 			setLoading(true);
@@ -70,10 +66,9 @@ const Vehicles: React.FC = () => {
 			let data: Vehicle[];
 			const userRole = auth.roles?.[0];
 
-			console.log("User role:", userRole); // ← Dodaj to
-			console.log("Auth object:", auth); // ← I to
+			console.log("User role:", userRole); 
+			console.log("Auth object:", auth); 
 
-			// Fetch appropriate data based on user role
 			if (userRole === "admin") {
 				console.log("Fetching all vehicles for admin");
 				data = await vehicleService.getAllVehicles();
@@ -92,7 +87,7 @@ const Vehicles: React.FC = () => {
 				data = [];
 			}
 
-			console.log("Fetched vehicles:", data); // ← I to
+			console.log("Fetched vehicles:", data); 
 			setVehicles(data);
 			setFilteredVehicles(data);
 		} catch (err: any) {
@@ -103,14 +98,12 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Function to handle tab changes
 	const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
 		setActiveTab(newValue);
 
 		if (newValue === "all") {
 			setFilteredVehicles(vehicles);
 		} else if (newValue === "maintenance") {
-			// Use the dedicated endpoint if it's available, otherwise filter locally
 			fetchMaintenanceVehicles();
 		} else if (newValue === "active") {
 			const activeVehicles = vehicles.filter(
@@ -120,7 +113,6 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Function to fetch vehicles due for maintenance
 	const fetchMaintenanceVehicles = async () => {
 		try {
 			setLoading(true);
@@ -128,7 +120,6 @@ const Vehicles: React.FC = () => {
 			setFilteredVehicles(data);
 		} catch (err) {
 			console.error("Error fetching maintenance vehicles:", err);
-			// Fallback to local filtering if the endpoint fails
 			const dueForMaintenance = vehicles.filter(
 				(vehicle) =>
 					vehicle.next_service_due &&
@@ -140,19 +131,15 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Function to filter vehicles
 	const handleFilterChange = (filters: any) => {
 		const { searchTerm, brand, status, fuelType, maintenanceDue } = filters;
 
-		// If a brand filter is applied, try to use the dedicated endpoint
 		if (brand && !searchTerm && !status && !fuelType && !maintenanceDue) {
 			fetchVehiclesByBrand(brand);
 			return;
 		}
 
-		// Otherwise, filter locally
 		const filtered = vehicles.filter((vehicle) => {
-			// Filter by search term
 			const matchesSearch =
 				searchTerm === "" ||
 				vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -163,17 +150,13 @@ const Vehicles: React.FC = () => {
 				(vehicle.owner_name &&
 					vehicle.owner_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-			// Filter by brand
 			const matchesBrand =
 				brand === "" || vehicle.brand.toLowerCase() === brand.toLowerCase();
 
-			// Filter by status
 			const matchesStatus = status === "" || vehicle.status === status;
 
-			// Filter by fuel type
 			const matchesFuelType = fuelType === "" || vehicle.fuel_type === fuelType;
 
-			// Filter by maintenance due
 			const matchesMaintenance =
 				!maintenanceDue ||
 				(vehicle.next_service_due &&
@@ -191,7 +174,6 @@ const Vehicles: React.FC = () => {
 		setFilteredVehicles(filtered);
 	};
 
-	// Function to fetch vehicles by brand using the dedicated endpoint
 	const fetchVehiclesByBrand = async (brand: string) => {
 		try {
 			setLoading(true);
@@ -199,7 +181,6 @@ const Vehicles: React.FC = () => {
 			setFilteredVehicles(data);
 		} catch (err) {
 			console.error(`Error fetching vehicles by brand ${brand}:`, err);
-			// Fallback to local filtering if the endpoint fails
 			const filteredByBrand = vehicles.filter(
 				(vehicle) => vehicle.brand.toLowerCase() === brand.toLowerCase()
 			);
@@ -209,7 +190,6 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Handle viewing vehicle details
 	const handleViewVehicle = async (id: number) => {
 		try {
 			const vehicle = await vehicleService.getVehicleById(id);
@@ -225,10 +205,8 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Handle editing a vehicle
 	const handleEditVehicle = (id: number) => {
 		console.log(`Trying to edit vehicle with ID: ${id}`);
-		// Sprawdź, czy pojazd rzeczywiście istnieje w danych
 		const vehicle = vehicles.find((v) => v.id === id);
 		console.log("Vehicle data:", vehicle);
 
@@ -245,7 +223,6 @@ const Vehicles: React.FC = () => {
 		setEditModalOpen(true);
 	};
 
-	// Handle deleting a vehicle
 	const handleDeleteVehicle = (id: number) => {
 		const vehicle = vehicles.find((v) => v.id === id);
 		setSelectedVehicle(vehicle || null);
@@ -253,7 +230,6 @@ const Vehicles: React.FC = () => {
 		setDeleteDialogOpen(true);
 	};
 
-	// Confirm delete a vehicle
 	const confirmDeleteVehicle = async () => {
 		if (!deleteVehicleId) return;
 
@@ -261,7 +237,6 @@ const Vehicles: React.FC = () => {
 			setDeleteLoading(true);
 			await vehicleService.deleteVehicle(deleteVehicleId);
 
-			// Remove vehicle from local state
 			const updatedVehicles = vehicles.filter(
 				(vehicle) => vehicle.id !== deleteVehicleId
 			);
@@ -290,7 +265,6 @@ const Vehicles: React.FC = () => {
 		}
 	};
 
-	// Handle adding a new vehicle
 	const handleVehicleAdded = (vehicle: Vehicle) => {
 		setVehicles([...vehicles, vehicle]);
 		setFilteredVehicles([...filteredVehicles, vehicle]);
@@ -302,7 +276,6 @@ const Vehicles: React.FC = () => {
 		});
 	};
 
-	// Handle updating a vehicle
 	const handleVehicleUpdated = (updatedVehicle: Vehicle) => {
 		const updatedVehicles = vehicles.map((vehicle) =>
 			vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
@@ -322,12 +295,10 @@ const Vehicles: React.FC = () => {
 		});
 	};
 
-	// Handle closing the snackbar
 	const handleSnackbarClose = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-	// Get section title based on user role
 	const getSectionTitle = () => {
 		const userRole = auth.roles?.[0];
 
@@ -349,11 +320,10 @@ const Vehicles: React.FC = () => {
 			<Container
 				maxWidth="xl"
 				sx={{
-					overflow: "hidden", // Add this to prevent horizontal scrollbar
+					overflow: "hidden", 
 				}}
 			>
 				<Box sx={{ py: 3 }}>
-					{/* Header with add button */}
 					<Box
 						sx={{
 							display: "flex",
@@ -365,7 +335,6 @@ const Vehicles: React.FC = () => {
 						<Typography variant="h4" fontWeight="bold">
 							{getSectionTitle()}
 						</Typography>
-						{/* All logged in users can add vehicles */}
 						{auth.roles && auth.roles.length > 0 && (
 							<Button
 								variant="contained"
@@ -381,7 +350,6 @@ const Vehicles: React.FC = () => {
 						)}
 					</Box>
 
-					{/* Tabs */}
 					<Box sx={{ mb: 2 }}>
 						<Tabs
 							value={activeTab}
@@ -413,10 +381,8 @@ const Vehicles: React.FC = () => {
 						</Tabs>
 					</Box>
 
-					{/* Filters */}
 					<VehicleFilters onFilterChange={handleFilterChange} />
 
-					{/* Main content */}
 					{loading ? (
 						<Box sx={{ textAlign: "center", py: 5 }}>
 							<CircularProgress color="error" />
@@ -449,7 +415,7 @@ const Vehicles: React.FC = () => {
 									sm={6}
 									md={4}
 									lg={3}
-									sx={{ px: { xs: 1, md: 2 } }} // Adjust padding to prevent overflow
+									sx={{ px: { xs: 1, md: 2 } }} 
 								>
 									<VehicleCard
 										vehicle={vehicle}
@@ -465,7 +431,6 @@ const Vehicles: React.FC = () => {
 				</Box>
 			</Container>
 
-			{/* Dialogs and modals */}
 			<VehicleDetailDialog
 				open={detailDialogOpen}
 				onClose={() => setDetailDialogOpen(false)}
