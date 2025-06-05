@@ -9,7 +9,6 @@ from .view_collection.mechanicView import MechanicViewSet
 
 router = DefaultRouter()
 
-# Register ViewSets
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'profiles', ProfileViewSet, basename='profiles')
 router.register(r'login-history', LoginHistoryViewSet, basename='login-history')

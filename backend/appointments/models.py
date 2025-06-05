@@ -36,8 +36,7 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Wizyta {self.client.username} w {self.workshop.name}"
-    
-    
+
     def clean(self):
         if self.status not in dict(self.STATUS_CHOICES):
             raise ValidationError(f"Invalid status: {self.status}")

@@ -47,28 +47,28 @@ class UserViewSet(BaseViewSet):
         description="Gets the profile or creates/updates it based on HTTP method.",
         request=ProfileSerializer,
         responses={
-            200: ProfileSerializer, 
+            200: ProfileSerializer,
             201: ProfileSerializer,
             400: OpenApiResponse(description="Bad Request"),
             404: OpenApiResponse(description="User not found"),
             409: OpenApiResponse(description="Profile already exists")
         }
     )
-    
+
     @action(detail=False, methods=['get', 'post', 'put', 'delete'])
     def profile(self, request):
         user = self.service.get_by_id(request.user.id)
         if not user:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if request.method == 'GET':
-            # Pobierz profil
+
             try:
                 if hasattr(user, 'profile') and user.profile:
                     serializer = ProfileSerializer(user.profile)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
-                    # Zamiast 404, zwróć pusty profil z kodem 200
+
                     return Response({
                         "id": None,
                         "user": user.id,
@@ -86,45 +86,45 @@ class UserViewSet(BaseViewSet):
                     "photo": "",
                     "preferred_contact_method": "email"
                 }, status=status.HTTP_200_OK)
-        
+
         elif request.method == 'POST':
-            # Utwórz profil
+
             if hasattr(user, 'profile') and user.profile:
                 return Response(
-                    {"error": "Profile already exists. Use PUT to update."}, 
+                    {"error": "Profile already exists. Use PUT to update."},
                     status=status.HTTP_409_CONFLICT
                 )
-            
+
             data = request.data.copy()
             data['user'] = request.user.id
-            
+
             serializer = ProfileSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         elif request.method == 'PUT':
-            # Aktualizuj profil
+
             if not hasattr(user, 'profile') or not user.profile:
-                # Jeśli profil nie istnieje, utwórz go
+
                 data = request.data.copy()
                 data['user'] = request.user.id
-                
+
                 serializer = ProfileSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+
             serializer = ProfileSerializer(user.profile, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         elif request.method == 'DELETE':
-            # Usuń profil
+
             if hasattr(user, 'profile') and user.profile:
                 user.profile.delete()
                 return Response({"message": "Profile deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

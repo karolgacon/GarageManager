@@ -19,11 +19,11 @@ class MaintenanceScheduleRepository(BaseRepository):
         Opcjonalnie filtruje po ID klienta, jeśli zostało podane.
         """
         query = cls.model.objects.filter(next_due_date__lte=date.today())
-        
+
         if client_id is not None:
-            # Filter by vehicles belonging to the client
+
             query = query.filter(vehicle__client_id=client_id)
-            
+
         return query
 
     @classmethod
@@ -33,5 +33,5 @@ class MaintenanceScheduleRepository(BaseRepository):
         """
         if client_id is None:
             return cls.model.objects.none()
-            
+
         return cls.model.objects.filter(vehicle__client_id=client_id)

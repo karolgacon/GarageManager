@@ -13,7 +13,7 @@ def send_template_email(self, to_email: str, template_id: str, merge_data: dict 
     raw_key = settings.BREVO_API_KEY or ""
     masked = f"{raw_key[:4]}...{raw_key[-4:]}" if len(raw_key) > 8 else raw_key
     logger.info(f"Using Brevo API key: {masked}")
-    
+
     msg = EmailMessage(
         subject=None,
         body=None,

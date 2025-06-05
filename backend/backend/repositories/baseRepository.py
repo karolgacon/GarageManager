@@ -1,5 +1,5 @@
 class BaseRepository:
-    model = None  # This should be overridden in child classes
+    model = None
 
     @classmethod
     def get_all(cls):

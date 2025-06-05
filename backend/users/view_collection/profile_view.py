@@ -21,12 +21,12 @@ class ProfileViewSet(BaseViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request):
-        # Automatycznie przypisz zalogowanego użytkownika
+
         data = request.data.copy()
         data['user'] = request.user.id
         request._full_data = data
         return super().create(request)
 
     def get_queryset(self):
-        # Tylko profil zalogowanego użytkownika
+
         return self.service.repository.model.objects.filter(user=self.request.user)

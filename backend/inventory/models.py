@@ -56,17 +56,15 @@ class RepairJobPart(models.Model):
     def __str__(self):
         return f"{self.part.name} in repair {self.repair_job}"
 
-# Add this model to connect parts with workshops
-
 class PartInventory(models.Model):
     part = models.ForeignKey('Part', on_delete=models.CASCADE, related_name='inventories')
     workshop = models.ForeignKey('workshops.Workshop', on_delete=models.CASCADE, related_name='part_inventories')
     quantity = models.PositiveIntegerField(default=0)
     location = models.CharField(max_length=100, blank=True, null=True, help_text="Shelf/bin location within the workshop")
-    
+
     class Meta:
         unique_together = ('part', 'workshop')
         verbose_name_plural = "Part inventories"
-    
+
     def __str__(self):
         return f"{self.part.name} at {self.workshop.name}: {self.quantity} units"

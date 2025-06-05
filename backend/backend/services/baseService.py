@@ -2,7 +2,7 @@ from django.http import Http404
 from django.core.exceptions import ValidationError
 
 class BaseService:
-    repository = None  # This should be overridden in child classes
+    repository = None
 
     @classmethod
     def get_all(cls):

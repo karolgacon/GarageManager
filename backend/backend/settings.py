@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from pathlib import Path
-import environ # type: ignore
+import environ
 from datetime import timedelta
 from dotenv import load_dotenv
 
@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ENVIRONMENT = 'development'
 env = environ.Env()
 env_file = BASE_DIR / '.env'
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 if env_file.exists():
     environ.Env.read_env(str(env_file))
     BASE_URL = env('BASE_URL', default="http://localhost:8000")
@@ -31,22 +31,12 @@ if env_file.exists():
     BREVO_API_KEY = env('BREVO_API_KEY')
     DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
     BREVO_REGISTER_ID = env.int('BREVO_REGISTER_ID')
-    # GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID')
-    # GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET')
-    # RECAPTCHA_SECRET_KEY = env('RECAPTCHA_KEY')
+
     ENVIRONMENT = env('ENVIRONMENT', default='local')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-+s+9ufw9iumr@u4k0+1ff$el4t0d&wlrt=7f^^*)mct9ne+9yf'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
@@ -72,9 +62,8 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
 }
-# Application definition
 
-SITE_ID = 1  # Typically the default ID
+SITE_ID = 1
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,10 +76,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'drf_spectacular',
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+
     'django_crontab',
     'users',
     'workshops',
@@ -113,7 +99,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'allauth.account.middleware.AccountMiddleware'
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -142,25 +128,20 @@ DEFAULT_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "db"),  # Default to "db"
-        'USER': os.environ.get("DB_USER", "user"),  # Default to "user"
-        'PASSWORD': os.environ.get("DB_PASS", "localdevpw"),  # Default to "localdevpw"
-        'HOST': os.environ.get("DB_HOST", "localhost"),  # Default to "localhost"
-        'PORT': os.environ.get("DB_PORT", "5432"),  # Default to "5432"
+        'NAME': os.environ.get("DB_NAME", "db"),
+        'USER': os.environ.get("DB_USER", "user"),
+        'PASSWORD': os.environ.get("DB_PASS", "localdevpw"),
+        'HOST': os.environ.get("DB_HOST", "localhost"),
+        'PORT': os.environ.get("DB_PORT", "5432"),
         'TEST': {
-            'NAME': os.environ.get("TEST_DB_NAME", "test_db"),  # Test database name
+            'NAME': os.environ.get("TEST_DB_NAME", "test_db"),
         },
     }
 }
 
-# settings.py (dodaj lub rozbuduj swój LOGGING)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -168,13 +149,13 @@ LOGGING = {
         "console": {"class": "logging.StreamHandler"},
     },
     "loggers": {
-        # Logger dla Twojego modułu taska
+
         "notifications.tasks": {
             "handlers": ["console"],
-            "level": "INFO",    # albo DEBUG, jeśli chcesz jeszcze więcej
+            "level": "INFO",
             "propagate": False,
         },
-        # Logger dla Anymail – już powinien być, ale upewnij się:
+
         "anymail": {
             "handlers": ["console"],
             "level": "DEBUG",
@@ -182,9 +163,6 @@ LOGGING = {
         },
     },
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -201,10 +179,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Warsaw'
@@ -213,23 +187,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = '/static/'
-AUTH_USER_MODEL = 'users.User'  # Zamień app_name na swoją aplikację
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+AUTH_USER_MODEL = 'users.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# AUTHENTICATION_BACKENDS = (
-#     'allauth.account.auth_backends.AuthenticationBackend',
-# )
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Twój frontend React
+    "http://localhost:5173",
     "http://127.0.0.1:5173"
 ]
 

@@ -25,7 +25,6 @@ class Workshop(models.Model):
     contact_phone = models.CharField(max_length=20, null=True, blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
 
-
     def __str__(self):
         return self.name
 

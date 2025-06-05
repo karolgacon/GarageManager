@@ -5,7 +5,6 @@ from .views_collection.DiagnosticsView import DiagnosticsViewSet
 from .views_collection.MaintenanceScheduleView import MaintenanceScheduleViewSet
 from .views_collection.VehicleServiceView import VehicleServiceViewSet
 
-
 router = DefaultRouter()
 
 router.register(r'vehicles', VehicleViewSet , basename='vehicles')

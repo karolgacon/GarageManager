@@ -5,13 +5,12 @@ from django.http import Http404
 from django.forms import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
-
 class BaseViewSet(viewsets.ViewSet):
     """
     Base ViewSet for common CRUD operations.
     """
-    service = None  # This should be overridden in child classes
-    serializer_class = None  # This should be overridden in child classes
+    service = None
+    serializer_class = None
     permission_classes = [IsAuthenticated]
 
     @extend_schema(

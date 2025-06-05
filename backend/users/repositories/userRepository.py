@@ -24,7 +24,7 @@ class UserRepository(BaseRepository):
         Wyszukuje użytkowników na podstawie nazwy użytkownika lub emaila.
         """
         return cls.model.objects.filter(username__icontains=query) | cls.model.objects.filter(email__icontains=query)
-    
+
     @classmethod
     def get_by_email(cls, email):
         """
@@ -38,7 +38,7 @@ class UserRepository(BaseRepository):
         Tworzy nowego użytkownika.
         """
         return cls.model.objects.create_user(username=username, password=password, email=email)
-    
+
     @classmethod
     def get_clients(cls):
         """

@@ -16,11 +16,11 @@ class VehicleService(BaseService):
             "id": vehicle.id,
             "make": vehicle.brand,
             "model": vehicle.model,
-            "year": vehicle.year,  # Zmienione z manufacture_year na year
+            "year": vehicle.year,
             "vin": vehicle.vin,
             "registration_number": vehicle.registration_number,
-            "last_service_date": vehicle.last_service_date,  # Zmienione z last_maintenance_date
-            "owner": vehicle.owner.username if vehicle.owner else None,  # Zmienione z client na owner
+            "last_service_date": vehicle.last_service_date,
+            "owner": vehicle.owner.username if vehicle.owner else None,
         }
 
     @classmethod
@@ -28,7 +28,7 @@ class VehicleService(BaseService):
         """
         Pobiera wszystkie pojazdy powiązane z klientem.
         """
-        return cls.repository.get_vehicles_by_owner(client_id)  # Zmienione na owner
+        return cls.repository.get_vehicles_by_owner(client_id)
 
     @classmethod
     def get_vehicles_due_for_maintenance(cls):
@@ -56,7 +56,7 @@ class VehicleService(BaseService):
         """
         Pobiera warsztat na podstawie klienta (przez jego pojazdy).
         """
-        vehicles = cls.repository.get_vehicles_by_owner(client_id)  # Zmienione na owner
+        vehicles = cls.repository.get_vehicles_by_owner(client_id)
         if vehicles:
             return vehicles.first().workshop if hasattr(vehicles.first(), 'workshop') else None
         return None

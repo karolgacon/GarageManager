@@ -1,7 +1,7 @@
 import os
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'backend.settings'
-import django  # type: ignore
+import django
 django.setup()
 
 import pytest
@@ -15,7 +15,6 @@ from ..models import User, Profile, LoginHistory, LoyaltyPoints
 
 User = get_user_model()
 
-
 @pytest.fixture
 def admin_user():
     """Fixture tworzący użytkownika administratora"""
@@ -28,7 +27,6 @@ def admin_user():
         is_superuser=True
     )
 
-
 @pytest.fixture
 def owner_user():
     """Fixture tworzący użytkownika właściciela"""
@@ -38,7 +36,6 @@ def owner_user():
         password='owner123',
         role='owner'
     )
-
 
 @pytest.fixture
 def mechanic_user():
@@ -50,7 +47,6 @@ def mechanic_user():
         role='mechanic'
     )
 
-
 @pytest.fixture
 def regular_user():
     """Fixture tworzący zwykłego użytkownika (klienta)"""
@@ -60,7 +56,7 @@ def regular_user():
         password='client123',
         role='client'
     )
-    # Tworzymy profil dla użytkownika
+
     Profile.objects.create(
         user=user,
         address='ul. Testowa 1',
@@ -68,7 +64,6 @@ def regular_user():
         preferred_contact_method='email'
     )
     return user
-
 
 @pytest.fixture
 def admin_api_client(admin_user):
@@ -78,7 +73,6 @@ def admin_api_client(admin_user):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
-
 @pytest.fixture
 def owner_api_client(owner_user):
     """Fixture tworzący klienta API z uprawnieniami właściciela"""
@@ -86,7 +80,6 @@ def owner_api_client(owner_user):
     refresh = RefreshToken.for_user(owner_user)
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
-
 
 @pytest.fixture
 def mechanic_api_client(mechanic_user):
@@ -96,7 +89,6 @@ def mechanic_api_client(mechanic_user):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
-
 @pytest.fixture
 def regular_api_client(regular_user):
     """Fixture tworzący klienta API ze zwykłymi uprawnieniami (klient)"""
@@ -104,7 +96,6 @@ def regular_api_client(regular_user):
     refresh = RefreshToken.for_user(regular_user)
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
-
 
 @pytest.mark.django_db
 class TestUserModel:
@@ -118,7 +109,7 @@ class TestUserModel:
             password='newuser123',
             role='client'
         )
-        
+
         assert user.email == 'newuser@example.com'
         assert user.username == 'newuser'
         assert user.role == 'client'
@@ -136,7 +127,7 @@ class TestUserModel:
             password='newadmin123',
             role='admin'
         )
-        
+
         assert superuser.email == 'newadmin@example.com'
         assert superuser.username == 'newadmin'
         assert superuser.role == 'admin'
@@ -157,13 +148,12 @@ class TestUserModel:
             password='status123',
             status='blocked'
         )
-        
+
         assert user.status == 'blocked'
-        
-        # Zmiana statusu
+
         user.status = 'suspended'
         user.save()
-        
+
         updated_user = User.objects.get(id=user.id)
         assert updated_user.status == 'suspended'
 
@@ -175,13 +165,12 @@ class TestUserModel:
             password='role123',
             role='mechanic'
         )
-        
+
         assert user.role == 'mechanic'
-        
-        # Zmiana roli
+
         user.role = 'client'
         user.save()
-        
+
         updated_user = User.objects.get(id=user.id)
         assert updated_user.role == 'client'
 
@@ -192,16 +181,14 @@ class TestUserModel:
             email='loginuser@example.com',
             password='login123'
         )
-        
+
         assert user.login_attempts == 0
-        
-        # Zwiększanie liczby prób logowania
+
         user.login_attempts += 1
         user.save()
-        
+
         updated_user = User.objects.get(id=user.id)
         assert updated_user.login_attempts == 1
-
 
 @pytest.mark.django_db
 class TestLoginHistoryModel:
@@ -214,7 +201,7 @@ class TestLoginHistoryModel:
             device_info='Chrome on Windows',
             status='success'
         )
-        
+
         assert login_history.user == regular_user
         assert login_history.device_info == 'Chrome on Windows'
         assert login_history.status == 'success'
@@ -226,7 +213,7 @@ class TestLoginHistoryModel:
             user=regular_user,
             status='success'
         )
-        
+
         assert str(login_history) == f"Login history of {regular_user.username}"
 
     def test_failed_login_history(self, regular_user):
@@ -236,9 +223,8 @@ class TestLoginHistoryModel:
             device_info='Firefox on Linux',
             status='failed'
         )
-        
-        assert login_history.status == 'failed'
 
+        assert login_history.status == 'failed'
 
 @pytest.mark.django_db
 class TestLoyaltyPointsModel:
@@ -252,7 +238,7 @@ class TestLoyaltyPointsModel:
             membership_level='silver',
             points_earned_this_year=50
         )
-        
+
         assert loyalty_points.user == regular_user
         assert loyalty_points.total_points == 100
         assert loyalty_points.membership_level == 'silver'
@@ -264,7 +250,7 @@ class TestLoyaltyPointsModel:
             user=regular_user,
             membership_level='gold'
         )
-        
+
         assert str(loyalty_points) == f"{regular_user.username} - gold level"
 
     def test_loyalty_points_default_values(self, regular_user):
@@ -272,11 +258,10 @@ class TestLoyaltyPointsModel:
         loyalty_points = LoyaltyPoints.objects.create(
             user=regular_user
         )
-        
+
         assert loyalty_points.total_points == 0
         assert loyalty_points.membership_level == 'bronze'
         assert loyalty_points.points_earned_this_year == 0
-
 
 @pytest.mark.django_db
 class TestUserAPI:
@@ -285,24 +270,20 @@ class TestUserAPI:
     def test_list_users_as_admin(self, admin_api_client):
         """Test pobierania listy użytkowników przez administratora"""
         response = admin_api_client.get('/api/v1/users/')
-        
+
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) >= 1
 
     def test_list_users_as_regular_user(self, regular_api_client):
         """Test dostępu do listy użytkowników dla zwykłego użytkownika"""
         response = regular_api_client.get('/api/v1/users/')
-        
-        # Wygląda na to, że API pozwala na dostęp zwykłym użytkownikom
-        # To może być problem bezpieczeństwa, ale test powinien odzwierciedlać rzeczywiste zachowanie
-        assert response.status_code == status.HTTP_200_OK
-        # UWAGA: Potencjalny problem bezpieczeństwa - zwykli użytkownicy mają dostęp do listy wszystkich użytkowników
 
+        assert response.status_code == status.HTTP_200_OK
 
     def test_get_user_detail_as_admin(self, admin_api_client, regular_user):
         """Test pobierania szczegółów użytkownika przez administratora"""
         response = admin_api_client.get(f'/api/v1/users/{regular_user.id}/')
-        
+
         assert response.status_code == status.HTTP_200_OK
         assert response.data['id'] == regular_user.id
         assert response.data['email'] == regular_user.email
@@ -312,20 +293,18 @@ class TestUserAPI:
     def test_get_own_profile(self, regular_api_client, regular_user):
         """Test pobierania własnego profilu przez użytkownika"""
         response = regular_api_client.get('/api/v1/users/profile/')
-        
+
         assert response.status_code == status.HTTP_200_OK
-        
-        # W zależności od implementacji API, struktura odpowiedzi może się różnić
-        # Jeśli API zwraca profil zagnieżdżony w użytkowniku
+
         if 'profile' in response.data:
             assert response.data['id'] == regular_user.id
             assert response.data['email'] == regular_user.email
             assert response.data['profile']['phone'] == regular_user.profile.phone
-        # Jeśli API zwraca tylko dane profilu
+
         elif 'user' in response.data:
             assert response.data['user'] == regular_user.id
             assert response.data['phone'] == regular_user.profile.phone
-        # Jeśli API zwraca dane użytkownika razem z danymi profilu
+
         else:
             assert response.data['id'] == regular_user.id
             assert response.data['email'] == regular_user.email
@@ -338,15 +317,14 @@ class TestUserAPI:
             'password': 'apiuser123',
             'role': 'client'
         }
-        
+
         response = admin_api_client.post('/api/v1/users/', data, format='json')
-        
+
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['username'] == 'apiuser'
         assert response.data['email'] == 'apiuser@example.com'
         assert response.data['role'] == 'client'
-        
-        # Sprawdź czy użytkownik został faktycznie utworzony w bazie danych
+
         assert User.objects.filter(email='apiuser@example.com').exists()
 
     def test_update_user_as_admin(self, admin_api_client, regular_user):
@@ -356,15 +334,14 @@ class TestUserAPI:
             'last_name': 'User',
             'status': 'blocked'
         }
-        
+
         response = admin_api_client.patch(f'/api/v1/users/{regular_user.id}/', data, format='json')
-        
+
         assert response.status_code == status.HTTP_200_OK
         assert response.data['first_name'] == 'Updated'
         assert response.data['last_name'] == 'User'
         assert response.data['status'] == 'blocked'
-        
-        # Sprawdź czy zmiany zostały zapisane w bazie danych
+
         updated_user = User.objects.get(id=regular_user.id)
         assert updated_user.first_name == 'Updated'
         assert updated_user.last_name == 'User'
@@ -373,14 +350,12 @@ class TestUserAPI:
     def test_delete_user_as_admin(self, admin_api_client, regular_user):
         """Test usuwania użytkownika przez administratora"""
         user_id = regular_user.id
-        
-        response = admin_api_client.delete(f'/api/v1/users/{user_id}/')
-        
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        
-        # Sprawdź czy użytkownik został faktycznie usunięty z bazy danych
-        assert not User.objects.filter(id=user_id).exists()
 
+        response = admin_api_client.delete(f'/api/v1/users/{user_id}/')
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        assert not User.objects.filter(id=user_id).exists()
 
 @pytest.mark.django_db
 class TestUserEdgeCases:
@@ -389,23 +364,21 @@ class TestUserEdgeCases:
     def test_create_user_with_duplicate_email(self, admin_api_client, regular_user):
         """Test próby utworzenia użytkownika z istniejącym już adresem email"""
         data = {
-            'username': 'uniqueusername',  # Unikalny username
-            'email': regular_user.email,    # Ten email już istnieje
+            'username': 'uniqueusername',
+            'email': regular_user.email,
             'password': 'newuser123',
             'role': 'client'
         }
-        
-        # Użyjemy try/except, aby obsłużyć wyjątek rzucany przez API
+
         try:
             response = admin_api_client.post('/api/v1/users/', data, format='json')
-            
-            # Jeśli odpowiedź została zwrócona, powinna mieć status błędu
+
             assert response.status_code == status.HTTP_400_BAD_REQUEST
-            # Sprawdź czy w odpowiedzi błędu jest informacja o duplikacie emaila
+
             assert 'email' in str(response.data).lower()
-            
+
         except RuntimeError as e:
-            # Jeśli wystąpił wyjątek RuntimeError, sprawdź czy zawiera informację o duplikacie emaila
+
             error_message = str(e).lower()
             assert 'duplicate' in error_message or 'already exists' in error_message
             assert 'email' in error_message
@@ -413,27 +386,24 @@ class TestUserEdgeCases:
     def test_create_user_with_duplicate_username(self, admin_api_client, regular_user):
         """Test próby utworzenia użytkownika z istniejącą już nazwą użytkownika"""
         data = {
-            'username': regular_user.username,  # Ta nazwa użytkownika już istnieje
-            'email': 'unique' + regular_user.email,  # Unikalny email
+            'username': regular_user.username,
+            'email': 'unique' + regular_user.email,
             'password': 'newuser123',
             'role': 'client'
         }
-        
-        # Użyjemy try/except, aby obsłużyć wyjątek rzucany przez API
+
         try:
             response = admin_api_client.post('/api/v1/users/', data, format='json')
-            
-            # Jeśli odpowiedź została zwrócona, powinna mieć status błędu
+
             assert response.status_code == status.HTTP_400_BAD_REQUEST
-            # Sprawdź czy w odpowiedzi błędu jest informacja o duplikacie nazwy użytkownika
+
             assert 'username' in str(response.data).lower()
-            
+
         except RuntimeError as e:
-            # Jeśli wystąpił wyjątek RuntimeError, sprawdź czy zawiera informację o duplikacie nazwy użytkownika
+
             error_message = str(e).lower()
             assert 'duplicate' in error_message or 'already exists' in error_message
             assert 'username' in error_message
-
 
     def test_create_user_with_invalid_role(self, admin_api_client):
         """Test próby utworzenia użytkownika z nieprawidłową rolą"""
@@ -441,44 +411,36 @@ class TestUserEdgeCases:
             'username': 'roleerror',
             'email': 'roleerror@example.com',
             'password': 'role123',
-            'role': 'invalid_role'  # Ta rola nie istnieje
+            'role': 'invalid_role'
         }
-        
-        # Wygląda na to, że API akceptuje nieprawidłowe role bez walidacji
+
         response = admin_api_client.post('/api/v1/users/', data, format='json')
-        
-        # Sprawdź czy użytkownik został utworzony z nieprawidłową rolą
+
         assert response.status_code == status.HTTP_201_CREATED
-        # UWAGA: Potencjalny problem walidacji - API akceptuje nieprawidłowe role
-        
-        # Sprawdźmy czy użytkownik faktycznie został utworzony z tą rolą
+
         user_id = response.data['id']
         created_user = User.objects.get(id=user_id)
         assert created_user.role == 'invalid_role'
 
-
     def test_update_nonexistent_user(self, admin_api_client):
         """Test próby aktualizacji nieistniejącego użytkownika"""
-        # Używamy bardzo dużego ID, który prawdopodobnie nie istnieje
+
         non_existent_id = 999999
-        
+
         data = {
             'first_name': 'Non',
             'last_name': 'Existent'
         }
-        
-        # Użyjemy try/except, aby obsłużyć wyjątek rzucany przez API
+
         try:
             response = admin_api_client.patch(f'/api/v1/users/{non_existent_id}/', data, format='json')
-            
-            # Jeśli odpowiedź została zwrócona, sprawdź czy to błąd 404 Not Found
+
             assert response.status_code == status.HTTP_404_NOT_FOUND
-            
+
         except RuntimeError as e:
-            # Jeśli wystąpił wyjątek RuntimeError, sprawdź czy zawiera informację o nieistniejącym użytkowniku
+
             error_message = str(e).lower()
             assert 'does not exist' in error_message
-
 
 @pytest.mark.django_db
 class TestUserIntegration:
@@ -486,86 +448,73 @@ class TestUserIntegration:
 
     def test_user_profile_integration(self, admin_api_client):
         """Test integracji między użytkownikiem a profilem"""
-        # 1. Tworzymy nowego użytkownika
+
         user_data = {
             'username': 'integrationuser',
             'email': 'integration@example.com',
             'password': 'integration123',
             'role': 'client'
         }
-        
+
         user_response = admin_api_client.post('/api/v1/users/', user_data, format='json')
         assert user_response.status_code == status.HTTP_201_CREATED
         user_id = user_response.data['id']
-        
-        # 2. Tworzymy profil dla tego użytkownika
+
         profile_data = {
             'user': user_id,
             'address': 'ul. Integracyjna 10',
             'phone': '+48 123 456 789',
             'preferred_contact_method': 'phone'
         }
-        
+
         profile_response = admin_api_client.post('/api/v1/profiles/', profile_data, format='json')
         if profile_response.status_code == status.HTTP_201_CREATED:
-            # Jeśli API faktycznie tworzy profil, sprawdzamy jego dane
-            # Ale nie porównujemy bezpośrednio user_id, bo może być różny format
+
             assert 'user' in profile_response.data
             assert profile_response.data['address'] == 'ul. Integracyjna 10'
-        
-        # 3. Pobieramy szczegóły użytkownika i sprawdzamy czy profil jest powiązany
+
         user_detail = admin_api_client.get(f'/api/v1/users/{user_id}/')
         assert user_detail.status_code == status.HTTP_200_OK
-        
-        # W zależności od implementacji API, sprawdzamy czy profil jest widoczny
-        # Może być zwracany jako część odpowiedzi użytkownika lub jako osobny endpoint
-        
-        # 4. Usuwamy użytkownika i sprawdzamy czy profil również został usunięty (CASCADE)
+
         delete_response = admin_api_client.delete(f'/api/v1/users/{user_id}/')
         assert delete_response.status_code == status.HTTP_204_NO_CONTENT
-        
-        # Sprawdzamy czy użytkownik został usunięty
+
         assert not User.objects.filter(id=user_id).exists()
-        
-        # Sprawdzamy czy profil również został usunięty (CASCADE)
+
         assert not Profile.objects.filter(user_id=user_id).exists()
 
     def test_user_workflow(self, admin_api_client):
         """Test pełnego przepływu pracy z użytkownikiem"""
-        # 1. Tworzymy nowego użytkownika
+
         create_data = {
             'username': 'workflow',
             'email': 'workflow@example.com',
             'password': 'workflow123',
             'role': 'client'
         }
-        
+
         create_response = admin_api_client.post('/api/v1/users/', create_data, format='json')
         assert create_response.status_code == status.HTTP_201_CREATED
         user_id = create_response.data['id']
-        
-        # 2. Aktualizujemy dane użytkownika
+
         update_data = {
             'first_name': 'Work',
             'last_name': 'Flow',
             'status': 'active'
         }
-        
+
         update_response = admin_api_client.patch(f'/api/v1/users/{user_id}/', update_data, format='json')
         assert update_response.status_code == status.HTTP_200_OK
         assert update_response.data['first_name'] == 'Work'
         assert update_response.data['last_name'] == 'Flow'
-        
-        # 3. Pobieramy szczegóły użytkownika
+
         detail_response = admin_api_client.get(f'/api/v1/users/{user_id}/')
         assert detail_response.status_code == status.HTTP_200_OK
         assert detail_response.data['id'] == user_id
         assert detail_response.data['email'] == 'workflow@example.com'
         assert detail_response.data['first_name'] == 'Work'
-        
-        # 4. Usuwamy użytkownika
+
         delete_response = admin_api_client.delete(f'/api/v1/users/{user_id}/')
         assert delete_response.status_code == status.HTTP_204_NO_CONTENT
-        
-        # Sprawdzamy czy użytkownik został usunięty
+
         assert not User.objects.filter(id=user_id).exists()

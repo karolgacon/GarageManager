@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .routers import router, urlpatterns  # Import routera z osobnego pliku
+from .routers import router, urlpatterns
 
 urlpatterns = [
     path('', include(router.urls)),

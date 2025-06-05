@@ -68,7 +68,6 @@ class PublicUserDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class CreateUserView(APIView):
     """
     Widok do rejestracji nowego użytkownika.
@@ -105,8 +104,7 @@ class CreateUserView(APIView):
         try:
             result = AuthService.register_user(username=username, password=password, email=email)
             if result:
-                # Check the parameters expected by send_template_email
-                # Looks like it doesn't accept 'subject' as a parameter
+
                 send_template_email.delay(
                     to_email=email,
                     template_id=settings.BREVO_REGISTER_ID,
@@ -116,13 +114,12 @@ class CreateUserView(APIView):
                 )
             return Response(result, status=status.HTTP_201_CREATED)
         except ValueError as e:
-            # ValueError should return 400 too, not 500
+
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class LoginView(APIView):
     """

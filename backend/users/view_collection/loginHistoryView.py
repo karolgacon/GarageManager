@@ -15,7 +15,7 @@ from rest_framework.response import Response
 class LoginHistoryViewSet(BaseViewSet):
     service = LoginHistoryService
     serializer_class = LoginHistorySerializer
-    permission_classes = [IsAdminUser]  # Tylko administratorzy mogą przeglądać historię logowań
+    permission_classes = [IsAdminUser]
 
     def list(self, request, *args, **kwargs):
         """

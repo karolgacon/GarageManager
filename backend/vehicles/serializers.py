@@ -6,7 +6,7 @@ from workshops.models import Workshop, Service
 class VehicleSerializer(serializers.ModelSerializer):
     owner_name = serializers.SerializerMethodField()
     workshop_name = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Vehicle
         fields = [
@@ -18,7 +18,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 
     def get_owner_name(self, obj):
         return obj.owner_name
-    
+
     def get_workshop_name(self, obj):
         return obj.workshop_name
 
@@ -34,16 +34,15 @@ class VehicleSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         workshop_id = self.context['request'].data.get('workshop_id')
         owner_id = self.context['request'].data.get('owner_id')
-        
-        # Get workshop and owner instances if present
+
         if workshop_id:
             workshop = Workshop.objects.get(id=workshop_id)
             validated_data['workshop'] = workshop
-        
+
         if owner_id:
             owner = User.objects.get(id=owner_id)
             validated_data['owner'] = owner
-        
+
         return super().create(validated_data)
 
 class DiagnosticsSerializer(serializers.ModelSerializer):
@@ -64,23 +63,23 @@ class VehicleServiceSerializer(serializers.ModelSerializer):
     vehicle_details = serializers.SerializerMethodField()
     service_name = serializers.SerializerMethodField()
     workshop_name = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = VehicleService
         fields = [
-            'id', 'vehicle', 'service', 'workshop', 'service_date', 
-            'completion_date', 'status', 'cost', 'description', 
-            'mechanic_notes', 'vehicle_details', 'service_name', 
+            'id', 'vehicle', 'service', 'workshop', 'service_date',
+            'completion_date', 'status', 'cost', 'description',
+            'mechanic_notes', 'vehicle_details', 'service_name',
             'workshop_name'
         ]
-    
+
     def get_vehicle_details(self, obj):
         """
         Returns a dictionary containing vehicle details.
         """
         if not obj.vehicle:
             return None
-            
+
         return {
             'id': obj.vehicle.id,
             'make': obj.vehicle.brand,
@@ -89,49 +88,47 @@ class VehicleServiceSerializer(serializers.ModelSerializer):
             'registration_number': obj.vehicle.registration_number,
             'color': obj.vehicle.color
         }
-    
+
     def get_service_name(self, obj):
         """
         Returns the name of the service.
         """
         return obj.service.name if obj.service else None
-    
+
     def get_workshop_name(self, obj):
         """
         Returns the name of the workshop.
         """
         return obj.workshop.name if obj.workshop else None
-    
+
     def to_representation(self, instance):
         """
         Custom representation to provide required fields for frontend compatibility.
         """
         data = super().to_representation(instance)
-        # Add name field for compatibility with ServicePage.tsx
+
         data['name'] = self.get_service_name(instance)
-        
-        # Add any other fields that the frontend expects
+
         return data
-    
+
     def create(self, validated_data):
         """
         Override create to handle foreign key relationships.
         """
         request = self.context.get('request')
         if request:
-            # Extract IDs from request data
+
             vehicle_id = request.data.get('vehicle_id')
             service_id = request.data.get('service_id')
             workshop_id = request.data.get('workshop_id')
-            
-            # Set vehicle, service and workshop objects if provided by ID
+
             if vehicle_id and 'vehicle' not in validated_data:
                 validated_data['vehicle'] = Vehicle.objects.get(id=vehicle_id)
-                
+
             if service_id and 'service' not in validated_data:
                 validated_data['service'] = Service.objects.get(id=service_id)
-                
+
             if workshop_id and 'workshop' not in validated_data:
                 validated_data['workshop'] = Workshop.objects.get(id=workshop_id)
-        
+
         return super().create(validated_data)

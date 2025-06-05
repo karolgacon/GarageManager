@@ -1,7 +1,7 @@
 from backend.views_collection.BaseView import BaseViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import action  # ✅ Dodaj ten import
+from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse
 from ..services.vehicleService import VehicleService
 from ..serializers import VehicleSerializer
@@ -54,27 +54,25 @@ class VehicleViewSet(BaseViewSet):
         """
         from ..models import Vehicle
         queryset = Vehicle.objects.all()
-        
-        # Filtruj po owner jeśli podany w query params
+
         owner_id = self.request.query_params.get('owner', None)
         if owner_id is not None:
             print(f"[DEBUG] Filtering vehicles by owner_id: {owner_id}")
             queryset = queryset.filter(owner_id=owner_id)
             print(f"[DEBUG] Found {queryset.count()} vehicles for owner {owner_id}")
-        
+
         return queryset
-    
+
     def list(self, request, *args, **kwargs):
         """
         Override list to add debugging
         """
         queryset = self.get_queryset()
-        
+
         print(f"[DEBUG] Final queryset count: {queryset.count()}")
-        for vehicle in queryset[:3]:  # Pokazuj pierwsze 3
+        for vehicle in queryset[:3]:
             print(f"[DEBUG] Vehicle {vehicle.id}: owner={vehicle.owner_id}, brand={vehicle.brand}")
-        
-        # Wywołaj parent method zamiast robić to ręcznie
+
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -108,7 +106,7 @@ class VehicleViewSet(BaseViewSet):
         vehicles = self.service.get_vehicles_by_brand(brand)
         serializer = self.serializer_class(vehicles, many=True)
         return Response(serializer.data)
-    
+
     @extend_schema(
         summary="Get current user's vehicles",
         description="Retrieve vehicles owned by the current authenticated user",
@@ -138,11 +136,11 @@ class VehicleViewSet(BaseViewSet):
         workshop_id = request.query_params.get("workshop_id")
         if not workshop_id:
             return Response({"error": "Workshop ID is required"}, status=400)
-        
+
         vehicles = self.service.get_vehicles_by_workshop(int(workshop_id))
         serializer = self.serializer_class(vehicles, many=True)
         return Response(serializer.data)
-    
+
     @extend_schema(
         summary="Get vehicles by owner",
         description="Retrieve vehicles owned by a specific user",
@@ -157,7 +155,7 @@ class VehicleViewSet(BaseViewSet):
         owner_id = request.query_params.get("owner")
         if not owner_id:
             return Response({"error": "Owner ID is required"}, status=400)
-        
+
         vehicles = self.service.get_vehicles_by_client(int(owner_id))
         serializer = self.serializer_class(vehicles, many=True)
         return Response(serializer.data)

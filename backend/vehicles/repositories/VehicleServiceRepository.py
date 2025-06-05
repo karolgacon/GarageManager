@@ -17,7 +17,7 @@ class VehicleServiceRepository(BaseRepository):
             return cls.model.objects.filter(**kwargs)
         except Exception as e:
             raise RuntimeError(f"Error retrieving {cls.model.__name__} by filter: {str(e)}")
-    
+
     @classmethod
     def get_by_vehicle(cls, vehicle_id):
         """
@@ -27,7 +27,7 @@ class VehicleServiceRepository(BaseRepository):
             return cls.model.objects.filter(vehicle_id=vehicle_id)
         except Exception as e:
             raise RuntimeError(f"Error retrieving services for vehicle {vehicle_id}: {str(e)}")
-    
+
     @classmethod
     def get_by_client(cls, client_id):
         """

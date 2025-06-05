@@ -52,7 +52,7 @@ class MaintenanceScheduleViewSet(BaseViewSet):
         summary="List due maintenance schedules",
         description="Retrieve a list of maintenance schedules that are due.",
         parameters=[
-            OpenApiParameter(name="client_id", type=int, location=OpenApiParameter.QUERY, 
+            OpenApiParameter(name="client_id", type=int, location=OpenApiParameter.QUERY,
                             description="Filter schedules by client ID")
         ],
         responses={200: MaintenanceScheduleSerializer(many=True)}
@@ -72,7 +72,7 @@ class MaintenanceScheduleViewSet(BaseViewSet):
         summary="Get maintenance schedules by client",
         description="Retrieve all maintenance schedules for a specific client's vehicles.",
         parameters=[
-            OpenApiParameter(name="client_id", type=int, location=OpenApiParameter.QUERY, 
+            OpenApiParameter(name="client_id", type=int, location=OpenApiParameter.QUERY,
                             description="Client ID to filter schedules", required=True)
         ],
         responses={200: MaintenanceScheduleSerializer(many=True)}
@@ -85,7 +85,7 @@ class MaintenanceScheduleViewSet(BaseViewSet):
         client_id = request.query_params.get('client_id')
         if not client_id:
             return Response({"error": "client_id parameter is required"}, status=400)
-            
+
         schedules = self.service.get_maintenance_schedule_by_client(client_id)
         serializer = self.serializer_class(schedules, many=True)
         return Response(serializer.data)

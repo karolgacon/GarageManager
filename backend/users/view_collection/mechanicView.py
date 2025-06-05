@@ -31,7 +31,7 @@ class MechanicViewSet(BaseViewSet):
         total_clients = self.service.get_all_clients().count()
         return Response({
             'total_clients': total_clients,
-            # Możesz dodać inne statystyki tutaj
+
         })
 
     @extend_schema(

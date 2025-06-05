@@ -11,7 +11,7 @@ class VehicleRepository(BaseRepository):
         Pobiera wszystkie pojazdy powiązane z klientem.
         """
         return cls.model.objects.filter(owner_id=client_id)
-    
+
     @classmethod
     def get_vehicles_by_owner(cls, owner_id):
         """

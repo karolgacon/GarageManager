@@ -11,8 +11,3 @@ def role_required(allowed_roles):
         return wrapped_view
     return decorator
 
-# Przykład użycia:
-# @role_required(['admin', 'owner'])
-# def some_view(request):
-#     # Ta funkcja będzie dostępna tylko dla adminów i właścicieli
-#     pass

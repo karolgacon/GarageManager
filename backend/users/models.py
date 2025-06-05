@@ -2,7 +2,6 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission, PermissionsMixin
 
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -11,7 +10,7 @@ class CustomUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         if password:
-            user.set_password(password)  # Hashowanie hasła
+            user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -21,10 +20,8 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
-
-# Używamy domyślnego modelu User z Django
 class User(AbstractBaseUser, PermissionsMixin):
-    id = models.AutoField(primary_key=True)  # Automatyczne generowanie ID
+    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     first_name = models.CharField(max_length=30, blank=True)
@@ -43,9 +40,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    is_staff = models.BooleanField(default=False)  # Konieczne do logowania do panelu admina
-    is_active = models.BooleanField(default=True)  # Umożliwia blokowanie konta
-    date_joined = models.DateTimeField(auto_now_add=True)  # Data utworzenia konta
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(null=True, blank=True)
     login_attempts = models.IntegerField(default=0)
 
@@ -55,7 +52,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-# Profil użytkownika przechowujący dodatkowe dane
 class Profile(models.Model):
     CONTACT_CHOICES = [
         ('email', 'E-mail'),

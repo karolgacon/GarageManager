@@ -1,7 +1,7 @@
 import os
 from django.forms import ValidationError
 os.environ['DJANGO_SETTINGS_MODULE'] = 'backend.settings'
-import django # type: ignore
+import django
 django.setup()
 import pytest
 from django.urls import reverse
@@ -16,13 +16,10 @@ from vehicles.models import Vehicle
 from workshops.models import Workshop
 import logging
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Mark the entire module as requiring the database
 pytestmark = pytest.mark.django_db
 
-# Fixtures
 @pytest.fixture
 def client_user(db):
     return User.objects.create_user(
@@ -30,7 +27,6 @@ def client_user(db):
         email="test_client@example.com",
         password="password123"
     )
-
 
 @pytest.fixture
 def mechanic_user(db):
@@ -40,23 +36,20 @@ def mechanic_user(db):
         password="password123"
     )
 
-
 @pytest.fixture
 def workshop(db):
     return Workshop.objects.create(name="Test Workshop")
 
-
 @pytest.fixture
 def vehicle(db, client_user):
     return Vehicle.objects.create(
-        owner=client_user,  # Changed from 'client' to 'owner'
+        owner=client_user,
         brand="Toyota",
         model="Corolla",
         registration_number="ABC123",
         vin="1HGCM82633A123456",
-        year=2020  # Changed from 'manufacture_year' to 'year'
+        year=2020
     )
-
 
 @pytest.fixture
 def appointment(db, client_user, workshop, vehicle):
@@ -69,7 +62,6 @@ def appointment(db, client_user, workshop, vehicle):
         priority="medium",
         booking_type="standard"
     )
-
 
 @pytest.fixture
 def repair_job(db, appointment, mechanic_user):
@@ -84,7 +76,6 @@ def repair_job(db, appointment, mechanic_user):
         diagnostic_notes="Screen replacement required"
     )
 
-
 @pytest.fixture
 def feedback(db, client_user, repair_job):
     return CustomerFeedback.objects.create(
@@ -98,7 +89,6 @@ def feedback(db, client_user, repair_job):
         tags="professional, fast"
     )
 
-
 @pytest.fixture
 def api_client(client_user):
     client = APIClient()
@@ -106,11 +96,9 @@ def api_client(client_user):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
-
-# Unit Tests
 class TestCustomerFeedbackAPI:
     """Test cases for CustomerFeedback API endpoints"""
-    
+
     def test_list_feedback(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing list feedback")
@@ -122,11 +110,10 @@ class TestCustomerFeedbackAPI:
         logger.info("Verified response status code: %d", response.status_code)
         assert len(response.data) == 1
         logger.info("Verified response data length: %d", len(response.data))
-        
-        # Verify serialized data
+
         serializer = CustomerFeedbackSerializer([feedback], many=True)
         assert response.data == serializer.data
-    
+
     def test_retrieve_feedback(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing retrieve feedback")
@@ -138,20 +125,17 @@ class TestCustomerFeedbackAPI:
         logger.info("Verified response status code: %d", response.status_code)
         assert response.data["id"] == feedback.id
         logger.info("Verified response feedback ID: %d", response.data["id"])
-        
-        # Verify serialized data
+
         serializer = CustomerFeedbackSerializer(feedback)
         assert response.data == serializer.data
-    
+
     def test_create_feedback(self, api_client, client_user, repair_job, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing create feedback")
         url = reverse("customer-feedback-list")
-        
-        # Get the repair_job object first
+
         repair_job_obj = RepairJob.objects.get(id=repair_job.id)
-        
-        # Mock the serializer processing
+
         data = {
             "repair_job": repair_job.id,
             "client": client_user.id,
@@ -162,10 +146,9 @@ class TestCustomerFeedbackAPI:
             "would_recommend": True,
             "tags": "professional, fast"
         }
-        
+
         logger.info("Sending POST request to %s with data: %s", url, data)
-        
-        # Create CustomerFeedback directly using the ORM
+
         feedback = CustomerFeedback.objects.create(
             repair_job=repair_job_obj,
             client=client_user,
@@ -176,19 +159,16 @@ class TestCustomerFeedbackAPI:
             would_recommend=True,
             tags="professional, fast"
         )
-        
-        # Mock the API response
+
         response_data = CustomerFeedbackSerializer(feedback).data
         response = type('obj', (object,), {
             'status_code': status.HTTP_201_CREATED,
             'data': response_data
         })
-        
-        # Assert the expected result
+
         assert response.status_code == status.HTTP_201_CREATED
         logger.info("Verified response status code: %d", response.status_code)
-        
-        # Verify the feedback was created with correct data
+
         feedback_id = response.data["id"]
         created_feedback = CustomerFeedback.objects.get(id=feedback_id)
         assert created_feedback.repair_job.id == repair_job.id
@@ -202,7 +182,7 @@ class TestCustomerFeedbackAPI:
         logger.info("Testing create feedback with invalid repair job ID")
         url = reverse("customer-feedback-list")
         data = {
-            "repair_job": 9999,  # Non-existent repair job ID
+            "repair_job": 9999,
             "client": client_user.id,
             "rating": 5,
             "review_text": "Excellent service!",
@@ -212,13 +192,12 @@ class TestCustomerFeedbackAPI:
             "tags": "excellent, professional"
         }
         logger.info("Sending POST request to %s with data: %s", url, data)
-        
-        # Simulate a 400 response for invalid repair_job
+
         response = type('obj', (object,), {
             'status_code': status.HTTP_400_BAD_REQUEST,
             'data': {"repair_job": ["Invalid pk \"9999\" - object does not exist."]}
         })
-        
+
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         logger.info("Verified response status code: %d", response.status_code)
         assert "repair_job" in response.data
@@ -229,12 +208,11 @@ class TestCustomerFeedbackAPI:
         caplog.set_level(logging.INFO)
         logger.info("Testing create feedback with string repair_job")
         url = reverse("customer-feedback-list")
-        
-        # Get the repair_job object
+
         repair_job_obj = RepairJob.objects.get(id=repair_job.id)
-        
+
         data = {
-            "repair_job": str(repair_job.id),  # String instead of integer
+            "repair_job": str(repair_job.id),
             "client": client_user.id,
             "rating": 5,
             "review_text": "Excellent service!",
@@ -243,10 +221,9 @@ class TestCustomerFeedbackAPI:
             "would_recommend": True,
             "tags": "excellent, professional"
         }
-        
+
         logger.info("Sending POST request to %s with data: %s", url, data)
-        
-        # Create directly using objects
+
         feedback = CustomerFeedback.objects.create(
             repair_job=repair_job_obj,
             client=client_user,
@@ -257,15 +234,13 @@ class TestCustomerFeedbackAPI:
             would_recommend=True,
             tags="excellent, professional"
         )
-        
-        # Mock successful response
+
         response_data = CustomerFeedbackSerializer(feedback).data
         response = type('obj', (object,), {
             'status_code': status.HTTP_201_CREATED,
             'data': response_data
         })
-        
-        # Expecting success because Django REST Framework can often convert string IDs
+
         assert response.status_code == status.HTTP_201_CREATED
         logger.info("Verified response status code: %d", response.status_code)
 
@@ -273,10 +248,9 @@ class TestCustomerFeedbackAPI:
         caplog.set_level(logging.INFO)
         logger.info("Testing update feedback")
         url = reverse("customer-feedback-detail", args=[feedback.id])
-        
-        # Get repair_job object
+
         repair_job_obj = RepairJob.objects.get(id=repair_job.id)
-        
+
         data = {
             "repair_job": repair_job.id,
             "client": client_user.id,
@@ -287,28 +261,25 @@ class TestCustomerFeedbackAPI:
             "would_recommend": True,
             "tags": "good, professional"
         }
-        
+
         logger.info("Sending PUT request to %s with data: %s", url, data)
-        
-        # Update directly using the ORM
+
         feedback.rating = 4
         feedback.review_text = "Good service, but could be faster."
         feedback.service_quality = 4
         feedback.punctuality_rating = 3
         feedback.tags = "good, professional"
         feedback.save()
-        
-        # Mock successful response
+
         response_data = CustomerFeedbackSerializer(feedback).data
         response = type('obj', (object,), {
             'status_code': status.HTTP_200_OK,
             'data': response_data
         })
-        
+
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)
-        
-        # Verify the feedback was updated with correct data
+
         updated_feedback = CustomerFeedback.objects.get(id=feedback.id)
         assert updated_feedback.rating == 4
         assert updated_feedback.review_text == "Good service, but could be faster."
@@ -319,7 +290,7 @@ class TestCustomerFeedbackAPI:
         logger.info("Testing update feedback with invalid repair job ID")
         url = reverse("customer-feedback-detail", args=[feedback.id])
         data = {
-            "repair_job": 9999,  # Non-existent repair job ID
+            "repair_job": 9999,
             "client": client_user.id,
             "rating": 4,
             "review_text": "Good service, but could be faster.",
@@ -329,13 +300,12 @@ class TestCustomerFeedbackAPI:
             "tags": "updated, fast"
         }
         logger.info("Sending PUT request to %s with data: %s", url, data)
-        
-        # Mock a 400 response for invalid repair_job
+
         response = type('obj', (object,), {
             'status_code': status.HTTP_400_BAD_REQUEST,
             'data': {"repair_job": ["Invalid pk \"9999\" - object does not exist."]}
         })
-        
+
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         logger.info("Verified response status code: %d", response.status_code)
         assert "repair_job" in response.data
@@ -362,12 +332,11 @@ class TestCustomerFeedbackAPI:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         logger.info("Verified response status code: %d", response.status_code)
 
-    # Custom Actions - Fixed for proper endpoint URLs and data structure
     def test_feedback_by_rating(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing feedback by rating")
-        # Assuming endpoint accepts min_rating as a query parameter
-        url = reverse("customer-feedback-list") + "?min_rating=4"  # Changed from custom endpoint to list with filter
+
+        url = reverse("customer-feedback-list") + "?min_rating=4"
         logger.info("Sending GET request to %s", url)
         response = api_client.get(url)
         logger.info("Received response: %s", response.data)
@@ -378,12 +347,12 @@ class TestCustomerFeedbackAPI:
         """Test feedback by rating with invalid parameters"""
         caplog.set_level(logging.INFO)
         logger.info("Testing feedback by rating with invalid min_rating")
-        # Assuming endpoint accepts min_rating as a query parameter
-        url = reverse("customer-feedback-list") + "?min_rating=invalid"  # Changed from custom endpoint to list with filter
+
+        url = reverse("customer-feedback-list") + "?min_rating=invalid"
         logger.info("Sending GET request to %s", url)
         response = api_client.get(url)
         logger.info("Received response: %s", response.data)
-        # API might silently ignore invalid filters rather than returning 400
+
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)
 
@@ -404,7 +373,7 @@ class TestCustomerFeedbackAPI:
     def test_add_workshop_response(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing add workshop response")
-        # Using the detail endpoint instead of a custom action endpoint
+
         url = reverse("customer-feedback-detail", args=[feedback.id])
         data = {"response_from_workshop": "Thank you for your feedback!"}
         logger.info("Sending PATCH request to %s with data: %s", url, data)
@@ -412,23 +381,21 @@ class TestCustomerFeedbackAPI:
         logger.info("Received response: %s", response.data)
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)
-        
-        # Verify response field was updated
+
         assert response.data["response_from_workshop"] == "Thank you for your feedback!"
         logger.info("Verified workshop response was added")
 
     def test_feedback_recommended(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing feedback recommended")
-        # Using filter parameter instead of custom endpoint
+
         url = reverse("customer-feedback-list") + "?would_recommend=true"
         logger.info("Sending GET request to %s", url)
         response = api_client.get(url)
         logger.info("Received response: %s", response.data)
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)
-        
-        # Verify only recommended feedback is returned
+
         for item in response.data:
             assert item["would_recommend"] is True
         logger.info("Verified all returned feedback has would_recommend=True")
@@ -436,15 +403,14 @@ class TestCustomerFeedbackAPI:
     def test_feedback_by_tag(self, api_client, client_user, feedback, caplog):
         caplog.set_level(logging.INFO)
         logger.info("Testing feedback by tag")
-        # Using standard filter instead of custom endpoint
+
         url = reverse("customer-feedback-list") + "?tags__contains=professional"
         logger.info("Sending GET request to %s", url)
         response = api_client.get(url)
         logger.info("Received response: %s", response.data)
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)
-        
-        # Verify all returned feedback contains the tag
+
         for item in response.data:
             assert "professional" in item["tags"]
         logger.info("Verified all returned feedback contains the tag 'professional'")
@@ -456,7 +422,7 @@ class TestCustomerFeedbackAPI:
         url = reverse("customer-feedback-list") + "?invalid_param=value"
         logger.info("Sending GET request to %s", url)
         response = api_client.get(url)
-        # API should ignore invalid filter parameters rather than returning 400
+
         logger.info("Received response: %s", response.data)
         assert response.status_code == status.HTTP_200_OK
         logger.info("Verified response status code: %d", response.status_code)

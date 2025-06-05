@@ -5,14 +5,12 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from .view_collection.authView import CreateUserView, LoginView, PublicUserDetailView
 
 urlpatterns = [
-    # JWT Authentication endpoints
+
     path('token/', TokenObtainPairView.as_view(), name='token-obtain'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh-token'),
 
-    # Include all registered ViewSets from the router
     path('', include(router.urls)),
 
-    # Additional endpoints (if needed)
     path('user/register/', CreateUserView.as_view(), name='user-register'),
     path('user/login/', LoginView.as_view(), name='user-login'),
     path('user/<int:id>/', PublicUserDetailView.as_view(), name='public-user-detail'),

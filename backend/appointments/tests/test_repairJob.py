@@ -1,7 +1,7 @@
 import os
 from django.forms import ValidationError
 os.environ['DJANGO_SETTINGS_MODULE'] = 'backend.settings'
-import django # type: ignore
+import django
 django.setup()
 import pytest
 from rest_framework import status
@@ -14,10 +14,8 @@ from vehicles.models import Vehicle
 from workshops.models import Workshop
 import logging
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Fixtures
 @pytest.fixture
 def client_user(db):
     return User.objects.create_user(
@@ -25,7 +23,6 @@ def client_user(db):
         email="test_client@example.com",
         password="password123"
     )
-
 
 @pytest.fixture
 def mechanic_user(db):
@@ -35,23 +32,20 @@ def mechanic_user(db):
         password="password123"
     )
 
-
 @pytest.fixture
 def workshop(db):
     return Workshop.objects.create(name="Test Workshop")
 
-
 @pytest.fixture
 def vehicle(db, client_user):
     return Vehicle.objects.create(
-        owner=client_user,  # Changed from 'client'
+        owner=client_user,
         brand="Toyota",
         model="Corolla",
         registration_number="ABC123",
         vin="1HGCM82633A123456",
-        year=2020  # Changed from 'manufacture_year'
+        year=2020
     )
-
 
 @pytest.fixture
 def appointment(db, client_user, workshop, vehicle):
@@ -64,7 +58,6 @@ def appointment(db, client_user, workshop, vehicle):
         priority="medium",
         booking_type="standard"
     )
-
 
 @pytest.fixture
 def repair_job(db, appointment, mechanic_user):
@@ -79,7 +72,6 @@ def repair_job(db, appointment, mechanic_user):
         diagnostic_notes="Screen replacement required"
     )
 
-
 @pytest.fixture
 def api_client(client_user):
     client = APIClient()
@@ -87,8 +79,6 @@ def api_client(client_user):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
     return client
 
-
-# Unit Tests
 @pytest.mark.django_db
 def test_list_repair_jobs(api_client, repair_job, caplog):
     caplog.set_level(logging.INFO)
@@ -101,7 +91,6 @@ def test_list_repair_jobs(api_client, repair_job, caplog):
     logger.info("Verified response status code: %d", response.status_code)
     assert len(response.data) == 1
     logger.info("Verified response data length: %d", len(response.data))
-
 
 @pytest.mark.django_db
 def test_retrieve_repair_job(api_client, repair_job, caplog):
@@ -116,17 +105,15 @@ def test_retrieve_repair_job(api_client, repair_job, caplog):
     assert response.data["id"] == repair_job.id
     logger.info("Verified response repair job ID: %d", response.data["id"])
 
-
 @pytest.mark.django_db
 def test_create_repair_job(api_client, appointment, mechanic_user, caplog):
     caplog.set_level(logging.INFO)
     logger.info("Testing create repair job")
     url = reverse("repair-job-list")
-    
-    # Make sure we're sending the correct object representation
+
     data = {
-        "appointment_id": appointment.id,  # Changed from "appointment" to "appointment_id"
-        "mechanic_id": mechanic_user.id,   # Changed from "mechanic" to "mechanic_id"
+        "appointment_id": appointment.id,
+        "mechanic_id": mechanic_user.id,
         "description": "Replace brake pads",
         "cost": 200.0,
         "duration": 120,
@@ -140,15 +127,14 @@ def test_create_repair_job(api_client, appointment, mechanic_user, caplog):
     assert response.status_code == status.HTTP_201_CREATED
     logger.info("Verified response status code: %d", response.status_code)
 
-
 @pytest.mark.django_db
 def test_update_repair_job(api_client, repair_job, caplog):
     caplog.set_level(logging.INFO)
     logger.info("Testing update repair job")
     url = reverse("repair-job-detail", args=[repair_job.id])
     data = {
-        "appointment_id": repair_job.appointment.id,  # Changed from "appointment" to "appointment_id"
-        "mechanic_id": repair_job.mechanic.id,        # Changed from "mechanic" to "mechanic_id"
+        "appointment_id": repair_job.appointment.id,
+        "mechanic_id": repair_job.mechanic.id,
         "description": "Updated description",
         "cost": 150.0,
         "duration": 90,
@@ -162,7 +148,6 @@ def test_update_repair_job(api_client, repair_job, caplog):
     assert response.status_code == status.HTTP_200_OK
     logger.info("Verified response status code: %d", response.status_code)
 
-
 @pytest.mark.django_db
 def test_partial_update_repair_job(api_client, repair_job, caplog):
     caplog.set_level(logging.INFO)
@@ -174,7 +159,6 @@ def test_partial_update_repair_job(api_client, repair_job, caplog):
     logger.info("Received response: %s", response.data)
     assert response.status_code == status.HTTP_200_OK
     logger.info("Verified response status code: %d", response.status_code)
-
 
 @pytest.mark.django_db
 def test_delete_repair_job(api_client, repair_job, caplog):

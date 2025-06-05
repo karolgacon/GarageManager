@@ -10,7 +10,7 @@ class DiagnosticsService(BaseService):
         Pobiera diagnostykę oznaczoną jako krytyczną.
         """
         return cls.repository.get_critical_diagnostics()
-        
+
     @classmethod
     def get_diagnostics_by_vehicle(cls, vehicle_id):
         """

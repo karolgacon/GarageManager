@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView # type: ignore
-from drf_spectacular.views import SpectacularRedocView, SpectacularSwaggerView # type: ignore
+from drf_spectacular.views import SpectacularAPIView
+from drf_spectacular.views import SpectacularRedocView, SpectacularSwaggerView
 
 from users import urls as users_urls
 from users import routers as users_routers
