@@ -13,24 +13,19 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Looking for customers in workshop_id: {workshop_id}")
 
             try:
                 from vehicles.models import Vehicle
                 vehicles_in_workshop = Vehicle.objects.filter(workshop_id=workshop_id)
-                print(f"[DEBUG] Found {vehicles_in_workshop.count()} vehicles in workshop {workshop_id}")
 
                 for vehicle in vehicles_in_workshop[:3]:
                     print(f"[DEBUG] Vehicle: {vehicle.id}, client: {vehicle.client}")
 
             except Exception as e:
-                print(f"[DEBUG] Error checking vehicles: {e}")
 
                 try:
                     vehicles_in_workshop = Vehicle.objects.filter(workshop=workshop_id)
-                    print(f"[DEBUG] Fallback: Found {vehicles_in_workshop.count()} vehicles with workshop={workshop_id}")
                 except Exception as e2:
-                    print(f"[DEBUG] Fallback also failed: {e2}")
                     return User.objects.none()
 
             try:
@@ -40,11 +35,9 @@ class WorkshopService(BaseService):
                     vehicles__workshop_id=workshop_id
                 ).select_related('profile').distinct()
 
-                print(f"[DEBUG] Found {customers.count()} customers with vehicles__workshop_id")
                 return customers
 
             except Exception as e:
-                print(f"[DEBUG] Error with vehicles__workshop_id, trying vehicles__workshop: {e}")
 
                 customers = User.objects.filter(
                     role='client',
@@ -52,11 +45,9 @@ class WorkshopService(BaseService):
                     vehicles__workshop=workshop_id
                 ).select_related('profile').distinct()
 
-                print(f"[DEBUG] Fallback: Found {customers.count()} customers with vehicles__workshop")
                 return customers
 
         except Exception as e:
-            print(f"[DEBUG] Major error in get_workshop_customers: {e}")
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching workshop customers: {str(e)}")
@@ -70,40 +61,30 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Getting workshop customers for user_id: {user_id}")
             user = User.objects.get(id=user_id)
-            print(f"[DEBUG] User: {user.username}, role: {user.role}")
 
             workshop_id = None
 
             if hasattr(user, 'workshop_id') and user.workshop_id:
                 workshop_id = user.workshop_id
-                print(f"[DEBUG] User has workshop_id: {workshop_id}")
             elif hasattr(user, 'workshop') and user.workshop:
                 workshop_id = user.workshop.id
-                print(f"[DEBUG] User has workshop: {workshop_id}")
             else:
-                print(f"[DEBUG] User has no direct workshop, checking vehicles...")
 
                 user_vehicle = user.vehicles.first()
                 if user_vehicle and hasattr(user_vehicle, 'workshop_id') and user_vehicle.workshop_id:
                     workshop_id = user_vehicle.workshop_id
-                    print(f"[DEBUG] Found workshop through user vehicle: {workshop_id}")
                 elif user_vehicle and hasattr(user_vehicle, 'workshop') and user_vehicle.workshop:
                     workshop_id = user_vehicle.workshop.id
-                    print(f"[DEBUG] Found workshop through user vehicle.workshop: {workshop_id}")
 
             if not workshop_id:
-                print(f"[DEBUG] No workshop found for user")
                 return User.objects.none()
 
             return WorkshopService.get_workshop_customers(workshop_id)
 
         except User.DoesNotExist:
-            print(f"[DEBUG] User {user_id} does not exist")
             return User.objects.none()
         except Exception as e:
-            print(f"[DEBUG] Error in get_user_workshop_customers: {e}")
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching user workshop customers: {str(e)}")
@@ -118,40 +99,31 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Getting workshop for user_id: {user_id}")
             user = User.objects.get(id=user_id)
 
             workshop_id = None
 
             if hasattr(user, 'workshop_id') and user.workshop_id:
                 workshop_id = user.workshop_id
-                print(f"[DEBUG] User has workshop_id: {workshop_id}")
             elif hasattr(user, 'workshop') and user.workshop:
-                print(f"[DEBUG] User has workshop object: {user.workshop.id}")
                 return user.workshop
             else:
-                print(f"[DEBUG] User has no direct workshop, checking vehicles...")
 
                 user_vehicle = user.vehicles.first()
                 if user_vehicle and hasattr(user_vehicle, 'workshop_id') and user_vehicle.workshop_id:
                     workshop_id = user_vehicle.workshop_id
-                    print(f"[DEBUG] Found workshop through user vehicle: {workshop_id}")
                 elif user_vehicle and hasattr(user_vehicle, 'workshop') and user_vehicle.workshop:
                     workshop_id = user_vehicle.workshop.id
-                    print(f"[DEBUG] Found workshop through user vehicle.workshop: {workshop_id}")
 
             if workshop_id:
                 workshop = Workshop.objects.get(id=workshop_id)
-                print(f"[DEBUG] Found workshop: {workshop.name}")
                 return workshop
 
             return None
 
         except (User.DoesNotExist, Workshop.DoesNotExist) as e:
-            print(f"[DEBUG] Workshop/User not found: {e}")
             return None
         except Exception as e:
-            print(f"[DEBUG] Error in get_user_workshop: {e}")
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching user workshop: {str(e)}")
@@ -165,10 +137,8 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Getting staff for workshop_id: {workshop_id}")
 
             user_fields = [f.name for f in User._meta.get_fields()]
-            print(f"[DEBUG] Available User fields: {user_fields}")
 
             from django.db.models import Q
 
@@ -177,7 +147,6 @@ class WorkshopService(BaseService):
                 Q(role='mechanic', is_active=True, workshopmechanic__workshop_id=workshop_id)
             ).select_related('profile').distinct()
 
-            print(f"[DEBUG] Found {staff.count()} staff members")
 
             if staff.exists():
                 return staff
@@ -189,15 +158,12 @@ class WorkshopService(BaseService):
                     vehicles__workshop_id=workshop_id
                 ).select_related('profile').distinct()
 
-                print(f"[DEBUG] Fallback: Found {staff.count()} staff members through vehicles")
                 return staff
 
             except Exception as e:
-                print(f"[DEBUG] Fallback failed: {e}")
                 return User.objects.none()
 
         except Exception as e:
-            print(f"[DEBUG] Error in get_workshop_staff: {e}")
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching workshop staff: {str(e)}")
@@ -211,7 +177,6 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Getting mechanics for workshop_id: {workshop_id}")
 
             mechanics = User.objects.filter(
                 role='mechanic',
@@ -219,7 +184,6 @@ class WorkshopService(BaseService):
                 workshopmechanic__workshop_id=workshop_id
             ).select_related('profile').distinct()
 
-            print(f"[DEBUG] Found {mechanics.count()} mechanics with workshopmechanic__workshop_id")
 
             if mechanics.exists():
                 return mechanics
@@ -231,15 +195,12 @@ class WorkshopService(BaseService):
                     vehicles__workshop_id=workshop_id
                 ).select_related('profile').distinct()
 
-                print(f"[DEBUG] Fallback: Found {mechanics.count()} mechanics through vehicles")
                 return mechanics
 
             except Exception as e:
-                print(f"[DEBUG] Fallback failed: {e}")
                 return User.objects.none()
 
         except Exception as e:
-            print(f"[DEBUG] Error in get_workshop_mechanics: {e}")
             import traceback
             traceback.print_exc()
             raise Exception(f"Error fetching workshop mechanics: {str(e)}")
@@ -254,7 +215,6 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-            print(f"[DEBUG] Getting staff for workshop_id: {workshop_id} using alternative method")
 
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -272,11 +232,9 @@ class WorkshopService(BaseService):
             user_ids = [row[0] for row in rows]
             staff = User.objects.filter(id__in=user_ids).select_related('profile')
 
-            print(f"[DEBUG] Alternative method found {staff.count()} staff members")
             return staff
 
         except Exception as e:
-            print(f"[DEBUG] Error in alternative method: {e}")
             import traceback
             traceback.print_exc()
             return User.objects.none()

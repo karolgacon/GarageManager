@@ -57,9 +57,7 @@ class VehicleViewSet(BaseViewSet):
 
         owner_id = self.request.query_params.get('owner', None)
         if owner_id is not None:
-            print(f"[DEBUG] Filtering vehicles by owner_id: {owner_id}")
             queryset = queryset.filter(owner_id=owner_id)
-            print(f"[DEBUG] Found {queryset.count()} vehicles for owner {owner_id}")
 
         return queryset
 
@@ -69,10 +67,8 @@ class VehicleViewSet(BaseViewSet):
         """
         queryset = self.get_queryset()
 
-        print(f"[DEBUG] Final queryset count: {queryset.count()}")
         for vehicle in queryset[:3]:
-            print(f"[DEBUG] Vehicle {vehicle.id}: owner={vehicle.owner_id}, brand={vehicle.brand}")
-
+            print(f"Vehicle ID: {vehicle.id}, Owner: {vehicle.owner.username if vehicle.owner else 'No owner'}")
         return super().list(request, *args, **kwargs)
 
     @extend_schema(

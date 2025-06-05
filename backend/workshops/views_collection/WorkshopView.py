@@ -128,7 +128,6 @@ class WorkshopViewSet(BaseViewSet):
             try:
                 staff = self.service.get_workshop_staff(workshop_id)
             except Exception as e:
-                print(f"[DEBUG] Standard method failed, trying alternative: {e}")
 
                 staff = self.service.get_workshop_staff_alternative(workshop_id)
 

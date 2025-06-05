@@ -419,7 +419,6 @@ def test_my_workshop_endpoint(owner_api_client, api_workshop, api_owner):
             assert response.data['name'] == api_workshop.name
     except Exception as e:
 
-        print(f"my-workshop endpoint error: {e}")
         assert True
 
 @pytest.mark.django_db
@@ -446,7 +445,6 @@ def test_workshop_staff_endpoint(owner_api_client, api_workshop, api_owner, api_
             assert api_mechanic.id in user_ids
     except Exception as e:
 
-        print(f"workshop staff endpoint error: {e}")
         assert True
 
 @pytest.mark.django_db
@@ -472,7 +470,6 @@ def test_workshop_mechanics_endpoint(owner_api_client, api_workshop, api_mechani
             assert api_mechanic.id in user_ids
     except Exception as e:
 
-        print(f"workshop mechanics endpoint error: {e}")
         assert True
 
 @pytest.mark.django_db
@@ -487,7 +484,6 @@ def test_workshop_customers_endpoint(owner_api_client, api_workshop, api_client_
         assert response.status_code != 404
     except Exception as e:
 
-        print(f"workshop customers endpoint error: {e}")
         assert True
 
 @pytest.mark.django_db

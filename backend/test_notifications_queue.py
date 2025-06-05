@@ -167,53 +167,7 @@ def test_notification_queue():
         print("- http://localhost:15672/ (login: garage, hasło: garage123)")
         print("- Sprawdź zakładkę 'Queues' - powinna być tam kolejka 'notifications'")
 
-        print("\n** Przykład konsumenta (możesz skopiować do pliku notification_worker.py): **")
-        print("""
-import os
-import pika
-import json
-import time
-
-def callback(ch, method, properties, body):
-    try:
-
-        message = json.loads(body.decode())
-        print(f"Otrzymano powiadomienie: {message['message']} (priorytet: {message.get('priority', 'normal')})")
-
-        processing_time = message.get('processing_time', 1)
-        print(f"Przetwarzanie zajmie {processing_time} sekund...")
-
-        for i in range(processing_time):
-            print(f"Przetwarzanie: {i+1}/{processing_time} sekund")
-            time.sleep(1)
-
-        print(f"Powiadomienie przetworzone! ID użytkownika: {message.get('user_id')}")
-
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-    except Exception as e:
-        print(f"Błąd podczas przetwarzania: {str(e)}")
-
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-
-host = os.environ.get('RABBITMQ_HOST', 'localhost')
-user = os.environ.get('RABBITMQ_USER', 'garage')
-password = os.environ.get('RABBITMQ_PASS', 'garage123')
-
-print(f"Łączenie z RabbitMQ na hoście: {host}")
-credentials = pika.PlainCredentials(user, password)
-parameters = pika.ConnectionParameters(host=host, credentials=credentials)
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
-
-channel.queue_declare(queue='notifications', durable=True)
-
-channel.basic_qos(prefetch_count=1)
-
-channel.basic_consume(queue='notifications', on_message_callback=callback)
-
-print("Oczekiwanie na powiadomienia. Aby zakończyć naciśnij CTRL+C")
-channel.start_consuming()
-        """)
+        
 
     except Exception as e:
         print(f"Błąd podczas testu: {str(e)}")
