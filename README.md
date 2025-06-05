@@ -18,7 +18,7 @@ GarageManager to kompleksowy system do zarządzania warsztatem samochodowym. Poz
 
 ## Diagram ERD
 
-![Diagram ERD](README.md)
+![Diagram ERD](erd_diagram.svg)
 
 ## 🛠️ Technologie
 
