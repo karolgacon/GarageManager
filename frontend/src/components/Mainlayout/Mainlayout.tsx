@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import HeaderBar from "./HeaderBar";
+import FloatingChatButton from "../FloatingChatButton";
 import {
 	Box,
 	Container,
@@ -10,14 +11,9 @@ import {
 	Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import {
-	COLOR_PRIMARY,
-	COLOR_SECONDARY,
-	COLOR_DARK,
-	COLOR_LIGHT,
-} from "../../constants";
+import { COLOR_PRIMARY, COLOR_LIGHT } from "../../constants";
 
-const Mainlayout = ({ children }) => {
+const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 	const [isMobile, setIsMobile] = useState(false);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -44,7 +40,7 @@ const Mainlayout = ({ children }) => {
 				display: "flex",
 				flexDirection: "column",
 				minHeight: "100vh",
-				position: "relative", 
+				position: "relative",
 			}}
 		>
 			<Box sx={{ display: "flex", flex: 1 }}>
@@ -95,8 +91,8 @@ const Mainlayout = ({ children }) => {
 					<Container
 						maxWidth="xl"
 						sx={{
-							py: 0, 
-							pt: 2, 
+							py: 0,
+							pt: 2,
 							px: { xs: 1, sm: 2, md: 3 },
 							flex: 1,
 						}}
@@ -106,15 +102,23 @@ const Mainlayout = ({ children }) => {
 				</Box>
 			</Box>
 
+			{/* Floating Chat Button */}
+			<FloatingChatButton
+				position={{
+					bottom: 64, // Above footer
+					right: 24,
+				}}
+			/>
+
 			<Box
 				sx={{
-					height: "32px", 
-					padding: "6px", 
+					height: "32px",
+					padding: "6px",
 					textAlign: "center",
 					bgcolor: COLOR_PRIMARY,
 					color: "white",
 					width: "100%",
-					position: "fixed", 
+					position: "fixed",
 					bottom: 0,
 					left: 0,
 					right: 0,
