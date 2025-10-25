@@ -158,3 +158,80 @@ class WorkshopViewSet(BaseViewSet):
             return Response({"error": "Invalid workshop ID"}, status=400)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Get nearby workshops",
+        description="Find workshops near a specific location within a given radius.",
+        parameters=[
+            OpenApiParameter(name="latitude", location=OpenApiParameter.QUERY, description="User latitude", required=True, type=float),
+            OpenApiParameter(name="longitude", location=OpenApiParameter.QUERY, description="User longitude", required=True, type=float),
+            OpenApiParameter(name="radius", location=OpenApiParameter.QUERY, description="Search radius in kilometers", required=False, type=int)
+        ],
+        responses={200: WorkshopSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='nearby')
+    def nearby_workshops(self, request):
+        """
+        Znajdź warsztaty w pobliżu podanej lokalizacji.
+        """
+        try:
+            latitude = float(request.GET.get('latitude'))
+            longitude = float(request.GET.get('longitude'))
+            radius = int(request.GET.get('radius', 50))  # Default 50km
+            
+            nearby_workshops = self.service.get_nearby_workshops(latitude, longitude, radius)
+            
+            # Add distance information to each workshop
+            for workshop in nearby_workshops:
+                if workshop.latitude and workshop.longitude:
+                    distance = workshop.distance_to(latitude, longitude)
+                    workshop.distance = distance
+            
+            serializer = self.serializer_class(nearby_workshops, many=True)
+            
+            # Add distance to serialized data
+            data = serializer.data
+            for i, workshop in enumerate(nearby_workshops):
+                if hasattr(workshop, 'distance'):
+                    data[i]['distance'] = workshop.distance
+            
+            return Response(data)
+        except (ValueError, TypeError):
+            return Response({"error": "Invalid latitude, longitude or radius parameters"}, status=400)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Find nearby workshops",
+        description="Find workshops near a given location sorted by distance.",
+        parameters=[
+            OpenApiParameter(name="latitude", location=OpenApiParameter.QUERY, description="User latitude", required=True, type=float),
+            OpenApiParameter(name="longitude", location=OpenApiParameter.QUERY, description="User longitude", required=True, type=float),
+            OpenApiParameter(name="radius", location=OpenApiParameter.QUERY, description="Search radius in kilometers", required=False, type=int)
+        ],
+        responses={200: WorkshopSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='nearby')
+    def nearby_workshops(self, request):
+        """
+        Znajdź warsztaty w pobliżu podanej lokalizacji.
+        """
+        try:
+            latitude = float(request.GET.get('latitude'))
+            longitude = float(request.GET.get('longitude'))
+            radius = int(request.GET.get('radius', 50))  # domyślnie 50km
+            
+            workshops = self.service.get_nearby_workshops(latitude, longitude, radius)
+            serializer = self.serializer_class(workshops, many=True)
+            
+            # Dodaj dystans do każdego warsztatu
+            for workshop_data, workshop in zip(serializer.data, workshops):
+                distance = workshop.distance_to(latitude, longitude)
+                workshop_data['distance_km'] = round(distance, 2) if distance else None
+            
+            return Response(serializer.data)
+            
+        except (ValueError, TypeError):
+            return Response({"error": "Invalid latitude or longitude"}, status=400)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)

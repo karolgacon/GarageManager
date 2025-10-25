@@ -34,8 +34,8 @@ class PartViewSet(BaseViewSet):
         ]
     )
     def create(self, request, *args, **kwargs):
-
-        workshop_id = request.data.pop('workshop_id', None)
+        # Extract workshop_id from request data
+        workshop_id = request.data.get('workshop_id')
 
         if not workshop_id:
             return Response(
@@ -43,29 +43,40 @@ class PartViewSet(BaseViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        response = super().create(request, *args, **kwargs)
+        # Create a copy of data without workshop_id for serializer
+        part_data = {k: v for k, v in request.data.items() if k != 'workshop_id'}
+        
+        # Use serializer for validation
+        serializer = self.serializer_class(data=part_data)
+        if not serializer.is_valid():
+            return Response(
+                {"error": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if response.status_code == status.HTTP_201_CREATED:
-            try:
+        try:
+            # Create part using validated data
+            part = self.service.create(serializer.validated_data)
+            
+            # Create inventory record
+            PartInventory.objects.create(
+                part=part,
+                workshop_id=workshop_id,
+                quantity=part_data.get('stock_quantity', 0)
+            )
 
-                part_id = response.data['id']
+            # Return response with part data and workshop_id
+            output_serializer = self.serializer_class(part)
+            response_data = output_serializer.data
+            response_data['workshop_id'] = workshop_id
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
 
-                PartInventory.objects.create(
-                    part_id=part_id,
-                    workshop_id=workshop_id,
-                    quantity=request.data.get('stock_quantity', 0)
-                )
-
-                response.data['workshop_id'] = workshop_id
-            except Exception as e:
-
-                self.service.delete(part_id)
-                return Response(
-                    {"error": f"Failed to associate part with workshop: {str(e)}"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-        return response
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to create part: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @extend_schema(
         description="List all parts in inventory",

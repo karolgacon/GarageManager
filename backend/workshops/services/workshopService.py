@@ -238,3 +238,28 @@ class WorkshopService(BaseService):
             import traceback
             traceback.print_exc()
             return User.objects.none()
+    
+    @staticmethod
+    def get_nearby_workshops(latitude, longitude, radius_km=50):
+        """
+        Znajdź warsztaty w pobliżu podanej lokalizacji w określonym promieniu.
+        """
+        from ..models import Workshop
+        
+        # Pobierz warsztaty z danymi geolokalizacyjnymi
+        workshops = Workshop.objects.filter(
+            latitude__isnull=False,
+            longitude__isnull=False
+        )
+        
+        nearby_workshops = []
+        
+        for workshop in workshops:
+            distance = workshop.distance_to(latitude, longitude)
+            if distance is not None and distance <= radius_km:
+                nearby_workshops.append(workshop)
+        
+        # Sortuj według odległości
+        nearby_workshops.sort(key=lambda w: w.distance_to(latitude, longitude))
+        
+        return nearby_workshops

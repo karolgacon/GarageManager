@@ -1,5 +1,28 @@
 from django.contrib import admin
-from .models import Part, StockEntry, RepairJobPart
+from .models import Part, StockEntry, RepairJobPart, Supplier
+
+@admin.register(Supplier)
+class SupplierAdmin(admin.ModelAdmin):
+    list_display = ("name", "contact_person", "email", "phone", "city", "rating", "is_active")
+    search_fields = ("name", "contact_person", "email")
+    list_filter = ("city", "country", "is_active", "rating")
+    fieldsets = (
+        ("Podstawowe informacje", {
+            "fields": ("name", "contact_person", "email", "phone")
+        }),
+        ("Adres", {
+            "fields": ("address", "city", "postal_code", "country")
+        }),
+        ("Biznesowe", {
+            "fields": ("website", "tax_id", "rating")
+        }),
+        ("Logistyka", {
+            "fields": ("delivery_time_days", "minimum_order_value", "payment_terms")
+        }),
+        ("Status", {
+            "fields": ("is_active",)
+        }),
+    )
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):

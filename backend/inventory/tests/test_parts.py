@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import Part, PartInventory
+from ..models import Part, PartInventory, Supplier
 from ..serializers import PartSerializer
 from users.models import User
 from workshops.models import Workshop
@@ -50,7 +50,17 @@ def test_workshop():
     )
 
 @pytest.fixture
-def test_part():
+def test_supplier():
+    return Supplier.objects.create(
+        name='Auto Parts Inc',
+        email='contact@autoparts.com',
+        phone='123-456-7890',
+        address='123 Main St',
+        city='Test City'
+    )
+
+@pytest.fixture
+def test_part(test_supplier):
     return Part.objects.create(
         name='Test Brake Pad',
         manufacturer='Bosch',
@@ -58,7 +68,7 @@ def test_part():
         stock_quantity=10,
         minimum_stock_level=5,
         category='brake',
-        supplier='Auto Parts Inc'
+        supplier=test_supplier
     )
 
 @pytest.fixture
@@ -87,7 +97,7 @@ def test_list_parts_by_workshop(api_client, test_user, test_part, test_workshop,
     assert response.data[0]['name'] == test_part.name
 
 @pytest.mark.django_db
-def test_create_part(api_client, test_user, test_workshop):
+def test_create_part(api_client, test_user, test_workshop, test_supplier):
     url = '/api/v1/parts/'
     api_client.force_authenticate(user=test_user)
     part_data = {
@@ -97,7 +107,7 @@ def test_create_part(api_client, test_user, test_workshop):
         'stock_quantity': 15,
         'minimum_stock_level': 5,
         'category': 'brake',
-        'supplier': 'Auto Parts Plus',
+        'supplier': test_supplier.id,  # Use supplier ID instead of string
         'workshop_id': test_workshop.id
     }
 
@@ -145,7 +155,7 @@ def test_retrieve_part(api_client, test_user, test_part):
     assert response.data['manufacturer'] == test_part.manufacturer
 
 @pytest.mark.django_db
-def test_update_part(api_client, test_user, test_part):
+def test_update_part(api_client, test_user, test_part, test_supplier):
     url = f'/api/v1/parts/{test_part.id}/'
     api_client.force_authenticate(user=test_user)
 
@@ -156,7 +166,7 @@ def test_update_part(api_client, test_user, test_part):
         'stock_quantity': 20,
         'minimum_stock_level': test_part.minimum_stock_level,
         'category': test_part.category,
-        'supplier': test_part.supplier
+        'supplier': test_supplier.id  # Use supplier ID
     }
 
     response = api_client.put(url, updated_data, format='json')
@@ -175,7 +185,7 @@ def test_delete_part(api_client, test_user, test_part):
     assert Part.objects.count() == 0
 
 @pytest.mark.django_db
-def test_admin_can_see_all_parts(admin_api_client, test_admin_user, test_part, test_workshop, test_part_inventory):
+def test_admin_can_see_all_parts(admin_api_client, test_admin_user, test_part, test_workshop, test_part_inventory, test_supplier):
 
     workshop2 = Workshop.objects.create(
         name='Workshop 2',
@@ -183,7 +193,7 @@ def test_admin_can_see_all_parts(admin_api_client, test_admin_user, test_part, t
         contact_phone='987-654-3210',
         specialization='general'
     )
-    part2 = Part.objects.create(name='Test Oil Filter', manufacturer='Mann', price=Decimal('12.99'), category='engine')
+    part2 = Part.objects.create(name='Test Oil Filter', manufacturer='Mann', price=Decimal('12.99'), category='engine', supplier=test_supplier)
     PartInventory.objects.create(part=part2, workshop=workshop2, quantity=5)
 
     url = '/api/v1/parts/'

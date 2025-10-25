@@ -28,6 +28,14 @@ class Appointment(models.Model):
     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
     workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='appointments')
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='appointments')
+    assigned_mechanic = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_appointments',
+        help_text="Mechanik przypisany do tej wizyty"
+    )
     date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='low')

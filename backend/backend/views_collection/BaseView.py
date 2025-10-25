@@ -49,13 +49,26 @@ class BaseViewSet(viewsets.ViewSet):
     )
     def create(self, request):
         """Create a new record."""
-        try:
-            record = self.service.create(request.data)
-            serializer = self.serializer_class(record)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
+        # Use serializer for validation and data processing
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            try:
+                record = self.service.create(serializer.validated_data)
+                output_serializer = self.serializer_class(record)
+                return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+            except ValidationError as e:
+                return Response(
+                    {"error": e.message_dict if hasattr(e, 'message_dict') else str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
             return Response(
-                {"error": e.message_dict},
+                {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -67,18 +80,31 @@ class BaseViewSet(viewsets.ViewSet):
     )
     def update(self, request, pk=None):
         """Update an existing record."""
-        try:
-            record = self.service.update(pk, request.data)
-            serializer = self.serializer_class(record)
-            return Response(serializer.data)
-        except Http404:
+        # Use serializer for validation and data processing
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            try:
+                record = self.service.update(pk, serializer.validated_data)
+                output_serializer = self.serializer_class(record)
+                return Response(output_serializer.data)
+            except Http404:
+                return Response(
+                    {"error": "Record not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            except ValidationError as e:
+                return Response(
+                    {"error": e.message_dict if hasattr(e, 'message_dict') else str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
             return Response(
-                {"error": "Record not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except ValidationError as e:
-            return Response(
-                {"error": e.message_dict},
+                {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -90,18 +116,31 @@ class BaseViewSet(viewsets.ViewSet):
     )
     def partial_update(self, request, pk=None):
         """Partially update a record."""
-        try:
-            record = self.service.partially_update(pk, request.data)
-            serializer = self.serializer_class(record)
-            return Response(serializer.data)
-        except Http404:
+        # Use serializer for validation and data processing
+        serializer = self.serializer_class(data=request.data, partial=True)
+        if serializer.is_valid():
+            try:
+                record = self.service.partially_update(pk, serializer.validated_data)
+                output_serializer = self.serializer_class(record)
+                return Response(output_serializer.data)
+            except Http404:
+                return Response(
+                    {"error": "Record not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            except ValidationError as e:
+                return Response(
+                    {"error": e.message_dict if hasattr(e, 'message_dict') else str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
             return Response(
-                {"error": "Record not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except ValidationError as e:
-            return Response(
-                {"error": e.message_dict},
+                {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

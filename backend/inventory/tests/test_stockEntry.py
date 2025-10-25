@@ -13,7 +13,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import Part, StockEntry
+from ..models import Part, StockEntry, Supplier
 from ..serializers import StockEntrySerializer
 from users.models import User
 from workshops.models import Workshop
@@ -40,7 +40,17 @@ def test_workshop():
     )
 
 @pytest.fixture
-def test_part():
+def test_supplier():
+    return Supplier.objects.create(
+        name='Auto Parts Inc',
+        email='contact@autoparts.com',
+        phone='123-456-7890',
+        address='123 Main St',
+        city='Test City'
+    )
+
+@pytest.fixture
+def test_part(test_supplier):
     return Part.objects.create(
         name='Test Oil Filter',
         manufacturer='Bosch',
@@ -48,7 +58,7 @@ def test_part():
         stock_quantity=10,
         minimum_stock_level=5,
         category='engine',
-        supplier='Auto Parts Inc'
+        supplier=test_supplier
     )
 
 @pytest.fixture
@@ -144,7 +154,7 @@ def test_delete_stock_entry(api_client, test_user, test_stock_entry):
     assert StockEntry.objects.filter(id=test_stock_entry.id).count() == 0
 
 @pytest.mark.django_db
-def test_filter_stock_entries_by_part(api_client, test_user, test_part):
+def test_filter_stock_entries_by_part(api_client, test_user, test_part, test_supplier):
 
     StockEntry.objects.all().delete()
 
@@ -164,6 +174,15 @@ def test_filter_stock_entries_by_part(api_client, test_user, test_part):
         notes='Sale to customer'
     )
 
+    # Create another supplier for the other part
+    supplier2 = Supplier.objects.create(
+        name='Auto Parts Co',
+        email='contact@autopartsco.com',
+        phone='987-654-3210',
+        address='456 Industrial Ave',
+        city='Parts City'
+    )
+
     other_part = Part.objects.create(
         name='Test Air Filter',
         manufacturer='Mann',
@@ -171,7 +190,7 @@ def test_filter_stock_entries_by_part(api_client, test_user, test_part):
         stock_quantity=8,
         minimum_stock_level=3,
         category='engine',
-        supplier='Auto Parts Co'
+        supplier=supplier2
     )
 
     StockEntry.objects.create(

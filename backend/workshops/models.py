@@ -16,6 +16,34 @@ class Workshop(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_workshops',null=True, blank=True)
     working_hours = models.CharField(max_length=100, default="8:00-16:00")
     location = models.TextField()
+    
+    # Geolokalizacja
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Szerokość geograficzna"
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Długość geograficzna"
+    )
+    address_full = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Pełny adres strukturalny"
+    )
+    google_place_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Google Places API ID"
+    )
+    
     specialization = models.CharField(
         max_length=50,
         choices=SPECIALIZATION_CHOICES,
@@ -27,6 +55,33 @@ class Workshop(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def has_location_data(self):
+        """Sprawdź czy warsztat ma dane geolokalizacyjne"""
+        return self.latitude is not None and self.longitude is not None
+    
+    def distance_to(self, lat, lon):
+        """Oblicz odległość do podanej lokalizacji w kilometrach"""
+        if not self.has_location_data:
+            return None
+        
+        import math
+        
+        # Konwersja na radiany
+        lat1, lon1 = math.radians(float(self.latitude)), math.radians(float(self.longitude))
+        lat2, lon2 = math.radians(lat), math.radians(lon)
+        
+        # Wzór haversine
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        
+        # Promień Ziemi w kilometrach
+        r = 6371
+        
+        return c * r
 
 class Service(models.Model):
     CATEGORY_CHOICES = [

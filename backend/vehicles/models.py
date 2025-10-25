@@ -45,7 +45,6 @@ class Vehicle(models.Model):
     transmission = models.CharField(max_length=20, choices=TRANSMISSION_CHOICES, null=True, blank=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicles')
-    workshop = models.ForeignKey(Workshop, on_delete=models.SET_NULL, null=True, blank=True, related_name='vehicles')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
 
     last_service_date = models.DateField(null=True, blank=True)
@@ -65,12 +64,32 @@ class Vehicle(models.Model):
         return f"{self.owner.first_name} {self.owner.last_name}" if self.owner else None
 
     @property
+    def current_workshop(self):
+        """Warsztat z ostatniej/aktualnej wizyty"""
+        last_appointment = self.appointments.filter(
+            status__in=['confirmed', 'in_progress']
+        ).order_by('-date').first()
+        return last_appointment.workshop if last_appointment else None
+
+    @property
+    def workshop_history(self):
+        """Historia warsztatów gdzie był pojazd"""
+        from workshops.models import Workshop
+        return Workshop.objects.filter(
+            appointments__vehicle=self
+        ).distinct().order_by('-appointments__date')
+
+    @property
     def workshop_id(self):
-        return self.workshop.id if self.workshop else None
+        """Kompatybilność z frontend - ID aktualnego warsztatu"""
+        current = self.current_workshop
+        return current.id if current else None
 
     @property
     def workshop_name(self):
-        return self.workshop.name if self.workshop else None
+        """Kompatybilność z frontend - nazwa aktualnego warsztatu"""
+        current = self.current_workshop
+        return current.name if current else None
 
 class Diagnostics(models.Model):
     SEVERITY_CHOICES = [
