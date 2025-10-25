@@ -7,7 +7,7 @@ COPY ./requirements.txt /requirements.txt
 ENV PATH="/py/bin:$PATH"
 RUN python -m venv /py && \
     pip install --upgrade pip && \
-    apk add --update --upgrade --no-cache postgresql-client && \
+    apk add --update --upgrade --no-cache postgresql-client wget && \
     apk add --update --upgrade --no-cache --virtual .tmp \
         build-base postgresql-dev
 

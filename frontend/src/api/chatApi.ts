@@ -126,6 +126,8 @@ export class ChatApiClient {
 		conversationUuid: string,
 		data: MessageCreateRequest
 	): Promise<Message> {
+		console.log("sendMessage called with:", { conversationUuid, data });
+
 		const formData = new FormData();
 		formData.append("content", data.content);
 		if (data.message_type) {
@@ -138,15 +140,18 @@ export class ChatApiClient {
 			formData.append("quote_data", JSON.stringify(data.quote_data));
 		}
 
+		console.log("FormData created:", {
+			content: formData.get("content"),
+			message_type: formData.get("message_type"),
+		});
+
 		const response: AxiosResponse<Message> = await this.client.post(
 			`/conversations/${conversationUuid}/messages/`,
-			formData,
-			{
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			}
+			formData
+			// Nie ustawiamy Content-Type - axios ustawi automatycznie z boundary
 		);
+
+		console.log("Message sent successfully:", response.data);
 		return response.data;
 	}
 
@@ -181,7 +186,7 @@ export const useChatApi = (): UseChatApiReturn => {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
-	const fetchConversations = async () => {
+	const fetchConversations = React.useCallback(async () => {
 		try {
 			setIsLoading(true);
 			setError(null);
@@ -194,9 +199,9 @@ export const useChatApi = (): UseChatApiReturn => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
-	const fetchMessages = async (conversationUuid: string) => {
+	const fetchMessages = React.useCallback(async (conversationUuid: string) => {
 		try {
 			setIsLoading(true);
 			setError(null);
@@ -207,7 +212,7 @@ export const useChatApi = (): UseChatApiReturn => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	const createConversation = async (
 		data: ConversationCreateRequest

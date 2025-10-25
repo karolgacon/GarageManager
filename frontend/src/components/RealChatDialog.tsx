@@ -20,8 +20,7 @@ import {
 } from "@mui/icons-material";
 import { COLOR_PRIMARY, COLOR_SECONDARY } from "../constants";
 import { useChatApi } from "../api/chatApi";
-import { useChatWebSocket } from "../hooks/useChatWebSocket";
-import { Conversation, Message } from "../models/chat";
+import { Conversation } from "../models/chat";
 
 interface RealChatDialogProps {
 	onClose?: () => void;
@@ -32,7 +31,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation | null>(null);
 
-	// Chat API and WebSocket hooks
+	// Chat API hook (bez WebSocket na razie)
 	const {
 		conversations,
 		messages,
@@ -43,17 +42,21 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 		sendMessage: apiSendMessage,
 	} = useChatApi();
 
-	const { sendMessage: wsSendMessage, isConnected } = useChatWebSocket({
-		conversationUuid: selectedConversation?.uuid,
-		onMessageReceived: (newMessage: Message) => {
-			console.log("Otrzymano nową wiadomość:", newMessage);
-			// Automatycznie odśwież wiadomości
-			if (selectedConversation) {
-				fetchMessages(selectedConversation.uuid);
-			}
-		},
-		autoConnect: true,
-	});
+	// Tymczasowo wyłączamy WebSocket - używamy tylko HTTP API
+	// const { sendMessage: wsSendMessage, isConnected } = useChatWebSocket({
+	// 	conversationUuid: selectedConversation?.uuid,
+	// 	onMessageReceived: (newMessage: Message) => {
+	// 		console.log("Otrzymano nową wiadomość:", newMessage);
+	// 		// Automatycznie odśwież wiadomości
+	// 		if (selectedConversation) {
+	// 			fetchMessages(selectedConversation.uuid);
+	// 		}
+	// 	},
+	// 	autoConnect: true,
+	// });
+
+	// Mock status - brak WebSocket
+	const isConnected = false;
 
 	// Load conversations on mount
 	useEffect(() => {
@@ -76,6 +79,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 
 	const handleSendMessage = useCallback(async () => {
 		if (!message.trim() || !selectedConversation) {
+			console.log("Nie można wysłać - brak wiadomości lub konwersacji");
 			return;
 		}
 
@@ -85,31 +89,28 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 			message_type: "text" as const,
 		};
 
-		try {
-			// Try WebSocket first if connected
-			if (isConnected) {
-				wsSendMessage(messageData);
-				console.log("Wiadomość wysłana przez WebSocket");
-			} else {
-				// Fallback to API
-				await apiSendMessage(selectedConversation.uuid, messageData);
-				console.log("Wiadomość wysłana przez API");
-				// Refresh messages after API send
-				await fetchMessages(selectedConversation.uuid);
-			}
+		console.log("Wysyłanie wiadomości:", messageData);
+		console.log("UUID konwersacji:", selectedConversation.uuid);
 
+		try {
+			// Używamy tylko API (bez WebSocket na razie)
+			const sentMessage = await apiSendMessage(
+				selectedConversation.uuid,
+				messageData
+			);
+			console.log("Wiadomość wysłana pomyślnie:", sentMessage);
+
+			// Odśwież wiadomości po wysłaniu
+			await fetchMessages(selectedConversation.uuid);
 			setMessage("");
 		} catch (error) {
 			console.error("Błąd wysyłania wiadomości:", error);
+			alert(
+				"Nie udało się wysłać wiadomości: " +
+					(error instanceof Error ? error.message : "Nieznany błąd")
+			);
 		}
-	}, [
-		message,
-		selectedConversation,
-		isConnected,
-		wsSendMessage,
-		apiSendMessage,
-		fetchMessages,
-	]);
+	}, [message, selectedConversation, apiSendMessage, fetchMessages]);
 
 	const formatTime = (dateString: string) => {
 		const date = new Date(dateString);
@@ -176,10 +177,16 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 				{/* Connection status */}
 				<Chip
 					size="small"
-					label={isConnected ? "Online" : "Offline"}
+					label={isConnected ? "Połączony" : "Tylko odczyt"}
 					sx={{
-						bgcolor: isConnected ? "success.main" : "warning.main",
+						bgcolor: isConnected ? "success.main" : "grey.600",
 						color: "white",
+						fontSize: "0.75rem",
+						height: 24,
+						"& .MuiChip-label": {
+							px: 1,
+							fontWeight: 500,
+						},
 					}}
 				/>
 
@@ -253,11 +260,51 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 												</Typography>
 												<Chip
 													size="small"
-													label={conv.status}
-													color={
-														conv.status === "active" ? "success" : "default"
+													label={
+														conv.status === "active"
+															? "Aktywny"
+															: conv.status === "waiting_client"
+															? "Oczekuje odpowiedzi"
+															: conv.status === "waiting_mechanic"
+															? "Mechanik odpowie"
+															: conv.status === "resolved"
+															? "Rozwiązany"
+															: conv.status === "closed"
+															? "Zamknięty"
+															: conv.status
 													}
-													sx={{ mt: 0.5 }}
+													sx={{
+														mt: 0.5,
+														height: 22,
+														fontSize: "0.7rem",
+														bgcolor:
+															conv.status === "active"
+																? "success.light"
+																: conv.status === "waiting_client"
+																? "warning.light"
+																: conv.status === "waiting_mechanic"
+																? "info.light"
+																: conv.status === "resolved"
+																? "grey.300"
+																: conv.status === "closed"
+																? "grey.400"
+																: "grey.200",
+														color:
+															conv.status === "active"
+																? "success.dark"
+																: conv.status === "waiting_client"
+																? "warning.dark"
+																: conv.status === "waiting_mechanic"
+																? "info.dark"
+																: conv.status === "resolved"
+																? "grey.700"
+																: conv.status === "closed"
+																? "grey.700"
+																: "grey.700",
+														"& .MuiChip-label": {
+															fontWeight: 600,
+														},
+													}}
 												/>
 											</Box>
 										}

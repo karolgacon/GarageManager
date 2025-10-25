@@ -12,7 +12,7 @@ import {
 	useTheme,
 } from "@mui/material";
 import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
-import ChatTestDialog from "./ChatTestDialog";
+import RealChatDialog from "./RealChatDialog";
 import { useChatNotifications } from "../hooks/useChatWebSocket";
 import { COLOR_PRIMARY, COLOR_SECONDARY } from "../constants";
 import AuthContext from "../context/AuthProvider";
@@ -126,7 +126,7 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 
 				<DialogContent sx={{ p: 0, height: "100%", overflow: "hidden" }}>
 					<Box sx={{ height: "100%", width: "100%" }}>
-						<ChatTestDialog onClose={handleCloseChat} />
+						<RealChatDialog onClose={handleCloseChat} />
 					</Box>
 				</DialogContent>
 			</Dialog>

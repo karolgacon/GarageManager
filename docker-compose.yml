@@ -35,11 +35,22 @@ services:
       - DB_USER=user
       - DB_PASS=localdevpw
       - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8000/api/v1/admin/",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -84,6 +95,20 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
   worker:
     build:
       context: .
@@ -97,9 +122,11 @@ services:
       - DB_USER=user
       - DB_PASS=localdevpw
       - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - backend
       - rabbitmq
+      - redis
     networks:
       - app-network
 
@@ -118,10 +145,13 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=garage
       - RABBITMQ_PASS=garage123
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       backend:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - app-network
@@ -129,6 +159,7 @@ services:
 volumes:
   db-data:
   rabbitmq-data:
+  redis-data:
 
 networks:
   app-network:

@@ -40,6 +40,8 @@ from billing import routers as billing_routers
 from notifications import urls as notifications_urls
 from notifications import routers as notifications_routers
 
+from chat import urls as chat_urls
+
 urlpatterns = [
     path('api/v1/admin/', admin.site.urls),
     path('api/v1/api-auth/', include("rest_framework.urls")),
@@ -60,4 +62,5 @@ urlpatterns = [
     path("api/v1/", include(billing_routers)),
     path("api/v1/", include(notifications_urls)),
     path("api/v1/", include(notifications_routers)),
+    path("api/v1/chat/", include(chat_urls)),
 ]
