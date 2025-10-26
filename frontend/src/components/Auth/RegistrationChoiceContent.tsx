@@ -1,40 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import {
-	Box,
-	Paper,
-	Typography,
-	Button,
-	Card,
-	CardContent,
-} from "@mui/material";
+import { Box, Typography, Button, Card, CardContent } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import GarageLogo from "./GarageLogo";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
-
-const StyledContainer = styled(Box)({
-	display: "flex",
-	flexDirection: "column",
-	alignItems: "center",
-	width: "100%",
-	maxWidth: "450px",
-	margin: "0 auto",
-});
-
-const StyledFormCard = styled(Paper)({
-	backgroundColor: "white",
-	borderRadius: "16px",
-	padding: "40px 30px",
-	width: "100%",
-	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-	border: "1px solid #E5E7EB",
-	textAlign: "center",
-});
+import useStyles from "./LoginWrapper.styles.ts";
 
 const StyledChoiceCard = styled(Card)({
 	borderRadius: "12px",
 	border: "2px solid #E5E7EB",
 	transition: "all 0.3s ease",
+	cursor: "pointer",
 	"&:hover": {
 		borderColor: "#FF3B57",
 		backgroundColor: "#FFF8F9",
@@ -78,6 +53,7 @@ const StyledBackButton = styled(Button)({
 
 function RegistrationChoice() {
 	const navigate = useNavigate();
+	const classes = useStyles();
 
 	const handleClientRegistration = () => {
 		navigate("/register/client");
@@ -92,10 +68,8 @@ function RegistrationChoice() {
 	};
 
 	return (
-		<StyledContainer>
-			<GarageLogo />
-
-			<StyledFormCard elevation={0}>
+		<div className={classes.container}>
+			<div className={classes.formCard}>
 				<Typography
 					variant="h4"
 					component="h2"
@@ -105,6 +79,7 @@ function RegistrationChoice() {
 						color: "#1F2937",
 						marginBottom: "8px",
 						letterSpacing: "-0.02em",
+						textAlign: "center",
 					}}
 				>
 					Choose Account Type
@@ -116,6 +91,7 @@ function RegistrationChoice() {
 						color: "#6B7280",
 						marginBottom: "30px",
 						lineHeight: "1.5",
+						textAlign: "center",
 					}}
 				>
 					Select how you would like to use GarageManager
@@ -197,8 +173,8 @@ function RegistrationChoice() {
 				<StyledBackButton variant="outlined" onClick={handleBackToLogin}>
 					Back to Login
 				</StyledBackButton>
-			</StyledFormCard>
-		</StyledContainer>
+			</div>
+		</div>
 	);
 }
 

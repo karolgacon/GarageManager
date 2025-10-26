@@ -51,13 +51,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 						<Route path="/staff" element={<StaffManagement />} />
 						<Route path="/invoices" element={<Invoices />} />
 					</Route>
-					<Route
-						element={
-							<RequireAuth
-								requiredRole={["root"]}
-							/>
-						}
-					>
+					<Route element={<RequireAuth requiredRole={["root"]} />}>
 						<Route path="/users" element={<UserList />} />
 						<Route path="/users/new" element={<UserForm mode="create" />} />
 						<Route path="/users/edit/:id" element={<UserForm mode="edit" />} />

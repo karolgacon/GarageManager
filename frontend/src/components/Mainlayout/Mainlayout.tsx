@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import HeaderBar from "./HeaderBar";
 import FloatingChatButton from "../FloatingChatButton";
+import Footer from "../Footer";
 import {
 	Box,
 	Container,
@@ -110,25 +111,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 				}}
 			/>
 
-			<Box
-				sx={{
-					height: "32px",
-					padding: "6px",
-					textAlign: "center",
-					bgcolor: COLOR_PRIMARY,
-					color: "white",
-					width: "100%",
-					position: "fixed",
-					bottom: 0,
-					left: 0,
-					right: 0,
-					zIndex: 1300,
-				}}
-			>
-				<Typography variant="caption" component="div">
-					COPYRIGHT | GARAGEMASTER 2025
-				</Typography>
-			</Box>
+			<Footer />
 		</Box>
 	);
 };

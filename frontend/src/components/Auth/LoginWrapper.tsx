@@ -7,7 +7,6 @@ import { setAuthHeader } from "../../authorization/authServices";
 import { jwtDecode } from "jwt-decode";
 import { CustomJwtPayload } from "../../authorization/CustomJwtPayload";
 import { useNavigate } from "react-router-dom";
-import GarageLogo from "./GarageLogo";
 const EyeIcon = () => (
 	<svg
 		width="20"
@@ -73,7 +72,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 						roles: [userDetails.role],
 						username: userDetails.username,
 						is_active: userDetails.is_active,
-						user_id: decoded.user_id, 
+						user_id: decoded.user_id,
 						isLoading: false,
 					});
 
@@ -103,8 +102,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 		};
 
 		useImperativeHandle(ref, () => ({
-			triggerPendingAction: () => {
-			},
+			triggerPendingAction: () => {},
 		}));
 		const redirectBasedOnRole = (role: string) => {
 			switch (role) {
@@ -131,8 +129,6 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 
 		return (
 			<div className={classes.container}>
-				<GarageLogo />
-
 				<div className={classes.formCard}>
 					<h2 className={classes.formTitle}>Login to your account</h2>
 
