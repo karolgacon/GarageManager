@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { COLOR_SECONDARY } from "../constants";
+import { COLOR_SECONDARY, COLOR_PRIMARY } from "../constants";
 
 const Footer = () => (
 	<Box
@@ -7,7 +7,7 @@ const Footer = () => (
 			height: "32px",
 			padding: "6px",
 			textAlign: "center",
-			bgcolor: COLOR_SECONDARY,
+			bgcolor: COLOR_PRIMARY,
 			color: "white",
 			width: "100%",
 			position: "fixed",

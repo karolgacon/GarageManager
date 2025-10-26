@@ -59,9 +59,9 @@ const StyledFormCard = styled(Paper)({
 });
 
 const StyledLogo = styled("img")({
-	width: "120px",
+	width: "220px",
 	height: "auto",
-	marginBottom: "20px",
+	marginBottom: "28px",
 	// Usuń filtr, który powodował biały kwadrat
 });
 

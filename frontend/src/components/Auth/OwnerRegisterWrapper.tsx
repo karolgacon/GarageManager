@@ -64,7 +64,7 @@ const OwnerRegisterWrapper = forwardRef<
 		workshopName: "",
 		workshopAddress: "",
 		workshopPhone: "",
-		businessRegistrationNumber: "",
+		nip: "",
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -137,6 +137,14 @@ const OwnerRegisterWrapper = forwardRef<
 			setError("Workshop phone number is required");
 			return false;
 		}
+		if (!formData.nip.trim()) {
+			setError("NIP is required");
+			return false;
+		}
+		if (!/^\d{10}$/.test(formData.nip.trim())) {
+			setError("NIP must be exactly 10 digits");
+			return false;
+		}
 		if (!agreeToTerms) {
 			showSnackbar(
 				"You must agree to the Terms and Conditions to continue",
@@ -179,7 +187,7 @@ const OwnerRegisterWrapper = forwardRef<
 				workshop_name: formData.workshopName,
 				workshop_address: formData.workshopAddress,
 				workshop_phone: formData.workshopPhone,
-				business_registration_number: formData.businessRegistrationNumber,
+				nip: formData.nip,
 			});
 
 			const loginRes = await axios.post(`${BASE_API_URL}/user/login/`, {
@@ -404,11 +412,10 @@ const OwnerRegisterWrapper = forwardRef<
 				<input
 					type="text"
 					className={classes.input}
-					placeholder="Business Registration Number (Optional)"
-					value={formData.businessRegistrationNumber}
-					onChange={(e) =>
-						handleInputChange("businessRegistrationNumber", e.target.value)
-					}
+					placeholder="NIP *"
+					value={formData.nip}
+					onChange={(e) => handleInputChange("nip", e.target.value)}
+					required
 				/>
 			</div>
 
