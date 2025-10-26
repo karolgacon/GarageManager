@@ -37,7 +37,11 @@ class VehicleRepository(BaseRepository):
     @staticmethod
     def get_vehicles_by_workshop(workshop_id):
         """
-        Pobiera wszystkie pojazdy przypisane do określonego warsztatu.
+        Pobiera wszystkie pojazdy które miały wizyty w określonym warsztacie.
         """
         from ..models import Vehicle
-        return Vehicle.objects.filter(workshop_id=workshop_id)
+        
+        # Pobierz pojazdy przez appointments w warsztacie
+        return Vehicle.objects.filter(
+            appointments__workshop_id=workshop_id
+        ).distinct()

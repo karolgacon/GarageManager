@@ -8,11 +8,11 @@ import ClientDashboard from "../components/Dashboards/ClientDashboard";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 
 const Dashboard: React.FC = () => {
-	const { auth, isAdmin, isOwner, isMechanic, isClient, logout } =
+	const { auth, isAdmin, isOwner, isMechanic, isClient, isRoot, logout } =
 		useContext(AuthContext);
 
 	const renderContent = () => {
-		if (isAdmin()) {
+		if (isRoot() || isAdmin()) {
 			return <AdminDashboard />;
 		} else if (isOwner()) {
 			return <OwnerDashboard />;

@@ -31,16 +31,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 					<Route
 						element={
 							<RequireAuth
-								requiredRole={["client", "admin", "mechanic", "owner"]}
+								requiredRole={["client", "admin", "mechanic", "owner", "root"]}
 							/>
 						}
 					>
 						<Route path="/" element={<Dashboard />} />
 						<Route path="/home" element={<Dashboard />} />
-						<Route path="/users" element={<UserList />} />
-						<Route path="/users/new" element={<UserForm mode="create" />} />
-						<Route path="/users/edit/:id" element={<UserForm mode="edit" />} />
-						<Route path="/users/:id" element={<UserDetail />} />
 						<Route path="/profile" element={<Profile />} />
 						<Route path="/inventory" element={<Inventory />} />
 						<Route path="/services" element={<Services />} />
@@ -51,6 +47,18 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 						<Route path="/diagnostics" element={<Diagnostics />} />
 						<Route path="/staff" element={<StaffManagement />} />
 						<Route path="/invoices" element={<Invoices />} />
+					</Route>
+					<Route
+						element={
+							<RequireAuth
+								requiredRole={["root"]}
+							/>
+						}
+					>
+						<Route path="/users" element={<UserList />} />
+						<Route path="/users/new" element={<UserForm mode="create" />} />
+						<Route path="/users/edit/:id" element={<UserForm mode="edit" />} />
+						<Route path="/users/:id" element={<UserDetail />} />
 					</Route>
 					<Route path="/register" element={<RegisterComplete />} />
 					<Route path="/login" element={<Login />} />

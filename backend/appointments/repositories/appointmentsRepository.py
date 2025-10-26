@@ -18,6 +18,19 @@ class AppointmentRepository(BaseRepository):
             raise RuntimeError(f"Error retrieving appointments for client {client_id}: {str(e)}")
 
     @staticmethod
+    def get_appointments_by_mechanic(mechanic_id):
+        """
+        Retrieves all appointments assigned to a specific mechanic.
+        """
+        try:
+            appointments = Appointment.objects.filter(assigned_mechanic_id=mechanic_id)
+            if not appointments.exists():
+                raise ValueError(f"No appointments found for mechanic with ID {mechanic_id}.")
+            return appointments
+        except Exception as e:
+            raise RuntimeError(f"Error retrieving appointments for mechanic {mechanic_id}: {str(e)}")
+
+    @staticmethod
     def get_appointments_by_workshop(workshop_id):
         """
         Retrieves all appointments for a specific workshop.

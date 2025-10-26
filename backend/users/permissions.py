@@ -21,6 +21,13 @@ class IsMechanic(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == 'mechanic'
 
+class IsRootUser(permissions.BasePermission):
+    """
+    Zezwala tylko na dostęp dla użytkowników z rolą 'root'.
+    """
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'root'
+
 class IsOwnProfile(permissions.BasePermission):
     """
     Pozwala użytkownikowi na modyfikację tylko własnego profilu.

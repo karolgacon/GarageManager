@@ -7,45 +7,20 @@ class WorkshopService(BaseService):
     @staticmethod
     def get_workshop_customers(workshop_id):
         """
-        Pobiera wszystkich klientów (users z rolą 'client') którzy mają pojazdy przypisane do określonego warsztatu.
+        Pobiera wszystkich klientów (users z rolą 'client') którzy mają wizyty w określonym warsztacie.
         """
         from django.contrib.auth import get_user_model
         User = get_user_model()
 
         try:
+            # Znajdź klientów przez appointments w warsztacie
+            customers = User.objects.filter(
+                role='client',
+                is_active=True,
+                appointments__workshop_id=workshop_id
+            ).select_related('profile').distinct()
 
-            try:
-                from vehicles.models import Vehicle
-                vehicles_in_workshop = Vehicle.objects.filter(workshop_id=workshop_id)
-
-                for vehicle in vehicles_in_workshop[:3]:
-                    print(f"[DEBUG] Vehicle: {vehicle.id}, client: {vehicle.client}")
-
-            except Exception as e:
-
-                try:
-                    vehicles_in_workshop = Vehicle.objects.filter(workshop=workshop_id)
-                except Exception as e2:
-                    return User.objects.none()
-
-            try:
-                customers = User.objects.filter(
-                    role='client',
-                    is_active=True,
-                    vehicles__workshop_id=workshop_id
-                ).select_related('profile').distinct()
-
-                return customers
-
-            except Exception as e:
-
-                customers = User.objects.filter(
-                    role='client',
-                    is_active=True,
-                    vehicles__workshop=workshop_id
-                ).select_related('profile').distinct()
-
-                return customers
+            return customers
 
         except Exception as e:
             import traceback
@@ -62,25 +37,23 @@ class WorkshopService(BaseService):
 
         try:
             user = User.objects.get(id=user_id)
+            workshop = None
 
-            workshop_id = None
+            # Sprawdź czy użytkownik jest właścicielem warsztatu
+            if user.role == 'owner':
+                workshop = user.owned_workshops.first()
+            
+            # Sprawdź czy użytkownik jest mechanikiem w warsztacie
+            elif user.role == 'mechanic':
+                from ..models import WorkshopMechanic
+                workshop_mechanic = WorkshopMechanic.objects.filter(mechanic=user).first()
+                if workshop_mechanic:
+                    workshop = workshop_mechanic.workshop
 
-            if hasattr(user, 'workshop_id') and user.workshop_id:
-                workshop_id = user.workshop_id
-            elif hasattr(user, 'workshop') and user.workshop:
-                workshop_id = user.workshop.id
-            else:
-
-                user_vehicle = user.vehicles.first()
-                if user_vehicle and hasattr(user_vehicle, 'workshop_id') and user_vehicle.workshop_id:
-                    workshop_id = user_vehicle.workshop_id
-                elif user_vehicle and hasattr(user_vehicle, 'workshop') and user_vehicle.workshop:
-                    workshop_id = user_vehicle.workshop.id
-
-            if not workshop_id:
+            if not workshop:
                 return User.objects.none()
 
-            return WorkshopService.get_workshop_customers(workshop_id)
+            return WorkshopService.get_workshop_customers(workshop.id)
 
         except User.DoesNotExist:
             return User.objects.none()
@@ -95,29 +68,23 @@ class WorkshopService(BaseService):
         Pobiera warsztat przypisany do użytkownika.
         """
         from django.contrib.auth import get_user_model
-        from ..models import Workshop
+        from ..models import Workshop, WorkshopMechanic
         User = get_user_model()
 
         try:
             user = User.objects.get(id=user_id)
 
-            workshop_id = None
-
-            if hasattr(user, 'workshop_id') and user.workshop_id:
-                workshop_id = user.workshop_id
-            elif hasattr(user, 'workshop') and user.workshop:
-                return user.workshop
-            else:
-
-                user_vehicle = user.vehicles.first()
-                if user_vehicle and hasattr(user_vehicle, 'workshop_id') and user_vehicle.workshop_id:
-                    workshop_id = user_vehicle.workshop_id
-                elif user_vehicle and hasattr(user_vehicle, 'workshop') and user_vehicle.workshop:
-                    workshop_id = user_vehicle.workshop.id
-
-            if workshop_id:
-                workshop = Workshop.objects.get(id=workshop_id)
-                return workshop
+            # Sprawdź czy użytkownik jest właścicielem warsztatu
+            if user.role == 'owner':
+                workshop = user.owned_workshops.first()
+                if workshop:
+                    return workshop
+            
+            # Sprawdź czy użytkownik jest mechanikiem w warsztacie
+            elif user.role == 'mechanic':
+                workshop_mechanic = WorkshopMechanic.objects.filter(mechanic=user).first()
+                if workshop_mechanic:
+                    return workshop_mechanic.workshop
 
             return None
 
@@ -137,31 +104,15 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-
-            user_fields = [f.name for f in User._meta.get_fields()]
-
             from django.db.models import Q
-
+            
+            # Pobierz właściciela warsztatu i mechaników
             staff = User.objects.filter(
                 Q(role='owner', is_active=True, owned_workshops__id=workshop_id) |
                 Q(role='mechanic', is_active=True, workshopmechanic__workshop_id=workshop_id)
             ).select_related('profile').distinct()
 
-
-            if staff.exists():
-                return staff
-
-            try:
-                staff = User.objects.filter(
-                    role__in=['owner', 'mechanic'],
-                    is_active=True,
-                    vehicles__workshop_id=workshop_id
-                ).select_related('profile').distinct()
-
-                return staff
-
-            except Exception as e:
-                return User.objects.none()
+            return staff
 
         except Exception as e:
             import traceback
@@ -177,28 +128,14 @@ class WorkshopService(BaseService):
         User = get_user_model()
 
         try:
-
+            # Pobierz mechaników przez WorkshopMechanic
             mechanics = User.objects.filter(
                 role='mechanic',
                 is_active=True,
                 workshopmechanic__workshop_id=workshop_id
             ).select_related('profile').distinct()
 
-
-            if mechanics.exists():
-                return mechanics
-
-            try:
-                mechanics = User.objects.filter(
-                    role='mechanic',
-                    is_active=True,
-                    vehicles__workshop_id=workshop_id
-                ).select_related('profile').distinct()
-
-                return mechanics
-
-            except Exception as e:
-                return User.objects.none()
+            return mechanics
 
         except Exception as e:
             import traceback

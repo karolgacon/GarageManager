@@ -12,6 +12,40 @@ class AppointmentViewSet(BaseViewSet):
     serializer_class = AppointmentSerializer
 
     @extend_schema(
+        summary="Get current user's appointments",
+        description="Returns appointments for the current authenticated user based on their role",
+        responses={200: AppointmentSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='my-appointments')
+    def my_appointments(self, request):
+        """Get appointments for current user based on their role"""
+        user = request.user
+        
+        try:
+            if user.role == 'client':
+                appointments = self.service.get_appointments_by_client(user.id)
+            elif user.role == 'mechanic':
+                appointments = self.service.get_appointments_by_mechanic(user.id)
+            elif user.role == 'owner':
+                # Owner sees all appointments in their workshop
+                from workshops.services.workshopService import WorkshopService
+                workshop = WorkshopService.get_user_workshop(user.id)
+                if workshop:
+                    appointments = self.service.get_appointments_by_workshop(workshop.id)
+                else:
+                    appointments = []
+            else:
+                appointments = []
+                
+            serializer = self.serializer_class(appointments, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": f"Error fetching appointments: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @extend_schema(
         summary="Retrieve appointments for a specific client",
         description="Returns a list of appointments for a specific client.",
         parameters=[OpenApiParameter(name="client_id", description="ID of the client", required=True, type=str)],

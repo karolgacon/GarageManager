@@ -8,17 +8,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id','user','address', 'phone', 'preferred_contact_method']
 
 class UserSerializer(serializers.ModelSerializer):
+    roles = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'first_name', 'last_name', 'status', 'is_active']
+        fields = ['id', 'username', 'email', 'role', 'roles', 'first_name', 'last_name', 'status', 'is_active']
+
+    def get_roles(self, obj):
+        """Return role as array for frontend compatibility"""
+        return [obj.role] if obj.role else ['client']
 
     def create(self, validated_data):
-
         user = User.objects.create(**validated_data)
         return user
 
     def update(self, instance, validated_data):
-
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -45,5 +49,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         token['is_active'] = user.is_active
-        token['role'] = user.groups.first().name if user.groups.exists() else "client"
+        token['role'] = user.role if user.role else "client"
         return token

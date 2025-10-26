@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import { getAuthToken } from './authServices';
 import { CustomJwtPayload } from './CustomJwtPayload';
-import {ROLE_ADMIN, ROLE_OWNER, ROLE_MECHANIC, ROLE_CLIENT} from "../constants.ts";
+import {ROLE_ADMIN, ROLE_OWNER, ROLE_MECHANIC, ROLE_CLIENT, ROLE_ROOT} from "../constants.ts";
 
 
 export function isLoggedIn(): boolean {
@@ -41,6 +41,15 @@ export function isClient(): boolean {
     if (token !== null) {
         const decoded = jwtDecode<CustomJwtPayload>(token);
         return decoded.role === ROLE_CLIENT;
+    }
+    return false;
+}
+
+export function isRoot(): boolean {
+    const token = getAuthToken();
+    if (token !== null) {
+        const decoded = jwtDecode<CustomJwtPayload>(token);
+        return decoded.role === ROLE_ROOT;
     }
     return false;
 }

@@ -16,6 +16,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BookIcon from "@mui/icons-material/Book";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AuthContext from "../../context/AuthProvider";
 import {
@@ -52,49 +53,55 @@ const Sidebar: React.FC<SidebarProps> = ({
 			title: "Dashboard",
 			icon: <DashboardIcon />,
 			path: "/",
-			roles: ["admin", "owner", "mechanic", "client"],
+			roles: ["admin", "owner", "mechanic", "client", "root"],
 		},
 		{
 			title: "Inventory",
 			icon: <InventoryIcon />,
 			path: "/inventory",
-			roles: ["admin", "owner", "mechanic"],
+			roles: ["admin", "owner", "mechanic", "root"],
 		},
 		{
 			title: "Services",
 			icon: <BuildIcon />,
 			path: "/services",
-			roles: ["admin", "owner", "mechanic", "client"],
+			roles: ["admin", "owner", "mechanic", "client", "root"],
 		},
 		{
 			title: "Vehicles",
 			icon: <DirectionsCarIcon />,
 			path: "/vehicles",
-			roles: ["admin", "owner", "mechanic", "client"],
+			roles: ["admin", "owner", "mechanic", "client", "root"],
 		},
 		{
 			title: "Customers",
 			icon: <PeopleIcon />,
 			path: "/customers",
-			roles: ["admin", "owner", "mechanic"],
+			roles: ["admin", "owner", "mechanic", "root"],
 		},
 		{
 			title: "Bookings",
 			icon: <BookIcon />,
 			path: "/bookings",
-			roles: ["admin", "owner", "client", "mechanic"],
+			roles: ["admin", "owner", "client", "mechanic", "root"],
 		},
 		{
 			title: "Diagnostics",
 			icon: <SettingsIcon />,
 			path: "/diagnostics",
-			roles: ["admin", "mechanic", "owner", "client"],
+			roles: ["admin", "mechanic", "owner", "client", "root"],
 		},
 		{
 			title: "Staff Management",
 			icon: <PersonIcon />,
 			path: "/staff",
-			roles: ["admin", "owner"],
+			roles: ["admin", "owner", "root"],
+		},
+		{
+			title: "Users",
+			icon: <GroupIcon />,
+			path: "/users",
+			roles: ["root"],
 		},
 	];
 

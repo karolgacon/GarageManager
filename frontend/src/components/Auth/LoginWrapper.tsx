@@ -109,6 +109,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 		const redirectBasedOnRole = (role: string) => {
 			switch (role) {
 				case "admin":
+				case "root":
 					navigate("/home");
 					break;
 				case "owner":

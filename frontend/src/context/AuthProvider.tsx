@@ -9,6 +9,7 @@ interface IAuthContext {
 	isOwner: () => boolean;
 	isMechanic: () => boolean;
 	isClient: () => boolean;
+	isRoot: () => boolean;
 }
 
 const AuthContext = createContext<IAuthContext>({} as IAuthContext);
@@ -127,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const isOwner = () => auth.roles?.includes("owner") || false;
 	const isMechanic = () => auth.roles?.includes("mechanic") || false;
 	const isClient = () => auth.roles?.includes("client") || false;
+	const isRoot = () => auth.roles?.includes("root") || false;
 
 	return (
 		<AuthContext.Provider
@@ -138,6 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				isOwner,
 				isMechanic,
 				isClient,
+				isRoot,
 			}}
 		>
 			{children}

@@ -6,6 +6,7 @@ export const ROLE_CLIENT = "client";
 export const ROLE_MECHANIC = "mechanic";
 export const ROLE_OWNER = "owner";
 export const ROLE_ADMIN = "admin";
+export const ROLE_ROOT = "root";
 
 export const STATUS_ACTIVE = "active";
 export const STATUS_INACTIVE = "inactive";

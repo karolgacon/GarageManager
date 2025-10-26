@@ -19,6 +19,18 @@ class AppointmentService(BaseService):
             raise RuntimeError(f"Error retrieving appointments for client: {str(e)}")
 
     @staticmethod
+    def get_appointments_by_mechanic(mechanic_id):
+        """
+        Retrieves all appointments assigned to a specific mechanic.
+        """
+        try:
+            return AppointmentRepository.get_appointments_by_mechanic(mechanic_id)
+        except ValueError as e:
+            raise Http404(str(e))
+        except Exception as e:
+            raise RuntimeError(f"Error retrieving appointments for mechanic: {str(e)}")
+
+    @staticmethod
     def get_appointments_by_workshop(workshop_id):
         """
         Retrieves all appointments for a specific workshop.

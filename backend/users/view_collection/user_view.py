@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from ..permissions import IsRootUser
 
 @extend_schema_view(
     list=extend_schema(
@@ -41,6 +42,19 @@ class UserViewSet(BaseViewSet):
     service = UserService
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_permissions(self):
+        """
+        Override permissions for different actions
+        """
+        if self.action in ['list', 'create', 'update', 'destroy']:
+            # Only root users can perform CRUD operations on all users
+            permission_classes = [IsRootUser]
+        else:
+            # Other actions (like profile) use default permissions
+            permission_classes = [IsAuthenticated]
+        
+        return [permission() for permission in permission_classes]
 
     @extend_schema(
         summary="Get or create current user profile",
