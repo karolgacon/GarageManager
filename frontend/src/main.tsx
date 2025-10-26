@@ -16,6 +16,9 @@ import Inventory from "./pages/Inventory.tsx";
 import Services from "./pages/ServicePage.tsx";
 import Vehicles from "./pages/Vehicles.tsx";
 import RegisterComplete from "./pages/RegisterComplete.tsx";
+import RegisterChoice from "./pages/RegisterChoice.tsx";
+import RegisterClient from "./pages/RegisterClient.tsx";
+import RegisterOwner from "./pages/RegisterOwner.tsx";
 import Profile from "./pages/Profile.tsx";
 import Customers from "./pages/Customers.tsx";
 import Bookings from "./pages/Bookings.tsx";
@@ -61,6 +64,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 						<Route path="/users/:id" element={<UserDetail />} />
 					</Route>
 					<Route path="/register" element={<RegisterComplete />} />
+					<Route path="/register-choice" element={<RegisterChoice />} />
+					<Route path="/register/client" element={<RegisterClient />} />
+					<Route path="/register/owner" element={<RegisterOwner />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="*" element={<NotFound />} />
 				</Routes>

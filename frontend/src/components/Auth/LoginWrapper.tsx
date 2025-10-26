@@ -193,7 +193,7 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 
 					<div className={classes.registerContainer}>
 						<span className={classes.accountText}>Don't have an account?</span>
-						<a href="/register" className={classes.registerLink}>
+						<a href="/register-choice" className={classes.registerLink}>
 							Get Started
 						</a>
 					</div>
