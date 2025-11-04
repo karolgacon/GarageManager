@@ -28,7 +28,13 @@ import CustomSnackbar, {
 import AuthContext from "../context/AuthProvider";
 import { Vehicle } from "../models/VehicleModel";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
-import { COLOR_PRIMARY, COLOR_TEXT_PRIMARY } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../constants";
 
 const Vehicles: React.FC = () => {
 	const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -306,6 +312,8 @@ const Vehicles: React.FC = () => {
 				maxWidth="xl"
 				sx={{
 					overflow: "hidden",
+					backgroundColor: COLOR_BACKGROUND,
+					minHeight: "100vh",
 				}}
 			>
 				<Box sx={{ py: 3 }}>
@@ -351,6 +359,13 @@ const Vehicles: React.FC = () => {
 									textTransform: "none",
 									minWidth: "auto",
 									px: 3,
+									color: COLOR_TEXT_SECONDARY,
+								},
+								"& .Mui-selected": {
+									color: COLOR_PRIMARY,
+								},
+								"& .MuiTabs-indicator": {
+									backgroundColor: COLOR_PRIMARY,
 								},
 							}}
 						>
@@ -374,14 +389,28 @@ const Vehicles: React.FC = () => {
 
 					{loading ? (
 						<Box sx={{ textAlign: "center", py: 5 }}>
-							<CircularProgress color="error" />
+							<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 						</Box>
 					) : error ? (
 						<Alert
 							severity="error"
-							sx={{ mb: 2 }}
+							sx={{
+								mb: 2,
+								backgroundColor: "rgba(239, 68, 68, 0.1)",
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiAlert-icon": {
+									color: "#EF4444",
+								},
+							}}
 							action={
-								<Button color="inherit" size="small" onClick={fetchVehicles}>
+								<Button
+									sx={{
+										color: COLOR_PRIMARY,
+										"&:hover": { backgroundColor: "rgba(56, 130, 246, 0.1)" },
+									}}
+									size="small"
+									onClick={fetchVehicles}
+								>
 									Retry
 								</Button>
 							}
@@ -389,8 +418,16 @@ const Vehicles: React.FC = () => {
 							{error}
 						</Alert>
 					) : filteredVehicles.length === 0 ? (
-						<Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
-							<Typography variant="body1" color="text.secondary">
+						<Paper
+							sx={{
+								p: 3,
+								textAlign: "center",
+								borderRadius: 2,
+								backgroundColor: COLOR_SURFACE,
+								border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+							}}
+						>
+							<Typography variant="body1" sx={{ color: COLOR_TEXT_PRIMARY }}>
 								No vehicles found matching your criteria.
 							</Typography>
 						</Paper>

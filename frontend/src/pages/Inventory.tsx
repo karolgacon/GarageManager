@@ -11,6 +11,7 @@ import {
 	MenuItem,
 	FormControl,
 	InputLabel,
+	InputAdornment,
 	Pagination,
 	CircularProgress,
 	Grid,
@@ -43,6 +44,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import {
 	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
 	COLOR_SURFACE,
 	COLOR_TEXT_PRIMARY,
 	COLOR_TEXT_SECONDARY,
@@ -364,6 +366,8 @@ const Inventory = () => {
 			<Container
 				maxWidth="xl"
 				sx={{
+					backgroundColor: COLOR_BACKGROUND,
+					minHeight: "100vh",
 					overflow: "hidden",
 					px: { xs: 1, sm: 2, md: 3 },
 				}}

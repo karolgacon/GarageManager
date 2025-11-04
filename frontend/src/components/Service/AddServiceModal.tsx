@@ -23,6 +23,12 @@ import { Service, SERVICE_CATEGORY_OPTIONS } from "../../models/ServiceModel";
 import { serviceService } from "../../api/ServiceAPIEndpoint";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import AuthContext from "../../context/AuthProvider";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface AddServiceModalProps {
 	open: boolean;
@@ -47,7 +53,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 		duration: 60,
 		category: "general",
 		is_active: true,
-		workshop_id: "", 
+		workshop_id: "",
 	});
 
 	const [validationErrors, setValidationErrors] = useState<
@@ -162,7 +168,11 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 			maxWidth="md"
 			fullWidth
 			PaperProps={{
-				sx: { borderRadius: 2 },
+				sx: {
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+					border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+				},
 			}}
 		>
 			<DialogTitle
@@ -171,24 +181,37 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 					justifyContent: "space-between",
 					alignItems: "center",
 					pb: 1,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
 				}}
 			>
-				<Typography variant="h6" component="div" fontWeight="bold">
+				<Typography
+					variant="h6"
+					component="div"
+					fontWeight="bold"
+					sx={{ color: COLOR_TEXT_PRIMARY }}
+				>
 					Add New Service
 				</Typography>
 				<IconButton
 					edge="end"
-					color="inherit"
 					onClick={handleClose}
 					disabled={loading}
 					aria-label="close"
+					sx={{ color: COLOR_TEXT_SECONDARY }}
 				>
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
 
 			<form onSubmit={handleSubmit}>
-				<DialogContent dividers>
+				<DialogContent
+					dividers
+					sx={{
+						backgroundColor: COLOR_SURFACE,
+						borderColor: COLOR_TEXT_SECONDARY,
+					}}
+				>
 					<Grid container spacing={2}>
 						<Grid item xs={12} md={6}>
 							<TextField
@@ -202,18 +225,70 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								variant="outlined"
 								error={!!validationErrors.name}
 								helperText={validationErrors.name}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
 							/>
 						</Grid>
 
 						<Grid item xs={12} md={6}>
 							<FormControl fullWidth required>
-								<InputLabel>Category</InputLabel>
+								<InputLabel
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": { color: COLOR_PRIMARY },
+									}}
+								>
+									Category
+								</InputLabel>
 								<Select
 									label="Category"
 									name="category"
 									value={formData.category}
 									onChange={handleChange}
 									disabled={loading}
+									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{SERVICE_CATEGORY_OPTIONS.map((category) => (
 										<MenuItem key={category.value} value={category.value}>
@@ -235,7 +310,12 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								onChange={handleChange}
 								InputProps={{
 									startAdornment: (
-										<InputAdornment position="start">$</InputAdornment>
+										<InputAdornment
+											position="start"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											$
+										</InputAdornment>
 									),
 									inputProps: { min: 0, step: 0.01 },
 								}}
@@ -243,6 +323,26 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								variant="outlined"
 								error={!!validationErrors.price}
 								helperText={validationErrors.price}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
 							/>
 						</Grid>
 
@@ -262,6 +362,26 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								variant="outlined"
 								error={!!validationErrors.duration}
 								helperText={validationErrors.duration}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
 							/>
 						</Grid>
 
@@ -271,13 +391,45 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								required
 								error={!!validationErrors.workshop_id}
 							>
-								<InputLabel>Workshop</InputLabel>
+								<InputLabel
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": { color: COLOR_PRIMARY },
+									}}
+								>
+									Workshop
+								</InputLabel>
 								<Select
 									label="Workshop"
 									name="workshop_id"
 									value={formData.workshop_id}
 									onChange={handleChange}
 									disabled={loading}
+									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{workshops.map((ws) => (
 										<MenuItem key={ws.id} value={ws.id}>
@@ -286,7 +438,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 									))}
 								</Select>
 								{validationErrors.workshop_id && (
-									<FormHelperText>
+									<FormHelperText sx={{ color: COLOR_TEXT_SECONDARY }}>
 										{validationErrors.workshop_id}
 									</FormHelperText>
 								)}
@@ -304,6 +456,26 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 								variant="outlined"
 								multiline
 								rows={3}
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
 							/>
 						</Grid>
 
@@ -318,8 +490,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 									/>
 								}
 								label="Service Active"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
 							/>
-							<FormHelperText>
+							<FormHelperText sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Inactive services won't be available for selection in
 								appointments
 							</FormHelperText>
@@ -333,8 +506,25 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 					)}
 				</DialogContent>
 
-				<DialogActions sx={{ px: 3, py: 2 }}>
-					<Button onClick={handleClose} disabled={loading} variant="text">
+				<DialogActions
+					sx={{
+						px: 3,
+						py: 2,
+						backgroundColor: COLOR_SURFACE,
+						borderTop: `1px solid ${COLOR_TEXT_SECONDARY}`,
+					}}
+				>
+					<Button
+						onClick={handleClose}
+						disabled={loading}
+						variant="text"
+						sx={{
+							color: COLOR_TEXT_SECONDARY,
+							"&:hover": {
+								backgroundColor: "rgba(156, 163, 175, 0.1)",
+							},
+						}}
+					>
 						Cancel
 					</Button>
 					<Button
@@ -343,8 +533,11 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 						color="primary"
 						disabled={loading}
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							color: COLOR_TEXT_PRIMARY,
+							"&:hover": {
+								bgcolor: "rgba(56, 130, 246, 0.8)",
+							},
 						}}
 					>
 						{loading ? "Adding Service..." : "Add Service"}

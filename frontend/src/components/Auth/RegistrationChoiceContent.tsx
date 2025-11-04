@@ -1,55 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Card, CardContent } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import useStyles from "./LoginWrapper.styles.ts";
-
-const StyledChoiceCard = styled(Card)({
-	borderRadius: "12px",
-	border: "2px solid #E5E7EB",
-	transition: "all 0.3s ease",
-	cursor: "pointer",
-	"&:hover": {
-		borderColor: "#FF3B57",
-		backgroundColor: "#FFF8F9",
-		transform: "translateY(-2px)",
-		boxShadow: "0 6px 20px rgba(255, 59, 87, 0.15)",
-	},
-	"&:active": {
-		transform: "translateY(0)",
-	},
-});
-
-const StyledCardContent = styled(CardContent)({
-	padding: "20px !important",
-	textAlign: "left",
-	display: "flex",
-	alignItems: "flex-start",
-	gap: "16px",
-});
-
-const StyledIconContainer = styled(Box)({
-	display: "flex",
-	alignItems: "center",
-	justifyContent: "center",
-	width: "48px",
-	height: "48px",
-	borderRadius: "12px",
-	backgroundColor: "#F3F4F6",
-	color: "#FF3B57",
-	flexShrink: 0,
-});
-
-const StyledBackButton = styled(Button)({
-	marginTop: "20px",
-	color: "#6B7280",
-	borderColor: "#D1D5DB",
-	"&:hover": {
-		backgroundColor: "#F9FAFB",
-		borderColor: "#9CA3AF",
-	},
-});
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 function RegistrationChoice() {
 	const navigate = useNavigate();
@@ -76,7 +35,7 @@ function RegistrationChoice() {
 					sx={{
 						fontSize: "28px",
 						fontWeight: "700",
-						color: "#1F2937",
+						color: COLOR_TEXT_PRIMARY,
 						marginBottom: "8px",
 						letterSpacing: "-0.02em",
 						textAlign: "center",
@@ -88,7 +47,7 @@ function RegistrationChoice() {
 					variant="body1"
 					sx={{
 						fontSize: "15px",
-						color: "#6B7280",
+						color: COLOR_TEXT_SECONDARY,
 						marginBottom: "30px",
 						lineHeight: "1.5",
 						textAlign: "center",
@@ -105,18 +64,56 @@ function RegistrationChoice() {
 						marginBottom: "24px",
 					}}
 				>
-					<StyledChoiceCard onClick={handleClientRegistration}>
-						<StyledCardContent>
-							<StyledIconContainer>
+					<Card
+						onClick={handleClientRegistration}
+						sx={{
+							borderRadius: "12px",
+							border: `2px solid ${COLOR_TEXT_SECONDARY}`,
+							backgroundColor: COLOR_SURFACE,
+							transition: "all 0.3s ease",
+							cursor: "pointer",
+							"&:hover": {
+								borderColor: COLOR_PRIMARY,
+								backgroundColor: "rgba(56, 130, 246, 0.1)",
+								transform: "translateY(-2px)",
+								boxShadow: `0 6px 20px rgba(56, 130, 246, 0.15)`,
+							},
+							"&:active": {
+								transform: "translateY(0)",
+							},
+						}}
+					>
+						<CardContent
+							sx={{
+								padding: "20px !important",
+								textAlign: "left",
+								display: "flex",
+								alignItems: "flex-start",
+								gap: "16px",
+							}}
+						>
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: "48px",
+									height: "48px",
+									borderRadius: "12px",
+									backgroundColor: "rgba(56, 130, 246, 0.1)",
+									color: COLOR_PRIMARY,
+									flexShrink: 0,
+								}}
+							>
 								<PersonIcon sx={{ fontSize: 24 }} />
-							</StyledIconContainer>
+							</Box>
 							<Box sx={{ flex: 1 }}>
 								<Typography
 									variant="h6"
 									sx={{
 										fontSize: "18px",
 										fontWeight: "600",
-										color: "#1F2937",
+										color: COLOR_TEXT_PRIMARY,
 										marginBottom: "4px",
 									}}
 								>
@@ -126,7 +123,7 @@ function RegistrationChoice() {
 									variant="body2"
 									sx={{
 										fontSize: "13px",
-										color: "#6B7280",
+										color: COLOR_TEXT_SECONDARY,
 										lineHeight: "1.4",
 									}}
 								>
@@ -134,21 +131,59 @@ function RegistrationChoice() {
 									appointments and manage my vehicles.
 								</Typography>
 							</Box>
-						</StyledCardContent>
-					</StyledChoiceCard>
+						</CardContent>
+					</Card>
 
-					<StyledChoiceCard onClick={handleOwnerRegistration}>
-						<StyledCardContent>
-							<StyledIconContainer>
+					<Card
+						onClick={handleOwnerRegistration}
+						sx={{
+							borderRadius: "12px",
+							border: `2px solid ${COLOR_TEXT_SECONDARY}`,
+							backgroundColor: COLOR_SURFACE,
+							transition: "all 0.3s ease",
+							cursor: "pointer",
+							"&:hover": {
+								borderColor: COLOR_PRIMARY,
+								backgroundColor: "rgba(56, 130, 246, 0.1)",
+								transform: "translateY(-2px)",
+								boxShadow: `0 6px 20px rgba(56, 130, 246, 0.15)`,
+							},
+							"&:active": {
+								transform: "translateY(0)",
+							},
+						}}
+					>
+						<CardContent
+							sx={{
+								padding: "20px !important",
+								textAlign: "left",
+								display: "flex",
+								alignItems: "flex-start",
+								gap: "16px",
+							}}
+						>
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: "48px",
+									height: "48px",
+									borderRadius: "12px",
+									backgroundColor: "rgba(56, 130, 246, 0.1)",
+									color: COLOR_PRIMARY,
+									flexShrink: 0,
+								}}
+							>
 								<BusinessIcon sx={{ fontSize: 24 }} />
-							</StyledIconContainer>
+							</Box>
 							<Box sx={{ flex: 1 }}>
 								<Typography
 									variant="h6"
 									sx={{
 										fontSize: "18px",
 										fontWeight: "600",
-										color: "#1F2937",
+										color: COLOR_TEXT_PRIMARY,
 										marginBottom: "4px",
 									}}
 								>
@@ -158,7 +193,7 @@ function RegistrationChoice() {
 									variant="body2"
 									sx={{
 										fontSize: "13px",
-										color: "#6B7280",
+										color: COLOR_TEXT_SECONDARY,
 										lineHeight: "1.4",
 									}}
 								>
@@ -166,13 +201,48 @@ function RegistrationChoice() {
 									staff, inventory, and serve clients.
 								</Typography>
 							</Box>
-						</StyledCardContent>
-					</StyledChoiceCard>
+						</CardContent>
+					</Card>
 				</Box>
 
-				<StyledBackButton variant="outlined" onClick={handleBackToLogin}>
-					Back to Login
-				</StyledBackButton>
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						gap: "6px",
+						marginTop: "40px",
+					}}
+				>
+					<Typography
+						sx={{
+							fontSize: "14px",
+							fontWeight: "500",
+							color: COLOR_TEXT_SECONDARY,
+						}}
+					>
+						Already have an account?
+					</Typography>
+					<Typography
+						component="button"
+						onClick={handleBackToLogin}
+						sx={{
+							color: COLOR_PRIMARY,
+							fontWeight: "600",
+							fontSize: "14px",
+							textDecoration: "none",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+							"&:hover": {
+								textDecoration: "underline",
+								color: "#22D3EE", // COLOR_SECONDARY
+							},
+						}}
+					>
+						Sign in
+					</Typography>
+				</Box>
 			</div>
 		</div>
 	);

@@ -16,7 +16,12 @@ import {
 	VEHICLE_FUEL_TYPES,
 	VEHICLE_STATUS_TYPES,
 } from "../../models/VehicleModel";
-import { COLOR_SURFACE } from "../../constants";
+import {
+	COLOR_SURFACE,
+	COLOR_PRIMARY,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 const POPULAR_CAR_BRANDS = [
 	{ value: "", label: "All Brands" },
@@ -88,11 +93,31 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 				placeholder="Search vehicles by make, model or registration number..."
 				value={filters.searchTerm}
 				onChange={handleSearchChange}
-				sx={{ mb: 2 }}
+				sx={{
+					mb: 2,
+					backgroundColor: COLOR_SURFACE,
+					borderRadius: 1,
+					"& .MuiOutlinedInput-root": {
+						color: COLOR_TEXT_PRIMARY,
+						"& fieldset": {
+							borderColor: COLOR_TEXT_SECONDARY,
+						},
+						"&:hover fieldset": {
+							borderColor: COLOR_PRIMARY,
+						},
+						"&.Mui-focused fieldset": {
+							borderColor: COLOR_PRIMARY,
+						},
+					},
+					"& .MuiInputBase-input::placeholder": {
+						color: COLOR_TEXT_SECONDARY,
+						opacity: 1,
+					},
+				}}
 				InputProps={{
 					startAdornment: (
 						<InputAdornment position="start">
-							<SearchIcon />
+							<SearchIcon sx={{ color: COLOR_TEXT_SECONDARY }} />
 						</InputAdornment>
 					),
 					endAdornment: (
@@ -100,7 +125,13 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 							<Button
 								onClick={() => setExpanded(!expanded)}
 								startIcon={<FilterListIcon />}
-								color="inherit"
+								sx={{
+									color: COLOR_TEXT_SECONDARY,
+									"&:hover": {
+										backgroundColor: "rgba(56, 130, 246, 0.1)",
+										color: COLOR_PRIMARY,
+									},
+								}}
 							>
 								{expanded ? "Hide Filters" : "Show Filters"}
 							</Button>
@@ -110,7 +141,15 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 			/>
 
 			{expanded && (
-				<Box sx={{ p: 2, bgcolor: COLOR_SURFACE, borderRadius: 1, mb: 2 }}>
+				<Box
+					sx={{
+						p: 2,
+						bgcolor: COLOR_SURFACE,
+						borderRadius: 1,
+						mb: 2,
+						border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+					}}
+				>
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6} md={3}>
 							<TextField
@@ -119,6 +158,39 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 								value={filters.brand}
 								onChange={(e) => handleFilterChange("brand", e.target.value)}
 								fullWidth
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											backgroundColor: COLOR_SURFACE,
+											"& .MuiMenuItem-root": {
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
+												},
+											},
+										},
+									},
+								}}
 							>
 								<MenuItem value="">All Brands</MenuItem>
 								{POPULAR_CAR_BRANDS.map((brand) => (
@@ -131,12 +203,45 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 
 						<Grid item xs={12} sm={6} md={3}>
 							<FormControl fullWidth size="small">
-								<InputLabel id="status-filter-label">Status</InputLabel>
+								<InputLabel
+									id="status-filter-label"
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": { color: COLOR_PRIMARY },
+									}}
+								>
+									Status
+								</InputLabel>
 								<Select
 									labelId="status-filter-label"
 									value={filters.status}
 									label="Status"
 									onChange={(e) => handleFilterChange("status", e.target.value)}
+									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									<MenuItem value="">All Statuses</MenuItem>
 									{VEHICLE_STATUS_TYPES.map((status) => (
@@ -150,7 +255,15 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 
 						<Grid item xs={12} sm={6} md={3}>
 							<FormControl fullWidth size="small">
-								<InputLabel id="fuel-filter-label">Fuel Type</InputLabel>
+								<InputLabel
+									id="fuel-filter-label"
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": { color: COLOR_PRIMARY },
+									}}
+								>
+									Fuel Type
+								</InputLabel>
 								<Select
 									labelId="fuel-filter-label"
 									value={filters.fuelType}
@@ -158,6 +271,31 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 									onChange={(e) =>
 										handleFilterChange("fuelType", e.target.value)
 									}
+									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									<MenuItem value="">All Fuel Types</MenuItem>
 									{VEHICLE_FUEL_TYPES.map((fuel) => (
@@ -171,7 +309,13 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 
 						<Grid item xs={12} sm={6} md={3}>
 							<FormControl fullWidth size="small">
-								<InputLabel id="maintenance-filter-label">
+								<InputLabel
+									id="maintenance-filter-label"
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": { color: COLOR_PRIMARY },
+									}}
+								>
 									Maintenance
 								</InputLabel>
 								<Select
@@ -184,6 +328,31 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 											e.target.value === "due"
 										)
 									}
+									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									<MenuItem value="all">All Vehicles</MenuItem>
 									<MenuItem value="due">Maintenance Due</MenuItem>
@@ -196,7 +365,18 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 							xs={12}
 							sx={{ display: "flex", justifyContent: "flex-end" }}
 						>
-							<Button onClick={handleReset}>Reset Filters</Button>
+							<Button
+								onClick={handleReset}
+								sx={{
+									color: COLOR_TEXT_SECONDARY,
+									"&:hover": {
+										color: COLOR_PRIMARY,
+										backgroundColor: "rgba(56, 130, 246, 0.1)",
+									},
+								}}
+							>
+								Reset Filters
+							</Button>
 						</Grid>
 					</Grid>
 				</Box>

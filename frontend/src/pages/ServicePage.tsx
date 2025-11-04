@@ -3,8 +3,6 @@ import {
 	Box,
 	Container,
 	Typography,
-	TextField,
-	InputAdornment,
 	Grid,
 	Paper,
 	Tab,
@@ -23,7 +21,6 @@ import {
 	Chip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import SearchIcon from "@mui/icons-material/Search";
 import BuildIcon from "@mui/icons-material/Build";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -43,7 +40,13 @@ import { serviceService } from "../api/ServiceAPIEndpoint";
 import { maintenanceScheduleService } from "../api/MaintenanceScheduleAPIEndpoint";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
 import AuthContext from "../context/AuthProvider";
-import { COLOR_PRIMARY } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../constants";
 
 const transformServiceData = (serviceData: any[]): Service[] => {
 	return serviceData.map((service) => ({
@@ -77,7 +80,6 @@ const Services: React.FC = () => {
 	const [loadingSchedules, setLoadingSchedules] = useState(false);
 
 	const [error, setError] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState("");
 	const [userVehicles, setUserVehicles] = useState<any[]>([]);
 	const [loadingVehicles, setLoadingVehicles] = useState(false);
 
@@ -267,35 +269,13 @@ const Services: React.FC = () => {
 		}
 	};
 
-	const filteredServices = services.filter((service) => {
-		const matchesSearch =
-			service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			service.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			service.vehicle?.make?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			service.vehicle?.model
-				?.toLowerCase()
-				.includes(searchTerm.toLowerCase()) ||
-			service.vehicle?.registration_number
-				?.toLowerCase()
-				.includes(searchTerm.toLowerCase());
-
-		return matchesSearch;
-	});
-
 	const filteredSchedules = maintenanceSchedules.filter((schedule) => {
 		const matchesSearch =
-			schedule.service_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			schedule.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			schedule.vehicle_details?.make
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase()) ||
-			schedule.vehicle_details?.model
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase()) ||
-			schedule.vehicle_details?.registration_number
-				.toLowerCase()
-				.includes(searchTerm.toLowerCase());
+			schedule.service_type?.toLowerCase().includes("") ||
+			schedule.notes?.toLowerCase().includes("") ||
+			schedule.vehicle_details?.make.toLowerCase().includes("") ||
+			schedule.vehicle_details?.model.toLowerCase().includes("") ||
+			schedule.vehicle_details?.registration_number.toLowerCase().includes("");
 
 		return matchesSearch;
 	});
@@ -360,7 +340,10 @@ const Services: React.FC = () => {
 
 	return (
 		<Mainlayout>
-			<Container maxWidth="xl">
+			<Container
+				maxWidth="xl"
+				sx={{ backgroundColor: COLOR_BACKGROUND, minHeight: "100vh" }}
+			>
 				<Box sx={{ py: 3 }}>
 					<Box
 						sx={{
@@ -370,7 +353,11 @@ const Services: React.FC = () => {
 							mb: 2,
 						}}
 					>
-						<Typography variant="h4" fontWeight="bold">
+						<Typography
+							variant="h4"
+							fontWeight="bold"
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							{isAdmin() ? "All Vehicle Services" : "Your Vehicle Services"}
 						</Typography>
 						{isAdmin() && (
@@ -381,6 +368,7 @@ const Services: React.FC = () => {
 								startIcon={<RefreshIcon />}
 								sx={{
 									bgcolor: COLOR_PRIMARY,
+									color: "white",
 									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
@@ -389,7 +377,9 @@ const Services: React.FC = () => {
 						)}
 					</Box>
 
-					<Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+					<Box
+						sx={{ borderBottom: 1, borderColor: COLOR_TEXT_SECONDARY, mb: 3 }}
+					>
 						<Tabs
 							value={activeTab}
 							onChange={handleTabChange}
@@ -400,6 +390,7 @@ const Services: React.FC = () => {
 									fontSize: "1rem",
 									fontWeight: "medium",
 									px: 3,
+									color: COLOR_TEXT_SECONDARY,
 								},
 								"& .Mui-selected": {
 									color: COLOR_PRIMARY,
@@ -422,42 +413,21 @@ const Services: React.FC = () => {
 						</Tabs>
 					</Box>
 
-					<Box sx={{ mb: 3 }}>
-						<TextField
-							fullWidth
-							variant="outlined"
-							placeholder="Search services, vehicles..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							InputProps={{
-								startAdornment: (
-									<InputAdornment position="start">
-										<SearchIcon />
-									</InputAdornment>
-								),
-							}}
-						/>
-					</Box>
-
 					{isAdmin() && activeTab === 0 && (
-						<Paper sx={{ p: 3, borderRadius: 2 }}>
-							<Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-								<Button
-									variant="contained"
-									color="primary"
-									onClick={handleOpenAddModal}
-									sx={{
-										bgcolor: COLOR_PRIMARY,
-										"&:hover": { bgcolor: "#2563EB" },
-									}}
-								>
-									Add Service
-								</Button>
-							</Box>
+						<Paper
+							sx={{
+								p: 3,
+								borderRadius: 2,
+								backgroundColor: COLOR_SURFACE,
+								border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+							}}
+						>
 							<ServiceTable
-								services={filteredServices}
+								services={services}
 								onEditService={handleOpenEditModal}
 								onDeleteServices={handleDeleteServices}
+								onAddService={handleOpenAddModal}
+								showAddButton={true}
 							/>
 							<AddServiceModal
 								open={addModalOpen}
@@ -474,13 +444,30 @@ const Services: React.FC = () => {
 					)}
 
 					{!isAdmin() && activeTab === 0 && (
-						<Paper sx={{ p: 3, borderRadius: 2 }}>
+						<Paper
+							sx={{
+								p: 3,
+								borderRadius: 2,
+								backgroundColor: COLOR_SURFACE,
+								border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+							}}
+						>
 							{loadingServices ? (
 								<Box sx={{ textAlign: "center", py: 5 }}>
 									<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 								</Box>
 							) : error ? (
-								<Alert severity="error" sx={{ mb: 2 }}>
+								<Alert
+									severity="error"
+									sx={{
+										mb: 2,
+										backgroundColor: "rgba(239, 68, 68, 0.1)",
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiAlert-icon": {
+											color: "#EF4444",
+										},
+									}}
+								>
 									{error}
 									<Button
 										variant="outlined"
@@ -489,22 +476,39 @@ const Services: React.FC = () => {
 											ml: 2,
 											color: COLOR_PRIMARY,
 											borderColor: COLOR_PRIMARY,
+											"&:hover": {
+												borderColor: "#2563EB",
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
 										}}
 										onClick={fetchClientServices}
 									>
 										Retry
 									</Button>
 								</Alert>
-							) : filteredServices.length === 0 ? (
-								<Alert severity="info">
+							) : services.length === 0 ? (
+								<Alert
+									severity="info"
+									sx={{
+										backgroundColor: "rgba(34, 211, 238, 0.1)",
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiAlert-icon": {
+											color: "#22D3EE",
+										},
+									}}
+								>
 									No service history found for your vehicles.
 								</Alert>
 							) : (
 								<Box>
-									<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+									<Typography
+										variant="h6"
+										fontWeight="bold"
+										sx={{ mb: 2, color: COLOR_TEXT_PRIMARY }}
+									>
 										Your Service History
 									</Typography>
-									{filteredServices.map((service, index) => (
+									{services.map((service, index) => (
 										<Paper
 											key={`service-${service.id || index}`}
 											elevation={0}
@@ -512,18 +516,31 @@ const Services: React.FC = () => {
 												p: 2,
 												mb: 2,
 												border: "1px solid",
-												borderColor: "grey.300",
+												borderColor: COLOR_TEXT_SECONDARY,
 												borderRadius: 2,
+												backgroundColor: COLOR_BACKGROUND,
 											}}
 										>
 											<Grid container spacing={2}>
 												<Grid item xs={12} sm={8}>
-													<Typography variant="h6">{service.name}</Typography>
-													<Typography variant="body2" color="text.secondary">
+													<Typography
+														variant="h6"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
+														{service.name}
+													</Typography>
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_SECONDARY }}
+													>
 														{service.vehicle?.make} {service.vehicle?.model} (
 														{service.vehicle?.registration_number})
 													</Typography>
-													<Typography variant="body2" paragraph>
+													<Typography
+														variant="body2"
+														paragraph
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														{service.description}
 													</Typography>
 													<Chip
@@ -532,16 +549,16 @@ const Services: React.FC = () => {
 														sx={{
 															bgcolor:
 																service.status === "completed"
-																	? "#e8f5e9"
+																	? "rgba(16, 185, 129, 0.2)"
 																	: service.status === "in_progress"
-																	? "#fff8e1"
-																	: "#f5f5f5",
+																	? "rgba(245, 158, 11, 0.2)"
+																	: "rgba(156, 163, 175, 0.2)",
 															color:
 																service.status === "completed"
-																	? "#2e7d32"
+																	? "#10B981"
 																	: service.status === "in_progress"
-																	? "#f57c00"
-																	: "#757575",
+																	? "#F59E0B"
+																	: COLOR_TEXT_SECONDARY,
 														}}
 													/>
 												</Grid>
@@ -551,7 +568,10 @@ const Services: React.FC = () => {
 													sm={4}
 													sx={{ textAlign: { sm: "right" } }}
 												>
-													<Typography variant="body2">
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														<strong>Date:</strong>{" "}
 														{service.service_date
 															? new Date(
@@ -559,7 +579,10 @@ const Services: React.FC = () => {
 															  ).toLocaleDateString()
 															: "Not scheduled"}
 													</Typography>
-													<Typography variant="body2">
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														<strong>Cost:</strong> ${service.cost || "0.00"}
 													</Typography>
 												</Grid>
@@ -572,13 +595,30 @@ const Services: React.FC = () => {
 					)}
 
 					{activeTab === 1 && (
-						<Paper sx={{ p: 3, borderRadius: 2 }}>
+						<Paper
+							sx={{
+								p: 3,
+								borderRadius: 2,
+								backgroundColor: COLOR_SURFACE,
+								border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+							}}
+						>
 							{loadingSchedules ? (
 								<Box sx={{ textAlign: "center", py: 5 }}>
 									<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 								</Box>
 							) : error ? (
-								<Alert severity="error" sx={{ mb: 2 }}>
+								<Alert
+									severity="error"
+									sx={{
+										mb: 2,
+										backgroundColor: "rgba(239, 68, 68, 0.1)",
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiAlert-icon": {
+											color: "#EF4444",
+										},
+									}}
+								>
 									{error}
 									<Button
 										variant="outlined"
@@ -587,6 +627,10 @@ const Services: React.FC = () => {
 											ml: 2,
 											color: COLOR_PRIMARY,
 											borderColor: COLOR_PRIMARY,
+											"&:hover": {
+												borderColor: "#2563EB",
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
 										}}
 										onClick={fetchClientMaintenanceSchedules}
 									>
@@ -594,7 +638,16 @@ const Services: React.FC = () => {
 									</Button>
 								</Alert>
 							) : filteredSchedules.length === 0 ? (
-								<Alert severity="info">
+								<Alert
+									severity="info"
+									sx={{
+										backgroundColor: "rgba(34, 211, 238, 0.1)",
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiAlert-icon": {
+											color: "#22D3EE",
+										},
+									}}
+								>
 									No maintenance schedules found for your vehicles.
 								</Alert>
 							) : (
@@ -607,7 +660,11 @@ const Services: React.FC = () => {
 											mb: 2,
 										}}
 									>
-										<Typography variant="h6" fontWeight="bold">
+										<Typography
+											variant="h6"
+											fontWeight="bold"
+											sx={{ color: COLOR_TEXT_PRIMARY }}
+										>
 											{isAdmin()
 												? "All Maintenance Schedules"
 												: "Your Maintenance Schedule"}
@@ -624,6 +681,10 @@ const Services: React.FC = () => {
 											sx={{
 												borderColor: COLOR_PRIMARY,
 												color: COLOR_PRIMARY,
+												"&:hover": {
+													borderColor: "#2563EB",
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
+												},
 											}}
 										>
 											{isAdmin() ? "Refresh All" : "Check Due Maintenance"}
@@ -639,13 +700,14 @@ const Services: React.FC = () => {
 												mb: 2,
 												border: "1px solid",
 												borderColor: !schedule.status
-													? "grey.300"
+													? COLOR_TEXT_SECONDARY
 													: schedule.status === "overdue"
 													? COLOR_PRIMARY
 													: schedule.status === "pending"
-													? "warning.light"
-													: "success.light",
+													? "#F59E0B"
+													: "#10B981",
 												borderRadius: 2,
+												backgroundColor: COLOR_BACKGROUND,
 											}}
 										>
 											<Box
@@ -656,15 +718,25 @@ const Services: React.FC = () => {
 												}}
 											>
 												<Box>
-													<Typography variant="body1" fontWeight="bold">
+													<Typography
+														variant="body1"
+														fontWeight="bold"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														{schedule.service_type}
 													</Typography>
-													<Typography variant="body2" color="text.secondary">
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_SECONDARY }}
+													>
 														{schedule.vehicle_details?.make || "Unknown"}{" "}
 														{schedule.vehicle_details?.model || "Unknown"} (
 														{schedule.vehicle_details?.year || "Unknown"})
 													</Typography>
-													<Typography variant="body2" color="text.secondary">
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_SECONDARY }}
+													>
 														Reg:{" "}
 														{schedule.vehicle_details?.registration_number ||
 															"Unknown"}
@@ -679,8 +751,8 @@ const Services: React.FC = () => {
 																	schedule.status === "overdue"
 																		? COLOR_PRIMARY
 																		: schedule.status === "pending"
-																		? "warning.light"
-																		: "success.light",
+																		? "#F59E0B"
+																		: "#10B981",
 																color: "#fff",
 															}}
 														>
@@ -691,7 +763,11 @@ const Services: React.FC = () => {
 													</Box>
 												</Box>
 												<Box>
-													<Typography variant="body2" align="right">
+													<Typography
+														variant="body2"
+														align="right"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														Due:{" "}
 														{schedule.due_date
 															? new Date(schedule.due_date).toLocaleDateString()
@@ -700,7 +776,7 @@ const Services: React.FC = () => {
 													{schedule.last_maintenance_date && (
 														<Typography
 															variant="caption"
-															color="text.secondary"
+															sx={{ color: COLOR_TEXT_SECONDARY }}
 														>
 															Last Maintenance:{" "}
 															{new Date(
@@ -712,7 +788,10 @@ const Services: React.FC = () => {
 											</Box>
 											{schedule.notes && (
 												<Box sx={{ mt: 1 }}>
-													<Typography variant="body2">
+													<Typography
+														variant="body2"
+														sx={{ color: COLOR_TEXT_PRIMARY }}
+													>
 														{schedule.notes}
 													</Typography>
 												</Box>

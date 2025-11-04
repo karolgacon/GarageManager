@@ -13,6 +13,11 @@ import CustomSnackbar, {
 import AuthContext from "../context/AuthProvider";
 import { useCustomerData } from "../hooks/useCustomerData";
 import { useCustomerActions } from "../hooks/useCustomerActions";
+import {
+	COLOR_BACKGROUND,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../constants";
 
 const Customers: React.FC = () => {
 	const { auth } = useContext(AuthContext);
@@ -147,7 +152,7 @@ const Customers: React.FC = () => {
 							loading={loading}
 							error={error}
 							userRole={auth.roles?.[0] || ""}
-							onView={handleViewCustomer} 
+							onView={handleViewCustomer}
 							onEdit={handleEditCustomer}
 							onDelete={handleDeleteCustomer}
 							onRetry={fetchCustomers}

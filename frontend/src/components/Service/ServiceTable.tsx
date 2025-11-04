@@ -15,6 +15,9 @@ import {
 	MenuItem,
 	Tooltip,
 	Chip,
+	TextField,
+	InputAdornment,
+	Button,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -22,13 +25,24 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import BuildIcon from "@mui/icons-material/Build";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import { Service } from "../../models/ServiceModel";
+import {
+	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface ServiceTableProps {
 	services: Service[];
 	onDeleteServices?: (ids: number[]) => void;
 	onEditService?: (service: Service) => void;
 	onToggleStatus?: (id: number, newStatus: boolean) => void;
+	onAddService?: () => void;
+	showAddButton?: boolean;
 }
 
 const ServiceTable: React.FC<ServiceTableProps> = ({
@@ -36,12 +50,15 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 	onDeleteServices,
 	onEditService,
 	onToggleStatus,
+	onAddService,
+	showAddButton = false,
 }) => {
 	const [sortColumn, setSortColumn] = useState<string | null>(null);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [selectedServices, setSelectedServices] = useState<number[]>([]);
 	const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 	const [activeServiceId, setActiveServiceId] = useState<number | null>(null);
+	const [searchTerm, setSearchTerm] = useState("");
 
 	const handleSort = (column: string) => {
 		if (sortColumn === column) {
@@ -54,7 +71,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 
 	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			setSelectedServices(services.map((service) => service.id!));
+			setSelectedServices(filteredServices.map((service) => service.id!));
 		} else {
 			setSelectedServices([]);
 		}
@@ -146,8 +163,20 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 	};
 
 	const sortedServices = [...services];
+
+	// Filter services based on search term
+	const filteredServices = sortedServices.filter((service) => {
+		const matchesSearch =
+			service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			service.category?.toLowerCase().includes(searchTerm.toLowerCase());
+
+		return matchesSearch;
+	});
+
+	// Sort filtered services
 	if (sortColumn) {
-		sortedServices.sort((a, b) => {
+		filteredServices.sort((a, b) => {
 			const aValue = a[sortColumn as keyof Service];
 			const bValue = b[sortColumn as keyof Service];
 
@@ -179,44 +208,126 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 
 	return (
 		<>
-			{selectedServices.length > 0 && (
-				<Box
+			{/* Search Field and Add Button */}
+			<Box sx={{ mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
+				<TextField
+					fullWidth
+					variant="outlined"
+					placeholder="Search services..."
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
 					sx={{
-						display: "flex",
-						justifyContent: "flex-end",
-						mb: 2,
-						alignItems: "center",
+						backgroundColor: COLOR_SURFACE,
+						borderRadius: 1,
+						"& .MuiOutlinedInput-root": {
+							color: COLOR_TEXT_PRIMARY,
+							"& fieldset": {
+								borderColor: COLOR_TEXT_SECONDARY,
+							},
+							"&:hover fieldset": {
+								borderColor: COLOR_PRIMARY,
+							},
+							"&.Mui-focused fieldset": {
+								borderColor: COLOR_PRIMARY,
+							},
+						},
+						"& .MuiInputBase-input::placeholder": {
+							color: COLOR_TEXT_SECONDARY,
+							opacity: 1,
+						},
 					}}
-				>
-					<Typography variant="body2" sx={{ mr: 2 }}>
-						{selectedServices.length} service(s) selected
-					</Typography>
-					<Tooltip title="Delete selected">
-						<IconButton
-							color="error"
-							onClick={handleDeleteSelected}
-							sx={{ border: "1px solid rgba(211, 47, 47, 0.5)" }}
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position="start">
+								<SearchIcon sx={{ color: COLOR_TEXT_SECONDARY }} />
+							</InputAdornment>
+						),
+					}}
+				/>
+				{showAddButton && (
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={onAddService}
+						startIcon={<AddIcon />}
+						sx={{
+							bgcolor: COLOR_PRIMARY,
+							color: "white",
+							"&:hover": { bgcolor: "#2563EB" },
+							borderRadius: 1,
+							width: { xs: "100%", sm: "auto" },
+							fontSize: "0.875rem", // Smaller font size
+							whiteSpace: "nowrap", // Prevent text wrapping
+						}}
+					>
+						Add Service
+					</Button>
+				)}
+			</Box>
+
+			<TableContainer
+				sx={{ backgroundColor: COLOR_SURFACE, position: "relative" }}
+			>
+				{selectedServices.length > 0 && (
+					<Box
+						sx={{
+							position: "absolute",
+							top: 8,
+							right: 8,
+							zIndex: 10,
+							display: "flex",
+							alignItems: "center",
+							gap: 1,
+							backgroundColor: COLOR_SURFACE,
+							padding: "4px 8px",
+							borderRadius: 1,
+							border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+						}}
+					>
+						<Typography
+							variant="body2"
+							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								fontSize: "0.75rem",
+							}}
 						>
-							<DeleteIcon />
-						</IconButton>
-					</Tooltip>
-				</Box>
-			)}
-			<TableContainer>
+							{selectedServices.length} selected
+						</Typography>
+						<Tooltip title="Delete selected">
+							<IconButton
+								size="small"
+								sx={{
+									color: "#dc2626",
+									"&:hover": {
+										backgroundColor: "rgba(220, 38, 38, 0.1)",
+									},
+								}}
+								onClick={handleDeleteSelected}
+							>
+								<DeleteIcon fontSize="small" />
+							</IconButton>
+						</Tooltip>
+					</Box>
+				)}
 				<Table>
 					<TableHead>
-						<TableRow>
-							<TableCell padding="checkbox">
+						<TableRow sx={{ backgroundColor: COLOR_PRIMARY }}>
+							<TableCell padding="checkbox" sx={{ borderBottom: "none" }}>
 								<Checkbox
 									indeterminate={
 										selectedServices.length > 0 &&
-										selectedServices.length < services.length
+										selectedServices.length < filteredServices.length
 									}
 									checked={
-										services.length > 0 &&
-										selectedServices.length === services.length
+										filteredServices.length > 0 &&
+										selectedServices.length === filteredServices.length
 									}
 									onChange={handleSelectAll}
+									sx={{
+										color: "white",
+										"&.Mui-checked": { color: "white" },
+										"&.MuiCheckbox-indeterminate": { color: "white" },
+									}}
 								/>
 							</TableCell>
 							{columns.map((column) => (
@@ -226,6 +337,8 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 									sx={{
 										cursor: column.sortable ? "pointer" : "default",
 										fontWeight: "bold",
+										color: "white",
+										borderBottom: "none",
 									}}
 								>
 									<Box sx={{ display: "flex", alignItems: "center" }}>
@@ -237,16 +350,24 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{sortedServices.length === 0 ? (
+						{filteredServices.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={columns.length + 1}>
+								<TableCell
+									colSpan={columns.length + 1}
+									sx={{ borderBottom: "none" }}
+								>
 									<Box sx={{ textAlign: "center", p: 3 }}>
-										<Typography variant="body1">No services found</Typography>
+										<Typography
+											variant="body1"
+											sx={{ color: COLOR_TEXT_PRIMARY }}
+										>
+											No services found
+										</Typography>
 									</Box>
 								</TableCell>
 							</TableRow>
 						) : (
-							sortedServices.map((service) => {
+							filteredServices.map((service) => {
 								const isItemSelected = isSelected(service.id!);
 
 								return (
@@ -255,19 +376,45 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 										hover
 										selected={isItemSelected}
 										onClick={(event) => event.stopPropagation()}
+										sx={{
+											backgroundColor: isItemSelected
+												? "rgba(56, 130, 246, 0.1)"
+												: "transparent",
+											"&:hover": {
+												backgroundColor: isItemSelected
+													? "rgba(56, 130, 246, 0.2)"
+													: "rgba(156, 163, 175, 0.1)",
+											},
+										}}
 									>
-										<TableCell padding="checkbox">
+										<TableCell
+											padding="checkbox"
+											sx={{ borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}` }}
+										>
 											<Checkbox
 												checked={isItemSelected}
 												onChange={() => handleSelectService(service.id!)}
+												sx={{
+													color: COLOR_TEXT_SECONDARY,
+													"&.Mui-checked": { color: COLOR_PRIMARY },
+												}}
 											/>
 										</TableCell>
-										<TableCell>{service.id || "N/A"}</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											{service.id || "N/A"}
+										</TableCell>
+										<TableCell
+											sx={{ borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}` }}
+										>
 											<Box sx={{ display: "flex", alignItems: "center" }}>
 												<Avatar
 													sx={{
-														bgcolor: "#660000",
+														bgcolor: COLOR_PRIMARY,
 														width: 35,
 														height: 35,
 														mr: 2,
@@ -275,26 +422,58 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 												>
 													<BuildIcon />
 												</Avatar>
-												{service.name || "Unknown Service"}
+												<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+													{service.name || "Unknown Service"}
+												</Typography>
 											</Box>
 										</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
 											{service.category.charAt(0).toUpperCase() +
 												service.category.slice(1) || "No Category"}
 										</TableCell>
-										<TableCell>{formatPrice(service.price)}</TableCell>
-										<TableCell>{formatDuration(service.duration)}</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											{formatPrice(service.price)}
+										</TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											{formatDuration(service.duration)}
+										</TableCell>
+										<TableCell
+											sx={{ borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}` }}
+										>
 											<Chip
 												label={service.is_active ? "Active" : "Inactive"}
 												color={service.is_active ? "success" : "default"}
 												size="small"
+												sx={{
+													backgroundColor: service.is_active
+														? "#10B981"
+														: COLOR_TEXT_SECONDARY,
+													color: "white",
+												}}
 											/>
 										</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{ borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}` }}
+										>
 											<IconButton
 												size="small"
 												onClick={(e) => handleMenuOpen(e, service.id!)}
+												sx={{ color: COLOR_TEXT_SECONDARY }}
 											>
 												<MoreVertIcon />
 											</IconButton>
@@ -313,19 +492,40 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 				onClose={handleMenuClose}
 				transformOrigin={{ horizontal: "right", vertical: "top" }}
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+				PaperProps={{
+					sx: {
+						backgroundColor: COLOR_SURFACE,
+						border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+					},
+				}}
 			>
-				<MenuItem onClick={handleEditService}>
-					<EditIcon fontSize="small" sx={{ mr: 1 }} />
+				<MenuItem
+					onClick={handleEditService}
+					sx={{
+						color: COLOR_TEXT_PRIMARY,
+						"&:hover": { backgroundColor: "rgba(56, 130, 246, 0.1)" },
+					}}
+				>
+					<EditIcon fontSize="small" sx={{ mr: 1, color: COLOR_PRIMARY }} />
 					Edit
 				</MenuItem>
-				<MenuItem onClick={handleToggleStatus}>
+				<MenuItem
+					onClick={handleToggleStatus}
+					sx={{
+						color: COLOR_TEXT_PRIMARY,
+						"&:hover": { backgroundColor: "rgba(56, 130, 246, 0.1)" },
+					}}
+				>
 					{services.find((s) => s.id === activeServiceId)?.is_active ? (
 						<>
 							<Chip
 								label="Set Inactive"
 								size="small"
-								color="default"
-								sx={{ mr: 1 }}
+								sx={{
+									mr: 1,
+									backgroundColor: COLOR_TEXT_SECONDARY,
+									color: "white",
+								}}
 							/>
 						</>
 					) : (
@@ -333,14 +533,23 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 							<Chip
 								label="Set Active"
 								size="small"
-								color="success"
-								sx={{ mr: 1 }}
+								sx={{
+									mr: 1,
+									backgroundColor: "#10B981",
+									color: "white",
+								}}
 							/>
 						</>
 					)}
 				</MenuItem>
-				<MenuItem onClick={handleDeleteService} sx={{ color: "error.main" }}>
-					<DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+				<MenuItem
+					onClick={handleDeleteService}
+					sx={{
+						color: "#EF4444",
+						"&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" },
+					}}
+				>
+					<DeleteIcon fontSize="small" sx={{ mr: 1, color: "#EF4444" }} />
 					Delete
 				</MenuItem>
 			</Menu>
