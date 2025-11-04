@@ -49,6 +49,7 @@ import {
 	TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
+import { COLOR_PRIMARY, COLOR_SURFACE, COLOR_TEXT_PRIMARY } from "../constants";
 import AuthContext from "../context/AuthProvider";
 import CustomSnackbar, {
 	SnackbarState,
@@ -196,7 +197,7 @@ const StaffManagement: React.FC = () => {
 	const getRoleColor = (role: string) => {
 		switch (role.toLowerCase()) {
 			case "admin":
-				return "#FF3E55";
+				return COLOR_PRIMARY;
 			case "owner":
 				return "#FF9800";
 			case "mechanic":
@@ -245,8 +246,8 @@ const StaffManagement: React.FC = () => {
 						startIcon={<AddIcon />}
 						onClick={() => handleOpenDialog()}
 						sx={{
-							bgcolor: "#FF3E55",
-							"&:hover": { bgcolor: "#E02A45" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: "#2563EB" },
 							fontSize: "0.8rem",
 						}}
 					>
@@ -398,7 +399,6 @@ const StaffManagement: React.FC = () => {
 			);
 		}
 
-
 		const employmentStartDate = new Date(
 			selectedStaff.hired_date || selectedStaff.created_at
 		);
@@ -408,7 +408,6 @@ const StaffManagement: React.FC = () => {
 			(currentDate.getTime() - employmentStartDate.getTime()) /
 				(1000 * 60 * 60 * 24)
 		);
-
 
 		const isValidEmploymentDays = !isNaN(employmentDays) && employmentDays >= 0;
 		const displayEmploymentDays = isValidEmploymentDays ? employmentDays : 0;
@@ -580,7 +579,7 @@ const StaffManagement: React.FC = () => {
 				value={selectedWorkshopId}
 				onChange={(workshopId) => {
 					setSelectedWorkshopId(workshopId);
-					setSelectedStaff(null); 
+					setSelectedStaff(null);
 				}}
 				disabled={loading}
 			/>

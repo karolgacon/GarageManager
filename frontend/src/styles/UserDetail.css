@@ -7,7 +7,8 @@
 }
 
 .user-detail-container h1 {
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     font-size: 32px;
     margin-bottom: 30px;
     text-align: center;
@@ -15,8 +16,10 @@
 
 .back-button {
     display: inline-block;
-    background-color: rgba(0, 0, 0, 0.15);
-    color: white;
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     padding: 10px 16px;
     border-radius: 50px;
     text-decoration: none;
@@ -29,15 +32,19 @@
 }
 
 .back-button:hover {
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(228, 230, 232, 0.2);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .user-details {
-    background-color: #1c1e2e;
+    background-color: #1A1D23;
+    /* COLOR_SURFACE */
     border-radius: 24px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     padding: 24px;
     transition: transform 0.2s ease;
+    border: 1px solid rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .user-details:hover {
@@ -45,7 +52,8 @@
 }
 
 .user-details h2 {
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     font-size: 24px;
     margin-top: 0;
     margin-bottom: 20px;
@@ -53,12 +61,14 @@
 
 .user-details p {
     margin: 12px 0;
-    color: rgba(255, 255, 255, 0.8);
+    color: #9CA3AF;
+    /* COLOR_TEXT_SECONDARY */
     font-size: 16px;
 }
 
 .user-details strong {
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 .actions {
@@ -68,7 +78,9 @@
     flex-wrap: wrap;
 }
 
-.refresh-button, .edit-button, .delete-button {
+.refresh-button,
+.edit-button,
+.delete-button {
     padding: 10px 16px;
     border-radius: 50px;
     font-weight: 600;
@@ -78,36 +90,48 @@
 }
 
 .refresh-button {
-    background-color: rgba(0, 0, 0, 0.15);
-    color: white;
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 .edit-button {
-    background-color: #ff3850;
-    color: white;
+    background-color: #3882F6;
+    /* COLOR_PRIMARY */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 .delete-button {
-    background-color: #d70026;
-    color: white;
+    background-color: #EF4444;
+    /* COLOR_ERROR */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 .refresh-button:hover {
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(228, 230, 232, 0.2);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .edit-button:hover {
-    background-color: #e82640;
+    background-color: #22D3EE;
+    /* COLOR_SECONDARY */
 }
 
 .delete-button:hover {
-    background-color: #b5001e;
+    background-color: #DC2626;
+    /* Darker error color */
 }
 
 .error-message {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ff3850;
-    border-left: 4px solid #ff3850;
+    background-color: rgba(239, 68, 68, 0.1);
+    /* COLOR_ERROR with opacity */
+    color: #EF4444;
+    /* COLOR_ERROR */
+    border-left: 4px solid #EF4444;
+    /* COLOR_ERROR */
     padding: 12px;
     margin-bottom: 24px;
     border-radius: 4px;
@@ -120,7 +144,8 @@
     align-items: center;
     height: 200px;
     font-size: 18px;
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 @media (max-width: 768px) {
@@ -128,7 +153,9 @@
         flex-direction: column;
     }
 
-    .refresh-button, .edit-button, .delete-button {
+    .refresh-button,
+    .edit-button,
+    .delete-button {
         width: 100%;
     }
 }

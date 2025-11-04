@@ -20,9 +20,9 @@ import {
 	DialogActions,
 	DialogTitle,
 	DialogContent,
-	Chip, 
+	Chip,
 } from "@mui/material";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import BuildIcon from "@mui/icons-material/Build";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -51,10 +51,10 @@ const transformServiceData = (serviceData: any[]): Service[] => {
 		name: service.name,
 		category: service.category,
 		price: service.price,
-		duration: service.estimated_duration, 
+		duration: service.estimated_duration,
 		description: service.description,
-		is_active: service.is_active ?? true, 
-		vehicle: null, 
+		is_active: service.is_active ?? true,
+		vehicle: null,
 		_original: service,
 	}));
 };
@@ -103,7 +103,7 @@ const Services: React.FC = () => {
 	}, [auth.user_id]);
 
 	useEffect(() => {
-		let isMounted = true; 
+		let isMounted = true;
 
 		const loadData = async () => {
 			if (!isAdmin() && auth.user_id) {
@@ -120,7 +120,7 @@ const Services: React.FC = () => {
 		return () => {
 			isMounted = false;
 		};
-	}, [activeTab, auth.user_id]); 
+	}, [activeTab, auth.user_id]);
 
 	const fetchUserVehicles = async () => {
 		try {
@@ -381,7 +381,7 @@ const Services: React.FC = () => {
 								startIcon={<RefreshIcon />}
 								sx={{
 									bgcolor: COLOR_PRIMARY,
-									"&:hover": { bgcolor: "#d6303f" },
+									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
 								Refresh Data
@@ -448,7 +448,7 @@ const Services: React.FC = () => {
 									onClick={handleOpenAddModal}
 									sx={{
 										bgcolor: COLOR_PRIMARY,
-										"&:hover": { bgcolor: "#d6303f" },
+										"&:hover": { bgcolor: "#2563EB" },
 									}}
 								>
 									Add Service
@@ -632,7 +632,7 @@ const Services: React.FC = () => {
 
 									{filteredSchedules.map((schedule, index) => (
 										<Paper
-											key={`schedule-${schedule.id || index}`} 
+											key={`schedule-${schedule.id || index}`}
 											elevation={0}
 											sx={{
 												p: 2,

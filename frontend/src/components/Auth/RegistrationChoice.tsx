@@ -11,6 +11,13 @@ import { styled } from "@mui/material/styles";
 import GarageLogo from "./GarageLogo";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
+import {
+	COLOR_SURFACE,
+	COLOR_PRIMARY,
+	COLOR_SECONDARY,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 const StyledContainer = styled(Box)({
 	display: "flex",
@@ -22,24 +29,25 @@ const StyledContainer = styled(Box)({
 });
 
 const StyledFormCard = styled(Paper)({
-	backgroundColor: "white",
+	backgroundColor: COLOR_SURFACE, // Ciemne tło karty
 	borderRadius: "16px",
 	padding: "40px 30px",
 	width: "100%",
-	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-	border: "1px solid #E5E7EB",
+	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+	border: `1px solid rgba(228, 230, 232, 0.1)`, // Subtle border using text color
 	textAlign: "center",
 });
 
 const StyledChoiceCard = styled(Card)({
 	borderRadius: "12px",
-	border: "2px solid #E5E7EB",
+	border: `2px solid rgba(228, 230, 232, 0.2)`, // Subtle border
+	backgroundColor: `rgba(228, 230, 232, 0.05)`, // Very subtle background
 	transition: "all 0.3s ease",
 	"&:hover": {
-		borderColor: "#FF3B57",
-		backgroundColor: "#FFF8F9",
+		borderColor: COLOR_PRIMARY,
+		backgroundColor: `${COLOR_PRIMARY}1A`, // Primary color with low opacity
 		transform: "translateY(-2px)",
-		boxShadow: "0 6px 20px rgba(255, 59, 87, 0.15)",
+		boxShadow: `0 6px 20px ${COLOR_PRIMARY}26`, // Primary color shadow
 	},
 	"&:active": {
 		transform: "translateY(0)",
@@ -61,18 +69,18 @@ const StyledIconContainer = styled(Box)({
 	width: "48px",
 	height: "48px",
 	borderRadius: "12px",
-	backgroundColor: "#F3F4F6",
-	color: "#FF3B57",
+	backgroundColor: `rgba(228, 230, 232, 0.1)`, // Subtle background using text color
+	color: COLOR_PRIMARY,
 	flexShrink: 0,
 });
 
 const StyledBackButton = styled(Button)({
 	marginTop: "20px",
-	color: "#6B7280",
-	borderColor: "#D1D5DB",
+	color: COLOR_TEXT_SECONDARY,
+	borderColor: `rgba(228, 230, 232, 0.3)`,
 	"&:hover": {
-		backgroundColor: "#F9FAFB",
-		borderColor: "#9CA3AF",
+		backgroundColor: `rgba(228, 230, 232, 0.1)`,
+		borderColor: COLOR_TEXT_PRIMARY,
 	},
 });
 
@@ -102,7 +110,7 @@ function RegistrationChoice() {
 					sx={{
 						fontSize: "28px",
 						fontWeight: "700",
-						color: "#1F2937",
+						color: COLOR_TEXT_PRIMARY,
 						marginBottom: "8px",
 						letterSpacing: "-0.02em",
 					}}
@@ -113,7 +121,7 @@ function RegistrationChoice() {
 					variant="body1"
 					sx={{
 						fontSize: "15px",
-						color: "#6B7280",
+						color: COLOR_TEXT_SECONDARY,
 						marginBottom: "30px",
 						lineHeight: "1.5",
 					}}
@@ -140,7 +148,7 @@ function RegistrationChoice() {
 									sx={{
 										fontSize: "18px",
 										fontWeight: "600",
-										color: "#1F2937",
+										color: COLOR_TEXT_PRIMARY,
 										marginBottom: "4px",
 									}}
 								>
@@ -150,7 +158,7 @@ function RegistrationChoice() {
 									variant="body2"
 									sx={{
 										fontSize: "13px",
-										color: "#6B7280",
+										color: COLOR_TEXT_SECONDARY,
 										lineHeight: "1.4",
 									}}
 								>
@@ -172,7 +180,7 @@ function RegistrationChoice() {
 									sx={{
 										fontSize: "18px",
 										fontWeight: "600",
-										color: "#1F2937",
+										color: COLOR_TEXT_PRIMARY,
 										marginBottom: "4px",
 									}}
 								>
@@ -182,7 +190,7 @@ function RegistrationChoice() {
 									variant="body2"
 									sx={{
 										fontSize: "13px",
-										color: "#6B7280",
+										color: COLOR_TEXT_SECONDARY,
 										lineHeight: "1.4",
 									}}
 								>

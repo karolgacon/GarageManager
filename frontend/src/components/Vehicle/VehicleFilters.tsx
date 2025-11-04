@@ -16,6 +16,7 @@ import {
 	VEHICLE_FUEL_TYPES,
 	VEHICLE_STATUS_TYPES,
 } from "../../models/VehicleModel";
+import { COLOR_SURFACE } from "../../constants";
 
 const POPULAR_CAR_BRANDS = [
 	{ value: "", label: "All Brands" },
@@ -109,7 +110,7 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
 			/>
 
 			{expanded && (
-				<Box sx={{ p: 2, bgcolor: "#f5f5f5", borderRadius: 1, mb: 2 }}>
+				<Box sx={{ p: 2, bgcolor: COLOR_SURFACE, borderRadius: 1, mb: 2 }}>
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6} md={3}>
 							<TextField

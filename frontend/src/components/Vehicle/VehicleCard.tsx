@@ -15,6 +15,11 @@ import InfoIcon from "@mui/icons-material/Info";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
 import { Vehicle } from "../../models/VehicleModel";
+import {
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface VehicleCardProps {
 	vehicle: Vehicle;
@@ -86,9 +91,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 				display: "flex",
 				flexDirection: "column",
 				borderRadius: 2,
+				backgroundColor: COLOR_SURFACE,
+				color: COLOR_TEXT_PRIMARY,
+				border: `1px solid rgba(228, 230, 232, 0.1)`,
 				transition: "all 0.3s",
 				"&:hover": {
-					boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+					boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
 					transform: "translateY(-4px)",
 				},
 			}}
@@ -96,7 +104,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 			<Box
 				sx={{
 					height: 160,
-					bgcolor: "#f5f5f5",
+					bgcolor: "rgba(228, 230, 232, 0.05)", // Subtelne ciemne tło dla obrazka
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
@@ -113,7 +121,9 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						}}
 					/>
 				) : (
-					<DirectionsCarIcon sx={{ fontSize: 80, color: "#ccc" }} />
+					<DirectionsCarIcon
+						sx={{ fontSize: 80, color: COLOR_TEXT_SECONDARY }}
+					/>
 				)}
 			</Box>
 
@@ -168,7 +178,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						</Typography>
 					)}
 
-					{vehicle.mileage != null && ( 
+					{vehicle.mileage != null && (
 						<Typography
 							variant="body2"
 							color="text.secondary"
@@ -183,10 +193,17 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 				</Box>
 
 				{showWorkshopInfo && vehicle.workshop_id && (
-					<Box sx={{ mt: 1, p: 1, bgcolor: "#f9f9f9", borderRadius: 1 }}>
+					<Box
+						sx={{
+							mt: 1,
+							p: 1,
+							bgcolor: "rgba(228, 230, 232, 0.05)",
+							borderRadius: 1,
+						}}
+					>
 						<Typography
 							variant="caption"
-							color="text.secondary"
+							color={COLOR_TEXT_SECONDARY}
 							display="block"
 						>
 							Workshop: {vehicle.workshop_name || `ID: ${vehicle.workshop_id}`}

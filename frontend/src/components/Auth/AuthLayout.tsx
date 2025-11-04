@@ -1,7 +1,14 @@
 import React from "react";
 import { Box, Container, Grid, Paper } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { COLOR_SECONDARY } from "../../constants";
+import {
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_PRIMARY,
+	COLOR_SECONDARY,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import Footer from "../Footer";
 
 const StyledContainer = styled(Container)({
@@ -23,13 +30,13 @@ const StyledGrid = styled(Grid)({
 });
 
 const StyledLogoSection = styled(Box)({
-	backgroundColor: "white",
+	backgroundColor: COLOR_SURFACE, // Ciemne tło zamiast białego
 	height: "100vh",
 	display: "flex",
 	flexDirection: "column",
 	justifyContent: "center",
 	alignItems: "center",
-	color: "#333",
+	color: COLOR_TEXT_PRIMARY,
 	position: "relative",
 });
 
@@ -40,7 +47,7 @@ const StyledLogoContent = styled(Box)({
 });
 
 const StyledFormSection = styled(Box)({
-	background: "linear-gradient(135deg, #FF3B57 0%, #E42D48 100%)",
+	background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`, // Nowe kolory gradientu
 	height: "100vh",
 	display: "flex",
 	alignItems: "center",
@@ -71,7 +78,7 @@ const StyledLogoText = styled("h1")({
 	fontWeight: "700",
 	margin: "0 0 8px",
 	letterSpacing: "-0.5px",
-	color: "#FF3B57",
+	color: COLOR_PRIMARY, // Użyj nowego primary color
 });
 
 const StyledTagline = styled("p")({
@@ -81,7 +88,7 @@ const StyledTagline = styled("p")({
 	textTransform: "uppercase",
 	margin: 0,
 	opacity: 0.7,
-	color: "#666",
+	color: COLOR_TEXT_SECONDARY, // Użyj secondary text color
 });
 
 interface AuthLayoutProps {
@@ -89,9 +96,9 @@ interface AuthLayoutProps {
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
-	// Usuń białe tło z body podczas ładowania komponentu
+	// Ustaw ciemne tło dla body podczas ładowania komponentu
 	React.useEffect(() => {
-		document.body.style.backgroundColor = "transparent";
+		document.body.style.backgroundColor = COLOR_BACKGROUND;
 		return () => {
 			document.body.style.backgroundColor = "";
 		};
@@ -102,15 +109,14 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 			sx={{
 				position: "relative",
 				height: "100vh",
-				backgroundColor: "transparent",
-				minWidth: "1200px",
+				backgroundColor: COLOR_BACKGROUND,
 				overflow: "auto",
 			}}
 		>
 			<StyledContainer>
 				<StyledGrid
 					container
-					sx={{ backgroundColor: "transparent", minWidth: "1200px" }}
+					sx={{ backgroundColor: COLOR_BACKGROUND, minWidth: "1200px" }}
 				>
 					<Grid item xs={12} md={6} sx={{ minWidth: "600px" }}>
 						<StyledLogoSection>
@@ -126,8 +132,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 						xs={12}
 						md={6}
 						sx={{
-							backgroundColor: "#FF3B57",
-							background: "linear-gradient(135deg, #FF3B57 0%, #E42D48 100%)",
+							backgroundColor: COLOR_PRIMARY,
+							background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`,
 							minWidth: "600px",
 						}}
 					>

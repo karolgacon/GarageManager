@@ -17,6 +17,7 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
 import EventIcon from "@mui/icons-material/Event";
 import { Vehicle } from "../../models/VehicleModel";
+import { COLOR_PRIMARY, COLOR_SURFACE } from "../../constants";
 
 interface VehicleDetailDialogProps {
 	open: boolean;
@@ -72,7 +73,7 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 		>
 			<DialogTitle
 				sx={{
-					bgcolor: "#ff3c4e",
+					bgcolor: COLOR_PRIMARY,
 					color: "white",
 					display: "flex",
 					justifyContent: "space-between",
@@ -311,7 +312,7 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 				</Box>
 
 				{vehicle.workshop_id && (
-					<Box sx={{ mt: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 2 }}>
+					<Box sx={{ mt: 2, p: 2, bgcolor: COLOR_SURFACE, borderRadius: 2 }}>
 						<Typography variant="subtitle2" color="text.secondary">
 							Workshop Information
 						</Typography>

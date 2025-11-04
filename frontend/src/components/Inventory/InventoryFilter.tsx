@@ -13,6 +13,12 @@ import {
 	Select,
 	MenuItem,
 } from "@mui/material";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface FilterOptions {
 	priceRange: [number, number];
@@ -84,14 +90,31 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 	};
 
 	return (
-		<Box sx={{ p: 2, mb: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
-			<Typography variant="subtitle1" fontWeight="bold" mb={2}>
+		<Box
+			sx={{
+				p: 2,
+				mb: 2,
+				bgcolor: COLOR_SURFACE,
+				borderRadius: 1,
+				border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+			}}
+		>
+			<Typography
+				variant="subtitle1"
+				fontWeight="bold"
+				mb={2}
+				sx={{ color: COLOR_TEXT_PRIMARY }}
+			>
 				Filter Options
 			</Typography>
 			<Grid container spacing={3}>
 				<Grid item xs={12} md={3}>
 					<FormControl fullWidth>
-						<Typography variant="body2" gutterBottom>
+						<Typography
+							variant="body2"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Price Range
 						</Typography>
 						<Slider
@@ -100,6 +123,18 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 							valueLabelDisplay="auto"
 							min={0}
 							max={1000}
+							sx={{
+								color: COLOR_PRIMARY,
+								"& .MuiSlider-thumb": {
+									backgroundColor: COLOR_PRIMARY,
+								},
+								"& .MuiSlider-track": {
+									backgroundColor: COLOR_PRIMARY,
+								},
+								"& .MuiSlider-rail": {
+									backgroundColor: COLOR_TEXT_SECONDARY,
+								},
+							}}
 						/>
 						<Box sx={{ display: "flex", justifyContent: "space-between" }}>
 							<TextField
@@ -108,7 +143,28 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 								type="number"
 								value={priceRange[0]}
 								onChange={handleMinPriceChange}
-								sx={{ width: "48%" }}
+								sx={{
+									width: "48%",
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 							<TextField
 								size="small"
@@ -116,14 +172,39 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 								type="number"
 								value={priceRange[1]}
 								onChange={handleMaxPriceChange}
-								sx={{ width: "48%" }}
+								sx={{
+									width: "48%",
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 						</Box>
 					</FormControl>
 				</Grid>
 				<Grid item xs={12} md={3}>
 					<FormControl fullWidth>
-						<Typography variant="body2" gutterBottom>
+						<Typography
+							variant="body2"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Category
 						</Typography>
 						<Select
@@ -131,6 +212,32 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 							onChange={handleCategoryChange}
 							displayEmpty
 							size="small"
+							sx={{
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_TEXT_SECONDARY,
+								},
+								"&:hover .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_PRIMARY,
+								},
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_PRIMARY,
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										backgroundColor: COLOR_SURFACE,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+										},
+									},
+								},
+							}}
 						>
 							<MenuItem value="">All Categories</MenuItem>
 							<MenuItem value="engine">Engine Parts</MenuItem>
@@ -143,7 +250,11 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 				</Grid>
 				<Grid item xs={12} md={3}>
 					<FormControl fullWidth>
-						<Typography variant="body2" gutterBottom>
+						<Typography
+							variant="body2"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Supplier
 						</Typography>
 						<Select
@@ -151,6 +262,32 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 							onChange={handleSupplierChange}
 							displayEmpty
 							size="small"
+							sx={{
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_TEXT_SECONDARY,
+								},
+								"&:hover .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_PRIMARY,
+								},
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_PRIMARY,
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										backgroundColor: COLOR_SURFACE,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+										},
+									},
+								},
+							}}
 						>
 							<MenuItem value="">All Suppliers</MenuItem>
 							<MenuItem value="bosch">Bosch</MenuItem>
@@ -162,38 +299,117 @@ const InventoryFilter: React.FC<InventoryFilterProps> = ({
 				</Grid>
 				<Grid item xs={12} md={3}>
 					<FormControl component="fieldset">
-						<Typography variant="body2" gutterBottom>
+						<Typography
+							variant="body2"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Availability
 						</Typography>
 						<RadioGroup
 							value={availability}
 							onChange={handleAvailabilityChange}
 						>
-							<FormControlLabel value="all" control={<Radio />} label="All" />
+							<FormControlLabel
+								value="all"
+								control={
+									<Radio
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-checked": {
+												color: COLOR_PRIMARY,
+											},
+										}}
+									/>
+								}
+								label={
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										All
+									</Typography>
+								}
+							/>
 							<FormControlLabel
 								value="inStock"
-								control={<Radio />}
-								label="In Stock"
+								control={
+									<Radio
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-checked": {
+												color: COLOR_PRIMARY,
+											},
+										}}
+									/>
+								}
+								label={
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										In Stock
+									</Typography>
+								}
 							/>
 							<FormControlLabel
 								value="lowStock"
-								control={<Radio />}
-								label="Low Stock"
+								control={
+									<Radio
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-checked": {
+												color: COLOR_PRIMARY,
+											},
+										}}
+									/>
+								}
+								label={
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										Low Stock
+									</Typography>
+								}
 							/>
 							<FormControlLabel
 								value="outOfStock"
-								control={<Radio />}
-								label="Out of Stock"
+								control={
+									<Radio
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-checked": {
+												color: COLOR_PRIMARY,
+											},
+										}}
+									/>
+								}
+								label={
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										Out of Stock
+									</Typography>
+								}
 							/>
 						</RadioGroup>
 					</FormControl>
 				</Grid>
 			</Grid>
 			<Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-				<Button variant="outlined" onClick={handleClearFilters} sx={{ mr: 1 }}>
+				<Button
+					variant="outlined"
+					onClick={handleClearFilters}
+					sx={{
+						mr: 1,
+						borderColor: COLOR_TEXT_SECONDARY,
+						color: COLOR_TEXT_SECONDARY,
+						"&:hover": {
+							borderColor: COLOR_PRIMARY,
+							backgroundColor: "rgba(56, 130, 246, 0.1)",
+						},
+					}}
+				>
 					Clear Filters
 				</Button>
-				<Button variant="contained" onClick={handleApplyFilters}>
+				<Button
+					variant="contained"
+					onClick={handleApplyFilters}
+					sx={{
+						bgcolor: COLOR_PRIMARY,
+						"&:hover": { bgcolor: "#2563EB" },
+					}}
+				>
 					Apply Filters
 				</Button>
 			</Box>

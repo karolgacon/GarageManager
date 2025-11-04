@@ -14,9 +14,10 @@ const useStyles = createUseStyles({
 		fontFamily: "'Outfit','Poppins', 'Roboto', sans-serif",
 	},
 	formCard: {
-		backgroundColor: "#FFFFFF",
+		backgroundColor: "#1A1D23", // COLOR_SURFACE
 		borderRadius: "12px",
-		boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+		boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+		border: "1px solid rgba(228, 230, 232, 0.1)", // COLOR_TEXT_PRIMARY with opacity
 		padding: "50px 40px",
 		width: "500px",
 		minWidth: "500px",
@@ -34,7 +35,7 @@ const useStyles = createUseStyles({
 		fontSize: "28px",
 		fontWeight: "700",
 		marginBottom: "40px",
-		color: "#333",
+		color: "#E4E6E8", // COLOR_TEXT_PRIMARY
 		textAlign: "center",
 	},
 	formField: {
@@ -47,17 +48,17 @@ const useStyles = createUseStyles({
 		padding: "18px",
 		fontSize: "16px",
 		fontWeight: "500",
-		border: "1px dashed #ccc",
+		border: "1px solid rgba(228, 230, 232, 0.2)", // COLOR_TEXT_PRIMARY with opacity
 		borderRadius: "4px",
 		boxSizing: "border-box",
-		color: "#000",
-		backgroundColor: "transparent",
+		color: "#E4E6E8", // COLOR_TEXT_PRIMARY
+		backgroundColor: "rgba(0, 0, 0, 0.2)",
 		"&::placeholder": {
-			color: "#aaaaaa",
+			color: "#9CA3AF", // COLOR_TEXT_SECONDARY
 		},
 		"&:focus": {
 			outline: "none",
-			borderColor: "#999",
+			borderColor: "#3882F6", // COLOR_PRIMARY
 		},
 	},
 	passwordToggle: {
@@ -66,7 +67,7 @@ const useStyles = createUseStyles({
 		top: "50%",
 		transform: "translateY(-50%)",
 		cursor: "pointer",
-		color: "#aaa",
+		color: "#9CA3AF", // COLOR_TEXT_SECONDARY
 	},
 	rememberRow: {
 		display: "flex",
@@ -81,7 +82,7 @@ const useStyles = createUseStyles({
 		alignItems: "center",
 		fontSize: "14px",
 		fontWeight: "500",
-		color: "#333",
+		color: "#E4E6E8", // COLOR_TEXT_PRIMARY
 	},
 	checkboxContainer: {
 		position: "relative",
@@ -92,14 +93,15 @@ const useStyles = createUseStyles({
 		appearance: "none",
 		width: "18px",
 		height: "18px",
-		border: "1px solid #ccc",
+		border: "1px solid rgba(228, 230, 232, 0.3)", // COLOR_TEXT_PRIMARY with opacity
 		borderRadius: "50%",
 		marginRight: "8px",
 		cursor: "pointer",
 		position: "relative",
+		backgroundColor: "rgba(0, 0, 0, 0.2)",
 		"&:checked": {
-			backgroundColor: "#FF3B57",
-			borderColor: "#FF3B57",
+			backgroundColor: "#3882F6", // COLOR_PRIMARY
+			borderColor: "#3882F6", // COLOR_PRIMARY
 		},
 		"&:checked:after": {
 			content: '""',
@@ -114,18 +116,19 @@ const useStyles = createUseStyles({
 	},
 	forgotLink: {
 		fontSize: "14px",
-		color: "#FF3B57",
+		color: "#3882F6", // COLOR_PRIMARY
 		textDecoration: "none",
 		fontWeight: "500",
 		"&:hover": {
 			textDecoration: "underline",
+			color: "#22D3EE", // COLOR_SECONDARY
 		},
 	},
 	submitButton: {
 		width: "100%",
 		padding: "18px",
-		backgroundColor: "#FF3B57",
-		color: "white",
+		backgroundColor: "#3882F6", // COLOR_PRIMARY
+		color: "#E4E6E8", // COLOR_TEXT_PRIMARY
 		fontSize: "17px",
 		fontWeight: "600",
 		border: "none",
@@ -134,10 +137,10 @@ const useStyles = createUseStyles({
 		marginBottom: "40px",
 		transition: "background-color 0.2s",
 		"&:hover": {
-			backgroundColor: "#E42D48",
+			backgroundColor: "#22D3EE", // COLOR_SECONDARY
 		},
 		"&:disabled": {
-			backgroundColor: "#ff6b82",
+			backgroundColor: "rgba(56, 130, 246, 0.5)", // COLOR_PRIMARY with opacity
 			cursor: "not-allowed",
 		},
 	},
@@ -151,26 +154,27 @@ const useStyles = createUseStyles({
 	accountText: {
 		fontSize: "14px",
 		fontWeight: "500",
-		color: "#666",
+		color: "#9CA3AF", // COLOR_TEXT_SECONDARY
 	},
 	registerLink: {
-		color: "#FF3B57",
+		color: "#3882F6", // COLOR_PRIMARY
 		fontWeight: "600",
 		fontSize: "14px",
 		textDecoration: "none",
 		"&:hover": {
 			textDecoration: "underline",
+			color: "#22D3EE", // COLOR_SECONDARY
 		},
 	},
 	hugeInfo: {
 		marginTop: "15px",
 		textAlign: "center",
 		fontSize: "12px",
-		color: "#3399FF",
+		color: "#3882F6", // COLOR_PRIMARY
 		fontWeight: "500",
 	},
 	errorMessage: {
-		color: "#FF3B57",
+		color: "#EF4444", // COLOR_ERROR
 		fontSize: "14px",
 		marginTop: "10px",
 		textAlign: "left",
@@ -194,12 +198,30 @@ const useStyles = createUseStyles({
 	},
 	"@media (max-width: 480px)": {
 		formCard: {
-			width: "350px",
-			minWidth: "350px",
-			padding: "25px",
+			width: "100vw",
+			minWidth: "0",
+			padding: "10vw 2vw",
+			boxShadow: "none",
+			borderRadius: "0",
+			marginBottom: "0",
 		},
 		container: {
-			minWidth: "400px",
+			minWidth: "0",
+			padding: "0",
+			height: "100vh",
+			justifyContent: "flex-start",
+		},
+		registerContainer: {
+			display: "none !important",
+		},
+		rememberRow: {
+			display: "none !important",
+		},
+		forgotLink: {
+			display: "none !important",
+		},
+		hugeInfo: {
+			display: "none !important",
 		},
 	},
 });

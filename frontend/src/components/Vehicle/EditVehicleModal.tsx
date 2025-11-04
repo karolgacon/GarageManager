@@ -18,6 +18,7 @@ import { Vehicle } from "../../models/VehicleModel";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import ClientSelector from "../common/ClientSelector";
 import WorkshopSelector from "../common/WorkshopSelector";
+import { COLOR_PRIMARY } from "../../constants";
 
 interface EditVehicleModalProps {
 	open: boolean;
@@ -117,9 +118,9 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			onVehicleUpdated(response);
 			onClose();
 		} catch (err) {
-
 			if (err.response) {
-				const errorMessage = err.response.data?.detail || "Nie udało się zaktualizować pojazdu.";
+				const errorMessage =
+					err.response.data?.detail || "Nie udało się zaktualizować pojazdu.";
 				setError(errorMessage);
 			}
 
@@ -140,7 +141,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			open={open}
 			onClose={onClose}
 			onClick={(e) => e.stopPropagation()}
-			disableEnforceFocus 
+			disableEnforceFocus
 			keepMounted
 			TransitionProps={{
 				onEnter: () => {
@@ -156,7 +157,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 					display: "flex",
 					justifyContent: "space-between",
 					alignItems: "center",
-					bgcolor: "#ff3c4e",
+					bgcolor: COLOR_PRIMARY,
 					color: "white",
 				}}
 			>
@@ -274,9 +275,9 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 						loading ? <CircularProgress size={20} color="inherit" /> : null
 					}
 					sx={{
-						bgcolor: "#ff3c4e",
+						bgcolor: COLOR_PRIMARY,
 						"&:hover": {
-							bgcolor: "#d6303f",
+							bgcolor: "#2563EB",
 						},
 					}}
 				>

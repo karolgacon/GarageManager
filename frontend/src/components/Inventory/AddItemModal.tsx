@@ -22,6 +22,12 @@ import { Part, CATEGORY_OPTIONS } from "../../models/PartModel";
 import { inventoryService } from "../../api/PartAPIEndpoint";
 import { workshopService, Workshop } from "../../api/WorkshopAPIEndpoint";
 import AuthContext from "../../context/AuthProvider";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface AddItemModalProps {
 	open: boolean;
@@ -48,7 +54,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 		minimum_stock_level: 5,
 		category: "body",
 		supplier: "",
-		workshop_id: undefined, 
+		workshop_id: undefined,
 	});
 
 	useEffect(() => {
@@ -129,7 +135,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 			onItemAdded(newPart);
 			onClose();
 		} catch (error) {
-
 			let errorMessage = "Failed to add inventory item. Please try again.";
 			if (error.response && error.response.data) {
 				const errorData = error.response.data;
@@ -187,7 +192,10 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 			maxWidth="md"
 			fullWidth
 			PaperProps={{
-				sx: { borderRadius: 2 },
+				sx: {
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+				},
 			}}
 		>
 			<DialogTitle
@@ -196,9 +204,15 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 					justifyContent: "space-between",
 					alignItems: "center",
 					pb: 1,
+					color: COLOR_TEXT_PRIMARY,
 				}}
 			>
-				<Typography variant="h6" component="div" fontWeight="bold">
+				<Typography
+					variant="h6"
+					component="div"
+					fontWeight="bold"
+					sx={{ color: COLOR_TEXT_PRIMARY }}
+				>
 					Add New Inventory Item
 				</Typography>
 				<IconButton
@@ -207,13 +221,14 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 					onClick={onClose}
 					disabled={loading}
 					aria-label="close"
+					sx={{ color: COLOR_TEXT_SECONDARY }}
 				>
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
 
 			<form onSubmit={handleSubmit}>
-				<DialogContent dividers>
+				<DialogContent dividers sx={{ backgroundColor: COLOR_SURFACE }}>
 					{error && (
 						<Alert severity="error" sx={{ mb: 2 }}>
 							{error}
@@ -222,11 +237,13 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
 					{!isAdmin() && workshops.length > 0 && formData.workshop_id && (
 						<Alert severity="info" sx={{ mb: 2 }}>
-							This item will be added to the workshop:{" "}
-							<strong>
-								{workshops.find((w) => w.id === formData.workshop_id)?.name ||
-									"Unknown"}
-							</strong>
+							<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+								This item will be added to the workshop:{" "}
+								<strong>
+									{workshops.find((w) => w.id === formData.workshop_id)?.name ||
+										"Unknown"}
+								</strong>
+							</Typography>
 						</Alert>
 					)}
 
@@ -241,12 +258,35 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 								onChange={handleChange}
 								disabled={loading}
 								variant="outlined"
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 						</Grid>
 
 						<Grid item xs={12}>
 							<FormControl fullWidth required>
-								<InputLabel>Workshop</InputLabel>
+								<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+									Workshop
+								</InputLabel>
 								<Select
 									label="Workshop"
 									name="workshop_id"
@@ -264,6 +304,32 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 											</InputAdornment>
 										) : null
 									}
+									sx={{
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{workshops.map((workshop) => (
 										<MenuItem key={workshop.id} value={workshop.id}>
@@ -276,13 +342,41 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
 						<Grid item xs={12} md={6}>
 							<FormControl fullWidth required>
-								<InputLabel>Manufacturer</InputLabel>
+								<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+									Manufacturer
+								</InputLabel>
 								<Select
 									label="Manufacturer"
 									name="manufacturer"
 									value={formData.manufacturer}
 									onChange={handleChange}
 									disabled={loading}
+									sx={{
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{manufacturers.map((manufacturer) => (
 										<MenuItem
@@ -298,13 +392,41 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
 						<Grid item xs={12} md={6}>
 							<FormControl fullWidth required>
-								<InputLabel>Category</InputLabel>
+								<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+									Category
+								</InputLabel>
 								<Select
 									label="Category"
 									name="category"
 									value={formData.category}
 									onChange={handleChange}
 									disabled={loading}
+									sx={{
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{CATEGORY_OPTIONS.map((category) => (
 										<MenuItem key={category.value} value={category.value}>
@@ -329,6 +451,27 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 								}}
 								disabled={loading}
 								variant="outlined"
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 						</Grid>
 
@@ -343,12 +486,38 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 								onChange={handleChange}
 								InputProps={{
 									startAdornment: (
-										<InputAdornment position="start">$</InputAdornment>
+										<InputAdornment
+											position="start"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											$
+										</InputAdornment>
 									),
 									inputProps: { min: 0, step: 0.01 },
 								}}
 								disabled={loading}
 								variant="outlined"
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 						</Grid>
 
@@ -365,18 +534,67 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 								}}
 								disabled={loading}
 								variant="outlined"
+								sx={{
+									"& .MuiOutlinedInput-root": {
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& fieldset": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused fieldset": {
+											borderColor: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"& .MuiInputLabel-root.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								}}
 							/>
 						</Grid>
 
 						<Grid item xs={12}>
 							<FormControl fullWidth>
-								<InputLabel>Supplier</InputLabel>
+								<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+									Supplier
+								</InputLabel>
 								<Select
 									label="Supplier"
 									name="supplier"
 									value={formData.supplier || ""}
 									onChange={handleChange}
 									disabled={loading}
+									sx={{
+										backgroundColor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_TEXT_SECONDARY,
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												backgroundColor: COLOR_SURFACE,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+											},
+										},
+									}}
 								>
 									{suppliers.map((supplier) => (
 										<MenuItem key={supplier} value={supplier.toLowerCase()}>
@@ -389,18 +607,33 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 					</Grid>
 				</DialogContent>
 
-				<DialogActions sx={{ px: 3, py: 2 }}>
-					<Button onClick={onClose} disabled={loading} variant="text">
+				<DialogActions
+					sx={{
+						px: 3,
+						py: 2,
+						backgroundColor: COLOR_SURFACE,
+					}}
+				>
+					<Button
+						onClick={onClose}
+						disabled={loading}
+						variant="text"
+						sx={{
+							color: COLOR_TEXT_SECONDARY,
+							"&:hover": {
+								backgroundColor: "rgba(156, 163, 175, 0.1)",
+							},
+						}}
+					>
 						Cancel
 					</Button>
 					<Button
 						type="submit"
 						variant="contained"
-						color="primary"
 						disabled={loading || loadingWorkshops}
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: "#2563EB" },
 						}}
 					>
 						{loading ? "Adding Item..." : "Add Item"}

@@ -8,6 +8,7 @@ import {
 	MenuItem,
 	Alert,
 } from "@mui/material";
+import { COLOR_SURFACE, COLOR_PRIMARY } from "../../constants";
 
 interface Workshop {
 	id: number;
@@ -61,7 +62,7 @@ const BookingWorkshopSelector: React.FC<BookingWorkshopSelectorProps> = ({
 				borderRadius: 2,
 				p: 4,
 				mb: 3,
-				bgcolor: "#ffffff",
+				bgcolor: COLOR_SURFACE,
 			}}
 		>
 			<Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
@@ -79,10 +80,10 @@ const BookingWorkshopSelector: React.FC<BookingWorkshopSelectorProps> = ({
 							borderColor: "#ddd",
 						},
 						"&:hover .MuiOutlinedInput-notchedOutline": {
-							borderColor: "#ff3c4e",
+							borderColor: COLOR_PRIMARY,
 						},
 						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-							borderColor: "#ff3c4e",
+							borderColor: COLOR_PRIMARY,
 						},
 					}}
 				>
@@ -107,10 +108,10 @@ const BookingWorkshopSelector: React.FC<BookingWorkshopSelectorProps> = ({
 								borderColor: "#ddd",
 							},
 							"&:hover .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#ff3c4e",
+								borderColor: COLOR_PRIMARY,
 							},
 							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-								borderColor: "#ff3c4e",
+								borderColor: COLOR_PRIMARY,
 							},
 						}}
 					>

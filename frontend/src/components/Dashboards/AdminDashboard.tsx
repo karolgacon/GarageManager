@@ -15,6 +15,11 @@ import StoreIcon from "@mui/icons-material/Store";
 import EventIcon from "@mui/icons-material/Event";
 import WarningIcon from "@mui/icons-material/Warning";
 import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import { UserService } from "../../api/UserAPIEndpoint";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
@@ -85,21 +90,38 @@ const AdminDashboard: React.FC = () => {
 
 	return (
 		<Box>
-			<Typography variant="h4" gutterBottom fontWeight="bold">
+			<Typography
+				variant="h4"
+				gutterBottom
+				fontWeight="bold"
+				sx={{ color: COLOR_TEXT_PRIMARY }}
+			>
 				System Overview
 			</Typography>
 
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<PeopleIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{stats.totalUsers}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Total Users
 							</Typography>
 						</Box>
@@ -107,15 +129,27 @@ const AdminDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<StoreIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{stats.totalWorkshops}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Workshops
 							</Typography>
 						</Box>
@@ -123,15 +157,27 @@ const AdminDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<EventIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{stats.totalBookings}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Total Bookings
 							</Typography>
 						</Box>
@@ -139,15 +185,27 @@ const AdminDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<BuildIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{stats.activeServices}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Active Services
 							</Typography>
 						</Box>
@@ -155,15 +213,27 @@ const AdminDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<WarningIcon sx={{ color: "#ff9800", fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{stats.criticalIssues}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Critical Issues
 							</Typography>
 						</Box>
@@ -181,9 +251,15 @@ const AdminDashboard: React.FC = () => {
 							width: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Quick Actions
 						</Typography>
 						<Divider sx={{ my: 2 }} />
@@ -293,9 +369,15 @@ const AdminDashboard: React.FC = () => {
 							width: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							System Health
 						</Typography>
 						<Divider sx={{ my: 2 }} />
@@ -317,7 +399,13 @@ const AdminDashboard: React.FC = () => {
 										mb: 4,
 									}}
 								>
-									<Typography variant="body1" sx={{ fontWeight: "500" }}>
+									<Typography
+										variant="body1"
+										sx={{
+											fontWeight: "500",
+											color: COLOR_TEXT_PRIMARY,
+										}}
+									>
 										Database Status
 									</Typography>
 									<Typography
@@ -334,7 +422,13 @@ const AdminDashboard: React.FC = () => {
 										mb: 4,
 									}}
 								>
-									<Typography variant="body1" sx={{ fontWeight: "500" }}>
+									<Typography
+										variant="body1"
+										sx={{
+											fontWeight: "500",
+											color: COLOR_TEXT_PRIMARY,
+										}}
+									>
 										API Services
 									</Typography>
 									<Typography
@@ -351,7 +445,13 @@ const AdminDashboard: React.FC = () => {
 										mb: 4,
 									}}
 								>
-									<Typography variant="body1" sx={{ fontWeight: "500" }}>
+									<Typography
+										variant="body1"
+										sx={{
+											fontWeight: "500",
+											color: COLOR_TEXT_PRIMARY,
+										}}
+									>
 										Notification Queue
 									</Typography>
 									<Typography
@@ -362,10 +462,20 @@ const AdminDashboard: React.FC = () => {
 									</Typography>
 								</Box>
 								<Box sx={{ display: "flex", justifyContent: "space-between" }}>
-									<Typography variant="body1" sx={{ fontWeight: "500" }}>
+									<Typography
+										variant="body1"
+										sx={{
+											fontWeight: "500",
+											color: COLOR_TEXT_PRIMARY,
+										}}
+									>
 										Last System Update
 									</Typography>
-									<Typography variant="body1" fontWeight="medium">
+									<Typography
+										variant="body1"
+										fontWeight="medium"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										2023-05-15
 									</Typography>
 								</Box>
@@ -374,7 +484,7 @@ const AdminDashboard: React.FC = () => {
 							<Box sx={{ mt: 4, pt: 2, borderTop: "1px solid #f0f0f0" }}>
 								<Typography
 									variant="body2"
-									color="text.secondary"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
 									align="center"
 								>
 									System is running the latest version. All components are up to

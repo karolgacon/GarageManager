@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Chat as ChatIcon, Send as SendIcon } from "@mui/icons-material";
 import { COLOR_PRIMARY } from "../constants";
+import { COLOR_SURFACE } from "../constants";
 
 interface SimpleChatDialogProps {
 	onClose?: () => void;
@@ -209,7 +210,8 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 									sx={{
 										p: 2,
 										maxWidth: "70%",
-										bgcolor: msg.sender === "client" ? COLOR_PRIMARY : "white",
+										bgcolor:
+											msg.sender === "client" ? COLOR_PRIMARY : COLOR_SURFACE,
 										color: msg.sender === "client" ? "white" : "black",
 									}}
 								>

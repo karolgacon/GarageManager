@@ -1,6 +1,12 @@
 import { useState, forwardRef, useImperativeHandle, useContext } from "react";
 import axios from "axios";
-import { BASE_API_URL } from "../../constants";
+import {
+	BASE_API_URL,
+	COLOR_TEXT_SECONDARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_ERROR,
+} from "../../constants";
 import useStyles from "./LoginWrapper.styles.ts";
 import AuthContext from "../../context/AuthProvider";
 import { setAuthHeader } from "../../authorization/authServices";
@@ -20,7 +26,7 @@ const EyeIcon = () => (
 	>
 		<path
 			d="M12 5C7 5 2.73 8.11 1 12C2.73 15.89 7 19 12 19C17 19 21.27 15.89 23 12C21.27 8.11 17 5 12 5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z"
-			fill="#AAAAAA"
+			fill={COLOR_TEXT_SECONDARY}
 		/>
 	</svg>
 );
@@ -274,7 +280,7 @@ const OwnerRegisterWrapper = forwardRef<
 		return (
 			<div style={{ textAlign: "center", padding: "20px" }}>
 				<h2 className={classes.formTitle}>Registration Successful!</h2>
-				<p style={{ color: "#666", marginTop: "20px" }}>
+				<p style={{ color: COLOR_TEXT_SECONDARY, marginTop: "20px" }}>
 					Your workshop owner account has been created successfully.
 					{onRegistrationComplete
 						? " Let's complete your profile."
@@ -297,7 +303,13 @@ const OwnerRegisterWrapper = forwardRef<
 	const renderStep1 = () => (
 		<>
 			<h2 className={classes.formTitle}>Create Workshop Owner Account</h2>
-			<p style={{ color: "#666", marginBottom: "30px", textAlign: "center" }}>
+			<p
+				style={{
+					color: COLOR_TEXT_SECONDARY,
+					marginBottom: "30px",
+					textAlign: "center",
+				}}
+			>
 				Step 1 of 2: Account Information
 			</p>
 
@@ -371,7 +383,13 @@ const OwnerRegisterWrapper = forwardRef<
 	const renderStep2 = () => (
 		<>
 			<h2 className={classes.formTitle}>Workshop Information</h2>
-			<p style={{ color: "#666", marginBottom: "30px", textAlign: "center" }}>
+			<p
+				style={{
+					color: COLOR_TEXT_SECONDARY,
+					marginBottom: "30px",
+					textAlign: "center",
+				}}
+			>
 				Step 2 of 2: Tell us about your workshop
 			</p>
 
@@ -439,8 +457,8 @@ const OwnerRegisterWrapper = forwardRef<
 					className={classes.submitButton}
 					onClick={handlePreviousStep}
 					style={{
-						backgroundColor: "#F3F4F6",
-						color: "#374151",
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
 						flex: "0 0 auto",
 						width: "100px",
 						padding: "12px 16px",
@@ -475,7 +493,7 @@ const OwnerRegisterWrapper = forwardRef<
 							alignItems: "center",
 							marginBottom: "20px",
 							cursor: "pointer",
-							color: "#6B7280",
+							color: COLOR_TEXT_SECONDARY,
 						}}
 						onClick={handleBackToChoice}
 					>
@@ -491,9 +509,9 @@ const OwnerRegisterWrapper = forwardRef<
 						{error && (
 							<div
 								style={{
-									backgroundColor: "#FEF2F2",
-									border: "1px solid #FECACA",
-									color: "#DC2626",
+									backgroundColor: `${COLOR_ERROR}1A`, // Adding opacity to COLOR_ERROR
+									border: `1px solid ${COLOR_ERROR}4D`, // Adding opacity to COLOR_ERROR
+									color: COLOR_ERROR,
 									padding: "16px 20px",
 									borderRadius: "12px",
 									fontSize: "15px",

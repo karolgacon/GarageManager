@@ -33,6 +33,7 @@ import PaymentIcon from "@mui/icons-material/Payment";
 import AddIcon from "@mui/icons-material/Add";
 import AuthContext from "../context/AuthProvider";
 import { COLOR_PRIMARY } from "../constants";
+import { COLOR_SURFACE } from "../constants";
 import api from "../api";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import CustomSnackbar, {
@@ -352,8 +353,8 @@ const Invoices = () => {
 								startIcon={<AddIcon />}
 								onClick={handleOpenCreateDialog}
 								sx={{
-									bgcolor: "#ff3c4e",
-									"&:hover": { bgcolor: "#d6303f" },
+									bgcolor: COLOR_PRIMARY,
+									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
 								New Invoice
@@ -754,7 +755,7 @@ const Invoices = () => {
 										sx={{
 											mt: 1,
 											p: 2,
-											bgcolor: "#f5f5f5",
+											bgcolor: COLOR_SURFACE,
 											borderRadius: 1,
 										}}
 									>

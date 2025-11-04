@@ -1,4 +1,9 @@
 import { createUseStyles } from "react-jss";
+import {
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 const useStyles = createUseStyles({
 	container: {
@@ -111,7 +116,7 @@ const useStyles = createUseStyles({
 		"100%": { transform: "rotate(360deg)" },
 	},
 	profileCard: {
-		backgroundColor: "white",
+		backgroundColor: COLOR_SURFACE,
 		borderRadius: "12px",
 		border: "1px solid #e5e7eb",
 		overflow: "hidden",
@@ -175,7 +180,7 @@ const useStyles = createUseStyles({
 	emptyState: {
 		textAlign: "center",
 		padding: "64px 24px",
-		backgroundColor: "white",
+		backgroundColor: COLOR_SURFACE,
 		borderRadius: "12px",
 		border: "1px solid #e5e7eb",
 		"& h3": {
@@ -226,7 +231,7 @@ const useStyles = createUseStyles({
 		border: "1px solid #d1d5db",
 		borderRadius: "8px",
 		fontSize: "14px",
-		backgroundColor: "white",
+		backgroundColor: COLOR_SURFACE,
 		cursor: "pointer",
 		"&:focus": {
 			outline: "none",

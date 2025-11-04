@@ -35,7 +35,7 @@ import { useCustomerData } from "../hooks/useCustomerData";
 import CustomSnackbar, {
 	SnackbarState,
 } from "../components/Mainlayout/Snackbar";
-import { diagnosticsService } from "../api/DiagnosticsAPIEndpoint";
+import { COLOR_PRIMARY } from "../constants";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
 import { DiagnosticIssue } from "../models/DiagnosticIssue";
@@ -100,7 +100,7 @@ const Diagnostics: React.FC = () => {
 		const fetchVehicles = async () => {
 			try {
 				setLoading(true);
-				setVehicles([]); 
+				setVehicles([]);
 				let vehiclesData: Vehicle[] = [];
 
 				if (isClient()) {
@@ -152,7 +152,7 @@ const Diagnostics: React.FC = () => {
 		selectedCustomerId,
 		auth.user_id,
 		auth.workshop_id,
-		selectedWorkshopId, 
+		selectedWorkshopId,
 		filteredCustomers,
 	]);
 
@@ -161,7 +161,7 @@ const Diagnostics: React.FC = () => {
 			if (selectedVehicleId) {
 				try {
 					setLoading(true);
-					setDiagnosticIssues([]); 
+					setDiagnosticIssues([]);
 					const data = await diagnosticsService.getVehicleDiagnostics(
 						selectedVehicleId
 					);
@@ -366,8 +366,8 @@ const Diagnostics: React.FC = () => {
 								size="small"
 								onClick={() => setSelectedCustomerId(null)}
 								sx={{
-									bgcolor: "#FF3E55",
-									"&:hover": { bgcolor: "#E02A45" },
+									bgcolor: COLOR_PRIMARY,
+									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
 								Change Customer
@@ -380,8 +380,8 @@ const Diagnostics: React.FC = () => {
 							size="small"
 							onClick={() => setSelectedCustomerId(null)}
 							sx={{
-								bgcolor: "#FF3E55",
-								"&:hover": { bgcolor: "#E02A45" },
+								bgcolor: COLOR_PRIMARY,
+								"&:hover": { bgcolor: "#2563EB" },
 							}}
 						>
 							Change Customer

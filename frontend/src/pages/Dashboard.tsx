@@ -6,6 +6,7 @@ import OwnerDashboard from "../components/Dashboards/OwnerDashboard";
 import MechanicDashboard from "../components/Dashboards/MechanicDashboard";
 import ClientDashboard from "../components/Dashboards/ClientDashboard";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
+import { COLOR_TEXT_PRIMARY } from "../constants";
 
 const Dashboard: React.FC = () => {
 	const { auth, isAdmin, isOwner, isMechanic, isClient, isRoot, logout } =
@@ -36,7 +37,9 @@ const Dashboard: React.FC = () => {
 						mb: 3,
 					}}
 				>
-					<h1>Welcome, {auth.username || "User"}!</h1>
+					<h1 style={{ color: COLOR_TEXT_PRIMARY }}>
+						Welcome, {auth.username || "User"}!
+					</h1>
 				</Box>
 				{renderContent()}
 			</Box>

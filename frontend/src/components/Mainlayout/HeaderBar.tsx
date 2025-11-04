@@ -26,7 +26,12 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -259,11 +264,13 @@ const HeaderBar = () => {
 				p: 2,
 				mb: 2,
 				borderRadius: { xs: 0, sm: 1 },
-				backgroundColor: "#fff",
+				backgroundColor: COLOR_SURFACE, // Ciemne tło headerbar
+				color: COLOR_TEXT_PRIMARY, // Jasny tekst
 				position: "sticky",
 				top: 0,
 				zIndex: 1000,
-				boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+				boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
+				border: `1px solid rgba(228, 230, 232, 0.1)`,
 			}}
 		>
 			<Box
@@ -274,10 +281,17 @@ const HeaderBar = () => {
 				}}
 			>
 				<Box sx={{ ml: 2 }}>
-					<Typography variant="h6" fontWeight="bold" sx={{ mb: 0 }}>
+					<Typography
+						variant="h6"
+						fontWeight="bold"
+						sx={{
+							mb: 0,
+							color: COLOR_TEXT_PRIMARY,
+						}}
+					>
 						Hi, {auth?.username || "Name"}
 					</Typography>
-					<Typography variant="body2" color="text.secondary">
+					<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 						Let's check your Garage today
 					</Typography>
 				</Box>
@@ -291,15 +305,23 @@ const HeaderBar = () => {
 						marginRight: isMobile ? 0 : 1,
 					}}
 				>
-					<IconButton size="small" onClick={handleEmailClick}>
+					<IconButton
+						size="small"
+						onClick={handleEmailClick}
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						<Badge badgeContent={unreadEmailsCount} color="error">
-							<EmailIcon />
+							<EmailIcon sx={{ color: COLOR_TEXT_PRIMARY }} />
 						</Badge>
 					</IconButton>
 
-					<IconButton size="small" onClick={handleNotificationClick}>
+					<IconButton
+						size="small"
+						onClick={handleNotificationClick}
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						<Badge badgeContent={unreadNotificationsCount} color="error">
-							<NotificationsIcon />
+							<NotificationsIcon sx={{ color: COLOR_TEXT_PRIMARY }} />
 						</Badge>
 					</IconButton>
 
@@ -322,12 +344,19 @@ const HeaderBar = () => {
 							{auth?.username?.charAt(0) || "N"}
 						</Avatar>
 						<Box sx={{ ml: 1, display: { xs: "none", sm: "block" } }}>
-							<Typography variant="subtitle2" fontWeight="bold">
+							<Typography
+								variant="subtitle2"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{auth?.username || "Name"}
 							</Typography>
-							<Typography variant="caption" color="text.secondary">
-								{auth?.roles?.[0]?.charAt(0).toUpperCase() +
-									auth?.roles?.[0]?.slice(1) || "Owner"}
+							<Typography
+								variant="caption"
+								sx={{ color: COLOR_TEXT_SECONDARY }}
+							>
+								{(auth?.roles?.[0]?.charAt(0).toUpperCase() || "") +
+									(auth?.roles?.[0]?.slice(1) || "Owner")}
 							</Typography>
 						</Box>
 					</Box>
@@ -360,10 +389,12 @@ const HeaderBar = () => {
 							elevation={3}
 							sx={{
 								overflow: "visible",
-								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
+								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
 								mt: 1.5,
 								maxHeight: "70vh",
 								overflowY: "auto",
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
 							}}
 						>
 							<Box
@@ -375,7 +406,11 @@ const HeaderBar = () => {
 									borderBottom: "1px solid #eee",
 								}}
 							>
-								<Typography variant="subtitle1" fontWeight="bold">
+								<Typography
+									variant="subtitle1"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Emails
 								</Typography>
 								{unreadEmailsCount > 0 && (
@@ -383,8 +418,12 @@ const HeaderBar = () => {
 										size="small"
 										onClick={() => markAllAsRead(true)}
 										title="Mark all as read"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
 									>
-										<DoneAllIcon fontSize="small" />
+										<DoneAllIcon
+											fontSize="small"
+											sx={{ color: COLOR_TEXT_PRIMARY }}
+										/>
 									</IconButton>
 								)}
 							</Box>
@@ -399,12 +438,14 @@ const HeaderBar = () => {
 										<ListItem
 											key={email.id}
 											sx={{
-												borderBottom: "1px solid #f5f5f5",
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}40`,
 												backgroundColor: email.read_status
 													? "transparent"
-													: "#f0f7ff",
+													: `${COLOR_PRIMARY}20`,
 												transition: "background-color 0.2s",
-												"&:hover": { backgroundColor: "#f5f5f5" },
+												"&:hover": {
+													backgroundColor: `${COLOR_SURFACE}80`,
+												},
 											}}
 											onClick={() => markAsRead(email.id, true)}
 										>
@@ -419,22 +460,26 @@ const HeaderBar = () => {
 													<Typography
 														variant="subtitle2"
 														fontWeight={email.read_status ? "normal" : "bold"}
+														sx={{ color: COLOR_TEXT_PRIMARY }}
 													>
 														{email.notification_type.replace(/_/g, " ")}
 													</Typography>
-													<Typography variant="caption" color="text.secondary">
+													<Typography
+														variant="caption"
+														sx={{ color: COLOR_TEXT_SECONDARY }}
+													>
 														{formatDate(email.created_at)}
 													</Typography>
 												</Box>
 												<Typography
 													variant="body2"
-													color="text.secondary"
 													sx={{
 														overflow: "hidden",
 														textOverflow: "ellipsis",
 														display: "-webkit-box",
 														WebkitLineClamp: 2,
 														WebkitBoxOrient: "vertical",
+														color: COLOR_TEXT_SECONDARY,
 													}}
 												>
 													{email.message}
@@ -445,7 +490,10 @@ const HeaderBar = () => {
 								</List>
 							) : (
 								<Box sx={{ p: 3, textAlign: "center" }}>
-									<Typography variant="body2" color="text.secondary">
+									<Typography
+										variant="body2"
+										sx={{ color: COLOR_TEXT_SECONDARY }}
+									>
 										No emails to display
 									</Typography>
 								</Box>
@@ -481,10 +529,12 @@ const HeaderBar = () => {
 							elevation={3}
 							sx={{
 								overflow: "visible",
-								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
+								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
 								mt: 1.5,
 								maxHeight: "70vh",
 								overflowY: "auto",
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
 							}}
 						>
 							<Box
@@ -496,7 +546,11 @@ const HeaderBar = () => {
 									borderBottom: "1px solid #eee",
 								}}
 							>
-								<Typography variant="subtitle1" fontWeight="bold">
+								<Typography
+									variant="subtitle1"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Notifications
 								</Typography>
 								{unreadNotificationsCount > 0 && (
@@ -504,8 +558,12 @@ const HeaderBar = () => {
 										size="small"
 										onClick={() => markAllAsRead(false)}
 										title="Mark all as read"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
 									>
-										<DoneAllIcon fontSize="small" />
+										<DoneAllIcon
+											fontSize="small"
+											sx={{ color: COLOR_TEXT_PRIMARY }}
+										/>
 									</IconButton>
 								)}
 							</Box>
@@ -520,12 +578,14 @@ const HeaderBar = () => {
 										<ListItem
 											key={notification.id}
 											sx={{
-												borderBottom: "1px solid #f5f5f5",
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}40`,
 												backgroundColor: notification.read_status
 													? "transparent"
-													: "#f0f7ff",
+													: `${COLOR_PRIMARY}20`,
 												transition: "background-color 0.2s",
-												"&:hover": { backgroundColor: "#f5f5f5" },
+												"&:hover": {
+													backgroundColor: `${COLOR_SURFACE}80`,
+												},
 											}}
 											onClick={() => markAsRead(notification.id)}
 										>
@@ -542,22 +602,26 @@ const HeaderBar = () => {
 														fontWeight={
 															notification.read_status ? "normal" : "bold"
 														}
+														sx={{ color: COLOR_TEXT_PRIMARY }}
 													>
 														{notification.notification_type.replace(/_/g, " ")}
 													</Typography>
-													<Typography variant="caption" color="text.secondary">
+													<Typography
+														variant="caption"
+														sx={{ color: COLOR_TEXT_SECONDARY }}
+													>
 														{formatDate(notification.created_at)}
 													</Typography>
 												</Box>
 												<Typography
 													variant="body2"
-													color="text.secondary"
 													sx={{
 														overflow: "hidden",
 														textOverflow: "ellipsis",
 														display: "-webkit-box",
 														WebkitLineClamp: 2,
 														WebkitBoxOrient: "vertical",
+														color: COLOR_TEXT_SECONDARY,
 													}}
 												>
 													{notification.message}
@@ -568,7 +632,10 @@ const HeaderBar = () => {
 								</List>
 							) : (
 								<Box sx={{ p: 3, textAlign: "center" }}>
-									<Typography variant="body2" color="text.secondary">
+									<Typography
+										variant="body2"
+										sx={{ color: COLOR_TEXT_SECONDARY }}
+									>
 										No notifications to display
 									</Typography>
 								</Box>
@@ -610,10 +677,12 @@ const HeaderBar = () => {
 							elevation={3}
 							sx={{
 								overflow: "visible",
-								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
+								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
 								mt: 1.5,
 								minWidth: 200,
 								marginRight: 2,
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
 							}}
 						>
 							<MenuList>
@@ -624,7 +693,10 @@ const HeaderBar = () => {
 											sx={{ color: COLOR_PRIMARY }}
 										/>
 									</ListItemIcon>
-									<ListItemText>My Profile</ListItemText>
+									<ListItemText
+										primary="My Profile"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									/>
 								</MenuItem>
 
 								<MenuItem onClick={() => handleMenuItemClick("/bookings")}>
@@ -634,7 +706,10 @@ const HeaderBar = () => {
 											sx={{ color: COLOR_PRIMARY }}
 										/>
 									</ListItemIcon>
-									<ListItemText>Calendar</ListItemText>
+									<ListItemText
+										primary="Calendar"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									/>
 								</MenuItem>
 
 								{canAccessInvoices && (
@@ -653,9 +728,15 @@ const HeaderBar = () => {
 
 								<MenuItem onClick={handleLogout}>
 									<ListItemIcon>
-										<LogoutIcon fontSize="small" sx={{ color: "error.main" }} />
+										<LogoutIcon
+											fontSize="small"
+											sx={{ color: COLOR_PRIMARY }}
+										/>
 									</ListItemIcon>
-									<ListItemText>Logout</ListItemText>
+									<ListItemText
+										primary="Logout"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									/>
 								</MenuItem>
 							</MenuList>
 						</Paper>

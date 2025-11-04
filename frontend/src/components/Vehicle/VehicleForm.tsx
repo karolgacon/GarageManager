@@ -24,15 +24,15 @@ import {
 	VEHICLE_STATUS_TYPES,
 	defaultVehicle,
 } from "../../models/VehicleModel";
+import { COLOR_PRIMARY } from "../../constants";
 
 interface VehicleFormProps {
 	initialData?: Vehicle;
 	onSubmit?: (data: Partial<Vehicle>) => void;
 	isLoading?: boolean;
 	error?: string | null;
-	enableInternalButtons?: boolean; 
+	enableInternalButtons?: boolean;
 }
-
 
 const VehicleForm = forwardRef<
 	{ validateAndSubmit: () => boolean },
@@ -309,8 +309,8 @@ const VehicleForm = forwardRef<
 						variant="contained"
 						disabled={isLoading}
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: "#2563EB" },
 						}}
 					>
 						{isLoading ? (

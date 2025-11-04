@@ -12,7 +12,7 @@ import {
 	Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { COLOR_PRIMARY, COLOR_LIGHT } from "../../constants";
+import { COLOR_PRIMARY, COLOR_BACKGROUND } from "../../constants";
 
 const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 	const [isMobile, setIsMobile] = useState(false);
@@ -82,7 +82,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 						flexGrow: 1,
 						display: "flex",
 						flexDirection: "column",
-						backgroundColor: COLOR_LIGHT,
+						backgroundColor: COLOR_BACKGROUND, // Ciemne tło głównej zawartości
 						width: "100%",
 						mt: isMobile ? 8 : 0,
 						pb: "40px",

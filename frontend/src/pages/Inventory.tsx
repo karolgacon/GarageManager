@@ -5,7 +5,6 @@ import {
 	Typography,
 	Button,
 	TextField,
-	InputAdornment,
 	Paper,
 	IconButton,
 	Select,
@@ -42,6 +41,12 @@ import AuthContext from "../context/AuthProvider";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../constants";
 
 const Inventory = () => {
 	const { isAdmin, isOwner, isMechanic } = React.useContext(AuthContext);
@@ -268,6 +273,7 @@ const Inventory = () => {
 				key={part.id}
 				sx={{
 					mb: 2,
+					backgroundColor: COLOR_SURFACE,
 					borderLeft: "4px solid",
 					borderLeftColor:
 						part.stock_quantity <= 0
@@ -278,28 +284,33 @@ const Inventory = () => {
 				}}
 			>
 				<CardContent>
-					<Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+					<Typography
+						variant="subtitle1"
+						fontWeight="bold"
+						gutterBottom
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						{part.name}
 					</Typography>
 
 					<Grid container spacing={1}>
 						<Grid item xs={6}>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								ID: {part.id}
 							</Typography>
 						</Grid>
 						<Grid item xs={6}>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Quantity: {part.stock_quantity}
 							</Typography>
 						</Grid>
 						<Grid item xs={6}>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Manufacturer: {part.manufacturer}
 							</Typography>
 						</Grid>
 						<Grid item xs={6}>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Category: {part.category}
 							</Typography>
 						</Grid>
@@ -316,14 +327,29 @@ const Inventory = () => {
 							size="small"
 							onClick={() => handleEditPart(part)}
 							variant="outlined"
+							sx={{
+								borderColor: COLOR_PRIMARY,
+								color: COLOR_PRIMARY,
+								"&:hover": {
+									borderColor: "#2563EB",
+									backgroundColor: "rgba(56, 130, 246, 0.1)",
+								},
+							}}
 						>
 							Edit
 						</Button>
 						<Button
 							size="small"
-							color="error"
 							onClick={() => handleDeleteParts([part.id])}
 							variant="outlined"
+							sx={{
+								borderColor: "#dc2626",
+								color: "#dc2626",
+								"&:hover": {
+									borderColor: "#b91c1c",
+									backgroundColor: "rgba(220, 38, 38, 0.1)",
+								},
+							}}
 						>
 							Delete
 						</Button>
@@ -357,8 +383,8 @@ const Inventory = () => {
 							startIcon={<AddIcon />}
 							onClick={handleAddItem}
 							sx={{
-								bgcolor: "#ff3c4e",
-								"&:hover": { bgcolor: "#d6303f" },
+								bgcolor: COLOR_PRIMARY,
+								"&:hover": { bgcolor: "#2563EB" },
 								borderRadius: 1,
 								width: { xs: "100%", sm: "auto" },
 							}}
@@ -373,6 +399,7 @@ const Inventory = () => {
 							mb: 2,
 							borderRadius: 1,
 							maxWidth: "100%",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
 						<Box
@@ -389,21 +416,56 @@ const Inventory = () => {
 									minWidth: { xs: "100%", sm: 200 },
 								}}
 							>
-								<Select
-									value={filter}
-									onChange={handleFilterChange}
-									displayEmpty
-									size="small"
-									sx={{ borderRadius: 1 }}
-									startAdornment={
-										<InputAdornment position="start">Show:</InputAdornment>
-									}
-								>
-									<MenuItem value="All Orders">All Orders</MenuItem>
-									<MenuItem value="In Stock">In Stock</MenuItem>
-									<MenuItem value="Low Stock">Low Stock</MenuItem>
-									<MenuItem value="Out of Stock">Out of Stock</MenuItem>
-								</Select>
+								<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+									<Typography
+										variant="body2"
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											whiteSpace: "nowrap",
+										}}
+									>
+										Show:
+									</Typography>
+									<Select
+										value={filter}
+										onChange={handleFilterChange}
+										displayEmpty
+										size="small"
+										sx={{
+											borderRadius: 1,
+											backgroundColor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											minWidth: 150,
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_TEXT_SECONDARY,
+											},
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													backgroundColor: COLOR_SURFACE,
+													"& .MuiMenuItem-root": {
+														color: COLOR_TEXT_PRIMARY,
+														"&:hover": {
+															backgroundColor: "rgba(56, 130, 246, 0.1)",
+														},
+													},
+												},
+											},
+										}}
+									>
+										<MenuItem value="All Orders">All Orders</MenuItem>
+										<MenuItem value="In Stock">In Stock</MenuItem>
+										<MenuItem value="Low Stock">Low Stock</MenuItem>
+										<MenuItem value="Out of Stock">Out of Stock</MenuItem>
+									</Select>
+								</Box>
 							</FormControl>
 
 							<Box
@@ -422,10 +484,30 @@ const Inventory = () => {
 									sx={{
 										width: { xs: "100%", sm: 300 },
 										minWidth: { xs: "auto", sm: 200 },
+										"& .MuiOutlinedInput-root": {
+											backgroundColor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											"& fieldset": {
+												borderColor: COLOR_TEXT_SECONDARY,
+											},
+											"&:hover fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+										},
+										"& .MuiInputBase-input::placeholder": {
+											color: COLOR_TEXT_SECONDARY,
+											opacity: 1,
+										},
 									}}
 									InputProps={{
 										startAdornment: (
-											<InputAdornment position="start">
+											<InputAdornment
+												position="start"
+												sx={{ color: COLOR_TEXT_SECONDARY }}
+											>
 												<SearchIcon />
 											</InputAdornment>
 										),
@@ -439,6 +521,12 @@ const Inventory = () => {
 									sx={{
 										borderRadius: 1,
 										width: { xs: "100%", sm: "auto" },
+										borderColor: COLOR_TEXT_SECONDARY,
+										color: COLOR_TEXT_PRIMARY,
+										"&:hover": {
+											borderColor: COLOR_PRIMARY,
+											backgroundColor: "rgba(56, 130, 246, 0.1)",
+										},
 									}}
 								>
 									Filters
@@ -494,12 +582,18 @@ const Inventory = () => {
 								sx={{
 									p: 3,
 									textAlign: "center",
-									bgcolor: "background.paper",
+									bgcolor: COLOR_SURFACE,
 									borderRadius: 2,
+									border: `1px solid ${COLOR_TEXT_SECONDARY}`,
 								}}
 							>
-								<Typography variant="h6">No Parts Available</Typography>
-								<Typography variant="body1" color="textSecondary">
+								<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
+									No Parts Available
+								</Typography>
+								<Typography
+									variant="body1"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
+								>
 									{isAdmin()
 										? "No parts have been added to the inventory yet."
 										: "No parts are available in your workshop inventory."}
@@ -509,7 +603,7 @@ const Inventory = () => {
 
 						{loading ? (
 							<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
-								<CircularProgress />
+								<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 							</Box>
 						) : isMobile ? (
 							<Box>
@@ -541,23 +635,56 @@ const Inventory = () => {
 									width: { xs: "100%", sm: "auto" },
 								}}
 							>
-								<Select
-									value={rowsPerPage}
-									onChange={handleRowsPerPageChange}
-									displayEmpty
-									size="small"
-									sx={{ borderRadius: 1 }}
-									startAdornment={
-										<InputAdornment position="start">
-											Show result:
-										</InputAdornment>
-									}
-								>
-									<MenuItem value={4}>4</MenuItem>
-									<MenuItem value={8}>8</MenuItem>
-									<MenuItem value={12}>12</MenuItem>
-									<MenuItem value={20}>20</MenuItem>
-								</Select>
+								<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+									<Typography
+										variant="body2"
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											whiteSpace: "nowrap",
+										}}
+									>
+										Show result:
+									</Typography>
+									<Select
+										value={rowsPerPage}
+										onChange={handleRowsPerPageChange}
+										displayEmpty
+										size="small"
+										sx={{
+											borderRadius: 1,
+											backgroundColor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											minWidth: 60,
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_TEXT_SECONDARY,
+											},
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													backgroundColor: COLOR_SURFACE,
+													"& .MuiMenuItem-root": {
+														color: COLOR_TEXT_PRIMARY,
+														"&:hover": {
+															backgroundColor: "rgba(56, 130, 246, 0.1)",
+														},
+													},
+												},
+											},
+										}}
+									>
+										<MenuItem value={4}>4</MenuItem>
+										<MenuItem value={8}>8</MenuItem>
+										<MenuItem value={12}>12</MenuItem>
+										<MenuItem value={20}>20</MenuItem>
+									</Select>
+								</Box>
 							</FormControl>
 
 							<Box
@@ -576,6 +703,18 @@ const Inventory = () => {
 									sx={{
 										"& .MuiPaginationItem-root": {
 											minWidth: { xs: "30px", sm: "auto" },
+											color: COLOR_TEXT_PRIMARY,
+											borderColor: COLOR_TEXT_SECONDARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+											"&.Mui-selected": {
+												backgroundColor: COLOR_PRIMARY,
+												color: "white",
+												"&:hover": {
+													backgroundColor: "#2563EB",
+												},
+											},
 										},
 									}}
 								/>
@@ -602,10 +741,17 @@ const Inventory = () => {
 					onClose={() => setDeleteDialogOpen(false)}
 					fullWidth={isMobile}
 					maxWidth="xs"
+					PaperProps={{
+						sx: {
+							backgroundColor: COLOR_SURFACE,
+						},
+					}}
 				>
-					<DialogTitle>Confirm Delete</DialogTitle>
+					<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
+						Confirm Delete
+					</DialogTitle>
 					<DialogContent>
-						<DialogContentText>
+						<DialogContentText sx={{ color: COLOR_TEXT_SECONDARY }}>
 							{partsToDelete.length === 1
 								? "Are you sure you want to delete this item?"
 								: `Are you sure you want to delete ${partsToDelete.length} items?`}
@@ -613,18 +759,27 @@ const Inventory = () => {
 							This action cannot be undone.
 						</DialogContentText>
 					</DialogContent>
-					<DialogActions>
+					<DialogActions sx={{ backgroundColor: COLOR_SURFACE }}>
 						<Button
 							onClick={() => setDeleteDialogOpen(false)}
 							disabled={loading}
+							sx={{
+								color: COLOR_TEXT_SECONDARY,
+								"&:hover": {
+									backgroundColor: "rgba(156, 163, 175, 0.1)",
+								},
+							}}
 						>
 							Cancel
 						</Button>
 						<Button
 							onClick={confirmDelete}
-							color="error"
 							disabled={loading}
 							variant="contained"
+							sx={{
+								bgcolor: "#dc2626",
+								"&:hover": { bgcolor: "#b91c1c" },
+							}}
 						>
 							{loading ? "Deleting..." : "Delete"}
 						</Button>

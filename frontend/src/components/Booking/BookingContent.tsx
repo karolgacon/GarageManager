@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import BookingCalendarView from "./BookingCalendarView";
 import BookingListView from "./BookingListView";
+import { COLOR_SURFACE } from "../../constants";
 import { COLOR_PRIMARY } from "../../constants";
 
 interface BookingContentProps {
@@ -151,7 +152,7 @@ const BookingContent: React.FC<BookingContentProps> = ({
 
 	return (
 		<>
-			<Box sx={{ bgcolor: "white", p: 3 }}>
+			<Box sx={{ bgcolor: COLOR_SURFACE, p: 3 }}>
 				{view === "calendar" ? (
 					<BookingCalendarView
 						bookings={bookings}

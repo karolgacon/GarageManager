@@ -28,6 +28,7 @@ import CustomSnackbar, {
 import AuthContext from "../context/AuthProvider";
 import { Vehicle } from "../models/VehicleModel";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
+import { COLOR_PRIMARY, COLOR_TEXT_PRIMARY } from "../constants";
 
 const Vehicles: React.FC = () => {
 	const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -55,8 +56,7 @@ const Vehicles: React.FC = () => {
 
 	useEffect(() => {
 		fetchVehicles();
-	}, [auth.roles]); 
-
+	}, [auth.roles]);
 
 	const fetchVehicles = async () => {
 		try {
@@ -305,7 +305,7 @@ const Vehicles: React.FC = () => {
 			<Container
 				maxWidth="xl"
 				sx={{
-					overflow: "hidden", 
+					overflow: "hidden",
 				}}
 			>
 				<Box sx={{ py: 3 }}>
@@ -317,7 +317,11 @@ const Vehicles: React.FC = () => {
 							mb: 3,
 						}}
 					>
-						<Typography variant="h4" fontWeight="bold">
+						<Typography
+							variant="h4"
+							fontWeight="bold"
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							{getSectionTitle()}
 						</Typography>
 						{auth.roles && auth.roles.length > 0 && (
@@ -326,8 +330,8 @@ const Vehicles: React.FC = () => {
 								startIcon={<AddIcon />}
 								onClick={() => setAddModalOpen(true)}
 								sx={{
-									bgcolor: "#ff3c4e",
-									"&:hover": { bgcolor: "#d6303f" },
+									bgcolor: COLOR_PRIMARY,
+									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
 								Add Vehicle
@@ -400,7 +404,7 @@ const Vehicles: React.FC = () => {
 									sm={6}
 									md={4}
 									lg={3}
-									sx={{ px: { xs: 1, md: 2 } }} 
+									sx={{ px: { xs: 1, md: 2 } }}
 								>
 									<VehicleCard
 										vehicle={vehicle}

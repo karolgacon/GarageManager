@@ -18,7 +18,8 @@ import {
 	Send as SendIcon,
 	Build as BuildIcon,
 } from "@mui/icons-material";
-import { COLOR_PRIMARY, COLOR_SECONDARY } from "../constants";
+import { COLOR_PRIMARY } from "../constants";
+import { COLOR_SURFACE } from "../constants";
 import { useChatApi } from "../api/chatApi";
 import { Conversation } from "../models/chat";
 
@@ -402,7 +403,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 												sx={{
 													p: 2,
 													maxWidth: "70%",
-													bgcolor: isClient ? COLOR_PRIMARY : "white",
+													bgcolor: isClient ? COLOR_PRIMARY : COLOR_SURFACE,
 													color: isClient ? "white" : "black",
 												}}
 											>

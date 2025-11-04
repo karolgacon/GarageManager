@@ -21,17 +21,23 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Part } from "../../models/PartModel";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface InventoryTableProps {
 	parts: Part[];
-	onDeleteParts?: (ids: number[]) => void; 
-	onEditPart?: (part: Part) => void; 
+	onDeleteParts?: (ids: number[]) => void;
+	onEditPart?: (part: Part) => void;
 }
 
 const InventoryTable: React.FC<InventoryTableProps> = ({
 	parts,
 	onDeleteParts,
-	onEditPart, 
+	onEditPart,
 }) => {
 	const [sortColumn, setSortColumn] = useState<string | null>(null);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -113,9 +119,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 		if (sortColumn !== column.id) return null;
 
 		return sortDirection === "asc" ? (
-			<ArrowUpwardIcon fontSize="small" />
+			<ArrowUpwardIcon fontSize="small" sx={{ color: "white" }} />
 		) : (
-			<ArrowDownwardIcon fontSize="small" />
+			<ArrowDownwardIcon fontSize="small" sx={{ color: "white" }} />
 		);
 	};
 
@@ -137,35 +143,70 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 
 	return (
 		<>
-			{selectedParts.length > 0 && (
-				<Box
-					sx={{
-						display: "flex",
-						justifyContent: "flex-end",
-						mb: 2,
-						alignItems: "center",
-					}}
-				>
-					<Typography variant="body2" sx={{ mr: 2 }}>
-						{selectedParts.length} item(s) selected
-					</Typography>
-					<Tooltip title="Delete selected">
-						<IconButton
-							color="error"
-							onClick={handleDeleteSelected}
-							sx={{ border: "1px solid rgba(211, 47, 47, 0.5)" }}
+			<TableContainer
+				sx={{ backgroundColor: COLOR_SURFACE, position: "relative" }}
+			>
+				{selectedParts.length > 0 && (
+					<Box
+						sx={{
+							position: "absolute",
+							top: 8,
+							right: 8,
+							zIndex: 10,
+							display: "flex",
+							alignItems: "center",
+							gap: 1,
+							backgroundColor: COLOR_SURFACE,
+							padding: "4px 8px",
+							borderRadius: 1,
+							border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+						}}
+					>
+						<Typography
+							variant="body2"
+							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								fontSize: "0.75rem",
+							}}
 						>
-							<DeleteIcon />
-						</IconButton>
-					</Tooltip>
-				</Box>
-			)}
-			<TableContainer>
+							{selectedParts.length} selected
+						</Typography>
+						<Tooltip title="Delete selected">
+							<IconButton
+								size="small"
+								sx={{
+									color: "#dc2626",
+									"&:hover": {
+										backgroundColor: "rgba(220, 38, 38, 0.1)",
+									},
+								}}
+								onClick={handleDeleteSelected}
+							>
+								<DeleteIcon fontSize="small" />
+							</IconButton>
+						</Tooltip>
+					</Box>
+				)}
 				<Table>
 					<TableHead>
-						<TableRow>
-							<TableCell padding="checkbox">
+						<TableRow sx={{ backgroundColor: COLOR_PRIMARY }}>
+							<TableCell
+								padding="checkbox"
+								sx={{
+									borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+									backgroundColor: COLOR_PRIMARY,
+								}}
+							>
 								<Checkbox
+									sx={{
+										color: "white",
+										"&.Mui-checked": {
+											color: "white",
+										},
+										"&.MuiCheckbox-indeterminate": {
+											color: "white",
+										},
+									}}
 									indeterminate={
 										selectedParts.length > 0 &&
 										selectedParts.length < parts.length
@@ -183,6 +224,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 									sx={{
 										cursor: column.sortable ? "pointer" : "default",
 										fontWeight: "bold",
+										color: "white",
+										borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+										backgroundColor: COLOR_PRIMARY,
 									}}
 								>
 									<Box sx={{ display: "flex", alignItems: "center" }}>
@@ -196,9 +240,20 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 					<TableBody>
 						{sortedParts.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={columns.length + 1}>
+								<TableCell
+									colSpan={columns.length + 1}
+									sx={{
+										borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+										backgroundColor: COLOR_SURFACE,
+									}}
+								>
 									<Box sx={{ textAlign: "center", p: 3 }}>
-										<Typography variant="body1">No parts found</Typography>
+										<Typography
+											variant="body1"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											No parts found
+										</Typography>
 									</Box>
 								</TableCell>
 							</TableRow>
@@ -212,46 +267,107 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 										hover
 										selected={isItemSelected}
 										onClick={(event) => event.stopPropagation()}
+										sx={{
+											backgroundColor: isItemSelected
+												? "rgba(56, 130, 246, 0.1)"
+												: COLOR_SURFACE,
+											"&:hover": {
+												backgroundColor: isItemSelected
+													? "rgba(56, 130, 246, 0.2)"
+													: "rgba(56, 130, 246, 0.05)",
+											},
+										}}
 									>
-										<TableCell padding="checkbox">
+										<TableCell
+											padding="checkbox"
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											<Checkbox
+												sx={{
+													color: COLOR_TEXT_SECONDARY,
+													"&.Mui-checked": {
+														color: COLOR_PRIMARY,
+													},
+												}}
 												checked={isItemSelected}
 												onChange={() => handleSelectPart(part.id)}
 											/>
 										</TableCell>
-										<TableCell>{part.id || "N/A"}</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												color: COLOR_TEXT_PRIMARY,
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
+											{part.id || "N/A"}
+										</TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											<Box sx={{ display: "flex", alignItems: "center" }}>
 												<Avatar
 													sx={{
-														bgcolor: "#660000",
+														bgcolor: COLOR_PRIMARY,
 														width: 35,
 														height: 35,
 														mr: 2,
 													}}
-													src={part.image_url || undefined}
+													src={undefined}
 												/>
-												{part.name || "Unknown Product"}
+												<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+													{part.name || "Unknown Product"}
+												</Typography>
 											</Box>
 										</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												color: COLOR_TEXT_PRIMARY,
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											{part.manufacturer || "No Manufacturer"}
 										</TableCell>
-										<TableCell>{part.category || "No category"}</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												color: COLOR_TEXT_PRIMARY,
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
+											{part.category || "No category"}
+										</TableCell>
+										<TableCell
+											sx={{
+												color: COLOR_TEXT_PRIMARY,
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											{part.stock_quantity !== undefined
 												? part.stock_quantity
 												: "N/A"}
 										</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												color: COLOR_TEXT_PRIMARY,
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											{part.price !== undefined && part.price !== null
 												? `$${Number(part.price).toFixed(2)}`
 												: "N/A"}
 										</TableCell>
-										<TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
+											}}
+										>
 											<IconButton
 												size="small"
 												onClick={(e) => handleMenuOpen(e, part.id)}
+												sx={{ color: COLOR_TEXT_SECONDARY }}
 											>
 												<MoreVertIcon />
 											</IconButton>
@@ -270,6 +386,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 				onClose={handleMenuClose}
 				transformOrigin={{ horizontal: "right", vertical: "top" }}
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+				PaperProps={{
+					sx: {
+						backgroundColor: COLOR_SURFACE,
+						border: `1px solid ${COLOR_TEXT_SECONDARY}`,
+					},
+				}}
 			>
 				<MenuItem
 					onClick={() => {
@@ -279,12 +401,13 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
 						}
 						handleMenuClose();
 					}}
+					sx={{ color: COLOR_TEXT_PRIMARY }}
 				>
-					<EditIcon fontSize="small" sx={{ mr: 1 }} />
+					<EditIcon fontSize="small" sx={{ mr: 1, color: COLOR_PRIMARY }} />
 					Edit
 				</MenuItem>
-				<MenuItem onClick={handleDeletePart} sx={{ color: "error.main" }}>
-					<DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+				<MenuItem onClick={handleDeletePart} sx={{ color: COLOR_PRIMARY }}>
+					<DeleteIcon fontSize="small" sx={{ mr: 1, color: COLOR_PRIMARY }} />
 					Delete
 				</MenuItem>
 			</Menu>

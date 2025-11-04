@@ -22,8 +22,10 @@ import AuthContext from "../../context/AuthProvider";
 import {
 	COLOR_PRIMARY,
 	COLOR_SECONDARY,
-	COLOR_DARK,
-	COLOR_LIGHT,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
 } from "../../constants";
 
 interface SidebarProps {
@@ -38,11 +40,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 	onClose,
 }) => {
 	const location = useLocation();
-	const navigate = useNavigate(); 
+	const navigate = useNavigate();
 	const { auth } = useContext(AuthContext);
 
 	const handleLogoClick = () => {
-		navigate("/"); 
+		navigate("/");
 		if (isMobile && onClose) {
 			onClose();
 		}
@@ -111,13 +113,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 		<Box
 			sx={{
 				width: 240,
-				bgcolor: "#fff",
+				bgcolor: COLOR_SURFACE, // Ciemne tło sidebara
 				height: "100%",
 				display: "flex",
 				flexDirection: "column",
 				overflowY: "auto",
 				overflowX: "hidden",
 				maxWidth: "100%",
+				borderRight: `1px solid rgba(228, 230, 232, 0.1)`, // Subtelna ramka
 			}}
 			onClick={isMobile ? onClose : undefined}
 		>
@@ -126,10 +129,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 					padding: "16px",
 					textAlign: "center",
 					mb: 2,
-					cursor: "pointer", 
+					cursor: "pointer",
 				}}
 				onClick={(e) => {
-					e.stopPropagation(); 
+					e.stopPropagation();
 					handleLogoClick();
 				}}
 			>
@@ -146,16 +149,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 						sx={{
 							height: 60,
 							width: 60,
-							transition: "transform 0.2s ease-in-out", 
+							transition: "transform 0.2s ease-in-out",
 							"&:hover": {
-								transform: "scale(1.05)", 
+								transform: "scale(1.05)",
 							},
 						}}
 						alt="Garage Manager Logo"
 						src="/logo.png"
 					/>
 				</Box>
-				<Typography variant="h6" fontWeight="bold" color={COLOR_DARK}>
+				<Typography variant="h6" fontWeight="bold" color={COLOR_TEXT_PRIMARY}>
 					GarageManager
 				</Typography>
 			</Box>
@@ -175,20 +178,25 @@ const Sidebar: React.FC<SidebarProps> = ({
 								backgroundColor:
 									location.pathname === item.path
 										? `${COLOR_PRIMARY} !important`
-										: "white",
-								color: "#000",
+										: "transparent",
+								color:
+									location.pathname === item.path
+										? COLOR_TEXT_PRIMARY
+										: COLOR_TEXT_PRIMARY,
 								"&:hover": {
 									backgroundColor:
 										location.pathname === item.path
 											? COLOR_SECONDARY
-											: COLOR_LIGHT,
+											: `rgba(228, 230, 232, 0.1)`,
 								},
 							}}
 						>
 							<ListItemIcon
 								sx={{
 									color:
-										location.pathname === item.path ? "#000" : COLOR_PRIMARY,
+										location.pathname === item.path
+											? COLOR_TEXT_PRIMARY
+											: COLOR_TEXT_SECONDARY,
 									minWidth: 40,
 								}}
 							>

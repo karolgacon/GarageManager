@@ -1,11 +1,13 @@
 body {
-    background-color: #222;
-    color: #fff;
+    background-color: #0F1115;
+    /* COLOR_BACKGROUND */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     margin: 0;
     padding: 0;
 }
 
-#root{
+#root {
     width: 100vw;
 }
 
@@ -22,22 +24,27 @@ body {
 }
 
 .home-container h1 {
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     font-size: 32px;
     margin-bottom: 30px;
     text-align: center;
 }
 
 .home-container h2 {
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     font-size: 22px;
     margin-bottom: 16px;
 }
 
 .error-message {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ff3850;
-    border-left: 4px solid #ff3850;
+    background-color: rgba(239, 68, 68, 0.1);
+    /* COLOR_ERROR with opacity */
+    color: #EF4444;
+    /* COLOR_ERROR */
+    border-left: 4px solid #EF4444;
+    /* COLOR_ERROR */
     padding: 12px;
     margin-bottom: 24px;
     border-radius: 4px;
@@ -50,7 +57,8 @@ body {
     align-items: center;
     height: 200px;
     font-size: 18px;
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
 }
 
 .dashboard {
@@ -68,7 +76,8 @@ body {
 }
 
 .section {
-    background-color: #1c1e2e;
+    background-color: #1A1D23;
+    /* COLOR_SURFACE */
     border-radius: 24px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding: 20px;
@@ -80,17 +89,20 @@ body {
 }
 
 .user-management {
-    background-color: #ff3850; 
+    background-color: #3882F6;
+    /* COLOR_PRIMARY */
     color: white;
 }
 
 .current-user {
-    background-color: #d70026; 
+    background-color: #22D3EE;
+    /* COLOR_SECONDARY */
     color: white;
 }
 
 .recently-added {
-    background-color: #1c1e2e; 
+    background-color: #1A1D23;
+    /* COLOR_SURFACE */
     color: white;
 }
 
@@ -102,8 +114,10 @@ body {
 
 .action-button {
     display: block;
-    background-color: rgba(0, 0, 0, 0.15);
-    color: white;
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     padding: 12px 16px;
     border-radius: 50px;
     text-decoration: none;
@@ -113,11 +127,13 @@ body {
 }
 
 .action-button:hover {
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(228, 230, 232, 0.2);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .user-info {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
     padding: 16px;
     border-radius: 16px;
     margin-top: 16px;
@@ -130,7 +146,8 @@ body {
 .profile-info {
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.3);
+    border-top: 1px dashed rgba(228, 230, 232, 0.3);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .user-actions {
@@ -141,8 +158,10 @@ body {
 
 .user-action {
     display: inline-block;
-    background-color: rgba(0, 0, 0, 0.15);
-    color: white;
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     padding: 8px 16px;
     border-radius: 50px;
     text-decoration: none;
@@ -151,7 +170,8 @@ body {
 }
 
 .user-action:hover {
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(228, 230, 232, 0.2);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .recent-users {
@@ -162,20 +182,23 @@ body {
 }
 
 .user-card {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
     border-radius: 16px;
     padding: 16px;
 }
 
 .user-card h3 {
     margin: 0 0 8px 0;
-    color: #fff;
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     font-size: 16px;
 }
 
 .user-card p {
     margin: 0 0 12px 0;
-    color: rgba(255, 255, 255, 0.7);
+    color: #9CA3AF;
+    /* COLOR_TEXT_SECONDARY */
     font-size: 14px;
 }
 
@@ -186,7 +209,8 @@ body {
 }
 
 .card-actions a {
-    color: rgba(255, 255, 255, 0.9);
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -218,8 +242,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f1f1f4; 
-    color: #1c1e2e;
+    background-color: #1A1D23;
+    /* COLOR_SURFACE */
+    color: #E4E6E8;
+    /* COLOR_TEXT_PRIMARY */
     padding: 16px;
     border-radius: 50px;
     text-decoration: none;
@@ -228,11 +254,15 @@ body {
     min-width: 300px;
     height: 60px;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(228, 230, 232, 0.1);
+    /* COLOR_TEXT_PRIMARY with opacity */
 }
 
 .quick-action:hover {
-    background-color: #fff;
+    background-color: #3882F6;
+    /* COLOR_PRIMARY */
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px rgba(56, 130, 246, 0.3);
+    /* COLOR_PRIMARY with opacity */
 }

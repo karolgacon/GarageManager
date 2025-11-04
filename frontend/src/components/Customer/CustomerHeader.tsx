@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { COLOR_PRIMARY, COLOR_TEXT_PRIMARY } from "../../constants";
 
 interface CustomerHeaderProps {
 	userRole?: string;
@@ -37,7 +38,11 @@ const CustomerHeader: React.FC<CustomerHeaderProps> = ({
 				gap: 2,
 			}}
 		>
-			<Typography variant="h4" fontWeight="bold">
+			<Typography
+				variant="h4"
+				fontWeight="bold"
+				sx={{ color: COLOR_TEXT_PRIMARY }}
+			>
 				{getSectionTitle()}
 			</Typography>
 
@@ -47,8 +52,8 @@ const CustomerHeader: React.FC<CustomerHeaderProps> = ({
 					startIcon={<AddIcon />}
 					onClick={onAddCustomer}
 					sx={{
-						bgcolor: "#ff3c4e",
-						"&:hover": { bgcolor: "#d6303f" },
+						bgcolor: COLOR_PRIMARY,
+						"&:hover": { bgcolor: "#2563EB" },
 					}}
 				>
 					Add Customer
