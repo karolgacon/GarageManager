@@ -8,7 +8,6 @@ const useStyles = createUseStyles({
 		justifyContent: "center",
 		width: "100%",
 		height: "100vh",
-		minWidth: "600px",
 		padding: "30px 20px",
 		boxSizing: "border-box",
 		fontFamily: "'Outfit','Poppins', 'Roboto', sans-serif",
@@ -19,8 +18,8 @@ const useStyles = createUseStyles({
 		boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
 		border: "1px solid rgba(228, 230, 232, 0.1)", // COLOR_TEXT_PRIMARY with opacity
 		padding: "50px 40px",
-		width: "500px",
-		minWidth: "500px",
+		width: "100%",
+		maxWidth: "500px",
 		height: "auto",
 		minHeight: "500px",
 		textAlign: "center",
@@ -181,47 +180,130 @@ const useStyles = createUseStyles({
 	},
 	"@media (max-width: 1200px)": {
 		formCard: {
-			width: "450px",
-			minWidth: "450px",
-			padding: "35px",
+			maxWidth: "450px",
+			padding: "40px 35px",
 		},
 	},
-	"@media (max-width: 800px)": {
-		formCard: {
-			width: "400px",
-			minWidth: "400px",
-			padding: "30px",
-		},
+	"@media (max-width: 868px)": {
 		container: {
-			minWidth: "500px",
+			padding: "16px",
+			justifyContent: "center",
+			paddingTop: "16px",
+			height: "100vh",
+			overflow: "hidden", // Zapobiegamy scrollowaniu
+		},
+		formCard: {
+			maxWidth: "90%",
+			width: "100%",
+			padding: "24px 20px",
+			marginBottom: "0px",
+			minHeight: "auto",
+			maxHeight: "calc(100vh - 80px)", // Ograniczamy wysokość
+		},
+		formTitle: {
+			fontSize: "22px",
+			marginBottom: "20px",
+		},
+	},
+	"@media (max-width: 600px)": {
+		container: {
+			padding: "12px",
+			paddingTop: "12px",
+			justifyContent: "center",
+			height: "100vh",
+			overflow: "hidden", // Zapobiegamy scrollowaniu
+		},
+		formCard: {
+			maxWidth: "100%",
+			width: "100%",
+			padding: "20px 16px",
+			marginBottom: "0px",
+			borderRadius: "6px",
+			minHeight: "auto",
+			maxHeight: "calc(100vh - 60px)", // Ograniczamy wysokość
+		},
+		formTitle: {
+			fontSize: "20px",
+			marginBottom: "16px",
+		},
+		formField: {
+			marginBottom: "14px",
+		},
+		input: {
+			padding: "12px",
+			fontSize: "16px",
+		},
+		submitButton: {
+			padding: "12px",
+			fontSize: "16px",
+		},
+		rememberRow: {
+			marginBottom: "16px",
 		},
 	},
 	"@media (max-width: 480px)": {
-		formCard: {
-			width: "100vw",
-			minWidth: "0",
-			padding: "10vw 2vw",
-			boxShadow: "none",
-			borderRadius: "0",
-			marginBottom: "0",
-		},
 		container: {
-			minWidth: "0",
-			padding: "0",
+			padding: "8px",
+			paddingTop: "8px",
 			height: "100vh",
-			justifyContent: "flex-start",
+			justifyContent: "center",
+			overflow: "hidden", // Zapobiegamy scrollowaniu
 		},
-		registerContainer: {
-			display: "none !important",
+		formCard: {
+			maxWidth: "100%",
+			width: "100%",
+			padding: "16px 12px",
+			boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+			borderRadius: "4px",
+			marginBottom: "0px",
+			minHeight: "auto",
+			maxHeight: "calc(100vh - 40px)", // Ograniczamy wysokość
+		},
+		formTitle: {
+			fontSize: "18px",
+			marginBottom: "16px",
+		},
+		formField: {
+			marginBottom: "12px",
+		},
+		input: {
+			padding: "10px",
+			fontSize: "16px",
+		},
+		submitButton: {
+			padding: "10px",
+			fontSize: "14px",
+			marginBottom: "16px",
 		},
 		rememberRow: {
-			display: "none !important",
+			flexDirection: "column",
+			alignItems: "flex-start",
+			gap: "8px",
+			marginBottom: "16px",
+		},
+		checkboxLabel: {
+			fontSize: "11px",
 		},
 		forgotLink: {
-			display: "none !important",
+			fontSize: "11px",
 		},
-		hugeInfo: {
-			display: "none !important",
+		registerContainer: {
+			flexDirection: "column",
+			gap: "4px",
+		},
+		accountText: {
+			fontSize: "11px",
+		},
+		registerLink: {
+			fontSize: "12px",
+		},
+	},
+	mobileLogoHidden: {
+		display: "none",
+		marginBottom: "16px",
+		textAlign: "center",
+		"@media (max-width: 868px)": {
+			display: "block",
 		},
 	},
 });

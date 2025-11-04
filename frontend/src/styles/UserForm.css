@@ -6,12 +6,40 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+@media (max-width: 868px) {
+    .user-form-container {
+        padding: 16px;
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-form-container {
+        padding: 12px;
+        max-width: none;
+    }
+}
+
 .user-form-container h1 {
     color: #E4E6E8;
     /* COLOR_TEXT_PRIMARY */
     font-size: 32px;
     margin-bottom: 30px;
     text-align: center;
+}
+
+@media (max-width: 868px) {
+    .user-form-container h1 {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-form-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
 }
 
 .back-button {
@@ -47,6 +75,21 @@
     /* COLOR_TEXT_PRIMARY with opacity */
 }
 
+@media (max-width: 868px) {
+    .user-form {
+        border-radius: 16px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-form {
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+    }
+}
+
 .form-group {
     margin-bottom: 20px;
 }
@@ -70,6 +113,15 @@
     /* COLOR_TEXT_PRIMARY */
     font-size: 16px;
     transition: border-color 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    .form-group input {
+        padding: 10px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
 }
 
 .form-group input:focus {
@@ -147,14 +199,28 @@
     /* COLOR_TEXT_PRIMARY */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 868px) {
     .form-actions {
         flex-direction: column;
         gap: 12px;
+        margin-top: 24px;
     }
 
     .submit-button,
     .cancel-button {
         width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-actions {
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .submit-button,
+    .cancel-button {
+        padding: 10px 20px;
+        font-size: 14px;
     }
 }

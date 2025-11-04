@@ -250,6 +250,29 @@ const ClientRegisterWrapper = forwardRef<
 	return (
 		<>
 			<div className={classes.container}>
+				{/* Mobile logo - pokazuje się tylko na małych ekranach */}
+				<div className={classes.mobileLogoHidden}>
+					<img
+						src="/logo.png"
+						alt="GarageManager"
+						style={{
+							width: "60px",
+							height: "auto",
+							marginBottom: "6px",
+						}}
+					/>
+					<h3
+						style={{
+							color: "#E4E6E8",
+							fontSize: "16px",
+							fontWeight: "600",
+							margin: "0",
+						}}
+					>
+						GarageManager
+					</h3>
+				</div>
+
 				<div
 					className={classes.formCard}
 					style={{ height: "auto", minHeight: "55vh" }}

@@ -15,6 +15,10 @@ const Footer = () => (
 			left: 0,
 			right: 0,
 			zIndex: 1300,
+			"@media (max-width: 868px)": {
+				position: "relative",
+				marginTop: "auto",
+			},
 		}}
 	>
 		<Typography variant="caption" component="div">

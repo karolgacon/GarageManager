@@ -23,12 +23,40 @@ body {
     align-items: center;
 }
 
+@media (max-width: 868px) {
+    .home-container {
+        padding: 16px;
+        height: auto;
+        min-height: 100vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-container {
+        padding: 12px;
+    }
+}
+
 .home-container h1 {
     color: #E4E6E8;
     /* COLOR_TEXT_PRIMARY */
     font-size: 32px;
     margin-bottom: 30px;
     text-align: center;
+}
+
+@media (max-width: 868px) {
+    .home-container h1 {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
 }
 
 .home-container h2 {
@@ -69,9 +97,18 @@ body {
     width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 868px) {
     .dashboard {
         grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard {
+        gap: 12px;
+        margin-bottom: 20px;
     }
 }
 
@@ -82,6 +119,20 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding: 20px;
     transition: transform 0.2s ease;
+}
+
+@media (max-width: 868px) {
+    .section {
+        border-radius: 16px;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        border-radius: 12px;
+        padding: 14px;
+    }
 }
 
 .section:hover {
@@ -181,6 +232,19 @@ body {
     margin-top: 16px;
 }
 
+@media (max-width: 868px) {
+    .recent-users {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .recent-users {
+        gap: 10px;
+    }
+}
+
 .user-card {
     background-color: rgba(228, 230, 232, 0.1);
     /* COLOR_TEXT_PRIMARY with opacity */
@@ -238,6 +302,14 @@ body {
     gap: 16px;
 }
 
+@media (max-width: 868px) {
+    .action-grid {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+}
+
 .quick-action {
     display: flex;
     align-items: center;
@@ -257,6 +329,25 @@ body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(228, 230, 232, 0.1);
     /* COLOR_TEXT_PRIMARY with opacity */
+}
+
+@media (max-width: 868px) {
+    .quick-action {
+        min-width: 100%;
+        max-width: 400px;
+        height: 56px;
+        padding: 14px;
+        border-radius: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-action {
+        height: 52px;
+        padding: 12px;
+        border-radius: 26px;
+        font-size: 14px;
+    }
 }
 
 .quick-action:hover {

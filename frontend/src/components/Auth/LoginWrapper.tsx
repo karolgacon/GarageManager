@@ -29,7 +29,7 @@ export interface LoginWrapperHandle {
 interface LoginWrapperProps {}
 
 const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
-	(props, ref) => {
+	(_, ref) => {
 		const classes = useStyles();
 		const [email, setEmail] = useState("");
 		const [password, setPassword] = useState("");
@@ -129,6 +129,29 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 
 		return (
 			<div className={classes.container}>
+				{/* Mobile logo - pokazuje się tylko na małych ekranach */}
+				<div className={classes.mobileLogoHidden}>
+					<img
+						src="/logo.png"
+						alt="GarageManager"
+						style={{
+							width: "60px",
+							height: "auto",
+							marginBottom: "6px",
+						}}
+					/>
+					<h3
+						style={{
+							color: "#E4E6E8",
+							fontSize: "16px",
+							fontWeight: "600",
+							margin: "0",
+						}}
+					>
+						GarageManager
+					</h3>
+				</div>
+
 				<div className={classes.formCard}>
 					<h2 className={classes.formTitle}>Login to your account</h2>
 

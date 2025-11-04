@@ -20,6 +20,11 @@ const StyledContainer = styled(Container)({
 	maxWidth: "none !important",
 	position: "relative",
 	backgroundColor: "transparent",
+	"@media (max-width: 868px)": {
+		height: "100vh",
+		alignItems: "flex-start",
+		paddingTop: "0",
+	},
 });
 
 const StyledGrid = styled(Grid)({
@@ -27,6 +32,10 @@ const StyledGrid = styled(Grid)({
 	margin: 0,
 	width: "100%",
 	backgroundColor: "transparent",
+	"@media (max-width: 868px)": {
+		height: "100vh",
+		flexDirection: "column !important",
+	},
 });
 
 const StyledLogoSection = styled(Box)({
@@ -47,12 +56,23 @@ const StyledLogoContent = styled(Box)({
 });
 
 const StyledFormSection = styled(Box)({
-	background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`, // Nowe kolory gradientu
+	background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`,
 	height: "100vh",
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
 	padding: "40px",
+	"@media (max-width: 868px)": {
+		padding: "16px 12px",
+		alignItems: "center",
+		paddingTop: "16px",
+		height: "100vh",
+		overflow: "hidden", // Zapobiegamy scrollowaniu
+	},
+	"@media (max-width: 480px)": {
+		padding: "8px",
+		paddingTop: "8px",
+	},
 });
 
 const StyledFormCard = styled(Paper)({
@@ -110,15 +130,34 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 				position: "relative",
 				height: "100vh",
 				backgroundColor: COLOR_BACKGROUND,
-				overflow: "auto",
+				overflow: "hidden",
+				"@media (max-width: 868px)": {
+					overflow: "auto",
+					height: "100vh",
+					background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`,
+				},
 			}}
 		>
 			<StyledContainer>
 				<StyledGrid
 					container
-					sx={{ backgroundColor: COLOR_BACKGROUND, minWidth: "1200px" }}
+					sx={{
+						backgroundColor: COLOR_BACKGROUND,
+						"@media (max-width: 868px)": {
+							backgroundColor: "transparent",
+						},
+					}}
 				>
-					<Grid item xs={12} md={6} sx={{ minWidth: "600px" }}>
+					<Grid
+						item
+						xs={12}
+						md={6}
+						sx={{
+							"@media (max-width: 868px)": {
+								display: "none",
+							},
+						}}
+					>
 						<StyledLogoSection>
 							<StyledLogoContent>
 								<StyledLogo src="/logo.png" alt="GarageManager logo" />
@@ -134,7 +173,11 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 						sx={{
 							backgroundColor: COLOR_PRIMARY,
 							background: `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_SECONDARY} 100%)`,
-							minWidth: "600px",
+							"@media (max-width: 868px)": {
+								width: "100%",
+								height: "100vh",
+								flex: "1 1 auto",
+							},
 						}}
 					>
 						<StyledFormSection>
@@ -143,7 +186,15 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 					</Grid>
 				</StyledGrid>
 			</StyledContainer>
-			<Footer />
+			<Box
+				sx={{
+					"@media (max-width: 868px)": {
+						display: "none",
+					},
+				}}
+			>
+				<Footer />
+			</Box>
 		</Box>
 	);
 };
