@@ -12,11 +12,8 @@ import {
 	Button,
 	InputAdornment,
 	FormHelperText,
-	Typography,
 	CircularProgress,
 } from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import {
 	Vehicle,
 	VEHICLE_FUEL_TYPES,
@@ -24,7 +21,12 @@ import {
 	VEHICLE_STATUS_TYPES,
 	defaultVehicle,
 } from "../../models/VehicleModel";
-import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface VehicleFormProps {
 	initialData?: Vehicle;
@@ -109,7 +111,7 @@ const VehicleForm = forwardRef<
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		if (validateForm()) {
+		if (validateForm() && onSubmit) {
 			onSubmit(formData);
 		}
 	};
@@ -129,7 +131,45 @@ const VehicleForm = forwardRef<
 	}));
 
 	return (
-		<Box component="form" onSubmit={handleSubmit}>
+		<Box
+			component="form"
+			onSubmit={handleSubmit}
+			sx={{
+				"& .MuiTextField-root": {
+					"& .MuiOutlinedInput-root": {
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+						"& fieldset": {
+							borderColor: "rgba(228, 230, 232, 0.3)",
+						},
+						"&:hover fieldset": {
+							borderColor: "rgba(228, 230, 232, 0.5)",
+						},
+						"&.Mui-focused fieldset": {
+							borderColor: COLOR_PRIMARY,
+						},
+						"& .MuiSvgIcon-root": {
+							color: COLOR_PRIMARY,
+						},
+						"& .MuiSelect-icon": {
+							color: COLOR_PRIMARY,
+						},
+					},
+					"& .MuiInputLabel-root": {
+						color: COLOR_TEXT_SECONDARY,
+						"&.Mui-focused": {
+							color: COLOR_PRIMARY,
+						},
+					},
+					"& .MuiSelect-select": {
+						color: COLOR_TEXT_PRIMARY,
+					},
+					"& .MuiOutlinedInput-root.MuiInputBase-root .MuiSelect-icon": {
+						color: COLOR_PRIMARY,
+					},
+				},
+			}}
+		>
 			<Grid container spacing={2}>
 				{" "}
 				<Grid item xs={12} sm={6}>
@@ -239,6 +279,21 @@ const VehicleForm = forwardRef<
 						value={formData.fuel_type || "petrol"}
 						onChange={handleChange}
 						disabled={isLoading}
+						SelectProps={{
+							MenuProps: {
+								PaperProps: {
+									sx: {
+										backgroundColor: COLOR_SURFACE,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+										},
+									},
+								},
+							},
+						}}
 					>
 						{VEHICLE_FUEL_TYPES.map((option) => (
 							<MenuItem key={option.value} value={option.value}>
@@ -256,6 +311,21 @@ const VehicleForm = forwardRef<
 						value={formData.transmission || "manual"}
 						onChange={handleChange}
 						disabled={isLoading}
+						SelectProps={{
+							MenuProps: {
+								PaperProps: {
+									sx: {
+										backgroundColor: COLOR_SURFACE,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+										},
+									},
+								},
+							},
+						}}
 					>
 						{VEHICLE_TRANSMISSION_TYPES.map((option) => (
 							<MenuItem key={option.value} value={option.value}>
@@ -273,6 +343,21 @@ const VehicleForm = forwardRef<
 						value={formData.status || "active"}
 						onChange={handleChange}
 						disabled={isLoading}
+						SelectProps={{
+							MenuProps: {
+								PaperProps: {
+									sx: {
+										backgroundColor: COLOR_SURFACE,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+										},
+									},
+								},
+							},
+						}}
 					>
 						{VEHICLE_STATUS_TYPES.map((option) => (
 							<MenuItem key={option.value} value={option.value}>

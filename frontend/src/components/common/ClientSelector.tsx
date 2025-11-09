@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-	FormControl,
-	InputLabel,
 	MenuItem,
-	FormHelperText,
 	CircularProgress,
 	Box,
 	Typography,
@@ -13,10 +10,15 @@ import {
 	Autocomplete,
 	Paper,
 } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import SearchIcon from "@mui/icons-material/Search";
 import { UserService } from "../../api/UserAPIEndpoint";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface Client {
 	id: number;
@@ -111,12 +113,33 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 						error={!!error || !!loadError}
 						helperText={error || loadError}
 						onChange={(e) => setSearchQuery(e.target.value)}
+						sx={{
+							"& .MuiOutlinedInput-root": {
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+								"& fieldset": {
+									borderColor: "rgba(228, 230, 232, 0.3)",
+								},
+								"&:hover fieldset": {
+									borderColor: "rgba(228, 230, 232, 0.5)",
+								},
+								"&.Mui-focused fieldset": {
+									borderColor: COLOR_PRIMARY,
+								},
+							},
+							"& .MuiInputLabel-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-focused": {
+									color: COLOR_PRIMARY,
+								},
+							},
+						}}
 						InputProps={{
 							...params.InputProps,
 							startAdornment: (
 								<>
 									<InputAdornment position="start">
-										<SearchIcon color="action" />
+										<SearchIcon sx={{ color: COLOR_TEXT_SECONDARY }} />
 									</InputAdornment>
 									{params.InputProps.startAdornment}
 								</>
@@ -133,25 +156,48 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 					/>
 				)}
 				renderOption={(props, option) => (
-					<MenuItem {...props} component="li" sx={{ py: 1.5 }}>
+					<MenuItem
+						{...props}
+						component="li"
+						sx={{
+							py: 1.5,
+							backgroundColor: COLOR_SURFACE,
+							color: COLOR_TEXT_PRIMARY,
+							"&:hover": {
+								backgroundColor: "rgba(56, 130, 246, 0.1)",
+							},
+						}}
+					>
 						<Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-							<Avatar sx={{ mr: 1.5, bgcolor: "#ff3c4e" }}>
+							<Avatar sx={{ mr: 1.5, bgcolor: COLOR_PRIMARY }}>
 								{option.first_name
 									? option.first_name.charAt(0).toUpperCase()
 									: "C"}
 							</Avatar>
 							<Box sx={{ flexGrow: 1 }}>
-								<Typography variant="subtitle1" fontWeight="medium">
+								<Typography
+									variant="subtitle1"
+									fontWeight="medium"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									{getClientDisplayName(option)}
 								</Typography>
 								<Typography
 									variant="body2"
-									color="text.secondary"
-									sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										display: "flex",
+										alignItems: "center",
+										mt: 0.5,
+									}}
 								>
 									<EmailIcon
 										fontSize="small"
-										sx={{ mr: 0.5, fontSize: "0.9rem" }}
+										sx={{
+											mr: 0.5,
+											fontSize: "0.9rem",
+											color: COLOR_TEXT_SECONDARY,
+										}}
 									/>
 									{option.email}
 								</Typography>
@@ -161,13 +207,22 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 				)}
 				noOptionsText={
 					<Box sx={{ p: 1, textAlign: "center" }}>
-						<Typography variant="body2" color="text.secondary">
+						<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 							No clients found
 						</Typography>
 					</Box>
 				}
 				PaperComponent={(props) => (
-					<Paper {...props} elevation={3} sx={{ borderRadius: 2, mt: 0.5 }} />
+					<Paper
+						{...props}
+						elevation={3}
+						sx={{
+							borderRadius: 2,
+							mt: 0.5,
+							backgroundColor: COLOR_SURFACE,
+							border: `1px solid rgba(228, 230, 232, 0.1)`,
+						}}
+					/>
 				)}
 				sx={{ mb: 2 }}
 			/>
@@ -179,41 +234,59 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({
 						p: 2,
 						mt: 2,
 						borderRadius: 2,
-						boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-						borderColor: "#e0e0e0",
+						backgroundColor: COLOR_SURFACE,
+						borderColor: "rgba(228, 230, 232, 0.1)",
 						borderWidth: "1px",
 						borderStyle: "solid",
 					}}
 				>
-					<Typography variant="subtitle2" color="text.secondary" gutterBottom>
+					<Typography
+						variant="subtitle2"
+						sx={{ color: COLOR_TEXT_SECONDARY }}
+						gutterBottom
+					>
 						Selected Client
 					</Typography>
 					<Box sx={{ display: "flex", alignItems: "center" }}>
-						<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
+						<Avatar sx={{ mr: 2, bgcolor: COLOR_PRIMARY }}>
 							{selectedClient.first_name
 								? selectedClient.first_name.charAt(0).toUpperCase()
 								: "C"}
 						</Avatar>
 						<Box>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{getClientDisplayName(selectedClient)}
 							</Typography>
 							<Typography
 								variant="body2"
-								color="text.secondary"
-								sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+								sx={{
+									color: COLOR_TEXT_SECONDARY,
+									display: "flex",
+									alignItems: "center",
+									mt: 0.5,
+								}}
 							>
 								<EmailIcon
 									fontSize="small"
-									sx={{ mr: 0.5, fontSize: "0.9rem" }}
+									sx={{
+										mr: 0.5,
+										fontSize: "0.9rem",
+										color: COLOR_TEXT_SECONDARY,
+									}}
 								/>
 								{selectedClient.email}
 							</Typography>
 							{selectedClient.phone_number && (
 								<Typography
 									variant="body2"
-									color="text.secondary"
-									sx={{ mt: 0.5 }}
+									sx={{
+										color: COLOR_TEXT_SECONDARY,
+										mt: 0.5,
+									}}
 								>
 									Phone: {selectedClient.phone_number}
 								</Typography>

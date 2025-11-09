@@ -19,6 +19,12 @@ import BuildIcon from "@mui/icons-material/Build";
 import SearchIcon from "@mui/icons-material/Search";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface Workshop {
 	id: number;
@@ -32,7 +38,7 @@ interface Workshop {
 
 interface WorkshopSelectorProps {
 	value: number | null;
-	onChange?: (workshopId: number | null) => void; 
+	onChange?: (workshopId: number | null) => void;
 	disabled?: boolean;
 	error?: string;
 }
@@ -89,7 +95,6 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 		if (typeof onChange === "function") {
 			onChange(newValue ? newValue.id : null);
 		} else {
-			
 		}
 	};
 
@@ -110,12 +115,33 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 						error={!!error || !!loadError}
 						helperText={error || loadError}
 						onChange={(e) => setSearchQuery(e.target.value)}
+						sx={{
+							"& .MuiOutlinedInput-root": {
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+								"& fieldset": {
+									borderColor: "rgba(228, 230, 232, 0.3)",
+								},
+								"&:hover fieldset": {
+									borderColor: "rgba(228, 230, 232, 0.5)",
+								},
+								"&.Mui-focused fieldset": {
+									borderColor: COLOR_PRIMARY,
+								},
+							},
+							"& .MuiInputLabel-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-focused": {
+									color: COLOR_PRIMARY,
+								},
+							},
+						}}
 						InputProps={{
 							...params.InputProps,
 							startAdornment: (
 								<>
 									<InputAdornment position="start">
-										<SearchIcon color="action" />
+										<SearchIcon sx={{ color: COLOR_TEXT_SECONDARY }} />
 									</InputAdornment>
 									{params.InputProps.startAdornment}
 								</>
@@ -134,25 +160,47 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 				renderOption={(props, option) => {
 					const { key, ...otherProps } = props;
 					return (
-						<MenuItem key={key} {...otherProps} component="li" sx={{ py: 1.5 }}>
+						<MenuItem
+							key={key}
+							{...otherProps}
+							component="li"
+							sx={{
+								py: 1.5,
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+								"&:hover": { backgroundColor: "rgba(56, 130, 246, 0.1)" },
+							}}
+						>
 							<Box
 								sx={{ display: "flex", alignItems: "center", width: "100%" }}
 							>
-								<Avatar sx={{ mr: 1.5, bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ mr: 1.5, bgcolor: COLOR_PRIMARY }}>
 									<BuildIcon />
 								</Avatar>
 								<Box sx={{ flexGrow: 1 }}>
-									<Typography variant="subtitle1" fontWeight="medium">
+									<Typography
+										variant="subtitle1"
+										fontWeight="medium"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										{option.name}
 									</Typography>
 									<Typography
 										variant="body2"
-										color="text.secondary"
-										sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											display: "flex",
+											alignItems: "center",
+											mt: 0.5,
+										}}
 									>
 										<LocationOnIcon
 											fontSize="small"
-											sx={{ mr: 0.5, fontSize: "0.9rem" }}
+											sx={{
+												mr: 0.5,
+												fontSize: "0.9rem",
+												color: COLOR_TEXT_SECONDARY,
+											}}
 										/>
 										{option.location}
 									</Typography>
@@ -163,13 +211,22 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 				}}
 				noOptionsText={
 					<Box sx={{ p: 1, textAlign: "center" }}>
-						<Typography variant="body2" color="text.secondary">
+						<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 							No workshops found
 						</Typography>
 					</Box>
 				}
 				PaperComponent={(props) => (
-					<Paper {...props} elevation={3} sx={{ borderRadius: 2, mt: 0.5 }} />
+					<Paper
+						{...props}
+						elevation={3}
+						sx={{
+							borderRadius: 2,
+							mt: 0.5,
+							backgroundColor: COLOR_SURFACE,
+							border: `1px solid rgba(228, 230, 232, 0.1)`,
+						}}
+					/>
 				)}
 				sx={{ mb: 2 }}
 			/>
@@ -181,31 +238,47 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 						p: 2,
 						mt: 2,
 						borderRadius: 2,
-						boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-						borderColor: "#e0e0e0",
+						backgroundColor: COLOR_SURFACE,
+						borderColor: "rgba(228, 230, 232, 0.1)",
 						borderWidth: "1px",
 						borderStyle: "solid",
 					}}
 				>
-					<Typography variant="subtitle2" color="text.secondary" gutterBottom>
+					<Typography
+						variant="subtitle2"
+						sx={{ color: COLOR_TEXT_SECONDARY }}
+						gutterBottom
+					>
 						Selected Workshop
 					</Typography>
 					<Box sx={{ display: "flex", alignItems: "center" }}>
-						<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
+						<Avatar sx={{ mr: 2, bgcolor: COLOR_PRIMARY }}>
 							<BuildIcon />
 						</Avatar>
 						<Box>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{selectedWorkshop.name}
 							</Typography>
 							<Typography
 								variant="body2"
-								color="text.secondary"
-								sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+								sx={{
+									color: COLOR_TEXT_SECONDARY,
+									display: "flex",
+									alignItems: "center",
+									mt: 0.5,
+								}}
 							>
 								<LocationOnIcon
 									fontSize="small"
-									sx={{ mr: 0.5, fontSize: "0.9rem" }}
+									sx={{
+										mr: 0.5,
+										fontSize: "0.9rem",
+										color: COLOR_TEXT_SECONDARY,
+									}}
 								/>
 								{selectedWorkshop.location}
 							</Typography>

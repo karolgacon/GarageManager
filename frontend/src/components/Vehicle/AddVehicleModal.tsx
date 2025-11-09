@@ -36,6 +36,12 @@ import { Vehicle } from "../../models/VehicleModel";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import ClientSelector from "../common/ClientSelector";
 import WorkshopSelector from "../common/WorkshopSelector";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface AddVehicleModalProps {
 	open: boolean;
@@ -51,12 +57,12 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
 	},
 	[`&.${stepConnectorClasses.active}`]: {
 		[`& .${stepConnectorClasses.line}`]: {
-			backgroundImage: "linear-gradient(95deg, #ff3c4e 0%, #ff8086 100%)",
+			backgroundColor: COLOR_PRIMARY,
 		},
 	},
 	[`&.${stepConnectorClasses.completed}`]: {
 		[`& .${stepConnectorClasses.line}`]: {
-			backgroundImage: "linear-gradient(95deg, #ff3c4e 0%, #ff8086 100%)",
+			backgroundColor: COLOR_PRIMARY,
 		},
 	},
 	[`& .${stepConnectorClasses.line}`]: {
@@ -70,11 +76,10 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
 
 const ColorlibStepIconRoot = styled("div")<{
 	ownerState: { completed?: boolean; active?: boolean };
-}>(({ theme, ownerState }) => ({
-	backgroundColor:
-		theme.palette.mode === "dark" ? theme.palette.grey[700] : "#ccc",
+}>(({ ownerState }) => ({
+	backgroundColor: COLOR_SURFACE,
 	zIndex: 1,
-	color: "#fff",
+	color: COLOR_TEXT_PRIMARY,
 	width: 50,
 	height: 50,
 	display: "flex",
@@ -82,11 +87,13 @@ const ColorlibStepIconRoot = styled("div")<{
 	justifyContent: "center",
 	alignItems: "center",
 	...(ownerState.active && {
-		backgroundImage: "linear-gradient(136deg, #ff3c4e 0%, #ff8086 100%)",
+		backgroundColor: COLOR_PRIMARY,
+		color: "#fff",
 		boxShadow: "0 4px 10px 0 rgba(0,0,0,.25)",
 	}),
 	...(ownerState.completed && {
-		backgroundImage: "linear-gradient(136deg, #ff3c4e 0%, #ff8086 100%)",
+		backgroundColor: COLOR_PRIMARY,
+		color: "#fff",
 	}),
 }));
 
@@ -206,11 +213,9 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 
 	const handleVehicleDataSave = () => {
 		if (vehicleFormRef.current && vehicleFormRef.current.validateAndSubmit()) {
-
 			handleNext();
 		}
 	};
-
 
 	const validateForm = (): boolean => {
 		const finalErrors: string[] = [];
@@ -289,21 +294,29 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<PersonIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Select Client
 								</Typography>
 							</Box>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+							<Typography
+								variant="body2"
+								color={COLOR_TEXT_SECONDARY}
+								sx={{ mb: 2 }}
+							>
 								Choose a client who will be the owner of this vehicle.
 							</Typography>
 							<ClientSelector
 								value={selectedClientId}
 								onChange={(clientId) => setSelectedClientId(clientId)}
 								disabled={loading}
-								error={error}
+								error={error || undefined}
 							/>
 						</Box>
 					);
@@ -313,19 +326,23 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<DirectionsCarIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Vehicle Details
 								</Typography>
 							</Box>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} 
+								onSubmit={setVehicleData}
 								isLoading={loading}
-								error={error}
-								enableInternalButtons={false} 
+								error={error || undefined}
+								enableInternalButtons={false}
 							/>
 						</Box>
 					);
@@ -335,21 +352,29 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<BuildIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Select Workshop
 								</Typography>
 							</Box>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+							<Typography
+								variant="body2"
+								color={COLOR_TEXT_SECONDARY}
+								sx={{ mb: 3 }}
+							>
 								Assign this vehicle to a workshop for maintenance and servicing.
 							</Typography>
 							<WorkshopSelector
 								value={selectedWorkshopId}
 								onChange={(workshopId) => setSelectedWorkshopId(workshopId)}
 								disabled={loading}
-								error={error}
+								error={error || undefined}
 							/>
 						</Box>
 					);
@@ -366,21 +391,29 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<PersonIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Select Client
 								</Typography>
 							</Box>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+							<Typography
+								variant="body2"
+								color={COLOR_TEXT_SECONDARY}
+								sx={{ mb: 2 }}
+							>
 								Choose a client who will be the owner of this vehicle.
 							</Typography>
 							<ClientSelector
 								value={selectedClientId}
 								onChange={(clientId) => setSelectedClientId(clientId)}
 								disabled={loading}
-								error={error}
+								error={error || undefined}
 							/>
 						</Box>
 					);
@@ -390,18 +423,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<DirectionsCarIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Vehicle Details
 								</Typography>
 							</Box>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} 
+								onSubmit={setVehicleData}
 								isLoading={loading}
-								error={error}
+								error={error || undefined}
 								enableInternalButtons={false}
 							/>
 						</Box>
@@ -419,22 +456,30 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<DirectionsCarIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Vehicle Details
 								</Typography>
 							</Box>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+							<Typography
+								variant="body2"
+								color={COLOR_TEXT_SECONDARY}
+								sx={{ mb: 2 }}
+							>
 								Enter the details of your vehicle.
 							</Typography>
 							<VehicleForm
 								ref={vehicleFormRef}
-								onSubmit={setVehicleData} 
+								onSubmit={setVehicleData}
 								isLoading={loading}
-								error={error}
-								enableInternalButtons={false} 
+								error={error || undefined}
+								enableInternalButtons={false}
 							/>
 						</Box>
 					);
@@ -444,14 +489,22 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							<Box
 								sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
 							>
-								<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+								<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 									<BuildIcon />
 								</Avatar>
-								<Typography variant="h6" fontWeight="bold">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									Select Workshop
 								</Typography>
 							</Box>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+							<Typography
+								variant="body2"
+								color={COLOR_TEXT_SECONDARY}
+								sx={{ mb: 3 }}
+							>
 								Choose a workshop for your vehicle maintenance and servicing.
 								You can change this selection later if needed.
 							</Typography>
@@ -459,7 +512,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 								value={selectedWorkshopId}
 								onChange={(workshopId) => setSelectedWorkshopId(workshopId)}
 								disabled={loading}
-								error={error}
+								error={error || undefined}
 							/>
 						</Box>
 					);
@@ -475,37 +528,42 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 		return (
 			<Box>
 				<Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-					<Avatar sx={{ bgcolor: "#ff3c4e" }}>
+					<Avatar sx={{ bgcolor: COLOR_PRIMARY }}>
 						<CheckCircleIcon />
 					</Avatar>
-					<Typography variant="h6" fontWeight="bold">
+					<Typography
+						variant="h6"
+						fontWeight="bold"
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						Review & Confirm
 					</Typography>
 				</Box>
-				<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+				<Typography variant="body2" color={COLOR_TEXT_SECONDARY} sx={{ mb: 3 }}>
 					Please review all information before submitting.
 				</Typography>
 
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 2, 
-						mb: 2, 
+						p: 2,
+						mb: 2,
 						borderRadius: 2,
-						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+						backgroundColor: COLOR_SURFACE,
+						borderColor: COLOR_TEXT_SECONDARY,
 					}}
 				>
 					<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-						<DirectionsCarIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+						<DirectionsCarIcon sx={{ color: COLOR_PRIMARY, mr: 1 }} />
 						<Typography
 							variant="subtitle1"
 							fontWeight="bold"
-							sx={{ color: "#ff3c4e" }}
+							sx={{ color: COLOR_PRIMARY }}
 						>
 							Vehicle Information
 						</Typography>
 					</Box>
-					<Divider sx={{ my: 1.5 }} />
+					<Divider sx={{ my: 1.5, backgroundColor: COLOR_TEXT_SECONDARY }} />
 					<Box
 						sx={{
 							display: "grid",
@@ -514,68 +572,100 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 						}}
 					>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Brand
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.brand || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Model
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.model || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Year
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.year || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Registration
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.registration_number || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								VIN
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.vin || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Mileage
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.mileage
 									? `${vehicleData.mileage.toLocaleString()} km`
 									: "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Fuel Type
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.fuel_type || "Not specified"}
 							</Typography>
 						</Box>
 						<Box>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" color={COLOR_TEXT_SECONDARY}>
 								Status
 							</Typography>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{vehicleData.status || "Not specified"}
 							</Typography>
 						</Box>
@@ -586,28 +676,33 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					<Paper
 						variant="outlined"
 						sx={{
-							p: 2, 
-							mb: 2, 
+							p: 2,
+							mb: 2,
 							borderRadius: 2,
-							boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+							backgroundColor: COLOR_SURFACE,
+							borderColor: COLOR_TEXT_SECONDARY,
 						}}
 					>
 						<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-							<PersonIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+							<PersonIcon sx={{ color: COLOR_PRIMARY, mr: 1 }} />
 							<Typography
 								variant="subtitle1"
 								fontWeight="bold"
-								sx={{ color: "#ff3c4e" }}
+								sx={{ color: COLOR_PRIMARY }}
 							>
 								Client Information
 							</Typography>
 						</Box>
-						<Divider sx={{ my: 1.5 }} />
+						<Divider sx={{ my: 1.5, backgroundColor: COLOR_TEXT_SECONDARY }} />
 						<Box sx={{ display: "flex", alignItems: "center" }}>
-							<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
+							<Avatar sx={{ mr: 2, bgcolor: COLOR_PRIMARY }}>
 								<PersonIcon />
 							</Avatar>
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								Client ID: {selectedClientId}
 							</Typography>
 						</Box>
@@ -617,33 +712,42 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				<Paper
 					variant="outlined"
 					sx={{
-						p: 2, 
-						mb: 2, 
+						p: 2,
+						mb: 2,
 						borderRadius: 2,
-						boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+						backgroundColor: COLOR_SURFACE,
+						borderColor: COLOR_TEXT_SECONDARY,
 					}}
 				>
 					<Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-						<BuildIcon sx={{ color: "#ff3c4e", mr: 1 }} />
+						<BuildIcon sx={{ color: COLOR_PRIMARY, mr: 1 }} />
 						<Typography
 							variant="subtitle1"
 							fontWeight="bold"
-							sx={{ color: "#ff3c4e" }}
+							sx={{ color: COLOR_PRIMARY }}
 						>
 							Workshop Assignment
 						</Typography>
 					</Box>
-					<Divider sx={{ my: 1.5 }} />
+					<Divider sx={{ my: 1.5, backgroundColor: COLOR_TEXT_SECONDARY }} />
 					<Box sx={{ display: "flex", alignItems: "center" }}>
-						<Avatar sx={{ mr: 2, bgcolor: "#ff3c4e" }}>
+						<Avatar sx={{ mr: 2, bgcolor: COLOR_PRIMARY }}>
 							<BuildIcon />
 						</Avatar>
 						{userRole === "owner" || userRole === "mechanic" ? (
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								Your workshop (ID: {currentWorkshopId || "Not assigned"})
 							</Typography>
 						) : (
-							<Typography variant="body1" fontWeight="medium">
+							<Typography
+								variant="body1"
+								fontWeight="medium"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{selectedWorkshopId
 									? `Selected workshop (ID: ${selectedWorkshopId})`
 									: "No workshop selected"}
@@ -662,11 +766,13 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 			fullWidth
 			fullScreen={fullScreen}
 			maxWidth="md"
-			scroll="paper" 
+			scroll="paper"
 			PaperProps={{
 				sx: {
 					borderRadius: { xs: 0, sm: 2 },
 					maxHeight: "90vh",
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
 				},
 			}}
 		>
@@ -675,7 +781,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					display: "flex",
 					justifyContent: "space-between",
 					alignItems: "center",
-					bgcolor: "#ff3c4e",
+					bgcolor: COLOR_PRIMARY,
 					color: "white",
 					px: 3,
 					py: { xs: 2, md: 3 },
@@ -700,8 +806,13 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				</IconButton>
 			</DialogTitle>
 
-			<DialogContent sx={{ p: 0 }}>
-				<Box sx={{ bgcolor: "#f8f8f8", px: 3, py: 2 }}>
+			<DialogContent
+				sx={{
+					p: 0,
+					backgroundColor: COLOR_SURFACE,
+				}}
+			>
+				<Box sx={{ bgcolor: COLOR_SURFACE, px: 3, py: 2 }}>
 					<Stepper
 						alternativeLabel
 						activeStep={activeStep}
@@ -711,10 +822,17 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							"& .MuiStepLabel-label": {
 								mt: 1,
 								fontWeight: "medium",
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-active": {
+									color: COLOR_PRIMARY,
+								},
+								"&.Mui-completed": {
+									color: COLOR_PRIMARY,
+								},
 							},
 						}}
 					>
-						{steps.map((label, index) => (
+						{steps.map((label) => (
 							<Step key={label}>
 								<StepLabel
 									StepIconComponent={(props) => (
@@ -764,11 +882,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							left: 0,
 							right: 0,
 							bottom: 0,
-							bgcolor: "rgba(255,255,255,0.8)",
+							bgcolor: "rgba(26, 29, 35, 0.8)",
 							zIndex: 10,
 						}}
 					>
-						<CircularProgress sx={{ color: "#ff3c4e" }} />
+						<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 					</Box>
 				)}
 			</DialogContent>
@@ -777,8 +895,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 				sx={{
 					p: 3,
 					justifyContent: "space-between",
-					borderTop: "1px solid rgba(0,0,0,0.1)",
-					bgcolor: "#f8f8f8",
+					borderTop: "1px solid rgba(228, 230, 232, 0.1)",
+					bgcolor: COLOR_SURFACE,
 				}}
 			>
 				<Box>
@@ -788,9 +906,9 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							startIcon={<ArrowBackIcon />}
 							disabled={loading}
 							sx={{
-								color: "#555",
+								color: COLOR_TEXT_SECONDARY,
 								"&:hover": {
-									bgcolor: "rgba(0,0,0,0.05)",
+									bgcolor: "rgba(56, 130, 246, 0.1)",
 								},
 							}}
 						>
@@ -806,11 +924,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 						disabled={loading}
 						sx={{
 							mr: 1,
-							borderColor: "#ccc",
-							color: "#555",
+							borderColor: COLOR_TEXT_SECONDARY,
+							color: COLOR_TEXT_SECONDARY,
 							"&:hover": {
-								borderColor: "#999",
-								bgcolor: "rgba(0,0,0,0.05)",
+								borderColor: COLOR_PRIMARY,
+								bgcolor: "rgba(56, 130, 246, 0.1)",
 							},
 						}}
 					>
@@ -835,9 +953,9 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							endIcon={<ArrowForwardIcon />}
 							disabled={loading}
 							sx={{
-								bgcolor: "#ff3c4e",
+								bgcolor: COLOR_PRIMARY,
 								"&:hover": {
-									bgcolor: "#d6303f",
+									bgcolor: "#2563EB",
 								},
 							}}
 						>
@@ -850,9 +968,9 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 							endIcon={<CheckIcon />}
 							disabled={loading}
 							sx={{
-								bgcolor: "#ff3c4e",
+								bgcolor: COLOR_PRIMARY,
 								"&:hover": {
-									bgcolor: "#d6303f",
+									bgcolor: "#2563EB",
 								},
 							}}
 						>

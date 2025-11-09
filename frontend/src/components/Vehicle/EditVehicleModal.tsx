@@ -18,8 +18,11 @@ import { Vehicle } from "../../models/VehicleModel";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import ClientSelector from "../common/ClientSelector";
 import WorkshopSelector from "../common/WorkshopSelector";
-import { COLOR_PRIMARY } from "../../constants";
-
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+} from "../../constants";
 interface EditVehicleModalProps {
 	open: boolean;
 	onClose: () => void;
@@ -38,7 +41,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 	currentWorkshopId,
 }) => {
 	const [loading, setLoading] = useState(false);
-	const [fetchLoading, setFetchLoading] = useState(false);
+	const [fetchLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [vehicle, setVehicle] = useState<Vehicle | null>(null);
 	const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
@@ -117,14 +120,14 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			);
 			onVehicleUpdated(response);
 			onClose();
-		} catch (err) {
+		} catch (err: any) {
 			if (err.response) {
 				const errorMessage =
 					err.response.data?.detail || "Nie udało się zaktualizować pojazdu.";
 				setError(errorMessage);
+			} else {
+				setError("Failed to update the vehicle. Please try again.");
 			}
-
-			setError("Failed to update the vehicle. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -150,7 +153,13 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 			}}
 			fullWidth
 			maxWidth="md"
-			PaperProps={{ sx: { borderRadius: 2 } }}
+			PaperProps={{
+				sx: {
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				},
+			}}
 		>
 			<DialogTitle
 				sx={{
@@ -173,7 +182,13 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				</IconButton>
 			</DialogTitle>
 
-			<DialogContent sx={{ py: 3 }}>
+			<DialogContent
+				sx={{
+					py: 3,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
 				{error && (
 					<Alert severity="error" sx={{ mb: 3 }}>
 						{error}
@@ -254,7 +269,13 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 				)}
 			</DialogContent>
 
-			<DialogActions sx={{ px: 3, pb: 3 }}>
+			<DialogActions
+				sx={{
+					px: 3,
+					pb: 3,
+					backgroundColor: COLOR_SURFACE,
+				}}
+			>
 				<Button
 					onClick={onClose}
 					color="inherit"

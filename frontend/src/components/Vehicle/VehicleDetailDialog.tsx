@@ -17,7 +17,12 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
 import EventIcon from "@mui/icons-material/Event";
 import { Vehicle } from "../../models/VehicleModel";
-import { COLOR_PRIMARY, COLOR_SURFACE } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface VehicleDetailDialogProps {
 	open: boolean;
@@ -68,7 +73,11 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 			fullWidth
 			maxWidth="md"
 			PaperProps={{
-				sx: { borderRadius: 2 },
+				sx: {
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				},
 			}}
 		>
 			<DialogTitle
@@ -97,7 +106,13 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 				</IconButton>
 			</DialogTitle>
 
-			<DialogContent sx={{ py: 3 }}>
+			<DialogContent
+				sx={{
+					py: 3,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
 				<Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
 					{vehicle.image_url ? (
 						<img
@@ -137,132 +152,169 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Brand
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.brand
-									? capitalizeFirstLetter(vehicle.brand)
-									: "Unknown"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Brand:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.brand ? capitalizeFirstLetter(vehicle.brand) : "Unknown"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Model
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.model}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Model:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.model || "Unknown"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Year
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.year}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Year:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.year}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								VIN
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.vin}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							VIN:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.vin}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Engine Type
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.engine_type || "N/A"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Engine:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.engine_type || "N/A"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Color
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.color || "N/A"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Color:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.color || "N/A"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Mileage
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.mileage
-									? `${vehicle.mileage.toLocaleString()} km`
-									: "N/A"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Mileage:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.mileage
+								? `${vehicle.mileage.toLocaleString()} km`
+								: "N/A"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Fuel Type
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.fuel_type || "N/A"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Fuel Type:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.fuel_type || "N/A"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Transmission
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.transmission || "N/A"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Transmission:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.transmission || "N/A"}
+						</Typography>
 					</Grid>
 
 					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Owner
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.owner_name || `Owner ID: ${vehicle.owner_id}`}
-							</Typography>
-						</Box>
-					</Grid>
-
-					<Grid item xs={12} sm={6}>
-						<Box sx={{ mb: 2 }}>
-							<Typography variant="body2" color="text.secondary">
-								Brand
-							</Typography>
-							<Typography variant="body1" fontWeight="medium">
-								{vehicle.brand || "Unknown"}
-							</Typography>
-						</Box>
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+						>
+							Owner:
+						</Typography>
+						<Typography
+							variant="body1"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+						>
+							{vehicle.owner_name || `Owner ID: ${vehicle.owner_id}`}
+						</Typography>
 					</Grid>
 				</Grid>
 
-				<Divider sx={{ my: 3 }} />
+				<Divider sx={{ my: 3, borderColor: "rgba(228, 230, 232, 0.2)" }} />
 
 				<Box sx={{ mb: 2 }}>
 					<Typography
@@ -276,10 +328,17 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6}>
 							<Box sx={{ mb: 2 }}>
-								<Typography variant="body2" color="text.secondary">
-									Last Service Date
+								<Typography
+									variant="body2"
+									sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+								>
+									Last Service:
 								</Typography>
-								<Typography variant="body1" fontWeight="medium">
+								<Typography
+									variant="body1"
+									fontWeight="medium"
+									sx={{ color: COLOR_TEXT_PRIMARY, display: "inline" }}
+								>
 									{formatDate(vehicle.last_service_date)}
 								</Typography>
 							</Box>
@@ -287,8 +346,11 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 
 						<Grid item xs={12} sm={6}>
 							<Box sx={{ mb: 2 }}>
-								<Typography variant="body2" color="text.secondary">
-									Next Service Due
+								<Typography
+									variant="body2"
+									sx={{ color: COLOR_TEXT_SECONDARY, display: "inline", mr: 1 }}
+								>
+									Next Service:
 								</Typography>
 								<Typography
 									variant="body1"
@@ -313,7 +375,10 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 
 				{vehicle.workshop_id && (
 					<Box sx={{ mt: 2, p: 2, bgcolor: COLOR_SURFACE, borderRadius: 2 }}>
-						<Typography variant="subtitle2" color="text.secondary">
+						<Typography
+							variant="subtitle2"
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+						>
 							Workshop Information
 						</Typography>
 						<Typography variant="body1">
@@ -323,7 +388,12 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 				)}
 			</DialogContent>
 
-			<DialogActions sx={{ p: 2 }}>
+			<DialogActions
+				sx={{
+					p: 2,
+					backgroundColor: COLOR_SURFACE,
+				}}
+			>
 				<Button onClick={onClose} variant="outlined">
 					Close
 				</Button>

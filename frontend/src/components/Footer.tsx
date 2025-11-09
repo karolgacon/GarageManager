@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { COLOR_SECONDARY, COLOR_PRIMARY } from "../constants";
+import React from "react";
+import { COLOR_PRIMARY } from "../constants";
 
 const Footer = () => (
 	<Box

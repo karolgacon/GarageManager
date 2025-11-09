@@ -19,6 +19,7 @@ import {
 	COLOR_SURFACE,
 	COLOR_TEXT_PRIMARY,
 	COLOR_TEXT_SECONDARY,
+	COLOR_PRIMARY,
 } from "../../constants";
 
 interface VehicleCardProps {
@@ -136,7 +137,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 						mb: 1,
 					}}
 				>
-					<Typography variant="h6" component="div" fontWeight="bold">
+					<Typography
+						variant="h6"
+						component="div"
+						fontWeight="bold"
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						{vehicle.brand ? capitalizeFirstLetter(vehicle.brand) : "Unknown"}{" "}
 						{vehicle.model || ""}
 					</Typography>
@@ -149,15 +155,19 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 					)}
 				</Box>
 
-				<Typography color="text.secondary" gutterBottom>
+				<Typography sx={{ color: COLOR_TEXT_SECONDARY }} gutterBottom>
 					{vehicle.year || "N/A"} • {vehicle.registration_number || "No Reg"}
 				</Typography>
 
 				<Box sx={{ mt: 2 }}>
 					<Typography
 						variant="body2"
-						color="text.secondary"
-						sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+						sx={{
+							color: COLOR_TEXT_SECONDARY,
+							display: "flex",
+							alignItems: "center",
+							gap: 0.5,
+						}}
 					>
 						<Box component="span" sx={{ fontWeight: "bold", minWidth: 80 }}>
 							VIN:
@@ -168,8 +178,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 					{vehicle.engine_type != null && vehicle.engine_type !== "" && (
 						<Typography
 							variant="body2"
-							color="text.secondary"
-							sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+							sx={{
+								color: COLOR_TEXT_SECONDARY,
+								display: "flex",
+								alignItems: "center",
+								gap: 0.5,
+							}}
 						>
 							<Box component="span" sx={{ fontWeight: "bold", minWidth: 80 }}>
 								Engine:
@@ -181,8 +195,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 					{vehicle.mileage != null && (
 						<Typography
 							variant="body2"
-							color="text.secondary"
-							sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+							sx={{
+								color: COLOR_TEXT_SECONDARY,
+								display: "flex",
+								alignItems: "center",
+								gap: 0.5,
+							}}
 						>
 							<Box component="span" sx={{ fontWeight: "bold", minWidth: 80 }}>
 								Mileage:
@@ -233,7 +251,11 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 
 			<CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
 				<Tooltip title="View Details">
-					<IconButton size="small" onClick={() => onView(vehicle.id)}>
+					<IconButton
+						size="small"
+						onClick={() => onView(vehicle.id)}
+						sx={{ color: COLOR_PRIMARY }}
+					>
 						<InfoIcon />
 					</IconButton>
 				</Tooltip>
@@ -247,6 +269,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 										e.stopPropagation();
 										onEdit(vehicle.id);
 									}}
+									sx={{ color: COLOR_PRIMARY }}
 								>
 									<EditIcon fontSize="small" />
 								</IconButton>

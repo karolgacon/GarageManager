@@ -9,6 +9,11 @@ import {
 	Box,
 	CircularProgress,
 } from "@mui/material";
+import {
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_ERROR,
+} from "../../constants";
 
 interface DeleteVehicleDialogProps {
 	open: boolean;
@@ -34,18 +39,45 @@ const DeleteVehicleDialog: React.FC<DeleteVehicleDialogProps> = ({
 			open={open}
 			onClose={onClose}
 			PaperProps={{
-				sx: { borderRadius: 2 },
+				sx: {
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				},
 			}}
 		>
-			<DialogTitle sx={{ bgcolor: "#f5f5f5" }}>Confirm Delete</DialogTitle>
+			<DialogTitle
+				sx={{
+					bgcolor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+					borderBottom: `1px solid rgba(228, 230, 232, 0.1)`,
+				}}
+			>
+				Confirm Delete
+			</DialogTitle>
 
-			<DialogContent sx={{ pt: 2, pb: 1 }}>
+			<DialogContent
+				sx={{
+					pt: 2,
+					pb: 1,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
 				<Typography variant="body1" gutterBottom>
 					Are you sure you want to delete this vehicle?
 				</Typography>
 
 				{vehicleDetails && (
-					<Box sx={{ mt: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
+					<Box
+						sx={{
+							mt: 2,
+							p: 2,
+							bgcolor: "rgba(228, 230, 232, 0.05)",
+							borderRadius: 1,
+							border: `1px solid rgba(228, 230, 232, 0.1)`,
+						}}
+					>
 						<Typography variant="body2">
 							<strong>
 								{vehicleDetails.make} {vehicleDetails.model}
@@ -56,12 +88,17 @@ const DeleteVehicleDialog: React.FC<DeleteVehicleDialogProps> = ({
 					</Box>
 				)}
 
-				<Typography variant="body2" color="error" sx={{ mt: 2 }}>
+				<Typography variant="body2" color={COLOR_ERROR} sx={{ mt: 2 }}>
 					This action cannot be undone.
 				</Typography>
 			</DialogContent>
 
-			<DialogActions sx={{ p: 2 }}>
+			<DialogActions
+				sx={{
+					p: 2,
+					backgroundColor: COLOR_SURFACE,
+				}}
+			>
 				<Button onClick={onClose} disabled={isLoading}>
 					Cancel
 				</Button>

@@ -18,6 +18,7 @@ export interface Vehicle {
 	image_url?: string;
 	owner_name?: string;
 	workshop_name?: string;
+	notes?: string;
 }
 
 export const VEHICLE_FUEL_TYPES = [
