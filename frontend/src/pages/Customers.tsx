@@ -1,23 +1,16 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Box, Container, Typography } from "@mui/material";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import CustomerHeader from "../components/Customer/CustomerHeader";
-import WorkshopSelector from "../components/Common/WorkshopSelector";
+import WorkshopSelector from "../components/common/WorkshopSelector";
 import CustomerTabs from "../components/Customer/CustomerTabs";
 import CustomerFilters from "../components/Customer/CustomerFilters";
 import CustomerList from "../components/Customer/CustomerList";
 import CustomerModals from "../components/Customer/CustomerModals";
-import CustomSnackbar, {
-	SnackbarState,
-} from "../components/Mainlayout/Snackbar";
+import CustomSnackbar from "../components/Mainlayout/Snackbar";
 import AuthContext from "../context/AuthProvider";
 import { useCustomerData } from "../hooks/useCustomerData";
 import { useCustomerActions } from "../hooks/useCustomerActions";
-import {
-	COLOR_BACKGROUND,
-	COLOR_TEXT_PRIMARY,
-	COLOR_TEXT_SECONDARY,
-} from "../constants";
 
 const Customers: React.FC = () => {
 	const { auth } = useContext(AuthContext);
@@ -29,12 +22,10 @@ const Customers: React.FC = () => {
 	const {
 		customers,
 		filteredCustomers,
-		workshops,
 		loading,
 		error,
 		setFilteredCustomers,
 		fetchCustomers,
-		fetchWorkshops,
 	} = useCustomerData(auth, selectedWorkshopId);
 
 	const {
@@ -56,7 +47,7 @@ const Customers: React.FC = () => {
 		return ["admin", "owner", "mechanic"].includes(userRole || "");
 	};
 
-	const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+	const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
 		setActiveTab(newValue);
 
 		if (newValue === "all") {
@@ -72,10 +63,6 @@ const Customers: React.FC = () => {
 			);
 			setFilteredCustomers(vipCustomers);
 		}
-	};
-
-	const handleWorkshopChange = (workshopId: number) => {
-		setSelectedWorkshopId(workshopId);
 	};
 
 	const handleFilterChange = (filters: any) => {
@@ -124,7 +111,7 @@ const Customers: React.FC = () => {
 
 	return (
 		<Mainlayout>
-			<Container maxWidth="xl" sx={{ py: 3 }}>
+			<Container maxWidth="xl" sx={{ py: 4 }}>
 				<CustomerHeader
 					userRole={auth.roles?.[0]}
 					selectedWorkshopId={selectedWorkshopId}
@@ -132,17 +119,19 @@ const Customers: React.FC = () => {
 				/>
 
 				{auth.roles?.[0] === "admin" && (
-					<WorkshopSelector
-						value={selectedWorkshopId}
-						onChange={(workshopId) => {
-							setSelectedWorkshopId(workshopId);
-						}}
-						disabled={loading}
-					/>
+					<Box sx={{ mb: 4 }}>
+						<WorkshopSelector
+							value={selectedWorkshopId}
+							onChange={(workshopId) => {
+								setSelectedWorkshopId(workshopId);
+							}}
+							disabled={loading}
+						/>
+					</Box>
 				)}
 
 				{(selectedWorkshopId || auth.roles?.[0] !== "admin") && (
-					<>
+					<Box sx={{ mt: 2 }}>
 						<CustomerTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
 						<CustomerFilters onFilterChange={handleFilterChange} />
@@ -157,7 +146,7 @@ const Customers: React.FC = () => {
 							onDelete={handleDeleteCustomer}
 							onRetry={fetchCustomers}
 						/>
-					</>
+					</Box>
 				)}
 			</Container>
 
@@ -165,7 +154,7 @@ const Customers: React.FC = () => {
 				modalStates={modalStates}
 				selectedCustomer={selectedCustomer}
 				userRole={auth.roles?.[0] || ""}
-				workshopId={selectedWorkshopId || auth.workshopId}
+				workshopId={selectedWorkshopId}
 				onClose={(modal) => setModalState(modal, false)}
 				onCustomerAdded={handleCustomerAdded}
 				onCustomerUpdated={handleCustomerUpdated}

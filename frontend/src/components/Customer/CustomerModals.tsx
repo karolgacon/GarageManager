@@ -39,6 +39,12 @@ const CustomerModals: React.FC<CustomerModalsProps> = ({
 		}
 	}, [modalStates.edit, modalStates.detail, onClose]);
 
+	useEffect(() => {
+		if (modalStates.delete && modalStates.detail) {
+			onClose("detail");
+		}
+	}, [modalStates.delete, modalStates.detail, onClose]);
+
 	return (
 		<>
 			<CustomerDetailDialog

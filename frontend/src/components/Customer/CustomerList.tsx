@@ -1,7 +1,6 @@
 import React from "react";
 import {
 	Grid,
-	Paper,
 	Typography,
 	CircularProgress,
 	Alert,
@@ -11,6 +10,12 @@ import {
 import PersonIcon from "@mui/icons-material/Person";
 import CustomerCard from "./CustomerCard";
 import { Customer } from "../../models/CustomerModel";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface CustomerListProps {
 	customers: Customer[];
@@ -36,7 +41,7 @@ const CustomerList: React.FC<CustomerListProps> = ({
 	if (loading) {
 		return (
 			<Box sx={{ textAlign: "center", py: 5 }}>
-				<CircularProgress color="error" />
+				<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 			</Box>
 		);
 	}
@@ -45,9 +50,21 @@ const CustomerList: React.FC<CustomerListProps> = ({
 		return (
 			<Alert
 				severity="error"
-				sx={{ mb: 2 }}
+				sx={{
+					mb: 2,
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+					"& .MuiAlert-icon": {
+						color: "#ef4444",
+					},
+				}}
 				action={
-					<Button color="inherit" size="small" onClick={onRetry}>
+					<Button
+						color="inherit"
+						size="small"
+						onClick={onRetry}
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						Retry
 					</Button>
 				}
@@ -59,15 +76,22 @@ const CustomerList: React.FC<CustomerListProps> = ({
 
 	if (customers.length === 0) {
 		return (
-			<Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
-				<PersonIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
-				<Typography variant="h6" color="text.secondary">
+			<Box
+				sx={{
+					p: 4,
+					textAlign: "center",
+					borderRadius: 2,
+					backgroundColor: COLOR_SURFACE,
+				}}
+			>
+				<PersonIcon sx={{ fontSize: 48, color: COLOR_TEXT_SECONDARY, mb: 2 }} />
+				<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
 					No customers found
 				</Typography>
-				<Typography variant="body2" color="text.secondary">
+				<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 					No customers match your current criteria.
 				</Typography>
-			</Paper>
+			</Box>
 		);
 	}
 
@@ -85,7 +109,7 @@ const CustomerList: React.FC<CustomerListProps> = ({
 				>
 					<CustomerCard
 						customer={customer}
-						onView={onView} 
+						onView={onView}
 						onEdit={onEdit}
 						onDelete={onDelete}
 						userRole={userRole}

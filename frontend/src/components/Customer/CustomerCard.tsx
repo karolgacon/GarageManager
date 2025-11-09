@@ -16,10 +16,16 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import StarsIcon from "@mui/icons-material/Stars";
 import { Customer } from "../../models/CustomerModel";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface CustomerCardProps {
 	customer: Customer;
-	onView: (customer: Customer) => void; 
+	onView: (customer: Customer) => void;
 	onEdit: (id: number) => void;
 	onDelete: (id: number) => void;
 	userRole: string;
@@ -43,11 +49,11 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 		setAnchorEl(null);
 	};
 
-	const handleMenuAction = (action: string) => {
-		handleClose();
+	const handleMenuAction = (action: string, event?: React.MouseEvent) => {
+		event?.stopPropagation();
 		switch (action) {
 			case "view":
-				onView(customer); 
+				onView(customer);
 				break;
 			case "edit":
 				onEdit(customer.id);
@@ -56,19 +62,7 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 				onDelete(customer.id);
 				break;
 		}
-	};
-
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case "active":
-				return "success";
-			case "blocked":
-				return "error";
-			case "suspended":
-				return "warning";
-			default:
-				return "default";
-		}
+		handleClose();
 	};
 
 	const isVip = customer.loyalty_points && customer.loyalty_points > 100;
@@ -80,13 +74,15 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 				display: "flex",
 				flexDirection: "column",
 				transition: "all 0.2s ease-in-out",
+				backgroundColor: COLOR_SURFACE,
+				borderRadius: 2,
 				"&:hover": {
-					transform: "translateY(-2px)",
-					boxShadow: 3,
+					transform: "translateY(-1px)",
+					boxShadow: `0 2px 8px rgba(0, 0, 0, 0.15)`,
 				},
 				cursor: "pointer",
 			}}
-			onClick={() => onView(customer)} 
+			onClick={() => onView(customer)}
 		>
 			<CardContent sx={{ flexGrow: 1, p: 2 }}>
 				<Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
@@ -95,7 +91,7 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 						sx={{
 							width: 50,
 							height: 50,
-							bgcolor: "#ff3c4e",
+							bgcolor: COLOR_PRIMARY,
 						}}
 					>
 						{!customer.profile?.photo && <PersonIcon sx={{ color: "white" }} />}
@@ -107,13 +103,20 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 								icon={<StarsIcon />}
 								label="VIP"
 								size="small"
-								color="warning"
+								sx={{
+									backgroundColor: "#fbbf24",
+									color: "#78350f",
+									"& .MuiChip-icon": {
+										color: "#78350f",
+									},
+								}}
 								variant="outlined"
 							/>
 						)}
 
 						<IconButton
 							size="small"
+							sx={{ color: COLOR_TEXT_SECONDARY }}
 							onClick={(e) => {
 								e.stopPropagation();
 								handleClick(e);
@@ -124,26 +127,34 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					</Box>
 				</Box>
 
-				<Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+				<Typography
+					variant="h6"
+					fontWeight="bold"
+					sx={{ mb: 1, color: COLOR_TEXT_PRIMARY }}
+				>
 					{customer.first_name} {customer.last_name}
 				</Typography>
 
-				<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+				<Typography variant="body2" sx={{ mb: 2, color: COLOR_TEXT_SECONDARY }}>
 					@{customer.username}
 				</Typography>
 
 				<Box sx={{ mb: 2 }}>
 					<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-						<EmailIcon fontSize="small" color="action" />
-						<Typography variant="body2" color="text.secondary" noWrap>
+						<EmailIcon fontSize="small" sx={{ color: COLOR_PRIMARY }} />
+						<Typography
+							variant="body2"
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+							noWrap
+						>
 							{customer.email}
 						</Typography>
 					</Box>
 
 					{customer.profile?.phone && (
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							<PhoneIcon fontSize="small" color="action" />
-							<Typography variant="body2" color="text.secondary">
+							<PhoneIcon fontSize="small" sx={{ color: COLOR_PRIMARY }} />
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								{customer.profile.phone}
 							</Typography>
 						</Box>
@@ -158,14 +169,18 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 					}}
 				>
 					<Chip
-						label={customer.status? "Active" : "Inactive"}
+						label={customer.status ? "Active" : "Inactive"}
 						size="small"
-						color={getStatusColor(customer.status) as any}
-						variant="outlined"
+						sx={{
+							backgroundColor:
+								customer.status === "active" ? "#22c55e" : "#ef4444",
+							color: "white",
+						}}
+						variant="filled"
 					/>
 
 					{customer.loyalty_points && (
-						<Typography variant="body2" color="text.secondary">
+						<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 							{customer.loyalty_points} pts
 						</Typography>
 					)}
@@ -182,21 +197,47 @@ const CustomerCard: React.FC<CustomerCardProps> = ({
 						overflow: "visible",
 						filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
 						mt: 1.5,
+						backgroundColor: COLOR_SURFACE,
+						border: `1px solid ${COLOR_TEXT_SECONDARY}`,
 					},
 				}}
 				transformOrigin={{ horizontal: "right", vertical: "top" }}
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 			>
-				<MenuItem onClick={() => handleMenuAction("view")}>
+				<MenuItem
+					onClick={(e) => handleMenuAction("view", e)}
+					sx={{
+						color: COLOR_TEXT_PRIMARY,
+						"&:hover": {
+							backgroundColor: `${COLOR_PRIMARY}20`,
+						},
+					}}
+				>
 					View Details
 				</MenuItem>
 				{(userRole === "admin" || userRole === "owner") && (
-					<MenuItem onClick={() => handleMenuAction("edit")}>
+					<MenuItem
+						onClick={(e) => handleMenuAction("edit", e)}
+						sx={{
+							color: COLOR_TEXT_PRIMARY,
+							"&:hover": {
+								backgroundColor: `${COLOR_PRIMARY}20`,
+							},
+						}}
+					>
 						Edit Customer
 					</MenuItem>
 				)}
 				{userRole === "admin" && (
-					<MenuItem onClick={() => handleMenuAction("delete")}>
+					<MenuItem
+						onClick={(e) => handleMenuAction("delete", e)}
+						sx={{
+							color: "#ef4444",
+							"&:hover": {
+								backgroundColor: "#ef444420",
+							},
+						}}
+					>
 						Delete Customer
 					</MenuItem>
 				)}

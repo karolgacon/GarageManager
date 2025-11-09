@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
-	FormHelperText,
 	CircularProgress,
 	Box,
 	Typography,
@@ -14,6 +9,7 @@ import {
 	InputAdornment,
 	Autocomplete,
 	Paper,
+	MenuItem,
 } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
 import SearchIcon from "@mui/icons-material/Search";
@@ -107,6 +103,12 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 				getOptionLabel={(option) => option.name}
 				loading={loading}
 				disabled={disabled}
+				sx={{
+					mb: 2,
+					"& .MuiAutocomplete-input": {
+						color: `${COLOR_TEXT_PRIMARY} !important`,
+					},
+				}}
 				renderInput={(params) => (
 					<TextField
 						{...params}
@@ -128,12 +130,40 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 								"&.Mui-focused fieldset": {
 									borderColor: COLOR_PRIMARY,
 								},
+								"& input": {
+									color: `${COLOR_TEXT_PRIMARY} !important`,
+									"&::placeholder": {
+										color: COLOR_TEXT_SECONDARY,
+										opacity: 0.8,
+									},
+								},
+								"& .MuiAutocomplete-input": {
+									color: `${COLOR_TEXT_PRIMARY} !important`,
+								},
 							},
 							"& .MuiInputLabel-root": {
 								color: COLOR_TEXT_SECONDARY,
 								"&.Mui-focused": {
 									color: COLOR_PRIMARY,
 								},
+								"&.MuiFormLabel-filled": {
+									color: COLOR_TEXT_SECONDARY,
+								},
+								"&.Mui-shrink": {
+									color: COLOR_TEXT_SECONDARY,
+								},
+							},
+							"& .MuiFormHelperText-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-error": {
+									color: "#ff6b6b",
+								},
+							},
+							"& .MuiAutocomplete-clearIndicator": {
+								color: COLOR_TEXT_SECONDARY,
+							},
+							"& .MuiAutocomplete-popupIndicator": {
+								color: COLOR_TEXT_SECONDARY,
 							},
 						}}
 						InputProps={{
@@ -228,20 +258,15 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 						}}
 					/>
 				)}
-				sx={{ mb: 2 }}
 			/>
 
 			{selectedWorkshop && (
-				<Paper
-					variant="outlined"
+				<Box
 					sx={{
-						p: 2,
+						p: 3,
 						mt: 2,
 						borderRadius: 2,
-						backgroundColor: COLOR_SURFACE,
-						borderColor: "rgba(228, 230, 232, 0.1)",
-						borderWidth: "1px",
-						borderStyle: "solid",
+						backgroundColor: "rgba(255, 255, 255, 0.03)",
 					}}
 				>
 					<Typography
@@ -300,7 +325,7 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 							)}
 						</Box>
 					</Box>
-				</Paper>
+				</Box>
 			)}
 		</>
 	);
