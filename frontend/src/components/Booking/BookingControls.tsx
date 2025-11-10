@@ -16,6 +16,12 @@ import {
 	ChevronRight,
 } from "@mui/icons-material";
 import { addDays, addWeeks, addMonths, format } from "date-fns";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface BookingControlsProps {
 	formattedToday: string;
@@ -36,8 +42,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
 	const handleNavigatePrevious = () => {
-		const dateBeforeChange = new Date(selectedDate);
-
 		if (calendarView === "day") {
 			onDateChange(addDays(selectedDate, -1));
 		} else if (calendarView === "week") {
@@ -45,7 +49,6 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 		} else if (calendarView === "month") {
 			onDateChange(addMonths(selectedDate, -1));
 		}
-
 	};
 
 	const handleNavigateNext = () => {
@@ -86,9 +89,10 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 				flexDirection: { xs: "column", md: "row" },
 				justifyContent: "space-between",
 				alignItems: { xs: "center", md: "center" },
-				p: 2,
-				bgcolor: "#f8f9fa",
-				borderBottom: "1px solid #e0e0e0",
+				p: 3,
+				bgcolor: COLOR_SURFACE,
+				borderRadius: 1,
+				mb: 2,
 				position: "relative",
 			}}
 		>
@@ -97,7 +101,7 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 				sx={{
 					fontWeight: 500,
 					mb: { xs: 2, md: 0 },
-					color: "#333",
+					color: COLOR_TEXT_PRIMARY,
 					display: { xs: "none", md: "block" },
 				}}
 			>
@@ -117,7 +121,14 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 				<IconButton
 					onClick={handleNavigatePrevious}
 					size="small"
-					sx={{ mx: 1 }}
+					sx={{
+						mx: 1,
+						color: COLOR_TEXT_SECONDARY,
+						"&:hover": {
+							backgroundColor: "rgba(56, 130, 246, 0.08)",
+							color: COLOR_PRIMARY,
+						},
+					}}
 				>
 					<ChevronLeft />
 				</IconButton>
@@ -128,12 +139,24 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 						fontWeight: "medium",
 						minWidth: isMobile ? "auto" : "200px",
 						textAlign: "center",
+						color: COLOR_TEXT_PRIMARY,
 					}}
 				>
 					{getFormattedPeriod()}
 				</Typography>
 
-				<IconButton onClick={handleNavigateNext} size="small" sx={{ mx: 1 }}>
+				<IconButton
+					onClick={handleNavigateNext}
+					size="small"
+					sx={{
+						mx: 1,
+						color: COLOR_TEXT_SECONDARY,
+						"&:hover": {
+							backgroundColor: "rgba(56, 130, 246, 0.08)",
+							color: COLOR_PRIMARY,
+						},
+					}}
+				>
 					<ChevronRight />
 				</IconButton>
 			</Box>
@@ -141,7 +164,7 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 			<ToggleButtonGroup
 				value={calendarView}
 				exclusive
-				onChange={(e, newView) => {
+				onChange={(_e, newView) => {
 					if (newView !== null) {
 						handleViewChange(newView);
 					}
@@ -150,16 +173,35 @@ const BookingControls: React.FC<BookingControlsProps> = ({
 				size="small"
 				sx={{
 					mt: { xs: 2, md: 0 },
+					borderRadius: 1,
 					"& .MuiToggleButton-root": {
 						px: 2,
 						py: 0.5,
-						transition: "all 0.2s ease-in-out", 
+						transition: "all 0.2s ease-in-out",
+						color: COLOR_TEXT_PRIMARY,
+						borderColor: "rgba(255, 255, 255, 0.2)",
+						backgroundColor: "rgba(255, 255, 255, 0.05)",
 						"&.Mui-selected": {
-							bgcolor: "#ff3c4e",
-							color: "#fff",
+							bgcolor: COLOR_PRIMARY,
+							color: "#FFFFFF",
+							borderColor: COLOR_PRIMARY,
 							"&:hover": {
-								bgcolor: "#e0364c",
+								bgcolor: COLOR_PRIMARY,
+								opacity: 0.9,
 							},
+						},
+						"&:hover": {
+							backgroundColor: "rgba(56, 130, 246, 0.1)",
+							borderColor: COLOR_PRIMARY,
+							color: COLOR_PRIMARY,
+						},
+						"&:first-of-type": {
+							borderTopLeftRadius: 4,
+							borderBottomLeftRadius: 4,
+						},
+						"&:last-of-type": {
+							borderTopRightRadius: 4,
+							borderBottomRightRadius: 4,
 						},
 					},
 				}}

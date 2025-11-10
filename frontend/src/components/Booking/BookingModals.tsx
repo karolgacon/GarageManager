@@ -10,21 +10,23 @@ import {
 	IconButton,
 	Grid,
 	Divider,
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import BookingForm from "./BookingForm";
 import AuthContext from "../../context/AuthProvider";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { customerService } from "../../api/CustomerAPIEndpoint";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface BookingModalsProps {
 	modalStates: {
@@ -36,8 +38,8 @@ interface BookingModalsProps {
 	onClose: (modalType: string) => void;
 	onCreateBooking: (data: any) => void;
 	onUpdateBooking: (data: any) => void;
-	onEditFromView?: (bookingId: number) => void; 
-	onDeleteBooking?: (bookingId: number) => void; 
+	onEditFromView?: (bookingId: number) => void;
+	onDeleteBooking?: (bookingId: number) => void;
 }
 
 const BookingModals: React.FC<BookingModalsProps> = ({
@@ -46,8 +48,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 	onClose,
 	onCreateBooking,
 	onUpdateBooking,
-	onEditFromView, 
-	onDeleteBooking, 
+	onEditFromView,
+	onDeleteBooking,
 }) => {
 	const {
 		isNewBookingModalOpen,
@@ -64,10 +66,10 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 		if (auth.roles?.[0] === "client" && auth.user_id) {
 			const fetchClientVehicles = async () => {
 				try {
+					if (!auth.user_id) return;
 					const vehicles = await vehicleService.getClientVehicles(auth.user_id);
 					setClientVehicles(vehicles);
-				} catch (error) {
-				}
+				} catch (error) {}
 			};
 
 			fetchClientVehicles();
@@ -81,7 +83,6 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 
 	useEffect(() => {
 		if (isViewBookingModalOpen && selectedBookingData) {
-
 			const fetchAllBookingDetails = async () => {
 				setLoadingDetails(true);
 				try {
@@ -89,14 +90,12 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 
 					if (typeof selectedBookingData.client === "number") {
 						try {
-
 							const clientData = await customerService.getCustomerById(
 								selectedBookingData.client
 							);
 							enriched.client = clientData;
-						} catch (err) {
+						} catch (err: any) {
 							if (err.response) {
-
 							}
 							enriched.client = { first_name: "Unknown", last_name: "Client" };
 						}
@@ -165,6 +164,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				onClose={() => onClose("new")}
 				maxWidth="md"
 				fullWidth
+				sx={{
+					"& .MuiDialog-paper": {
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+						border: `1px solid rgba(255, 255, 255, 0.1)`,
+					},
+				}}
 			>
 				<DialogTitle>
 					<Box
@@ -174,10 +180,17 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							alignItems: "center",
 						}}
 					>
-						<Typography variant="h4" fontWeight="bold">
+						<Typography
+							variant="h4"
+							fontWeight="bold"
+							color={COLOR_TEXT_PRIMARY}
+						>
 							Create New Booking
 						</Typography>
-						<IconButton onClick={() => onClose("new")}>
+						<IconButton
+							onClick={() => onClose("new")}
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+						>
 							<CloseIcon />
 						</IconButton>
 					</Box>
@@ -186,7 +199,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 					<BookingForm
 						id="create-booking-form"
 						onSubmit={onCreateBooking}
-						clientVehicles={clientVehicles} 
+						clientVehicles={clientVehicles}
 						userRole={auth.roles?.[0]}
 						userId={auth.user_id}
 					/>
@@ -198,9 +211,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						variant="outlined"
 						onClick={() => onClose("new")}
 						sx={{
-							color: "#555",
-							borderColor: "#ddd",
-							"&:hover": { borderColor: "#ff3c4e", color: "#ff3c4e" },
+							color: COLOR_TEXT_SECONDARY,
+							borderColor: `rgba(255, 255, 255, 0.2)`,
+							"&:hover": { borderColor: COLOR_PRIMARY, color: COLOR_PRIMARY },
 							minWidth: "100px",
 						}}
 					>
@@ -211,8 +224,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						type="submit"
 						form="create-booking-form"
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: `rgba(56, 130, 246, 0.8)` },
 							minWidth: "150px",
 						}}
 					>
@@ -226,6 +239,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				onClose={() => onClose("edit")}
 				maxWidth="md"
 				fullWidth
+				sx={{
+					"& .MuiDialog-paper": {
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+						border: `1px solid rgba(255, 255, 255, 0.1)`,
+					},
+				}}
 			>
 				<DialogTitle>
 					<Box
@@ -235,10 +255,17 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							alignItems: "center",
 						}}
 					>
-						<Typography variant="h4" fontWeight="bold">
+						<Typography
+							variant="h4"
+							fontWeight="bold"
+							color={COLOR_TEXT_PRIMARY}
+						>
 							Edit Booking
 						</Typography>
-						<IconButton onClick={() => onClose("edit")}>
+						<IconButton
+							onClick={() => onClose("edit")}
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+						>
 							<CloseIcon />
 						</IconButton>
 					</Box>
@@ -249,7 +276,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							id="edit-booking-form"
 							initialData={selectedBookingData}
 							onSubmit={onUpdateBooking}
-							clientVehicles={clientVehicles} 
+							clientVehicles={clientVehicles}
 							userRole={auth.roles?.[0]}
 							userId={auth.user_id}
 						/>
@@ -262,9 +289,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						variant="outlined"
 						onClick={() => onClose("edit")}
 						sx={{
-							color: "#555",
-							borderColor: "#ddd",
-							"&:hover": { borderColor: "#ff3c4e", color: "#ff3c4e" },
+							color: COLOR_TEXT_SECONDARY,
+							borderColor: `rgba(255, 255, 255, 0.2)`,
+							"&:hover": { borderColor: COLOR_PRIMARY, color: COLOR_PRIMARY },
 							minWidth: "100px",
 						}}
 					>
@@ -275,8 +302,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						type="submit"
 						form="edit-booking-form"
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: `rgba(56, 130, 246, 0.8)` },
 							minWidth: "150px",
 						}}
 					>
@@ -290,20 +317,34 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 				onClose={() => onClose("view")}
 				maxWidth="sm"
 				fullWidth
+				sx={{
+					"& .MuiDialog-paper": {
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+						border: `1px solid rgba(255, 255, 255, 0.1)`,
+					},
+				}}
 			>
 				<DialogTitle>
 					<Box sx={{ display: "flex", justifyContent: "space-between" }}>
-						<Typography variant="h5" component="div">
+						<Typography variant="h5" component="div" color={COLOR_TEXT_PRIMARY}>
 							Booking Details
 						</Typography>
-						<IconButton onClick={() => onClose("view")} aria-label="close">
+						<IconButton
+							onClick={() => onClose("view")}
+							aria-label="close"
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+						>
 							<CloseIcon />
 						</IconButton>
 					</Box>
 				</DialogTitle>
 				<DialogContent>
 					{loadingDetails ? (
-						<Typography align="center" sx={{ py: 3 }}>
+						<Typography
+							align="center"
+							sx={{ py: 3, color: COLOR_TEXT_PRIMARY }}
+						>
 							Loading booking details...
 						</Typography>
 					) : enrichedBookingData ? (
@@ -311,10 +352,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							<Box sx={{ pt: 2 }}>
 								<Grid container spacing={2}>
 									<Grid item xs={6}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Date
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.date
 												? format(
 														new Date(enrichedBookingData.date),
@@ -324,20 +368,26 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Time
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.date
 												? format(new Date(enrichedBookingData.date), "HH:mm")
 												: "Not specified"}
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Client
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.client &&
 											typeof enrichedBookingData.client === "object" &&
 											enrichedBookingData.client.first_name
@@ -346,7 +396,10 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 									<Grid item xs={6}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Status
 										</Typography>
 										<Typography
@@ -363,7 +416,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 														? "info.main"
 														: enrichedBookingData.status === "cancelled"
 														? "error.main"
-														: "text.primary",
+														: COLOR_TEXT_PRIMARY,
 											}}
 										>
 											{enrichedBookingData.status
@@ -379,10 +432,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Vehicle
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.vehicle &&
 											typeof enrichedBookingData.vehicle === "object"
 												? `${enrichedBookingData.vehicle.brand || ""} ${
@@ -396,10 +452,13 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Service Type
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.booking_type
 												? enrichedBookingData.booking_type
 														.replace("_", " ")
@@ -413,17 +472,19 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 										</Typography>
 									</Grid>
 									<Grid item xs={12}>
-										<Typography variant="subtitle2" color="text.secondary">
+										<Typography
+											variant="subtitle2"
+											color={COLOR_TEXT_SECONDARY}
+										>
 											Workshop
 										</Typography>
-										<Typography variant="body1">
+										<Typography variant="body1" color={COLOR_TEXT_PRIMARY}>
 											{enrichedBookingData.workshop &&
 											typeof enrichedBookingData.workshop === "object"
 												? enrichedBookingData.workshop.name
 												: "Not specified"}
 										</Typography>
 									</Grid>
-
 								</Grid>
 							</Box>
 
@@ -440,9 +501,12 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 									}}
 									sx={{
 										flexGrow: 1,
-										color: "#555",
-										borderColor: "#ddd",
-										"&:hover": { borderColor: "#ff3c4e", color: "#ff3c4e" },
+										color: COLOR_TEXT_SECONDARY,
+										borderColor: `rgba(255, 255, 255, 0.2)`,
+										"&:hover": {
+											borderColor: COLOR_PRIMARY,
+											color: COLOR_PRIMARY,
+										},
 									}}
 								>
 									Edit Booking
@@ -464,7 +528,9 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							</Box>
 						</>
 					) : (
-						<Typography>No booking data available</Typography>
+						<Typography color={COLOR_TEXT_PRIMARY}>
+							No booking data available
+						</Typography>
 					)}
 				</DialogContent>
 				<DialogActions sx={{ px: 3, pb: 3, justifyContent: "flex-end" }}>
@@ -472,8 +538,8 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						onClick={() => onClose("view")}
 						variant="contained"
 						sx={{
-							bgcolor: "#ff3c4e",
-							"&:hover": { bgcolor: "#d6303f" },
+							bgcolor: COLOR_PRIMARY,
+							"&:hover": { bgcolor: `rgba(56, 130, 246, 0.8)` },
 							minWidth: "120px",
 						}}
 					>

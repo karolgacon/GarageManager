@@ -7,20 +7,25 @@ import {
 	Select,
 	MenuItem,
 	Grid,
-	Typography,
 	FormHelperText,
 	CircularProgress,
+	SelectChangeEvent,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { parseISO } from "date-fns";
-import { bookingService } from "../../api/BookingAPIEndpoint";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import AuthContext from "../../context/AuthProvider";
 import { customerService } from "../../api/CustomerAPIEndpoint";
 import { UserService } from "../../api/UserAPIEndpoint";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import {
+	COLOR_PRIMARY,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+	COLOR_SURFACE,
+} from "../../constants";
 
 interface BookingFormProps {
 	id: string;
@@ -56,7 +61,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	const [mechanics, setMechanics] = useState<any[]>([]);
 	const [vehicles, setVehicles] = useState<any[]>([]);
 	const [clients, setClients] = useState<any[]>([]);
-	const [availableSlots, setAvailableSlots] = useState<any[]>([]);
 
 	useEffect(() => {
 		if (initialData) {
@@ -91,29 +95,29 @@ const BookingForm: React.FC<BookingFormProps> = ({
 					const workshopsData = await workshopService.getAllWorkshops();
 					setWorkshops(workshopsData);
 				} else if (auth.roles?.[0] === "owner") {
-					if (auth.workshop_id) {
-						const workshopData = await workshopService.getWorkshopById(
-							auth.workshop_id
-						);
-						setWorkshops([workshopData]);
-						setFormData((prev) => ({
-							...prev,
-							workshop_id: auth.workshop_id,
-						}));
-					}
+					// Workshop will be set based on owner's workshop
+					const workshopsData = await workshopService.getAllWorkshops();
+					setWorkshops(workshopsData);
+					// Set workshop based on user's associated workshop
 				}
 
 				if (auth.roles?.[0] === "client") {
 					setVehicles(vehiclesData);
 					setFormData((prev) => ({
 						...prev,
-						client_id: auth.user_id,
+						client_id: String(auth.user_id || ""),
 					}));
 				}
 
 				if (auth.roles?.[0] === "owner" || auth.roles?.[0] === "admin") {
-					const clientsData = await UserService.getClients();
-					setClients(clientsData);
+					try {
+						const clientsData = await UserService.getClients();
+						console.log("Loaded clients:", clientsData); // Debug log
+						setClients(clientsData);
+					} catch (error) {
+						console.error("Error loading clients:", error);
+						setClients([]);
+					}
 				}
 			} catch (err) {
 			} finally {
@@ -122,25 +126,17 @@ const BookingForm: React.FC<BookingFormProps> = ({
 		};
 
 		loadInitialData();
-	}, [
-		auth.roles,
-		auth.user_id,
-		auth.workshop_id,
-		clientVehicles,
-		userRole,
-		userId,
-	]);
+	}, [auth.roles, auth.user_id, clientVehicles, userRole, userId]);
 
 	useEffect(() => {
 		const loadMechanics = async () => {
 			if (formData.workshop_id) {
 				try {
 					const mechanicsData = await workshopService.getWorkshopMechanics(
-						formData.workshop_id
+						parseInt(formData.workshop_id)
 					);
 					setMechanics(mechanicsData);
-				} catch (err) {
-				}
+				} catch (err) {}
 			} else {
 				setMechanics([]);
 			}
@@ -150,45 +146,17 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	}, [formData.workshop_id]);
 
 	useEffect(() => {
-		const loadAvailableSlots = async () => {
-			if (formData.workshop_id && formData.date) {
-				try {
-					const date = new Date(formData.date);
-					const formattedDate = date.toISOString().split("T")[0];
-					const slotsData = await bookingService.getAvailableSlots(
-						formData.workshop_id,
-						formattedDate
-					);
-					setAvailableSlots(slotsData);
-				} catch (err) {
-				}
-			}
-		};
-
-		loadAvailableSlots();
+		// Available slots functionality can be added when API endpoint exists
 	}, [formData.workshop_id, formData.date]);
 
 	useEffect(() => {
-		const loadClientVehicles = async () => {
-			if (
-				formData.client_id &&
-				(auth.role === "admin" || auth.role === "owner")
-			) {
-				try {
-					const vehiclesData = await workshopService.getUserVehicles(
-						formData.client_id
-					);
-					setVehicles(vehiclesData);
-				} catch (err) {
-				}
-			}
-		};
-
-		loadClientVehicles();
-	}, [formData.client_id, auth.role]);
+		// Client vehicles loading functionality can be added when API endpoint exists
+	}, [formData.client_id]);
 
 	const handleChange = (
-		e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+		e:
+			| React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+			| SelectChangeEvent<string>
 	) => {
 		const { name, value } = e.target;
 		setFormData({
@@ -259,7 +227,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	if (loading) {
 		return (
 			<Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-				<CircularProgress sx={{ color: "#ff3c4e" }} />
+				<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 			</Box>
 		);
 	}
@@ -267,83 +235,18 @@ const BookingForm: React.FC<BookingFormProps> = ({
 	const dateTimePickerTheme = createTheme({
 		palette: {
 			primary: {
-				main: "#ff3c4e",
+				main: COLOR_PRIMARY,
 			},
 			secondary: {
-				main: "#ff3c4e",
+				main: COLOR_PRIMARY,
 			},
 		},
 		components: {
-			MuiPickersDay: {
-				styleOverrides: {
-					root: {
-						"&.Mui-selected": {
-							backgroundColor: "#ff3c4e !important",
-						},
-						"&.Mui-today": {
-							borderColor: "#ff3c4e !important",
-							color: "#ff3c4e !important",
-						},
-					},
-				},
-			},
-			MuiClockNumber: {
-				styleOverrides: {
-					root: {
-						"&.Mui-selected": {
-							backgroundColor: "#ff3c4e !important",
-						},
-					},
-				},
-			},
-			MuiClock: {
-				styleOverrides: {
-					pin: {
-						backgroundColor: "#ff3c4e !important",
-					},
-				},
-			},
-			MuiClockPointer: {
-				styleOverrides: {
-					root: {
-						backgroundColor: "#ff3c4e !important",
-					},
-					thumb: {
-						backgroundColor: "#ff3c4e !important",
-						borderColor: "#ff3c4e !important",
-					},
-				},
-			},
-			MuiTabs: {
-				styleOverrides: {
-					indicator: {
-						backgroundColor: "#ff3c4e !important",
-					},
-				},
-			},
-			MuiTab: {
-				styleOverrides: {
-					root: {
-						"&.Mui-selected": {
-							color: "#ff3c4e !important",
-						},
-					},
-				},
-			},
-			MuiDigitalClock: {
-				styleOverrides: {
-					root: {
-						"& .MuiMenuItem-root.Mui-selected": {
-							backgroundColor: "#ff3c4e !important",
-						},
-					},
-				},
-			},
 			MuiButton: {
 				styleOverrides: {
 					root: {
 						"&.MuiButton-text": {
-							color: "#ff3c4e !important",
+							color: COLOR_PRIMARY + " !important",
 						},
 					},
 				},
@@ -367,118 +270,100 @@ const BookingForm: React.FC<BookingFormProps> = ({
 										error: !!errors.date,
 										helperText: errors.date,
 									},
-									calendarHeader: {
-										sx: {
-											"& .MuiPickersCalendarHeader-label": {
-												color: "#333",
-												fontWeight: 500,
-											},
-											"& .MuiIconButton-root": {
-												color: "#ff3c4e",
-											},
-										},
-									},
-									day: {
-										sx: {
-											"&.MuiPickersDay-root.Mui-selected": {
-												backgroundColor: "#ff3c4e",
-												"&:hover": {
-													backgroundColor: "#d6303f",
-												},
-												"&:focus": {
-													backgroundColor: "#d6303f",
-												},
-											},
-											"&.MuiPickersDay-root.Mui-today": {
-												borderColor: "#ff3c4e",
-												color: "#ff3c4e",
-											},
-											"&.MuiPickersDay-root:hover": {
-												backgroundColor: "rgba(255, 60, 78, 0.1)",
-											},
-										},
-									},
-									digitalClockItem: {
-										sx: {
-											"&.MuiMenuItem-root.Mui-selected": {
-												backgroundColor: "#ff3c4e !important",
-												"&:hover": {
-													backgroundColor: "#d6303f !important",
-												},
-											},
-										},
-									},
-									ampmSelection: {
-										sx: {
-											"& .MuiTimeClock-amButton.Mui-selected": {
-												backgroundColor: "#ff3c4e !important",
-												color: "white",
-											},
-											"& .MuiTimeClock-pmButton.Mui-selected": {
-												backgroundColor: "#ff3c4e !important",
-												color: "white",
-											},
-										},
-									},
-									timeSelection: {
-										sx: {
-											"& .MuiTabs-indicator": {
-												backgroundColor: "#ff3c4e !important",
-											},
-											"& .MuiTab-root.Mui-selected": {
-												color: "#ff3c4e !important",
-											},
-										},
-									},
-									digital: {
-										sx: {
-											"& .MuiClockNumber-root.Mui-selected": {
-												backgroundColor: "#ff3c4e !important",
-											},
-											"& .MuiClockDigital-item.Mui-selected": {
-												backgroundColor: "#ff3c4e !important",
-											},
-										},
-									},
 									actionBar: {
 										sx: {
 											"& .MuiButton-root": {
-												color: "#ff3c4e !important",
+												color: COLOR_PRIMARY + " !important",
 												"&:hover": {
-													backgroundColor: "rgba(255, 60, 78, 0.1)",
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
 												},
+											},
+										},
+									},
+									layout: {
+										sx: {
+											"& .MuiPickersDay-root": {
+												color: COLOR_TEXT_PRIMARY,
+												"&.Mui-selected": {
+													bgcolor: COLOR_PRIMARY + " !important",
+													color: COLOR_TEXT_PRIMARY + " !important",
+													"&:hover": {
+														bgcolor: COLOR_PRIMARY + " !important",
+														opacity: 0.9,
+													},
+													"&:focus": {
+														bgcolor: COLOR_PRIMARY + " !important",
+														opacity: 0.9,
+													},
+												},
+												"&:hover": {
+													bgcolor: "rgba(56, 130, 246, 0.1)",
+												},
+											},
+											"& .MuiPickersCalendarHeader-label": {
+												color: COLOR_TEXT_PRIMARY,
+											},
+											"& .MuiPickersArrowSwitcher-button": {
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													bgcolor: "rgba(56, 130, 246, 0.1)",
+												},
+											},
+											"& .MuiDayCalendar-weekDayLabel": {
+												color: COLOR_TEXT_SECONDARY,
+											},
+											bgcolor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+										},
+									},
+									popper: {
+										sx: {
+											"& .MuiPaper-root": {
+												bgcolor: COLOR_SURFACE,
+												border: `1px solid rgba(255, 255, 255, 0.1)`,
 											},
 										},
 									},
 								}}
 								sx={{
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+									"& .MuiInputBase-input": {
+										color: COLOR_TEXT_PRIMARY,
+									},
 									"& .MuiOutlinedInput-root": {
 										"& fieldset": {
-											borderColor: !!errors.date ? "error.main" : "#ddd",
+											borderColor: !!errors.date
+												? "error.main"
+												: "rgba(255, 255, 255, 0.2)",
 										},
 										"&:hover fieldset": {
-											borderColor: "#ff3c4e",
+											borderColor: COLOR_PRIMARY,
 										},
 										"&.Mui-focused fieldset": {
-											borderColor: "#ff3c4e",
+											borderColor: COLOR_PRIMARY,
 										},
 									},
 									"& .MuiInputLabel-root.Mui-focused": {
-										color: "#ff3c4e",
+										color: COLOR_PRIMARY,
 									},
 									"& .MuiClockPicker-root": {
 										"& .MuiClock-pin": {
-											backgroundColor: "#ff3c4e !important",
+											backgroundColor: COLOR_PRIMARY + " !important",
 										},
 										"& .MuiClockPointer-root": {
-											backgroundColor: "#ff3c4e !important",
+											backgroundColor: COLOR_PRIMARY + " !important",
 										},
 										"& .MuiClockPointer-thumb": {
-											border: "14px solid #ff3c4e !important",
+											border: `14px solid ${COLOR_PRIMARY} !important`,
 										},
 									},
 									"& .MuiDigitalClockItem-root.Mui-selected": {
-										backgroundColor: "#ff3c4e !important",
+										backgroundColor: COLOR_PRIMARY + " !important",
 									},
 								}}
 							/>
@@ -488,7 +373,18 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
 				{auth.roles?.[0] === "admin" && (
 					<Grid item xs={12} md={6}>
-						<FormControl fullWidth error={!!errors.workshop_id}>
+						<FormControl
+							fullWidth
+							error={!!errors.workshop_id}
+							sx={{
+								"& .MuiInputLabel-root": {
+									color: COLOR_TEXT_SECONDARY,
+									"&.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								},
+							}}
+						>
 							<InputLabel>Workshop</InputLabel>
 							<Select
 								name="workshop_id"
@@ -496,14 +392,45 @@ const BookingForm: React.FC<BookingFormProps> = ({
 								label="Workshop"
 								onChange={handleChange}
 								sx={{
+									color: COLOR_TEXT_PRIMARY,
+									"& .MuiSelect-select": {
+										color: COLOR_TEXT_PRIMARY,
+									},
 									"& .MuiOutlinedInput-notchedOutline": {
-										borderColor: !!errors.workshop_id ? "error.main" : "#ddd",
+										borderColor: !!errors.workshop_id
+											? "error.main"
+											: "rgba(255, 255, 255, 0.2)",
 									},
 									"&:hover .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
 									},
 									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
+									},
+									"& .MuiSelect-icon": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											bgcolor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											border: `1px solid rgba(255, 255, 255, 0.1)`,
+											"& .MuiMenuItem-root": {
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
+												},
+												"&.Mui-selected": {
+													backgroundColor: COLOR_PRIMARY,
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.8)",
+													},
+												},
+											},
+										},
 									},
 								}}
 							>
@@ -522,7 +449,18 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") && (
 					<Grid item xs={12} md={6}>
-						<FormControl fullWidth error={!!errors.client_id}>
+						<FormControl
+							fullWidth
+							error={!!errors.client_id}
+							sx={{
+								"& .MuiInputLabel-root": {
+									color: COLOR_TEXT_SECONDARY,
+									"&.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+								},
+							}}
+						>
 							<InputLabel>Client</InputLabel>
 							<Select
 								name="client_id"
@@ -530,32 +468,83 @@ const BookingForm: React.FC<BookingFormProps> = ({
 								label="Client"
 								onChange={handleChange}
 								sx={{
+									color: COLOR_TEXT_PRIMARY,
+									"& .MuiSelect-select": {
+										color: COLOR_TEXT_PRIMARY,
+									},
 									"& .MuiOutlinedInput-notchedOutline": {
-										borderColor: !!errors.client_id ? "error.main" : "#ddd",
+										borderColor: !!errors.client_id
+											? "error.main"
+											: "rgba(255, 255, 255, 0.2)",
 									},
 									"&:hover .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
 									},
 									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
+									},
+									"& .MuiSelect-icon": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											bgcolor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											border: `1px solid rgba(255, 255, 255, 0.1)`,
+											"& .MuiMenuItem-root": {
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
+												},
+												"&.Mui-selected": {
+													backgroundColor: COLOR_PRIMARY,
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.8)",
+													},
+												},
+											},
+										},
 									},
 								}}
 							>
-								{clients.map((client) => (
-									<MenuItem key={client.id} value={client.id}>
-										{client.first_name} {client.last_name}
+								{clients.length > 0 ? (
+									clients.map((client) => (
+										<MenuItem key={client.id} value={client.id}>
+											{client.first_name} {client.last_name}
+										</MenuItem>
+									))
+								) : (
+									<MenuItem disabled value="">
+										No clients available
 									</MenuItem>
-								))}
+								)}
 							</Select>
 							{errors.client_id && (
 								<FormHelperText>{errors.client_id}</FormHelperText>
+							)}
+							{clients.length === 0 && !errors.client_id && (
+								<FormHelperText>Loading clients...</FormHelperText>
 							)}
 						</FormControl>
 					</Grid>
 				)}
 
 				<Grid item xs={12} md={6}>
-					<FormControl fullWidth error={!!errors.vehicle_id}>
+					<FormControl
+						fullWidth
+						error={!!errors.vehicle_id}
+						sx={{
+							"& .MuiInputLabel-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-focused": {
+									color: COLOR_PRIMARY,
+								},
+							},
+						}}
+					>
 						<InputLabel>Vehicle</InputLabel>
 						<Select
 							name="vehicle_id"
@@ -564,14 +553,53 @@ const BookingForm: React.FC<BookingFormProps> = ({
 							onChange={handleChange}
 							disabled={vehicles.length === 0}
 							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiSelect-select": {
+									color: COLOR_TEXT_PRIMARY,
+								},
 								"& .MuiOutlinedInput-notchedOutline": {
-									borderColor: !!errors.vehicle_id ? "error.main" : "#ddd",
+									borderColor: !!errors.vehicle_id
+										? "error.main"
+										: "rgba(255, 255, 255, 0.2)",
 								},
 								"&:hover .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
 								},
 								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
+								},
+								"& .MuiSelect-icon": {
+									color: COLOR_TEXT_SECONDARY,
+								},
+								"&.Mui-disabled": {
+									"& .MuiSelect-select": {
+										color: "rgba(255, 255, 255, 0.3)",
+									},
+									"& .MuiSelect-icon": {
+										color: "rgba(255, 255, 255, 0.3)",
+									},
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										bgcolor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										border: `1px solid rgba(255, 255, 255, 0.1)`,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+											"&.Mui-selected": {
+												backgroundColor: COLOR_PRIMARY,
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.8)",
+												},
+											},
+										},
+									},
 								},
 							}}
 						>
@@ -592,7 +620,18 @@ const BookingForm: React.FC<BookingFormProps> = ({
 				</Grid>
 
 				<Grid item xs={12} md={6}>
-					<FormControl fullWidth error={!!errors.service_type}>
+					<FormControl
+						fullWidth
+						error={!!errors.service_type}
+						sx={{
+							"& .MuiInputLabel-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-focused": {
+									color: COLOR_PRIMARY,
+								},
+							},
+						}}
+					>
 						<InputLabel>Service Type</InputLabel>
 						<Select
 							name="service_type"
@@ -600,14 +639,45 @@ const BookingForm: React.FC<BookingFormProps> = ({
 							label="Service Type"
 							onChange={handleChange}
 							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiSelect-select": {
+									color: COLOR_TEXT_PRIMARY,
+								},
 								"& .MuiOutlinedInput-notchedOutline": {
-									borderColor: !!errors.service_type ? "error.main" : "#ddd",
+									borderColor: !!errors.service_type
+										? "error.main"
+										: "rgba(255, 255, 255, 0.2)",
 								},
 								"&:hover .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
 								},
 								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
+								},
+								"& .MuiSelect-icon": {
+									color: COLOR_TEXT_SECONDARY,
+								},
+							}}
+							MenuProps={{
+								PaperProps: {
+									sx: {
+										bgcolor: COLOR_SURFACE,
+										color: COLOR_TEXT_PRIMARY,
+										border: `1px solid rgba(255, 255, 255, 0.1)`,
+										"& .MuiMenuItem-root": {
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: "rgba(56, 130, 246, 0.1)",
+											},
+											"&.Mui-selected": {
+												backgroundColor: COLOR_PRIMARY,
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.8)",
+												},
+											},
+										},
+									},
 								},
 							}}
 						>
@@ -626,7 +696,21 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") && (
 					<Grid item xs={12} md={6}>
-						<FormControl fullWidth disabled={mechanics.length === 0}>
+						<FormControl
+							fullWidth
+							disabled={mechanics.length === 0}
+							sx={{
+								"& .MuiInputLabel-root": {
+									color: COLOR_TEXT_SECONDARY,
+									"&.Mui-focused": {
+										color: COLOR_PRIMARY,
+									},
+									"&.Mui-disabled": {
+										color: "rgba(255, 255, 255, 0.3)",
+									},
+								},
+							}}
+						>
 							<InputLabel>Assigned Mechanic (Optional)</InputLabel>
 							<Select
 								name="mechanic_id"
@@ -634,14 +718,51 @@ const BookingForm: React.FC<BookingFormProps> = ({
 								label="Assigned Mechanic (Optional)"
 								onChange={handleChange}
 								sx={{
+									color: COLOR_TEXT_PRIMARY,
+									"& .MuiSelect-select": {
+										color: COLOR_TEXT_PRIMARY,
+									},
 									"& .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ddd",
+										borderColor: "rgba(255, 255, 255, 0.2)",
 									},
 									"&:hover .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
 									},
 									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-										borderColor: "#ff3c4e",
+										borderColor: COLOR_PRIMARY,
+									},
+									"& .MuiSelect-icon": {
+										color: COLOR_TEXT_SECONDARY,
+									},
+									"&.Mui-disabled": {
+										"& .MuiSelect-select": {
+											color: "rgba(255, 255, 255, 0.3)",
+										},
+										"& .MuiSelect-icon": {
+											color: "rgba(255, 255, 255, 0.3)",
+										},
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											bgcolor: COLOR_SURFACE,
+											color: COLOR_TEXT_PRIMARY,
+											border: `1px solid rgba(255, 255, 255, 0.1)`,
+											"& .MuiMenuItem-root": {
+												color: COLOR_TEXT_PRIMARY,
+												"&:hover": {
+													backgroundColor: "rgba(56, 130, 246, 0.1)",
+												},
+												"&.Mui-selected": {
+													backgroundColor: COLOR_PRIMARY,
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.8)",
+													},
+												},
+											},
+										},
 									},
 								}}
 							>
@@ -666,7 +787,17 @@ const BookingForm: React.FC<BookingFormProps> = ({
 				{(auth.roles?.[0] === "admin" || auth.roles?.[0] === "owner") &&
 					initialData && (
 						<Grid item xs={12} md={6}>
-							<FormControl fullWidth>
+							<FormControl
+								fullWidth
+								sx={{
+									"& .MuiInputLabel-root": {
+										color: COLOR_TEXT_SECONDARY,
+										"&.Mui-focused": {
+											color: COLOR_PRIMARY,
+										},
+									},
+								}}
+							>
 								<InputLabel>Status</InputLabel>
 								<Select
 									name="status"
@@ -674,14 +805,43 @@ const BookingForm: React.FC<BookingFormProps> = ({
 									label="Status"
 									onChange={handleChange}
 									sx={{
+										color: COLOR_TEXT_PRIMARY,
+										"& .MuiSelect-select": {
+											color: COLOR_TEXT_PRIMARY,
+										},
 										"& .MuiOutlinedInput-notchedOutline": {
-											borderColor: "#ddd",
+											borderColor: "rgba(255, 255, 255, 0.2)",
 										},
 										"&:hover .MuiOutlinedInput-notchedOutline": {
-											borderColor: "#ff3c4e",
+											borderColor: COLOR_PRIMARY,
 										},
 										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-											borderColor: "#ff3c4e",
+											borderColor: COLOR_PRIMARY,
+										},
+										"& .MuiSelect-icon": {
+											color: COLOR_TEXT_SECONDARY,
+										},
+									}}
+									MenuProps={{
+										PaperProps: {
+											sx: {
+												bgcolor: COLOR_SURFACE,
+												color: COLOR_TEXT_PRIMARY,
+												border: `1px solid rgba(255, 255, 255, 0.1)`,
+												"& .MuiMenuItem-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: "rgba(56, 130, 246, 0.1)",
+													},
+													"&.Mui-selected": {
+														backgroundColor: COLOR_PRIMARY,
+														color: COLOR_TEXT_PRIMARY,
+														"&:hover": {
+															backgroundColor: "rgba(56, 130, 246, 0.8)",
+														},
+													},
+												},
+											},
 										},
 									}}
 								>
@@ -707,15 +867,28 @@ const BookingForm: React.FC<BookingFormProps> = ({
 						variant="outlined"
 						placeholder="Additional information about your appointment"
 						sx={{
+							"& .MuiInputLabel-root": {
+								color: COLOR_TEXT_SECONDARY,
+								"&.Mui-focused": {
+									color: COLOR_PRIMARY,
+								},
+							},
+							"& .MuiInputBase-input": {
+								color: COLOR_TEXT_PRIMARY,
+							},
+							"& .MuiInputBase-input::placeholder": {
+								color: COLOR_TEXT_SECONDARY,
+								opacity: 1,
+							},
 							"& .MuiOutlinedInput-root": {
 								"& fieldset": {
-									borderColor: "#ddd",
+									borderColor: "rgba(255, 255, 255, 0.2)",
 								},
 								"&:hover fieldset": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
 								},
 								"&.Mui-focused fieldset": {
-									borderColor: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
 								},
 							},
 						}}

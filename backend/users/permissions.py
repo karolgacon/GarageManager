@@ -26,7 +26,7 @@ class IsRootUser(permissions.BasePermission):
     Zezwala tylko na dostęp dla użytkowników z rolą 'root'.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'root'
+        return request.user.is_authenticated and (request.user.role == 'root' or request.user.role == 'admin')
 
 class IsOwnProfile(permissions.BasePermission):
     """

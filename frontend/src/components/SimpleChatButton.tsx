@@ -13,7 +13,11 @@ import {
 	Typography,
 } from "@mui/material";
 import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
-import { COLOR_PRIMARY, COLOR_SECONDARY } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SECONDARY,
+	COLOR_TEXT_PRIMARY,
+} from "../constants";
 
 interface SimpleChatButtonProps {
 	position?: {
@@ -53,7 +57,7 @@ const SimpleChatButton: React.FC<SimpleChatButtonProps> = ({
 							right: position.right,
 							zIndex: 1300,
 							backgroundColor: COLOR_PRIMARY,
-							color: "white",
+							color: COLOR_TEXT_PRIMARY,
 							boxShadow: 3,
 							"&:hover": {
 								backgroundColor: COLOR_SECONDARY,

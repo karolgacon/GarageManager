@@ -252,7 +252,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 						startIcon={<AddIcon />}
 						sx={{
 							bgcolor: COLOR_PRIMARY,
-							color: "white",
+							color: COLOR_TEXT_PRIMARY,
 							"&:hover": { bgcolor: "#2563EB" },
 							borderRadius: 1,
 							width: { xs: "100%", sm: "auto" },
@@ -324,9 +324,9 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 									}
 									onChange={handleSelectAll}
 									sx={{
-										color: "white",
-										"&.Mui-checked": { color: "white" },
-										"&.MuiCheckbox-indeterminate": { color: "white" },
+										color: COLOR_TEXT_PRIMARY,
+										"&.Mui-checked": { color: COLOR_TEXT_PRIMARY },
+										"&.MuiCheckbox-indeterminate": { color: COLOR_TEXT_PRIMARY },
 									}}
 								/>
 							</TableCell>
@@ -337,7 +337,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 									sx={{
 										cursor: column.sortable ? "pointer" : "default",
 										fontWeight: "bold",
-										color: "white",
+										color: COLOR_TEXT_PRIMARY,
 										borderBottom: "none",
 									}}
 								>
@@ -463,7 +463,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 													backgroundColor: service.is_active
 														? "#10B981"
 														: COLOR_TEXT_SECONDARY,
-													color: "white",
+													color: COLOR_TEXT_PRIMARY,
 												}}
 											/>
 										</TableCell>
@@ -524,7 +524,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 								sx={{
 									mr: 1,
 									backgroundColor: COLOR_TEXT_SECONDARY,
-									color: "white",
+									color: COLOR_TEXT_PRIMARY,
 								}}
 							/>
 						</>
@@ -536,7 +536,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 								sx={{
 									mr: 1,
 									backgroundColor: "#10B981",
-									color: "white",
+									color: COLOR_TEXT_PRIMARY,
 								}}
 							/>
 						</>

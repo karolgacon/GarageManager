@@ -20,6 +20,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import BuildIcon from "@mui/icons-material/Build";
 import { DiagnosisIssue } from "../../models/DiagnosisModel";
+import { COLOR_TEXT_PRIMARY } from "../../constants";
 
 interface IssueDetailDialogProps {
 	open: boolean;
@@ -52,7 +53,7 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({
 					justifyContent: "space-between",
 					alignItems: "center",
 					bgcolor: theme.palette.error.main,
-					color: "white",
+					color: COLOR_TEXT_PRIMARY,
 					py: 2,
 				}}
 			>
@@ -62,7 +63,7 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({
 				<IconButton
 					aria-label="close"
 					onClick={onClose}
-					sx={{ color: "white" }}
+					sx={{ color: COLOR_TEXT_PRIMARY }}
 				>
 					<CloseIcon />
 				</IconButton>

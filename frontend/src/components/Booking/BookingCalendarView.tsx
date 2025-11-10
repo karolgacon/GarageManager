@@ -1,22 +1,31 @@
 import React from "react";
-import {
-	Box,
-	Typography,
-	Avatar,
-	Tooltip,
-	Paper,
-	IconButton,
-} from "@mui/material";
+import { Box, Typography, Avatar } from "@mui/material";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import { format } from "date-fns";
 import {
-	Info as InfoIcon,
-	Edit as EditIcon,
-	Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { format, startOfWeek, endOfWeek, addDays } from "date-fns";
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface BookingCalendarViewProps {
-	bookings: any[];
+	bookings: {
+		id: number;
+		customerFirstName: string;
+		customerLastName: string;
+		customerPhone: string;
+		customerEmail: string;
+		vehicleMake: string;
+		vehicleModel: string;
+		vehicleYear: number;
+		vehicleLicensePlate: string;
+		date: string;
+		time: string;
+		service: string;
+		status: string;
+		notes: string;
+	}[];
 	daysOfWeek: {
 		date: Date;
 		dayName: string;
@@ -25,8 +34,6 @@ interface BookingCalendarViewProps {
 	userRole: string;
 	calendarView: string;
 	onView: (id: number) => void;
-	onEdit: (id: number) => void;
-	onDelete: (id: number) => void;
 }
 
 const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
@@ -35,8 +42,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	userRole,
 	calendarView,
 	onView,
-	onEdit,
-	onDelete,
 }) => {
 	const timeSlots = [
 		"07:00 am",
@@ -57,7 +62,14 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	const renderCalendarTitle = () => {
 		if (calendarView === "day" && daysOfWeek.length > 0) {
 			return (
-				<Typography variant="h6" sx={{ p: 2, fontWeight: 500 }}>
+				<Typography
+					variant="h6"
+					sx={{
+						p: 2,
+						fontWeight: 500,
+						color: COLOR_TEXT_PRIMARY,
+					}}
+				>
 					{format(daysOfWeek[0].date, "EEEE, MMMM d, yyyy")}
 				</Typography>
 			);
@@ -65,13 +77,27 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 			const startDate = daysOfWeek[0].date;
 			const endDate = daysOfWeek[daysOfWeek.length - 1].date;
 			return (
-				<Typography variant="h6" sx={{ p: 2, fontWeight: 500 }}>
+				<Typography
+					variant="h6"
+					sx={{
+						p: 2,
+						fontWeight: 500,
+						color: COLOR_TEXT_PRIMARY,
+					}}
+				>
 					{format(startDate, "MMMM d")} - {format(endDate, "MMMM d, yyyy")}
 				</Typography>
 			);
 		} else if (calendarView === "month" && daysOfWeek.length > 0) {
 			return (
-				<Typography variant="h6" sx={{ p: 2, fontWeight: 500 }}>
+				<Typography
+					variant="h6"
+					sx={{
+						p: 2,
+						fontWeight: 500,
+						color: COLOR_TEXT_PRIMARY,
+					}}
+				>
 					{format(daysOfWeek[0].date, "MMMM yyyy")}
 				</Typography>
 			);
@@ -100,7 +126,11 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	if (bookings.length === 0 && userRole === "admin") {
 		return (
 			<Box sx={{ textAlign: "center", py: 5 }}>
-				<Typography variant="body1" color="text.secondary" fontWeight={400}>
+				<Typography
+					variant="body1"
+					sx={{ color: `${COLOR_TEXT_SECONDARY} !important` }}
+					fontWeight={400}
+				>
 					Select a workshop to view bookings
 				</Typography>
 			</Box>
@@ -110,7 +140,11 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	if (bookings.length === 0) {
 		return (
 			<Box sx={{ textAlign: "center", py: 5 }}>
-				<Typography variant="body1" color="text.secondary" fontWeight={400}>
+				<Typography
+					variant="body1"
+					sx={{ color: `${COLOR_TEXT_SECONDARY} !important` }}
+					fontWeight={400}
+				>
 					No bookings found for this period
 				</Typography>
 			</Box>
@@ -156,12 +190,17 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 								textAlign: "center",
 								p: 1,
 								fontWeight: "bold",
-								bgcolor: "#f5f5f5",
-								border: "1px solid #e0e0e0",
-								borderBottom: "2px solid #e0e0e0",
+								bgcolor: COLOR_SURFACE,
+								border: `1px solid rgba(255, 255, 255, 0.1)`,
+								borderBottom: `2px solid rgba(255, 255, 255, 0.1)`,
 							}}
 						>
-							<Typography variant="subtitle2">{day}</Typography>
+							<Typography
+								variant="subtitle2"
+								sx={{ color: `${COLOR_TEXT_PRIMARY} !important` }}
+							>
+								{day}
+							</Typography>
 						</Box>
 					))}
 				</Box>
@@ -177,8 +216,8 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 											flex: "1 0 14.28%",
 											maxWidth: "14.28%",
 											height: 120,
-											border: "1px solid #e0e0e0",
-											bgcolor: "#f5f5f5",
+											border: `1px solid rgba(255, 255, 255, 0.1)`,
+											bgcolor: COLOR_SURFACE,
 										}}
 									/>
 								);
@@ -187,7 +226,6 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							const isToday =
 								format(day.date, "yyyy-MM-dd") ===
 								format(new Date(), "yyyy-MM-dd");
-							const isWeekend = dayIndex === 0 || dayIndex === 6;
 
 							const dayBookings = bookings.filter((booking) => {
 								const bookingDate = format(
@@ -205,17 +243,15 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 										flex: "1 0 14.28%",
 										maxWidth: "14.28%",
 										height: 120,
-										border: "1px solid #e0e0e0",
+										border: `1px solid rgba(255, 255, 255, 0.1)`,
 										p: 1,
 										overflow: "auto",
 										bgcolor: isToday
-											? "rgba(255,60,78,0.05)"
-											: isWeekend
-											? "rgba(0,0,0,0.02)"
-											: "white",
+											? `rgba(56, 130, 246, 0.1)`
+											: COLOR_SURFACE,
 										position: "relative",
 										"&:hover": {
-											bgcolor: "rgba(0,0,0,0.02)",
+											bgcolor: "rgba(56, 130, 246, 0.05)",
 										},
 									}}
 								>
@@ -225,7 +261,9 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 											display: "block",
 											textAlign: "right",
 											fontWeight: isToday ? "bold" : "normal",
-											color: isToday ? "#ff3c4e" : "text.secondary",
+											color: `${
+												isToday ? COLOR_PRIMARY : COLOR_TEXT_SECONDARY
+											} !important`,
 											mb: 1,
 										}}
 									>
@@ -236,14 +274,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 										sx={{ maxHeight: "calc(100% - 24px)", overflow: "auto" }}
 									>
 										{dayBookings.slice(0, 3).map((booking) => (
-											<Paper
+											<Box
 												key={booking.id}
-												elevation={0}
 												sx={{
 													p: 0.5,
 													mb: 0.5,
-													bgcolor: "#ff3c4e",
-													color: "white",
+													bgcolor: COLOR_PRIMARY,
+													color: `${COLOR_TEXT_PRIMARY} !important`,
 													borderRadius: 1,
 													fontSize: "0.75rem",
 													whiteSpace: "nowrap",
@@ -251,9 +288,10 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 													textOverflow: "ellipsis",
 													cursor: "pointer",
 													"&:hover": {
-														boxShadow: 1,
-														bgcolor: "#e0354b",
+														opacity: 0.9,
+														transform: "translateY(-1px)",
 													},
+													transition: "all 0.2s ease",
 													display: "flex",
 													alignItems: "center",
 												}}
@@ -277,19 +315,20 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 														flexGrow: 1,
 														overflow: "hidden",
 														textOverflow: "ellipsis",
+														color: `${COLOR_TEXT_PRIMARY} !important`,
 													}}
 												>
 													{format(new Date(booking.date), "HH:mm")} -{" "}
-													{booking.service_type || "Service"}
+													{booking.service || "Service"}
 												</Typography>
-											</Paper>
+											</Box>
 										))}
 
 										{dayBookings.length > 3 && (
 											<Typography
 												variant="caption"
 												sx={{
-													color: "text.secondary",
+													color: `${COLOR_TEXT_SECONDARY} !important`,
 													display: "block",
 													mt: 0.5,
 												}}
@@ -310,8 +349,8 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 										flex: "1 0 14.28%",
 										maxWidth: "14.28%",
 										height: 120,
-										border: "1px solid #e0e0e0",
-										bgcolor: "#f5f5f5",
+										border: `1px solid rgba(255, 255, 255, 0.1)`,
+										bgcolor: COLOR_SURFACE,
 									}}
 								/>
 							)
@@ -327,8 +366,8 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 			<Box sx={{ width: "100%" }}>
 				<Box
 					sx={{
-						borderBottom: "1px solid #e0e0e0",
-						bgcolor: "#f8f8f8",
+						borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+						bgcolor: COLOR_SURFACE,
 						py: 2,
 						px: 3,
 					}}
@@ -347,12 +386,14 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				flexDirection: "column",
 				width: "100%",
 				overflowX: "auto",
+				bgcolor: COLOR_SURFACE,
+				borderRadius: 1,
 			}}
 		>
 			<Box
 				sx={{
-					borderBottom: "1px solid #e0e0e0",
-					bgcolor: "#f8f8f8",
+					borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+					bgcolor: COLOR_SURFACE,
 					py: 2,
 					px: 3,
 				}}
@@ -360,7 +401,12 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 				{renderCalendarTitle()}
 			</Box>
 
-			<Box sx={{ display: "flex", borderBottom: "1px solid #eeeeee" }}>
+			<Box
+				sx={{
+					display: "flex",
+					borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+				}}
+			>
 				<Box
 					sx={{
 						width: 80,
@@ -369,7 +415,7 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						borderRight: "1px solid #eeeeee",
+						borderRight: `1px solid rgba(255, 255, 255, 0.1)`,
 					}}
 				></Box>
 
@@ -381,25 +427,31 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							p: 1,
 							textAlign: "center",
 							borderRight:
-								index < daysOfWeek.length - 1 ? "1px solid #eeeeee" : "none",
+								index < daysOfWeek.length - 1
+									? `1px solid rgba(255, 255, 255, 0.1)`
+									: "none",
 							bgcolor:
 								format(day.date, "yyyy-MM-dd") ===
 								format(new Date(), "yyyy-MM-dd")
-									? "rgba(255,60,78,0.05)"
+									? `rgba(56, 130, 246, 0.1)`
 									: "transparent",
 						}}
 					>
 						<Typography
 							variant="subtitle2"
 							sx={{
-								color: "text.secondary",
+								color: COLOR_TEXT_SECONDARY,
 								fontWeight: 500,
 								fontSize: "0.85rem",
 							}}
 						>
 							{day.dayName}
 						</Typography>
-						<Typography variant="h6" fontWeight="medium">
+						<Typography
+							variant="h6"
+							fontWeight="medium"
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							{day.dayNumber}
 						</Typography>
 					</Box>
@@ -412,7 +464,9 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 					sx={{
 						display: "flex",
 						borderBottom:
-							timeIndex < timeSlots.length - 1 ? "1px solid #eeeeee" : "none",
+							timeIndex < timeSlots.length - 1
+								? `1px solid rgba(255, 255, 255, 0.1)`
+								: "none",
 						height: 80,
 					}}
 				>
@@ -424,13 +478,13 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							borderRight: "1px solid #eeeeee",
+							borderRight: `1px solid rgba(255, 255, 255, 0.1)`,
 						}}
 					>
 						<Typography
 							variant="body2"
 							sx={{
-								color: "text.secondary",
+								color: COLOR_TEXT_SECONDARY,
 								fontWeight: 400,
 								fontSize: "0.75rem",
 							}}
@@ -451,34 +505,34 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 									position: "relative",
 									borderRight:
 										dayIndex < daysOfWeek.length - 1
-											? "1px solid #eeeeee"
+											? `1px solid rgba(255, 255, 255, 0.1)`
 											: "none",
 									bgcolor:
 										format(day.date, "yyyy-MM-dd") ===
 										format(new Date(), "yyyy-MM-dd")
-											? "rgba(255,60,78,0.05)"
+											? `rgba(56, 130, 246, 0.1)`
 											: "transparent",
 								}}
 							>
 								{dayBookings.map((booking) => (
-									<Paper
+									<Box
 										key={booking.id}
 										sx={{
 											p: 0.75,
 											height: "100%",
-											bgcolor: "#ff3c4e",
-											color: "white",
+											bgcolor: COLOR_PRIMARY,
+											color: COLOR_TEXT_PRIMARY,
 											borderRadius: 1,
-											boxShadow: 1,
 											display: "flex",
 											flexDirection: "column",
 											justifyContent: "center",
 											cursor: "pointer",
 											overflow: "hidden",
 											width: "100%",
+											transition: "all 0.2s ease",
 											"&:hover": {
-												boxShadow: 3,
-												bgcolor: "#e0354b",
+												opacity: 0.9,
+												transform: "translateY(-1px)",
 											},
 										}}
 										onClick={() => onView(booking.id)}
@@ -514,11 +568,11 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 													flexShrink: 1,
 												}}
 											>
-												{booking.service_type || "Vehicle Maintenance"}
+												{booking.service || "Vehicle Maintenance"}
 											</Typography>
 										</Box>
 
-										{booking.client && (
+										{booking.customerFirstName && (
 											<Typography
 												variant="caption"
 												sx={{
@@ -531,10 +585,10 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 													opacity: 0.9,
 												}}
 											>
-												{booking.client?.first_name} {booking.client?.last_name}
+												{booking.customerFirstName} {booking.customerLastName}
 											</Typography>
 										)}
-									</Paper>
+									</Box>
 								))}
 							</Box>
 						);

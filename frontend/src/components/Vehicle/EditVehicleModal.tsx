@@ -167,7 +167,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({
 					justifyContent: "space-between",
 					alignItems: "center",
 					bgcolor: COLOR_PRIMARY,
-					color: "white",
+					color: COLOR_TEXT_PRIMARY,
 				}}
 			>
 				<Typography variant="h6">Edit Vehicle</Typography>

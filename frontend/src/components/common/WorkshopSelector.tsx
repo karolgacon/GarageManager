@@ -266,7 +266,7 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 						p: 3,
 						mt: 2,
 						borderRadius: 2,
-						backgroundColor: "rgba(255, 255, 255, 0.03)",
+						backgroundColor: COLOR_SURFACE,
 					}}
 				>
 					<Typography
@@ -312,7 +312,12 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 									label={selectedWorkshop.phone}
 									size="small"
 									variant="outlined"
-									sx={{ mr: 1, mt: 1 }}
+									sx={{
+										mr: 1,
+										mt: 1,
+										color: COLOR_TEXT_PRIMARY,
+										borderColor: "rgba(228, 230, 232, 0.3)",
+									}}
 								/>
 							)}
 							{selectedWorkshop.email && (
@@ -320,7 +325,11 @@ const WorkshopSelector: React.FC<WorkshopSelectorProps> = ({
 									label={selectedWorkshop.email}
 									size="small"
 									variant="outlined"
-									sx={{ mt: 1 }}
+									sx={{
+										mt: 1,
+										color: COLOR_TEXT_PRIMARY,
+										borderColor: "rgba(228, 230, 232, 0.3)",
+									}}
 								/>
 							)}
 						</Box>

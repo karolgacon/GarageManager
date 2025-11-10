@@ -10,7 +10,7 @@ import {
 	Paper,
 } from "@mui/material";
 import { Chat as ChatIcon, Send as SendIcon } from "@mui/icons-material";
-import { COLOR_PRIMARY } from "../constants";
+import { COLOR_PRIMARY, COLOR_TEXT_PRIMARY } from "../constants";
 import { COLOR_SURFACE } from "../constants";
 
 interface SimpleChatDialogProps {
@@ -79,7 +79,7 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 				sx={{
 					p: 2,
 					bgcolor: COLOR_PRIMARY,
-					color: "white",
+					color: COLOR_TEXT_PRIMARY,
 					display: "flex",
 					alignItems: "center",
 					gap: 1,
@@ -89,7 +89,10 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 				<Typography variant="h6">Chat z Mechanikiem</Typography>
 				<Box sx={{ flexGrow: 1 }} />
 				{onClose && (
-					<Button onClick={onClose} sx={{ color: "white", minWidth: "auto" }}>
+					<Button
+						onClick={onClose}
+						sx={{ color: COLOR_TEXT_PRIMARY, minWidth: "auto" }}
+					>
 						✕
 					</Button>
 				)}
@@ -149,7 +152,7 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 									<Box
 										sx={{
 											bgcolor: COLOR_PRIMARY,
-											color: "white",
+											color: COLOR_TEXT_PRIMARY,
 											borderRadius: "50%",
 											width: 20,
 											height: 20,
@@ -212,7 +215,8 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 										maxWidth: "70%",
 										bgcolor:
 											msg.sender === "client" ? COLOR_PRIMARY : COLOR_SURFACE,
-										color: msg.sender === "client" ? "white" : "black",
+										color:
+											msg.sender === "client" ? COLOR_TEXT_PRIMARY : "black",
 									}}
 								>
 									<Typography variant="body2">{msg.content}</Typography>

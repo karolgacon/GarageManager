@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-	Container,
-	Box,
-	Paper,
-	Typography,
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
-} from "@mui/material";
-import { format, startOfWeek, endOfWeek, parseISO, addDays } from "date-fns";
+import { Container, Box } from "@mui/material";
+import { format, startOfWeek, endOfWeek, addDays } from "date-fns";
 import AuthContext from "../context/AuthProvider";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import CustomSnackbar, {
@@ -17,30 +8,16 @@ import CustomSnackbar, {
 } from "../components/Mainlayout/Snackbar";
 import { bookingService } from "../api/BookingAPIEndpoint";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
-import { UserService } from "../api/UserAPIEndpoint"; 
-
 import BookingHeader from "../components/Booking/BookingHeader";
-import BookingWorkshopSelector from "../components/Booking/BookingWorkshopSelector";
 import BookingControls from "../components/Booking/BookingControls";
 import BookingTabs from "../components/Booking/BookingTabs";
 import BookingFilters from "../components/Booking/BookingFilters";
 import BookingContent from "../components/Booking/BookingContent";
 import BookingModals from "../components/Booking/BookingModals";
-import WorkshopSelector from "../components/Common/WorkshopSelector";
-
-interface Workshop {
-	id: number;
-	name: string;
-}
-
-interface Mechanic {
-	id: number;
-	first_name: string;
-	last_name: string;
-}
+import WorkshopSelector from "../components/common/WorkshopSelector";
 
 const Bookings: React.FC = () => {
-	const { auth, setAuth } = useContext(AuthContext);
+	const { auth } = useContext(AuthContext);
 
 	const [snackbarState, setSnackbarState] = useState<SnackbarState>({
 		open: false,
@@ -56,10 +33,7 @@ const Bookings: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [bookingType, setBookingType] = useState<string>("all");
 
-	const [workshops, setWorkshops] = useState<Workshop[]>([]);
-	const [mechanics, setMechanics] = useState<Mechanic[]>([]);
 	const [selectedWorkshop, setSelectedWorkshop] = useState<number | null>(null);
-	const [selectedMechanic, setSelectedMechanic] = useState<number | null>(null);
 
 	const [isNewBookingModalOpen, setIsNewBookingModalOpen] = useState(false);
 	const [isEditBookingModalOpen, setIsEditBookingModalOpen] = useState(false);
@@ -96,7 +70,6 @@ const Bookings: React.FC = () => {
 
 	useEffect(() => {
 		if (auth.roles?.[0] === "admin" && selectedWorkshop) {
-			fetchMechanics(selectedWorkshop);
 			setShowBookingsUI(true);
 		} else if (auth.roles?.[0] !== "admin") {
 			setShowBookingsUI(true);
@@ -114,34 +87,23 @@ const Bookings: React.FC = () => {
 	}, [
 		selectedDate,
 		selectedWorkshop,
-		selectedMechanic,
 		auth.roles?.[0],
-		auth.user_id, 
+		auth.user_id,
 		calendarView,
 		bookingType,
 	]);
 
 	const fetchWorkshops = async () => {
 		try {
-			const response = await workshopService.getAllWorkshops();
-			setWorkshops(response);
-		} catch (err) {
-		}
-	};
-
-	const fetchMechanics = async (workshopId: number) => {
-		try {
-			const response = await workshopService.getWorkshopMechanics(workshopId);
-			setMechanics(response);
-		} catch (err) {
-		}
+			await workshopService.getAllWorkshops();
+			// Workshop list functionality can be added here if needed
+		} catch (err) {}
 	};
 
 	const fetchOwnerWorkshop = async () => {
 		try {
 			const workshopData = await workshopService.getCurrentUserWorkshop();
 			if (workshopData) {
-				setWorkshops([workshopData]);
 				setSelectedWorkshop(workshopData.id);
 			}
 		} catch (err) {
@@ -150,19 +112,8 @@ const Bookings: React.FC = () => {
 	};
 
 	const fetchUserInfo = async () => {
-		try {
-			const userInfo = await userService.getCurrentUser();
-			if (userInfo && userInfo.id) {
-				setAuth((prev) => ({
-					...prev,
-					user_id: userInfo.id,
-				}));
-			}
-		} catch (error) {
-			setError(
-				"Could not load your user information. Please refresh the page."
-			);
-		}
+		// User info functionality can be implemented when UserService is available
+		setError("Could not load your user information. Please refresh the page.");
 	};
 
 	useEffect(() => {
@@ -183,7 +134,7 @@ const Bookings: React.FC = () => {
 			let bookingsData = [];
 
 			if (!auth || auth.isLoading) {
-				return; 
+				return;
 			}
 
 			if (auth.roles?.[0] === "client") {
@@ -191,7 +142,7 @@ const Bookings: React.FC = () => {
 					setError(
 						"Your user information is not fully loaded. Please try refreshing the page."
 					);
-					return; 
+					return;
 				}
 			}
 
@@ -234,8 +185,7 @@ const Bookings: React.FC = () => {
 								),
 								timeoutPromise,
 							]);
-						} catch (clientError) {
-
+						} catch (clientError: any) {
 							if (clientError.message === "Request timed out") {
 								setError(
 									"Server response took too long. Please try again later."
@@ -251,11 +201,13 @@ const Bookings: React.FC = () => {
 						}
 						break;
 					case "mechanic":
-						bookingsData = await bookingService.getMechanicBookings(
-							auth.user_id,
-							startDate,
-							endDate
-						);
+						if (auth.user_id) {
+							bookingsData = await bookingService.getMechanicBookings(
+								auth.user_id,
+								startDate,
+								endDate
+							);
+						}
 						break;
 					case "owner":
 						if (selectedWorkshop) {
@@ -270,19 +222,11 @@ const Bookings: React.FC = () => {
 						break;
 					case "admin":
 						if (selectedWorkshop) {
-							if (selectedMechanic) {
-								bookingsData = await bookingService.getMechanicBookings(
-									selectedMechanic,
-									startDate,
-									endDate
-								);
-							} else {
-								bookingsData = await bookingService.getWorkshopBookings(
-									selectedWorkshop,
-									startDate,
-									endDate
-								);
-							}
+							bookingsData = await bookingService.getWorkshopBookings(
+								selectedWorkshop,
+								startDate,
+								endDate
+							);
 						} else {
 							bookingsData = [];
 						}
@@ -309,7 +253,7 @@ const Bookings: React.FC = () => {
 	};
 
 	const handleViewChange = (
-		event: React.MouseEvent<HTMLElement>,
+		_event: React.MouseEvent<HTMLElement>,
 		newView: string | null
 	) => {
 		if (newView !== null) {
@@ -322,18 +266,8 @@ const Bookings: React.FC = () => {
 		setBookingType("all");
 	};
 
-	const handleWorkshopChange = (event: any) => {
-		const workshopId = event.target.value;
-		setSelectedWorkshop(workshopId);
-		setSelectedMechanic(null);
-	};
-
-	const handleMechanicChange = (event: any) => {
-		setSelectedMechanic(event.target.value);
-	};
-
 	const handleBookingTypeChange = (
-		event: React.SyntheticEvent,
+		_event: React.SyntheticEvent,
 		newValue: string
 	) => {
 		setBookingType(newValue);
@@ -388,7 +322,7 @@ const Bookings: React.FC = () => {
 			await bookingService.updateBooking(selectedBookingId, bookingData);
 			setIsEditBookingModalOpen(false);
 			showSnackbar("Booking updated successfully", "success");
-			loadBookings(); 
+			loadBookings();
 		} catch (error) {
 			showSnackbar("Error updating booking", "error");
 		}
@@ -423,11 +357,6 @@ const Bookings: React.FC = () => {
 				};
 			});
 		} else {
-			const firstDay = new Date(
-				selectedDate.getFullYear(),
-				selectedDate.getMonth(),
-				1
-			);
 			const lastDay = new Date(
 				selectedDate.getFullYear(),
 				selectedDate.getMonth() + 1,
@@ -466,14 +395,14 @@ const Bookings: React.FC = () => {
 				onClose={handleCloseSnackbar}
 			/>
 			<Container maxWidth="xl" sx={{ py: 4 }}>
-				<Box sx={{ mb: 4, bgcolor: "#f0f3f5", borderRadius: 2, p: 4 }}>
-					<BookingHeader
-						userRole={auth.roles?.[0]}
-						selectedWorkshop={selectedWorkshop}
-						onAddBooking={() => setIsNewBookingModalOpen(true)}
-					/>
+				<BookingHeader
+					userRole={auth.roles?.[0] || ""}
+					selectedWorkshop={selectedWorkshop}
+					onAddBooking={() => setIsNewBookingModalOpen(true)}
+				/>
 
-					{auth.roles?.[0] === "admin" && (
+				{auth.roles?.[0] === "admin" && (
+					<Box sx={{ mb: 4 }}>
 						<WorkshopSelector
 							value={selectedWorkshop}
 							onChange={(workshopId) => {
@@ -481,93 +410,55 @@ const Bookings: React.FC = () => {
 							}}
 							disabled={loading}
 						/>
-					)}
+					</Box>
+				)}
 
-					{auth.roles?.[0] === "admin" && selectedWorkshop && (
-						<Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-							<Typography variant="h6" fontWeight="bold" gutterBottom>
-								Select Mechanic (Optional)
-							</Typography>
-							<Box sx={{ width: "100%" }}>
-								<FormControl fullWidth size="small">
-									<InputLabel id="mechanic-select-label">Mechanic</InputLabel>
-									<Select
-										labelId="mechanic-select-label"
-										id="mechanic-select"
-										value={selectedMechanic || ""}
-										label="Mechanic"
-										onChange={handleMechanicChange}
-										disabled={loading}
-									>
-										<MenuItem value="">
-											<em>All Mechanics</em>
-										</MenuItem>
-										{mechanics.map((mechanic) => (
-											<MenuItem key={mechanic.id} value={mechanic.id}>
-												{mechanic.first_name} {mechanic.last_name}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							</Box>
-						</Paper>
-					)}
+				{showBookingsUI && (
+					<Box sx={{ mt: 2 }}>
+						<BookingControls
+							formattedToday={formattedToday}
+							calendarView={calendarView}
+							selectedDate={selectedDate}
+							onCalendarViewChange={handleCalendarViewChange}
+							onDateChange={handleDateChange}
+						/>
 
-					{showBookingsUI && (
-						<Paper
-							elevation={0}
-							sx={{
-								borderRadius: 2,
-								overflow: "hidden",
-								mb: 3,
-								bgcolor: "#ffffff",
-							}}
-						>
-							<BookingControls
-								formattedToday={formattedToday}
-								calendarView={calendarView}
-								selectedDate={selectedDate}
-								onCalendarViewChange={handleCalendarViewChange}
-								onDateChange={handleDateChange}
-							/>
-
-							{(auth.roles?.[0] === "client" ||
-								auth.roles?.[0] === "mechanic") && (
-								<BookingTabs
-									bookingType={bookingType}
-									onTabChange={handleBookingTypeChange}
-								/>
-							)}
-
-							<BookingFilters
+						{(auth.roles?.[0] === "client" ||
+							auth.roles?.[0] === "mechanic") && (
+							<BookingTabs
 								bookingType={bookingType}
-								calendarView={calendarView}
-								selectedDate={selectedDate}
-								view={view}
-								onDateChange={handleDateChange}
-								onViewChange={handleViewChange}
-								onRefresh={loadBookings}
+								onTabChange={handleBookingTypeChange}
 							/>
+						)}
 
-							<BookingContent
-								loading={loading}
-								error={error}
-								view={view}
-								bookingType={bookingType}
-								bookings={bookings}
-								daysOfWeek={daysOfWeek}
-								userRole={auth.roles?.[0]}
-								calendarView={calendarView}
-								selectedDate={selectedDate}
-								onView={handleViewBooking}
-								onEdit={handleEditBooking}
-								onDelete={handleDeleteBooking}
-								onForceLoadingComplete={handleForceLoadingComplete}
-								onRefresh={loadBookings}
-							/>
-						</Paper>
-					)}
-				</Box>
+						<BookingFilters
+							bookingType={bookingType}
+							calendarView={calendarView}
+							selectedDate={selectedDate}
+							view={view}
+							onDateChange={handleDateChange}
+							onViewChange={handleViewChange}
+							onRefresh={loadBookings}
+						/>
+
+						<BookingContent
+							loading={loading}
+							error={error}
+							view={view}
+							bookingType={bookingType}
+							bookings={bookings}
+							daysOfWeek={daysOfWeek}
+							userRole={auth.roles?.[0] || ""}
+							calendarView={calendarView}
+							selectedDate={selectedDate}
+							onView={handleViewBooking}
+							onEdit={handleEditBooking}
+							onDelete={handleDeleteBooking}
+							onForceLoadingComplete={handleForceLoadingComplete}
+							onRefresh={loadBookings}
+						/>
+					</Box>
+				)}
 			</Container>
 
 			<BookingModals
@@ -580,7 +471,7 @@ const Bookings: React.FC = () => {
 				onClose={handleModalClose}
 				onCreateBooking={handleCreateBooking}
 				onUpdateBooking={handleUpdateBooking}
-				onEditFromView={handleEditBooking} 
+				onEditFromView={handleEditBooking}
 			/>
 		</Mainlayout>
 	);

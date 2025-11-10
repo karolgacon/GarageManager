@@ -6,8 +6,6 @@ import {
 	Button,
 	ToggleButtonGroup,
 	ToggleButton,
-	Select,
-	MenuItem,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -15,6 +13,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import CalendarViewWeekIcon from "@mui/icons-material/CalendarViewWeek";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 
 interface BookingFiltersProps {
 	bookingType: string;
@@ -38,28 +42,13 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 	onViewChange,
 	onRefresh,
 }) => {
-	const selectMenuProps = {
-		disableScrollLock: true,
-		anchorOrigin: {
-			vertical: "bottom",
-			horizontal: "left",
-		},
-		transformOrigin: {
-			vertical: "top",
-			horizontal: "left",
-		},
-		PaperProps: {
-			style: {
-				maxHeight: 224,
-			},
-		},
-	};
-
 	return (
 		<Box
 			sx={{
 				p: 3,
-				borderBottom: "1px solid #eeeeee",
+				mb: 3,
+				borderRadius: 2,
+				backgroundColor: COLOR_SURFACE,
 				display: "flex",
 				flexDirection: { xs: "column", sm: "row" },
 				alignItems: { xs: "stretch", sm: "center" },
@@ -73,7 +62,12 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 						<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
 							<Typography
 								variant="body1"
-								sx={{ whiteSpace: "nowrap", fontWeight: "medium" }}
+								sx={{
+									whiteSpace: "nowrap",
+									fontWeight: "medium",
+									color: COLOR_TEXT_PRIMARY,
+									opacity: 0.9,
+								}}
 							>
 								Select{" "}
 								{calendarView === "month"
@@ -94,10 +88,45 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 										},
 										layout: {
 											sx: {
-												"& .MuiPickersDay-root.Mui-selected": {
-													bgcolor: "#ff3c4e",
-													"&:hover": { bgcolor: "#d6303f" },
-													"&:focus": { bgcolor: "#d6303f" },
+												"& .MuiPickersDay-root": {
+													color: COLOR_TEXT_PRIMARY,
+													"&.Mui-selected": {
+														bgcolor: COLOR_PRIMARY + " !important",
+														color: COLOR_TEXT_PRIMARY + " !important",
+														"&:hover": {
+															bgcolor: COLOR_PRIMARY + " !important",
+															opacity: 0.9,
+														},
+														"&:focus": {
+															bgcolor: COLOR_PRIMARY + " !important",
+															opacity: 0.9,
+														},
+													},
+													"&:hover": {
+														bgcolor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+												"& .MuiPickersCalendarHeader-label": {
+													color: COLOR_TEXT_PRIMARY,
+												},
+												"& .MuiPickersArrowSwitcher-button": {
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														bgcolor: "rgba(56, 130, 246, 0.1)",
+													},
+												},
+												"& .MuiDayCalendar-weekDayLabel": {
+													color: COLOR_TEXT_SECONDARY,
+												},
+												bgcolor: COLOR_SURFACE,
+												color: COLOR_TEXT_PRIMARY,
+											},
+										},
+										popper: {
+											sx: {
+												"& .MuiPaper-root": {
+													bgcolor: COLOR_SURFACE,
+													border: `1px solid ${COLOR_TEXT_SECONDARY}`,
 												},
 											},
 										},
@@ -105,13 +134,20 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 									sx={{
 										"& .MuiOutlinedInput-root": {
 											"& fieldset": {
-												borderColor: "#ddd",
+												borderColor: COLOR_TEXT_SECONDARY,
+												borderRadius: 1,
 											},
 											"&:hover fieldset": {
-												borderColor: "#ff3c4e",
+												borderColor: COLOR_PRIMARY,
 											},
 											"&.Mui-focused fieldset": {
-												borderColor: "#ff3c4e",
+												borderColor: COLOR_PRIMARY,
+											},
+											"& .MuiInputBase-input": {
+												color: COLOR_TEXT_PRIMARY,
+											},
+											"& .MuiInputAdornment-root": {
+												color: COLOR_TEXT_SECONDARY,
 											},
 										},
 									}}
@@ -138,11 +174,12 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 							onClick={onRefresh}
 							size="small"
 							sx={{
-								color: "#555",
-								borderColor: "#ddd",
+								color: COLOR_TEXT_SECONDARY,
+								borderColor: "rgba(255, 255, 255, 0.1)",
 								"&:hover": {
-									borderColor: "#ff3c4e",
-									color: "#ff3c4e",
+									borderColor: COLOR_PRIMARY,
+									color: COLOR_PRIMARY,
+									backgroundColor: "rgba(56, 130, 246, 0.08)",
 								},
 							}}
 						>
@@ -157,12 +194,18 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 							size="small"
 							sx={{
 								"& .MuiToggleButton-root.Mui-selected": {
-									bgcolor: "#ff3c4e",
-									color: "white",
-									"&:hover": { bgcolor: "#d6303f" },
+									bgcolor: COLOR_PRIMARY,
+									color: COLOR_TEXT_PRIMARY,
+									"&:hover": { bgcolor: COLOR_PRIMARY, opacity: 0.9 },
 								},
 								"& .MuiToggleButton-root": {
-									"&:hover": { bgcolor: "rgba(255, 60, 78, 0.08)" },
+									color: COLOR_TEXT_SECONDARY,
+									borderColor: "rgba(255, 255, 255, 0.1)",
+									"&:hover": {
+										backgroundColor: "rgba(56, 130, 246, 0.08)",
+										borderColor: COLOR_PRIMARY,
+										color: COLOR_PRIMARY,
+									},
 								},
 							}}
 						>

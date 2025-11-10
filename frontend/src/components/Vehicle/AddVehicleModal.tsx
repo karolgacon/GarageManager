@@ -88,12 +88,12 @@ const ColorlibStepIconRoot = styled("div")<{
 	alignItems: "center",
 	...(ownerState.active && {
 		backgroundColor: COLOR_PRIMARY,
-		color: "#fff",
+		color: COLOR_TEXT_PRIMARY,
 		boxShadow: "0 4px 10px 0 rgba(0,0,0,.25)",
 	}),
 	...(ownerState.completed && {
 		backgroundColor: COLOR_PRIMARY,
-		color: "#fff",
+		color: COLOR_TEXT_PRIMARY,
 	}),
 }));
 
@@ -782,7 +782,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 					justifyContent: "space-between",
 					alignItems: "center",
 					bgcolor: COLOR_PRIMARY,
-					color: "white",
+					color: COLOR_TEXT_PRIMARY,
 					px: 3,
 					py: { xs: 2, md: 3 },
 				}}

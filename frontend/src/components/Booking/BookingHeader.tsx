@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { COLOR_PRIMARY, COLOR_TEXT_PRIMARY } from "../../constants";
 
 interface BookingHeaderProps {
 	userRole: string;
@@ -22,7 +23,12 @@ const BookingHeader: React.FC<BookingHeaderProps> = ({
 				mb: 4,
 			}}
 		>
-			<Typography variant="h4" component="h1" fontWeight="bold">
+			<Typography
+				variant="h4"
+				component="h1"
+				fontWeight="bold"
+				sx={{ color: COLOR_TEXT_PRIMARY }}
+			>
 				Bookings
 			</Typography>
 
@@ -31,10 +37,12 @@ const BookingHeader: React.FC<BookingHeaderProps> = ({
 					variant="contained"
 					startIcon={<AddIcon />}
 					sx={{
-						bgcolor: "#ff3c4e",
-						"&:hover": { bgcolor: "#d6303f" },
+						bgcolor: COLOR_PRIMARY,
+						"&:hover": { bgcolor: COLOR_PRIMARY, opacity: 0.9 },
 						borderRadius: 1,
 						px: 3,
+						textTransform: "none",
+						fontWeight: 600,
 					}}
 					onClick={onAddBooking}
 				>

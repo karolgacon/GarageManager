@@ -83,7 +83,7 @@ const VehicleDetailDialog: React.FC<VehicleDetailDialogProps> = ({
 			<DialogTitle
 				sx={{
 					bgcolor: COLOR_PRIMARY,
-					color: "white",
+					color: COLOR_TEXT_PRIMARY,
 					display: "flex",
 					justifyContent: "space-between",
 					alignItems: "center",
