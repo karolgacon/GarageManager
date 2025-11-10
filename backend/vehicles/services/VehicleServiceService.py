@@ -49,6 +49,13 @@ class VehicleServiceService:
         except Exception as e:
             raise ValidationError(str(e))
 
+    def get_by_workshop(self, workshop_id):
+        """Get services for vehicles associated with a specific workshop."""
+        try:
+            return self.repository.get_by_workshop(workshop_id)
+        except Exception as e:
+            raise ValidationError(str(e))
+
     def create(self, data):
         """Create new vehicle service."""
         try:

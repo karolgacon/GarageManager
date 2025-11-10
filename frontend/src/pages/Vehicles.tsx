@@ -28,6 +28,7 @@ import CustomSnackbar, {
 import AuthContext from "../context/AuthProvider";
 import { Vehicle } from "../models/VehicleModel";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
+import { workshopService } from "../api/WorkshopAPIEndpoint";
 import {
 	COLOR_PRIMARY,
 	COLOR_BACKGROUND,
@@ -76,10 +77,25 @@ const Vehicles: React.FC = () => {
 				data = await vehicleService.getAllVehicles();
 			} else if (userRole === "client") {
 				data = await vehicleService.getCurrentUserVehicles();
-			} else if (["owner", "mechanic"].includes(userRole || "")) {
-				if (auth.workshopId) {
-					data = await vehicleService.getWorkshopVehicles(auth.workshopId);
+			} else if (userRole === "owner") {
+				// Owner should see all vehicles from their workshop
+				const workshop = await workshopService.getCurrentUserWorkshop();
+				if (workshop?.id) {
+					data = await vehicleService.getWorkshopVehicles(workshop.id);
 				} else {
+					data = [];
+					setError("Workshop information not available");
+				}
+			} else if (userRole === "mechanic") {
+				// Mechanic should see vehicles from their workshop
+				try {
+					const workshop = await workshopService.getCurrentUserWorkshop();
+					if (workshop?.id) {
+						data = await vehicleService.getWorkshopVehicles(workshop.id);
+					} else {
+						data = await vehicleService.getCurrentUserVehicles();
+					}
+				} catch {
 					data = await vehicleService.getCurrentUserVehicles();
 				}
 			} else {
@@ -461,29 +477,34 @@ const Vehicles: React.FC = () => {
 				open={detailDialogOpen}
 				onClose={() => setDetailDialogOpen(false)}
 				vehicle={selectedVehicle}
-				userRole={auth.roles?.[0] || ""}
 			/>
 			<AddVehicleModal
 				open={addModalOpen}
 				onClose={() => setAddModalOpen(false)}
 				onVehicleAdded={handleVehicleAdded}
-				userRole={auth.roles?.[0]}
-				currentWorkshopId={auth.workshopId}
+				userRole={auth.roles?.[0] || ""}
 			/>
 			<EditVehicleModal
 				open={editModalOpen}
 				onClose={() => setEditModalOpen(false)}
 				vehicleId={editVehicleId}
 				onVehicleUpdated={handleVehicleUpdated}
-				userRole={auth.roles?.[0]}
-				currentWorkshopId={auth.workshopId}
+				userRole={auth.roles?.[0] || ""}
 			/>
 			<DeleteVehicleDialog
 				open={deleteDialogOpen}
 				onClose={() => setDeleteDialogOpen(false)}
-				vehicle={selectedVehicle}
+				vehicleDetails={
+					selectedVehicle
+						? {
+								make: selectedVehicle.brand,
+								model: selectedVehicle.model,
+								registration: selectedVehicle.registration_number,
+						  }
+						: undefined
+				}
 				onConfirm={confirmDeleteVehicle}
-				loading={deleteLoading}
+				isLoading={deleteLoading}
 			/>
 			<CustomSnackbar snackbarState={snackbar} onClose={handleSnackbarClose} />
 		</Mainlayout>

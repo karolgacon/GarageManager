@@ -18,7 +18,12 @@ import WarningIcon from "@mui/icons-material/Warning";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingIcon from "@mui/icons-material/Pending";
-import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { serviceService } from "../../api/ServiceAPIEndpoint";
 import { diagnosticsService } from "../../api/DiagnosticsAPIEndpoint";
@@ -34,8 +39,8 @@ const MechanicDashboard: React.FC = () => {
 		pendingDiagnostics: 0,
 		completedToday: 0,
 		vehiclesInService: 0,
-		todayTasks: [],
-		criticalIssues: [],
+		todayTasks: [] as any[],
+		criticalIssues: [] as any[],
 	});
 
 	useEffect(() => {
@@ -49,7 +54,7 @@ const MechanicDashboard: React.FC = () => {
 				}
 
 				const mechanicId = auth.user_id;
-				const workshopId = auth.workshop_id;
+				const workshopId = (auth as any).workshop_id;
 
 				if (!mechanicId || !workshopId) {
 					setError(
@@ -67,10 +72,11 @@ const MechanicDashboard: React.FC = () => {
 
 				const diagnostics = await diagnosticsService.getAllDiagnostics();
 				const pendingDiagnostics = diagnostics.filter(
-					(diag) => diag.status === "pending" && diag.assigned_to === mechanicId
+					(diag: any) =>
+						diag.status === "pending" && diag.assigned_to === mechanicId
 				);
 				const criticalIssues = diagnostics.filter(
-					(diag) =>
+					(diag: any) =>
 						diag.severity === "critical" && diag.workshop_id === workshopId
 				);
 
@@ -85,17 +91,17 @@ const MechanicDashboard: React.FC = () => {
 
 				const vehicles = await vehicleService.getWorkshopVehicles(workshopId);
 				const inServiceVehicles = vehicles.filter(
-					(vehicle) => vehicle.status === "in_service"
+					(vehicle: any) => vehicle.status === "maintenance"
 				);
 
 				const bookings = await bookingService.getWorkshopBookings(workshopId);
 				const todayBookings = bookings.filter(
-					(booking) =>
+					(booking: any) =>
 						booking.appointment_date &&
 						booking.appointment_date.startsWith(today)
 				);
 
-				const todayTasks = todayBookings.map((booking) => ({
+				const todayTasks = todayBookings.map((booking: any) => ({
 					id: booking.id,
 					vehicle: booking.vehicle_details
 						? `${booking.vehicle_details.make} ${booking.vehicle_details.model} (${booking.vehicle_details.registration_number})`
@@ -111,7 +117,7 @@ const MechanicDashboard: React.FC = () => {
 					completedToday: completedToday.length,
 					vehiclesInService: inServiceVehicles.length,
 					todayTasks,
-					criticalIssues: criticalIssues.map((issue) => ({
+					criticalIssues: criticalIssues.map((issue: any) => ({
 						id: issue.id,
 						vehicle: issue.vehicle_details
 							? `${issue.vehicle_details.make} ${issue.vehicle_details.model} (${issue.vehicle_details.registration_number})`
@@ -128,7 +134,7 @@ const MechanicDashboard: React.FC = () => {
 		};
 
 		fetchDashboardData();
-	}, [auth]); 
+	}, [auth]);
 
 	if (loading) {
 		return (
@@ -177,15 +183,27 @@ const MechanicDashboard: React.FC = () => {
 		<Box>
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<BuildIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.assignedTasks}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Assigned Tasks
 							</Typography>
 						</Box>
@@ -193,15 +211,27 @@ const MechanicDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<WarningIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.pendingDiagnostics}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Pending Diagnostics
 							</Typography>
 						</Box>
@@ -209,17 +239,29 @@ const MechanicDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<CheckCircleIcon
 								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.completedToday}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Completed Today
 							</Typography>
 						</Box>
@@ -227,17 +269,29 @@ const MechanicDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<DirectionsCarIcon
 								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.vehiclesInService}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Vehicles In Service
 							</Typography>
 						</Box>
@@ -247,21 +301,47 @@ const MechanicDashboard: React.FC = () => {
 
 			<Grid container spacing={3}>
 				<Grid item xs={12} md={8}>
-					<Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 3,
+							borderRadius: 2,
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Today's Tasks
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						{dashboardData.todayTasks.length === 0 ? (
-							<Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
+							<Typography
+								variant="body1"
+								sx={{
+									textAlign: "center",
+									py: 2,
+									color: COLOR_TEXT_PRIMARY,
+								}}
+							>
 								No tasks scheduled for today.
 							</Typography>
 						) : (
 							<Grid container spacing={2}>
 								{dashboardData.todayTasks.map((task) => (
 									<Grid item xs={12} key={task.id}>
-										<Card variant="outlined" sx={{ borderRadius: 2 }}>
+										<Card
+											variant="outlined"
+											sx={{
+												borderRadius: 2,
+												borderColor: COLOR_TEXT_SECONDARY,
+												backgroundColor: COLOR_SURFACE,
+											}}
+										>
 											<CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
 												<Box
 													sx={{
@@ -271,10 +351,17 @@ const MechanicDashboard: React.FC = () => {
 													}}
 												>
 													<Box>
-														<Typography variant="subtitle1" fontWeight="medium">
+														<Typography
+															variant="subtitle1"
+															fontWeight="medium"
+															sx={{ color: COLOR_TEXT_PRIMARY }}
+														>
 															{task.vehicle}
 														</Typography>
-														<Typography variant="body2" color="text.secondary">
+														<Typography
+															variant="body2"
+															sx={{ color: COLOR_TEXT_SECONDARY }}
+														>
 															{task.service} - {task.time}
 														</Typography>
 													</Box>
@@ -287,7 +374,7 @@ const MechanicDashboard: React.FC = () => {
 															bgcolor:
 																task.status === "completed"
 																	? "success.main"
-																	: undefined,
+																	: COLOR_PRIMARY,
 														}}
 													/>
 												</Box>
@@ -306,7 +393,7 @@ const MechanicDashboard: React.FC = () => {
 								sx={{
 									borderRadius: 2,
 									bgcolor: COLOR_PRIMARY,
-									"&:hover": { bgcolor: "#d6303f" },
+									"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 								}}
 							>
 								View All Bookings
@@ -316,14 +403,33 @@ const MechanicDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} md={4}>
-					<Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 3,
+							borderRadius: 2,
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Critical Issues
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						{dashboardData.criticalIssues.length === 0 ? (
-							<Typography variant="body1" sx={{ textAlign: "center", py: 2 }}>
+							<Typography
+								variant="body1"
+								sx={{
+									textAlign: "center",
+									py: 2,
+									color: COLOR_TEXT_PRIMARY,
+								}}
+							>
 								No critical issues at the moment.
 							</Typography>
 						) : (
@@ -336,20 +442,27 @@ const MechanicDashboard: React.FC = () => {
 												borderRadius: 2,
 												borderColor:
 													issue.severity === "critical"
-														? "error.main"
-														: undefined,
-												bgcolor:
-													issue.severity === "critical" ? "#FFF5F5" : undefined,
+														? "#EF4444"
+														: COLOR_TEXT_SECONDARY,
+												backgroundColor: COLOR_SURFACE,
 											}}
 										>
 											<CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
 												<Box sx={{ display: "flex", alignItems: "center" }}>
 													<WarningIcon color="error" sx={{ mr: 1 }} />
 													<Box>
-														<Typography variant="subtitle2" fontWeight="medium">
+														<Typography
+															variant="subtitle2"
+															fontWeight="medium"
+															sx={{ color: COLOR_TEXT_PRIMARY }}
+														>
 															{issue.vehicle}
 														</Typography>
-														<Typography variant="body2" color="error">
+														<Typography
+															variant="body2"
+															color="error"
+															sx={{ color: "#EF4444" }}
+														>
 															{issue.issue}
 														</Typography>
 													</Box>

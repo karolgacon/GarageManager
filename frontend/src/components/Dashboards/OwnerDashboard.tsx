@@ -20,7 +20,12 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import EventIcon from "@mui/icons-material/Event";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonIcon from "@mui/icons-material/Person";
-import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { workshopService } from "../../api/WorkshopAPIEndpoint";
 import { staffService } from "../../api/StaffAPIEndpoint";
@@ -39,7 +44,7 @@ const OwnerDashboard: React.FC = () => {
 		vehicleCount: 0,
 		todayBookings: 0,
 		inventoryItems: 0,
-		recentMechanics: [],
+		recentMechanics: [] as any[],
 	});
 
 	useEffect(() => {
@@ -62,7 +67,7 @@ const OwnerDashboard: React.FC = () => {
 				);
 				const today = new Date().toISOString().split("T")[0];
 				const todayBookings = allBookings.filter(
-					(booking) =>
+					(booking: any) =>
 						booking.appointment_date &&
 						booking.appointment_date.startsWith(today)
 				);
@@ -79,16 +84,16 @@ const OwnerDashboard: React.FC = () => {
 					vehicleCount: vehicles.length,
 					todayBookings: todayBookings.length,
 					inventoryItems: inventory.length,
-					recentMechanics: mechanics.slice(0, 3).map((mechanic) => ({
+					recentMechanics: mechanics.slice(0, 3).map((mechanic: any) => ({
 						id: mechanic.id,
 						name:
 							`${mechanic.first_name || ""} ${
 								mechanic.last_name || ""
 							}`.trim() ||
-							mechanic.username ||
+							(mechanic as any).username ||
 							"Unknown",
 						avatar: null,
-						status: mechanic.status || "Available",
+						status: (mechanic as any).status || "Available",
 					})),
 				});
 			} catch (error) {
@@ -121,25 +126,42 @@ const OwnerDashboard: React.FC = () => {
 	return (
 		<Box>
 			<Box sx={{ mb: 4 }}>
-				<Typography variant="h4" gutterBottom fontWeight="bold">
+				<Typography
+					variant="h4"
+					gutterBottom
+					fontWeight="bold"
+					sx={{ color: COLOR_TEXT_PRIMARY }}
+				>
 					{workshopData.name}
 				</Typography>
-				<Typography variant="subtitle1" color="text.secondary">
+				<Typography variant="subtitle1" sx={{ color: COLOR_TEXT_SECONDARY }}>
 					{workshopData.location}
 				</Typography>
 			</Box>
 
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<PeopleIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{workshopData.mechanicCount}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Mechanics
 							</Typography>
 						</Box>
@@ -147,15 +169,27 @@ const OwnerDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<PeopleIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{workshopData.customerCount}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Customers
 							</Typography>
 						</Box>
@@ -163,17 +197,29 @@ const OwnerDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<DirectionsCarIcon
 								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{workshopData.vehicleCount}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Vehicles
 							</Typography>
 						</Box>
@@ -181,15 +227,27 @@ const OwnerDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<EventIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{workshopData.todayBookings}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Today's Bookings
 							</Typography>
 						</Box>
@@ -197,17 +255,29 @@ const OwnerDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={2.4}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<InventoryIcon
 								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{workshopData.inventoryItems}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Inventory Items
 							</Typography>
 						</Box>
@@ -225,12 +295,18 @@ const OwnerDashboard: React.FC = () => {
 							width: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Quick Actions
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						<Box
 							sx={{
@@ -337,12 +413,18 @@ const OwnerDashboard: React.FC = () => {
 							width: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Staff Overview
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						<Box
 							sx={{
@@ -356,7 +438,11 @@ const OwnerDashboard: React.FC = () => {
 								{workshopData.recentMechanics.length === 0 ? (
 									<Typography
 										variant="body1"
-										sx={{ textAlign: "center", py: 2 }}
+										sx={{
+											textAlign: "center",
+											py: 2,
+											color: COLOR_TEXT_PRIMARY,
+										}}
 									>
 										No staff members found.
 									</Typography>
@@ -371,6 +457,12 @@ const OwnerDashboard: React.FC = () => {
 											<ListItemText
 												primary={mechanic.name}
 												secondary={mechanic.status}
+												primaryTypographyProps={{
+													sx: { color: COLOR_TEXT_PRIMARY },
+												}}
+												secondaryTypographyProps={{
+													sx: { color: COLOR_TEXT_SECONDARY },
+												}}
 											/>
 										</ListItem>
 									))
@@ -388,7 +480,7 @@ const OwnerDashboard: React.FC = () => {
 										bgcolor: COLOR_PRIMARY,
 										py: 1.5,
 										textTransform: "uppercase",
-										"&:hover": { bgcolor: "#d6303f" },
+										"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 									}}
 								>
 									VIEW ALL MECHANICS

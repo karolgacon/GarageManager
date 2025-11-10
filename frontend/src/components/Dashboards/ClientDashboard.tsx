@@ -24,7 +24,12 @@ import WarningIcon from "@mui/icons-material/Warning";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import HistoryIcon from "@mui/icons-material/History";
-import { COLOR_PRIMARY } from "../../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
@@ -39,8 +44,8 @@ const ClientDashboard: React.FC = () => {
 		upcomingBookings: 0,
 		completedServices: 0,
 		pendingIssues: 0,
-		userVehicles: [],
-		nextAppointment: null,
+		userVehicles: [] as any[],
+		nextAppointment: null as any,
 	});
 
 	useEffect(() => {
@@ -49,7 +54,7 @@ const ClientDashboard: React.FC = () => {
 				setLoading(true);
 
 				if (!auth || auth.isLoading) {
-					return; 
+					return;
 				}
 
 				const clientId = auth.user_id;
@@ -58,20 +63,18 @@ const ClientDashboard: React.FC = () => {
 					return;
 				}
 
-
-				let vehicles = [];
+				let vehicles: any[] = [];
 				try {
 					vehicles = await vehicleService.getClientVehicles(clientId);
 				} catch (vehicleError) {
-					vehicles = []; 
+					vehicles = [];
 				}
 
-				
 				let upcomingBookings = [];
 				try {
 					upcomingBookings = await bookingService.getUpcomingBookings();
 				} catch (bookingError) {
-					upcomingBookings = []; 
+					upcomingBookings = [];
 				}
 
 				const vehicleIds = vehicles.map((v) => v.id);
@@ -80,24 +83,23 @@ const ClientDashboard: React.FC = () => {
 				if (vehicleIds.length > 0) {
 					try {
 						const servicesPromises = vehicleIds.map((id) =>
-							serviceService.getVehicleServices(id).catch((err) => {
-								return []; 
+							serviceService.getVehicleServices(id).catch((_err) => {
+								return [];
 							})
 						);
 						const services = await Promise.all(servicesPromises);
 						completedServices = services
 							.flat()
 							.filter((service) => service && service.status === "completed");
-					} catch (serviceError) {
-					}
+					} catch (serviceError) {}
 				}
 
 				let pendingIssues = [];
 				if (vehicleIds.length > 0) {
 					try {
 						const diagnosticsPromises = vehicleIds.map((id) =>
-							diagnosticsService.getVehicleDiagnostics(id).catch((err) => {
-								return []; 
+							diagnosticsService.getVehicleDiagnostics(id).catch((_err) => {
+								return [];
 							})
 						);
 						const allDiagnostics = (
@@ -168,19 +170,32 @@ const ClientDashboard: React.FC = () => {
 
 	return (
 		<Box>
+
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<DirectionsCarIcon
 								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.vehicles}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Your Vehicles
 							</Typography>
 						</Box>
@@ -188,15 +203,27 @@ const ClientDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<EventIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.upcomingBookings}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Upcoming Appointments
 							</Typography>
 						</Box>
@@ -204,15 +231,27 @@ const ClientDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<BuildIcon sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }} />
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.completedServices}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Completed Services
 							</Typography>
 						</Box>
@@ -220,24 +259,34 @@ const ClientDashboard: React.FC = () => {
 				</Grid>
 
 				<Grid item xs={12} sm={6} md={3}>
-					<Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
+					<Paper
+						elevation={2}
+						sx={{
+							p: 2,
+							borderRadius: 2,
+							height: "100%",
+							backgroundColor: COLOR_SURFACE,
+						}}
+					>
 						<Box
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<WarningIcon
 								sx={{
 									color:
-										dashboardData.pendingIssues > 0
-											? "warning.main"
-											: COLOR_PRIMARY,
+										dashboardData.pendingIssues > 0 ? "#F59E0B" : COLOR_PRIMARY,
 									fontSize: 40,
 									mb: 1,
 								}}
 							/>
-							<Typography variant="h5" fontWeight="bold">
+							<Typography
+								variant="h5"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								{dashboardData.pendingIssues}
 							</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography variant="body2" sx={{ color: COLOR_TEXT_SECONDARY }}>
 								Pending Issues
 							</Typography>
 						</Box>
@@ -255,6 +304,7 @@ const ClientDashboard: React.FC = () => {
 							height: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
 						<Box
@@ -265,7 +315,11 @@ const ClientDashboard: React.FC = () => {
 								mb: 1,
 							}}
 						>
-							<Typography variant="h6" fontWeight="bold">
+							<Typography
+								variant="h6"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
 								Your Vehicles
 							</Typography>
 							<Button
@@ -275,7 +329,7 @@ const ClientDashboard: React.FC = () => {
 								to="/vehicles"
 								sx={{
 									color: COLOR_PRIMARY,
-									"&:hover": { bgcolor: "transparent" },
+									"&:hover": { bgcolor: `${COLOR_PRIMARY}10` },
 									p: 0,
 									minWidth: 0,
 								}}
@@ -283,7 +337,7 @@ const ClientDashboard: React.FC = () => {
 								+Add
 							</Button>
 						</Box>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						<Box
 							sx={{
@@ -304,7 +358,11 @@ const ClientDashboard: React.FC = () => {
 										justifyContent: "center",
 									}}
 								>
-									<Typography variant="body1" gutterBottom>
+									<Typography
+										variant="body1"
+										gutterBottom
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										You haven't added any vehicles yet.
 									</Typography>
 									<Button
@@ -317,7 +375,7 @@ const ClientDashboard: React.FC = () => {
 											borderRadius: 2,
 											bgcolor: COLOR_PRIMARY,
 											alignSelf: "center",
-											"&:hover": { bgcolor: "#d6303f" },
+											"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 										}}
 									>
 										ADD VEHICLE
@@ -331,8 +389,9 @@ const ClientDashboard: React.FC = () => {
 											sx={{
 												p: 1,
 												mb: 1,
-												border: "1px solid #eee",
+												border: `1px solid ${COLOR_TEXT_SECONDARY}`,
 												borderRadius: 1,
+												backgroundColor: COLOR_SURFACE,
 												"&:last-child": { mb: 0 },
 											}}
 										>
@@ -353,8 +412,12 @@ const ClientDashboard: React.FC = () => {
 												primaryTypographyProps={{
 													variant: "body2",
 													fontWeight: "medium",
+													sx: { color: COLOR_TEXT_PRIMARY },
 												}}
-												secondaryTypographyProps={{ variant: "caption" }}
+												secondaryTypographyProps={{
+													variant: "caption",
+													sx: { color: COLOR_TEXT_SECONDARY },
+												}}
 											/>
 											<Chip
 												label={vehicle.status === "good" ? "Good" : "Check"}
@@ -379,7 +442,7 @@ const ClientDashboard: React.FC = () => {
 									bgcolor: COLOR_PRIMARY,
 									py: 1,
 									mt: "auto",
-									"&:hover": { bgcolor: "#d6303f" },
+									"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 								}}
 							>
 								VIEW ALL VEHICLES
@@ -397,12 +460,18 @@ const ClientDashboard: React.FC = () => {
 							height: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Next Appointment
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						<Box
 							sx={{
@@ -423,7 +492,11 @@ const ClientDashboard: React.FC = () => {
 										justifyContent: "center",
 									}}
 								>
-									<Typography variant="body1" gutterBottom>
+									<Typography
+										variant="body1"
+										gutterBottom
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										No upcoming appointments.
 									</Typography>
 									<Button
@@ -436,7 +509,7 @@ const ClientDashboard: React.FC = () => {
 											borderRadius: 2,
 											bgcolor: COLOR_PRIMARY,
 											alignSelf: "center",
-											"&:hover": { bgcolor: "#d6303f" },
+											"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 										}}
 									>
 										SCHEDULE SERVICE
@@ -449,7 +522,7 @@ const ClientDashboard: React.FC = () => {
 										sx={{
 											borderRadius: 2,
 											borderColor: COLOR_PRIMARY,
-											bgcolor: "#FFF5F5",
+											backgroundColor: COLOR_SURFACE,
 										}}
 									>
 										<CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
@@ -463,17 +536,33 @@ const ClientDashboard: React.FC = () => {
 												<CalendarMonthIcon
 													sx={{ color: COLOR_PRIMARY, mr: 1, fontSize: 20 }}
 												/>
-												<Typography variant="subtitle2" fontWeight="bold">
+												<Typography
+													variant="subtitle2"
+													fontWeight="bold"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													{dashboardData.nextAppointment.date}
 												</Typography>
-												<Typography variant="body2" sx={{ ml: "auto" }}>
+												<Typography
+													variant="body2"
+													sx={{
+														ml: "auto",
+														color: COLOR_TEXT_SECONDARY,
+													}}
+												>
 													{dashboardData.nextAppointment.time}
 												</Typography>
 											</Box>
-											<Typography variant="body2">
+											<Typography
+												variant="body2"
+												sx={{ color: COLOR_TEXT_PRIMARY }}
+											>
 												{dashboardData.nextAppointment.service}
 											</Typography>
-											<Typography variant="caption" color="text.secondary">
+											<Typography
+												variant="caption"
+												sx={{ color: COLOR_TEXT_SECONDARY }}
+											>
 												at {dashboardData.nextAppointment.workshop}
 											</Typography>
 										</CardContent>
@@ -491,7 +580,7 @@ const ClientDashboard: React.FC = () => {
 									bgcolor: COLOR_PRIMARY,
 									py: 1,
 									mt: "auto",
-									"&:hover": { bgcolor: "#d6303f" },
+									"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
 								}}
 							>
 								VIEW ALL BOOKINGS
@@ -509,12 +598,18 @@ const ClientDashboard: React.FC = () => {
 							height: "100%",
 							display: "flex",
 							flexDirection: "column",
+							backgroundColor: COLOR_SURFACE,
 						}}
 					>
-						<Typography variant="h6" fontWeight="bold" gutterBottom>
+						<Typography
+							variant="h6"
+							fontWeight="bold"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Quick Actions
 						</Typography>
-						<Divider sx={{ my: 2 }} />
+						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						<Box
 							sx={{
@@ -532,7 +627,7 @@ const ClientDashboard: React.FC = () => {
 									disablePadding
 									sx={{
 										py: 1.5,
-										borderBottom: "1px solid #eee",
+										borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}`,
 									}}
 								>
 									<ListItemIcon sx={{ minWidth: 40 }}>
@@ -542,7 +637,7 @@ const ClientDashboard: React.FC = () => {
 										primary="BOOK SERVICE"
 										sx={{ m: 0 }}
 										primaryTypographyProps={{
-											sx: { fontWeight: 500, color: "#444" },
+											sx: { fontWeight: 500, color: COLOR_TEXT_PRIMARY },
 										}}
 									/>
 								</ListItem>
@@ -561,7 +656,7 @@ const ClientDashboard: React.FC = () => {
 										primary="REGISTER NEW VEHICLE"
 										sx={{ m: 0 }}
 										primaryTypographyProps={{
-											sx: { fontWeight: 500, color: "#444" },
+											sx: { fontWeight: 500, color: COLOR_TEXT_PRIMARY },
 										}}
 									/>
 								</ListItem>
@@ -573,7 +668,7 @@ const ClientDashboard: React.FC = () => {
 									disablePadding
 									sx={{
 										py: 1.5,
-										borderTop: "1px solid #eee",
+										borderTop: `1px solid ${COLOR_TEXT_SECONDARY}`,
 									}}
 								>
 									<ListItemIcon sx={{ minWidth: 40 }}>
@@ -583,7 +678,7 @@ const ClientDashboard: React.FC = () => {
 										primary="VIEW SERVICE HISTORY"
 										sx={{ m: 0 }}
 										primaryTypographyProps={{
-											sx: { fontWeight: 500, color: "#444" },
+											sx: { fontWeight: 500, color: COLOR_TEXT_PRIMARY },
 										}}
 									/>
 								</ListItem>

@@ -88,3 +88,38 @@ class VehicleServiceViewSet(BaseViewSet):
             return Response(serializer.data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary="Get all services for a workshop",
+        parameters=[
+            OpenApiParameter(name="workshop_id", location="query", required=True, type=int)
+        ],
+        responses={
+            200: VehicleServiceSerializer(many=True),
+            400: OpenApiResponse(description="Workshop ID is required"),
+            403: OpenApiResponse(description="Permission denied")
+        }
+    )
+    @action(detail=False, methods=['get'])
+    def by_workshop(self, request):
+        """Get all services for vehicles associated with a specific workshop"""
+        workshop_id = request.query_params.get('workshop_id')
+        if not workshop_id:
+            return Response({"error": "Workshop ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user is staff, admin, or owner of the workshop
+        if not request.user.is_staff:
+            # Check if user is owner of this workshop
+            from workshops.models import Workshop
+            try:
+                workshop = Workshop.objects.get(id=workshop_id, owner=request.user)
+            except Workshop.DoesNotExist:
+                return Response({"error": "You don't have permission to access this workshop's data"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            services = self.service.get_by_workshop(workshop_id)
+            serializer = self.serializer_class(services, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

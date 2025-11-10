@@ -92,4 +92,18 @@ export const serviceService = {
 			return [];
 		}
 	},
+
+	getWorkshopServices: async (workshopId: number) => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/vehicle-services/by_workshop/`,
+				{
+					params: { workshop_id: workshopId },
+				}
+			);
+			return response.data;
+		} catch (error) {
+			return [];
+		}
+	},
 };

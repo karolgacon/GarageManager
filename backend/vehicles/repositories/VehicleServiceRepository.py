@@ -37,3 +37,13 @@ class VehicleServiceRepository(BaseRepository):
             return cls.model.objects.filter(vehicle__owner_id=client_id)
         except Exception as e:
             raise RuntimeError(f"Error retrieving services for client {client_id}: {str(e)}")
+
+    @classmethod
+    def get_by_workshop(cls, workshop_id):
+        """
+        Get all services for vehicles associated with a specific workshop.
+        """
+        try:
+            return cls.model.objects.filter(workshop_id=workshop_id)
+        except Exception as e:
+            raise RuntimeError(f"Error retrieving services for workshop {workshop_id}: {str(e)}")

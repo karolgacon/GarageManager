@@ -34,11 +34,13 @@ import AddServiceModal from "../components/Service/AddServiceModal";
 import EditServiceModal from "../components/Service/EditServiceModal";
 
 import { Service } from "../models/ServiceModel";
+import { VehicleService } from "../models/VehicleServiceModel";
 import { MaintenanceSchedule } from "../models/MaintenanceScheduleModel";
 
 import { serviceService } from "../api/ServiceAPIEndpoint";
 import { maintenanceScheduleService } from "../api/MaintenanceScheduleAPIEndpoint";
 import { vehicleService } from "../api/VehicleAPIEndpoint";
+import { workshopService } from "../api/WorkshopAPIEndpoint";
 import AuthContext from "../context/AuthProvider";
 import {
 	COLOR_PRIMARY,
@@ -63,15 +65,12 @@ const transformServiceData = (serviceData: any[]): Service[] => {
 };
 
 const Services: React.FC = () => {
-	const { auth } = useContext(AuthContext);
-
-	const isAdmin = () => {
-		return auth.roles?.includes("admin") || auth.roles?.[0] === "admin";
-	};
+	const { auth, isAdmin, isOwner } = useContext(AuthContext);
 
 	const [activeTab, setActiveTab] = useState<number>(0);
 
 	const [services, setServices] = useState<Service[]>([]);
+	const [clientServices, setClientServices] = useState<VehicleService[]>([]);
 	const [loadingServices, setLoadingServices] = useState(false);
 
 	const [maintenanceSchedules, setMaintenanceSchedules] = useState<
@@ -98,7 +97,11 @@ const Services: React.FC = () => {
 			if (isAdmin()) {
 				fetchAllServices();
 				fetchAllMaintenanceSchedules();
+			} else if (isOwner()) {
+				// Owner should see workshop-specific data
+				fetchUserVehicles();
 			} else {
+				// Regular client
 				fetchUserVehicles();
 			}
 		}
@@ -108,7 +111,18 @@ const Services: React.FC = () => {
 		let isMounted = true;
 
 		const loadData = async () => {
-			if (!isAdmin() && auth.user_id) {
+			if (isAdmin()) {
+				// Admin sees everything
+				return;
+			} else if (isOwner() && auth.user_id) {
+				// Owner sees workshop-specific data
+				if (activeTab === 0) {
+					await fetchWorkshopServices();
+				} else if (activeTab === 1) {
+					await fetchClientMaintenanceSchedules();
+				}
+			} else if (auth.user_id) {
+				// Regular client sees only their data
 				if (activeTab === 0) {
 					await fetchClientServices();
 				} else if (activeTab === 1) {
@@ -164,14 +178,34 @@ const Services: React.FC = () => {
 				auth.user_id
 			);
 
-			const servicesChanged =
-				JSON.stringify(clientServices) !== JSON.stringify(services);
-
-			if (servicesChanged) {
-				setServices(clientServices || []);
-			}
+			setClientServices(clientServices || []);
 		} catch (error) {
 			setError("Failed to load your service history. Please try again.");
+		} finally {
+			setLoadingServices(false);
+		}
+	};
+
+	const fetchWorkshopServices = async () => {
+		try {
+			setLoadingServices(true);
+			setError(null);
+
+			// Get workshop ID for the owner
+			const workshop = await workshopService.getCurrentUserWorkshop();
+
+			if (!workshop?.id) {
+				setError("Workshop information not available");
+				setLoadingServices(false);
+				return;
+			}
+
+			const workshopServices = await serviceService.getWorkshopServices(
+				workshop.id
+			);
+			setClientServices(workshopServices || []);
+		} catch (error) {
+			setError("Failed to load workshop services. Please try again.");
 		} finally {
 			setLoadingServices(false);
 		}
@@ -358,7 +392,11 @@ const Services: React.FC = () => {
 							fontWeight="bold"
 							sx={{ color: COLOR_TEXT_PRIMARY }}
 						>
-							{isAdmin() ? "All Vehicle Services" : "Your Vehicle Services"}
+							{isAdmin()
+								? "All Vehicle Services"
+								: isOwner()
+								? "Workshop Services"
+								: "Your Vehicle Services"}
 						</Typography>
 						{isAdmin() && (
 							<Button
@@ -443,7 +481,7 @@ const Services: React.FC = () => {
 						</Paper>
 					)}
 
-					{!isAdmin() && activeTab === 0 && (
+					{(isOwner() || !isAdmin()) && activeTab === 0 && (
 						<Paper
 							sx={{
 								p: 3,
@@ -481,12 +519,14 @@ const Services: React.FC = () => {
 												backgroundColor: "rgba(56, 130, 246, 0.1)",
 											},
 										}}
-										onClick={fetchClientServices}
+										onClick={
+											isOwner() ? fetchWorkshopServices : fetchClientServices
+										}
 									>
 										Retry
 									</Button>
 								</Alert>
-							) : services.length === 0 ? (
+							) : clientServices.length === 0 ? (
 								<Alert
 									severity="info"
 									sx={{
@@ -508,7 +548,7 @@ const Services: React.FC = () => {
 									>
 										Your Service History
 									</Typography>
-									{services.map((service, index) => (
+									{clientServices.map((service, index) => (
 										<Paper
 											key={`service-${service.id || index}`}
 											elevation={0}
@@ -530,11 +570,17 @@ const Services: React.FC = () => {
 														{service.name}
 													</Typography>
 													<Typography
-														variant="body2"
-														sx={{ color: COLOR_TEXT_SECONDARY }}
+														variant="body1"
+														fontWeight="medium"
+														sx={{
+															color: COLOR_TEXT_PRIMARY,
+															mb: 1,
+															fontSize: "0.95rem",
+														}}
 													>
-														{service.vehicle?.make} {service.vehicle?.model} (
-														{service.vehicle?.registration_number})
+														🚗 {service.vehicle_details?.make}{" "}
+														{service.vehicle_details?.model} (
+														{service.vehicle_details?.registration_number})
 													</Typography>
 													<Typography
 														variant="body2"
@@ -570,15 +616,26 @@ const Services: React.FC = () => {
 												>
 													<Typography
 														variant="body2"
-														sx={{ color: COLOR_TEXT_PRIMARY }}
+														sx={{ color: COLOR_TEXT_PRIMARY, mb: 0.5 }}
 													>
-														<strong>Date:</strong>{" "}
+														<strong>Start Date:</strong>{" "}
 														{service.service_date
 															? new Date(
 																	service.service_date
 															  ).toLocaleDateString()
 															: "Not scheduled"}
 													</Typography>
+													{service.completion_date && (
+														<Typography
+															variant="body2"
+															sx={{ color: COLOR_TEXT_PRIMARY, mb: 0.5 }}
+														>
+															<strong>Completion Date:</strong>{" "}
+															{new Date(
+																service.completion_date
+															).toLocaleDateString()}
+														</Typography>
+													)}
 													<Typography
 														variant="body2"
 														sx={{ color: COLOR_TEXT_PRIMARY }}
@@ -667,6 +724,8 @@ const Services: React.FC = () => {
 										>
 											{isAdmin()
 												? "All Maintenance Schedules"
+												: isOwner()
+												? "Workshop Maintenance Schedules"
 												: "Your Maintenance Schedule"}
 										</Typography>
 										<Button
@@ -676,6 +735,8 @@ const Services: React.FC = () => {
 											onClick={
 												isAdmin()
 													? fetchAllMaintenanceSchedules
+													: isOwner()
+													? fetchClientMaintenanceSchedules
 													: fetchDueMaintenanceSchedules
 											}
 											sx={{
@@ -687,7 +748,11 @@ const Services: React.FC = () => {
 												},
 											}}
 										>
-											{isAdmin() ? "Refresh All" : "Check Due Maintenance"}
+											{isAdmin()
+												? "Refresh All"
+												: isOwner()
+												? "Refresh Workshop"
+												: "Check Due Maintenance"}
 										</Button>
 									</Box>
 
