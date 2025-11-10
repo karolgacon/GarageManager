@@ -17,17 +17,12 @@ import {
 	DialogContent,
 	DialogActions,
 	TextField,
-	Card,
-	CardContent,
 	Chip,
 	Avatar,
 	IconButton,
 	Menu,
 	ListItemIcon,
 	ListItemText,
-	Badge,
-	Tooltip,
-	LinearProgress,
 	List,
 	ListItem,
 	ListItemAvatar,
@@ -42,29 +37,33 @@ import {
 	MoreVert as MoreVertIcon,
 	Email as EmailIcon,
 	Phone as PhoneIcon,
-	Work as WorkIcon,
 	CalendarToday as CalendarIcon,
-	Schedule as ScheduleIcon,
-	BeachAccess as VacationIcon,
-	TrendingUp as TrendingUpIcon,
+	KeyboardBackspace as KeyboardBackspaceIcon,
 } from "@mui/icons-material";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
-import { COLOR_PRIMARY, COLOR_SURFACE, COLOR_TEXT_PRIMARY } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+	COLOR_ERROR,
+	COLOR_SUCCESS,
+	COLOR_WARNING,
+} from "../constants";
 import AuthContext from "../context/AuthProvider";
 import CustomSnackbar, {
 	SnackbarState,
 } from "../components/Mainlayout/Snackbar";
 import { workshopService } from "../api/WorkshopAPIEndpoint";
 import { staffService, StaffMember } from "../api/StaffAPIEndpoint";
-import { Workshop } from "../models/WorkshopModel";
-import WorkshopSelector from "../components/Common/WorkshopSelector";
+import WorkshopSelector from "../components/common/WorkshopSelector";
 
 const StaffManagement: React.FC = () => {
 	const { auth, isAdmin, isOwner } = useContext(AuthContext);
 	const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(
 		null
 	);
-	const [workshops, setWorkshops] = useState<Workshop[]>([]);
 	const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
 	const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -92,20 +91,20 @@ const StaffManagement: React.FC = () => {
 			if (isAdmin()) {
 				try {
 					setLoading(true);
-					const data = await workshopService.getAllWorkshops();
-					setWorkshops(data);
+					await workshopService.getAllWorkshops();
+					// workshops are used by WorkshopSelector component
 				} catch (err) {
 					setError("Failed to load workshops. Please try again.");
 				} finally {
 					setLoading(false);
 				}
-			} else if (isOwner() && auth.workshop_id) {
-				setSelectedWorkshopId(auth.workshop_id);
+			} else if (isOwner() && (auth as any).workshop_id) {
+				setSelectedWorkshopId((auth as any).workshop_id);
 			}
 		};
 
 		fetchWorkshops();
-	}, [isAdmin, isOwner, auth.workshop_id]);
+	}, [isAdmin, isOwner, auth]);
 
 	useEffect(() => {
 		const fetchStaffMembers = async () => {
@@ -194,31 +193,36 @@ const StaffManagement: React.FC = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
+	const handleBackToWorkshops = () => {
+		setSelectedWorkshopId(null);
+		setSelectedStaff(null);
+	};
+
 	const getRoleColor = (role: string) => {
 		switch (role.toLowerCase()) {
 			case "admin":
 				return COLOR_PRIMARY;
 			case "owner":
-				return "#FF9800";
+				return COLOR_WARNING;
 			case "mechanic":
-				return "#2196F3";
+				return COLOR_SUCCESS;
 			default:
-				return "#9E9E9E";
+				return COLOR_TEXT_SECONDARY;
 		}
 	};
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case "working":
-				return "#4CAF50";
+				return COLOR_SUCCESS;
 			case "vacation":
-				return "#FF9800";
+				return COLOR_WARNING;
 			case "sick_leave":
-				return "#F44336";
+				return COLOR_ERROR;
 			case "offline":
-				return "#9E9E9E";
+				return COLOR_TEXT_SECONDARY;
 			default:
-				return "#9E9E9E";
+				return COLOR_TEXT_SECONDARY;
 		}
 	};
 
@@ -228,7 +232,15 @@ const StaffManagement: React.FC = () => {
 
 	const renderStaffList = () => {
 		return (
-			<Paper sx={{ p: 2, height: "600px", overflow: "auto" }}>
+			<Paper
+				sx={{
+					p: 2,
+					height: "600px",
+					overflow: "auto",
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
 				<Box
 					sx={{
 						display: "flex",
@@ -237,7 +249,11 @@ const StaffManagement: React.FC = () => {
 						mb: 2,
 					}}
 				>
-					<Typography variant="h6" fontWeight="bold">
+					<Typography
+						variant="h6"
+						fontWeight="bold"
+						sx={{ color: COLOR_TEXT_PRIMARY }}
+					>
 						Staff
 					</Typography>
 					<Button
@@ -247,7 +263,7 @@ const StaffManagement: React.FC = () => {
 						onClick={() => handleOpenDialog()}
 						sx={{
 							bgcolor: COLOR_PRIMARY,
-							"&:hover": { bgcolor: "#2563EB" },
+							"&:hover": { bgcolor: `${COLOR_PRIMARY}dd` },
 							fontSize: "0.8rem",
 						}}
 					>
@@ -257,11 +273,11 @@ const StaffManagement: React.FC = () => {
 
 				{loading ? (
 					<Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
-						<CircularProgress color="error" size={30} />
+						<CircularProgress sx={{ color: COLOR_PRIMARY }} size={30} />
 					</Box>
 				) : (
 					<List sx={{ p: 0 }}>
-						{staffMembers.map((staff, index) => (
+						{staffMembers.map((staff) => (
 							<React.Fragment key={staff.id}>
 								<ListItem
 									button
@@ -269,14 +285,18 @@ const StaffManagement: React.FC = () => {
 									sx={{
 										border: selectedStaff?.id === staff.id ? 2 : 1,
 										borderColor:
-											selectedStaff?.id === staff.id ? "#FF3E55" : "#e0e0e0",
+											selectedStaff?.id === staff.id
+												? COLOR_PRIMARY
+												: `${COLOR_TEXT_SECONDARY}40`,
 										borderRadius: 1,
 										mb: 1,
 										bgcolor:
-											selectedStaff?.id === staff.id ? "#fff5f5" : "white",
+											selectedStaff?.id === staff.id
+												? `${COLOR_PRIMARY}20`
+												: COLOR_SURFACE,
 										"&:hover": {
-											bgcolor: "#f9f9f9",
-											borderColor: "#FF3E55",
+											bgcolor: `${COLOR_PRIMARY}10`,
+											borderColor: COLOR_PRIMARY,
 										},
 									}}
 								>
@@ -286,6 +306,7 @@ const StaffManagement: React.FC = () => {
 												bgcolor: getRoleColor(staff.role),
 												width: 40,
 												height: 40,
+												color: "white",
 											}}
 										>
 											{getInitials(staff.first_name, staff.last_name)}
@@ -300,7 +321,11 @@ const StaffManagement: React.FC = () => {
 													gap: 1,
 												}}
 											>
-												<Typography variant="subtitle2" fontWeight="bold">
+												<Typography
+													variant="subtitle2"
+													fontWeight="bold"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													{staff.first_name} {staff.last_name}
 												</Typography>
 												<Chip
@@ -319,15 +344,19 @@ const StaffManagement: React.FC = () => {
 											<Box>
 												<Typography
 													variant="body2"
-													color="text.secondary"
-													fontSize="0.8rem"
+													sx={{
+														color: COLOR_TEXT_SECONDARY,
+														fontSize: "0.8rem",
+													}}
 												>
 													{staff.email}
 												</Typography>
 												<Typography
 													variant="body2"
-													color="text.secondary"
-													fontSize="0.75rem"
+													sx={{
+														color: COLOR_TEXT_SECONDARY,
+														fontSize: "0.75rem",
+													}}
 												>
 													Joined From{" "}
 													{staff.created_at &&
@@ -364,6 +393,13 @@ const StaffManagement: React.FC = () => {
 												e.stopPropagation();
 												handleMenuClick(e, staff);
 											}}
+											sx={{
+												color: COLOR_TEXT_SECONDARY,
+												"&:hover": {
+													color: COLOR_PRIMARY,
+													backgroundColor: `${COLOR_PRIMARY}10`,
+												},
+											}}
 										>
 											<MoreVertIcon fontSize="small" />
 										</IconButton>
@@ -387,11 +423,15 @@ const StaffManagement: React.FC = () => {
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
 					}}
 				>
 					<Box sx={{ textAlign: "center" }}>
-						<PersonIcon sx={{ fontSize: 60, color: "#e0e0e0", mb: 2 }} />
-						<Typography variant="h6" color="text.secondary">
+						<PersonIcon
+							sx={{ fontSize: 60, color: COLOR_TEXT_SECONDARY, mb: 2 }}
+						/>
+						<Typography variant="h6" sx={{ color: COLOR_TEXT_SECONDARY }}>
 							Select a staff member to view details
 						</Typography>
 					</Box>
@@ -413,7 +453,15 @@ const StaffManagement: React.FC = () => {
 		const displayEmploymentDays = isValidEmploymentDays ? employmentDays : 0;
 
 		return (
-			<Paper sx={{ p: 3, height: "600px", overflow: "auto" }}>
+			<Paper
+				sx={{
+					p: 3,
+					height: "600px",
+					overflow: "auto",
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
 				<Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
 					<Avatar
 						sx={{
@@ -421,12 +469,17 @@ const StaffManagement: React.FC = () => {
 							width: 80,
 							height: 80,
 							mr: 3,
+							color: "white",
 						}}
 					>
 						{getInitials(selectedStaff.first_name, selectedStaff.last_name)}
 					</Avatar>
 					<Box sx={{ flex: 1 }}>
-						<Typography variant="h5" fontWeight="bold">
+						<Typography
+							variant="h5"
+							fontWeight="bold"
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							{selectedStaff.first_name} {selectedStaff.last_name}
 						</Typography>
 						<Box sx={{ display: "flex", gap: 1, mt: 1 }}>
@@ -441,7 +494,7 @@ const StaffManagement: React.FC = () => {
 								<Chip
 									label={`${displayEmploymentDays} days employed`}
 									sx={{
-										bgcolor: "#2196F3",
+										bgcolor: COLOR_PRIMARY,
 										color: "white",
 									}}
 								/>
@@ -450,25 +503,33 @@ const StaffManagement: React.FC = () => {
 					</Box>
 				</Box>
 
-				<Divider sx={{ mb: 3 }} />
+				<Divider sx={{ mb: 3, borderColor: `${COLOR_TEXT_SECONDARY}40` }} />
 
 				<Box sx={{ mb: 3 }}>
-					<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+					<Typography
+						variant="h6"
+						fontWeight="bold"
+						sx={{ mb: 2, color: COLOR_TEXT_PRIMARY }}
+					>
 						Contact Information
 					</Typography>
 					<Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-						<EmailIcon sx={{ mr: 2, color: "#9E9E9E" }} />
-						<Typography component="span">{selectedStaff.email}</Typography>
+						<EmailIcon sx={{ mr: 2, color: COLOR_TEXT_SECONDARY }} />
+						<Typography component="span" sx={{ color: COLOR_TEXT_PRIMARY }}>
+							{selectedStaff.email}
+						</Typography>
 					</Box>
 					{selectedStaff.phone && (
 						<Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-							<PhoneIcon sx={{ mr: 2, color: "#9E9E9E" }} />
-							<Typography component="span">{selectedStaff.phone}</Typography>
+							<PhoneIcon sx={{ mr: 2, color: COLOR_TEXT_SECONDARY }} />
+							<Typography component="span" sx={{ color: COLOR_TEXT_PRIMARY }}>
+								{selectedStaff.phone}
+							</Typography>
 						</Box>
 					)}
 					<Box sx={{ display: "flex", alignItems: "center" }}>
-						<CalendarIcon sx={{ mr: 2, color: "#9E9E9E" }} />
-						<Typography component="span">
+						<CalendarIcon sx={{ mr: 2, color: COLOR_TEXT_SECONDARY }} />
+						<Typography component="span" sx={{ color: COLOR_TEXT_PRIMARY }}>
 							Hired{" "}
 							{formatDate(selectedStaff.hired_date || selectedStaff.created_at)}
 							{selectedStaff.role !== "owner" &&
@@ -478,10 +539,14 @@ const StaffManagement: React.FC = () => {
 					</Box>
 				</Box>
 
-				<Divider sx={{ mb: 3 }} />
+				<Divider sx={{ mb: 3, borderColor: `${COLOR_TEXT_SECONDARY}40` }} />
 
 				<Box>
-					<Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+					<Typography
+						variant="h6"
+						fontWeight="bold"
+						sx={{ mb: 2, color: COLOR_TEXT_PRIMARY }}
+					>
 						Performance
 					</Typography>
 					<Box sx={{ textAlign: "center" }}>
@@ -494,9 +559,9 @@ const StaffManagement: React.FC = () => {
 								width: 120,
 								height: 120,
 								borderRadius: "50%",
-								background: `conic-gradient(#FF3E55 0deg ${
+								background: `conic-gradient(${COLOR_PRIMARY} 0deg ${
 									(selectedStaff.performance_score || 0) * 3.6
-								}deg, #f5f5f5 ${
+								}deg, ${COLOR_BACKGROUND} ${
 									(selectedStaff.performance_score || 0) * 3.6
 								}deg 360deg)`,
 								mb: 2,
@@ -507,20 +572,25 @@ const StaffManagement: React.FC = () => {
 									width: 80,
 									height: 80,
 									borderRadius: "50%",
-									bgcolor: "white",
+									bgcolor: COLOR_SURFACE,
 									display: "flex",
 									alignItems: "center",
 									justifyContent: "center",
 									flexDirection: "column",
 								}}
 							>
-								<Typography variant="h6" fontWeight="bold" component="div">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									component="div"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									{selectedStaff.performance_score || 0}%
 								</Typography>
 								<Typography
 									variant="caption"
-									color="text.secondary"
 									component="div"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
 								>
 									Services
 								</Typography>
@@ -531,37 +601,52 @@ const StaffManagement: React.FC = () => {
 							sx={{ display: "flex", justifyContent: "space-around", mt: 2 }}
 						>
 							<Box sx={{ textAlign: "center" }}>
-								<Typography variant="h6" fontWeight="bold" component="div">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									component="div"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									{selectedStaff.days_worked || 0}
 								</Typography>
 								<Typography
 									variant="caption"
-									color="text.secondary"
 									component="div"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
 								>
 									Days Worked
 								</Typography>
 							</Box>
 							<Box sx={{ textAlign: "center" }}>
-								<Typography variant="h6" fontWeight="bold" component="div">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									component="div"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									{selectedStaff.vacation_days_left || 0}
 								</Typography>
 								<Typography
 									variant="caption"
-									color="text.secondary"
 									component="div"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
 								>
 									Vacation Days
 								</Typography>
 							</Box>
 							<Box sx={{ textAlign: "center" }}>
-								<Typography variant="h6" fontWeight="bold" component="div">
+								<Typography
+									variant="h6"
+									fontWeight="bold"
+									component="div"
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									{displayEmploymentDays}
 								</Typography>
 								<Typography
 									variant="caption"
-									color="text.secondary"
 									component="div"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
 								>
 									Days Employed
 								</Typography>
@@ -613,16 +698,19 @@ const StaffManagement: React.FC = () => {
 		}
 
 		return (
-			<Paper sx={{ p: 4, textAlign: "center" }}>
-				<Typography variant="h6" color="text.secondary">
+			<Paper
+				sx={{
+					p: 4,
+					textAlign: "center",
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
+				<Typography variant="h6" sx={{ color: COLOR_TEXT_SECONDARY }}>
 					No workshop assigned. Please contact your administrator.
 				</Typography>
 			</Paper>
 		);
-	};
-
-	const handleWorkshopChange = (event: any) => {
-		setSelectedWorkshopId(event.target.value as number);
 	};
 
 	const handleOpenDialog = (staff?: StaffMember) => {
@@ -684,7 +772,7 @@ const StaffManagement: React.FC = () => {
 		setSelectedStaff(null);
 	};
 
-	const formatDate = (dateString) => {
+	const formatDate = (dateString: string | null | undefined): string => {
 		if (!dateString) return "Not Available";
 		const date = new Date(dateString);
 		return isNaN(date.getTime()) ? "Not Available" : date.toLocaleDateString();
@@ -692,153 +780,374 @@ const StaffManagement: React.FC = () => {
 
 	return (
 		<Mainlayout>
-			<Container maxWidth="lg">
-				<Box sx={{ py: 3 }}>
-					<Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
-						Staff Management
-					</Typography>
-
-					{error && !loading && (
-						<Alert
-							severity="error"
-							sx={{ mb: 3 }}
-							action={
-								<Button
-									color="inherit"
-									size="small"
-									onClick={() => setError(null)}
-								>
-									Dismiss
-								</Button>
-							}
-						>
-							{error}
-						</Alert>
-					)}
-
-					{renderMainContent()}
-				</Box>
-
-				<Dialog
-					open={openDialog}
-					onClose={handleCloseDialog}
-					maxWidth="sm"
-					fullWidth
-				>
-					<DialogTitle>
-						{editingStaff ? "Edit Staff Member" : "Add New Staff Member"}
-					</DialogTitle>
-					<DialogContent>
+			<Box
+				sx={{
+					minHeight: "100vh",
+					backgroundColor: COLOR_BACKGROUND,
+					color: COLOR_TEXT_PRIMARY,
+				}}
+			>
+				<Container maxWidth="lg">
+					<Box sx={{ py: 3 }}>
 						<Box
-							sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+							sx={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+								mb: 3,
+							}}
 						>
-							<TextField
-								name="first_name"
-								label="First Name"
-								value={formData.first_name}
-								onChange={handleFormChange}
-								fullWidth
-								required
-							/>
-							<TextField
-								name="last_name"
-								label="Last Name"
-								value={formData.last_name}
-								onChange={handleFormChange}
-								fullWidth
-								required
-							/>
-							<TextField
-								name="email"
-								label="Email"
-								type="email"
-								value={formData.email}
-								onChange={handleFormChange}
-								fullWidth
-								required
-							/>
-							<TextField
-								name="phone"
-								label="Phone"
-								value={formData.phone}
-								onChange={handleFormChange}
-								fullWidth
-							/>
-							<FormControl fullWidth>
-								<InputLabel id="role-select-label">Role</InputLabel>
-								<Select
-									labelId="role-select-label"
-									name="role"
-									value={formData.role}
-									label="Role"
-									onChange={(e) =>
-										setFormData((prev) => ({ ...prev, role: e.target.value }))
-									}
+							<Typography
+								variant="h4"
+								fontWeight="bold"
+								sx={{ color: COLOR_TEXT_PRIMARY }}
+							>
+								Staff Management
+							</Typography>
+
+							{isAdmin() && selectedWorkshopId && (
+								<Button
+									variant="outlined"
+									startIcon={<KeyboardBackspaceIcon />}
+									onClick={handleBackToWorkshops}
+									sx={{
+										borderColor: COLOR_PRIMARY,
+										color: COLOR_PRIMARY,
+										"&:hover": {
+											borderColor: COLOR_PRIMARY,
+											backgroundColor: `${COLOR_PRIMARY}20`,
+										},
+									}}
 								>
-									<MenuItem value="mechanic">Mechanic</MenuItem>
-									<MenuItem value="owner">Owner</MenuItem>
-									{isAdmin() && <MenuItem value="admin">Admin</MenuItem>}
-								</Select>
-							</FormControl>
-							{!editingStaff && (
+									Back to Workshops
+								</Button>
+							)}
+						</Box>
+
+						{error && !loading && (
+							<Alert
+								severity="error"
+								sx={{
+									mb: 3,
+									backgroundColor: `${COLOR_ERROR}20`,
+									color: COLOR_TEXT_PRIMARY,
+									"& .MuiAlert-icon": {
+										color: COLOR_ERROR,
+									},
+								}}
+								action={
+									<Button
+										color="inherit"
+										size="small"
+										onClick={() => setError(null)}
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
+										Dismiss
+									</Button>
+								}
+							>
+								{error}
+							</Alert>
+						)}
+
+						{renderMainContent()}
+					</Box>
+
+					<Dialog
+						open={openDialog}
+						onClose={handleCloseDialog}
+						maxWidth="sm"
+						fullWidth
+						PaperProps={{
+							sx: {
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+							},
+						}}
+					>
+						<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
+							{editingStaff ? "Edit Staff Member" : "Add New Staff Member"}
+						</DialogTitle>
+						<DialogContent>
+							<Box
+								sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+							>
 								<TextField
-									name="password"
-									label="Password"
-									type="password"
-									value={formData.password}
+									name="first_name"
+									label="First Name"
+									value={formData.first_name}
 									onChange={handleFormChange}
 									fullWidth
 									required
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: COLOR_TEXT_PRIMARY,
+											backgroundColor: COLOR_SURFACE,
+											"& fieldset": {
+												borderColor: `${COLOR_TEXT_SECONDARY}60`,
+											},
+											"&:hover fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-focused": {
+												color: COLOR_PRIMARY,
+											},
+										},
+									}}
 								/>
-							)}
-						</Box>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleCloseDialog}>Cancel</Button>
-						<Button
-							onClick={handleSubmit}
-							variant="contained"
-							color="error"
-							disabled={loading}
-							sx={{
-								bgcolor: "#FF3E55",
-								"&:hover": { bgcolor: "#E02A45" },
-							}}
-						>
-							{editingStaff ? "Update" : "Create"}
-						</Button>
-					</DialogActions>
-				</Dialog>
+								<TextField
+									name="last_name"
+									label="Last Name"
+									value={formData.last_name}
+									onChange={handleFormChange}
+									fullWidth
+									required
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: COLOR_TEXT_PRIMARY,
+											backgroundColor: COLOR_SURFACE,
+											"& fieldset": {
+												borderColor: `${COLOR_TEXT_SECONDARY}60`,
+											},
+											"&:hover fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-focused": {
+												color: COLOR_PRIMARY,
+											},
+										},
+									}}
+								/>
+								<TextField
+									name="email"
+									label="Email"
+									type="email"
+									value={formData.email}
+									onChange={handleFormChange}
+									fullWidth
+									required
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: COLOR_TEXT_PRIMARY,
+											backgroundColor: COLOR_SURFACE,
+											"& fieldset": {
+												borderColor: `${COLOR_TEXT_SECONDARY}60`,
+											},
+											"&:hover fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-focused": {
+												color: COLOR_PRIMARY,
+											},
+										},
+									}}
+								/>
+								<TextField
+									name="phone"
+									label="Phone"
+									value={formData.phone}
+									onChange={handleFormChange}
+									fullWidth
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											color: COLOR_TEXT_PRIMARY,
+											backgroundColor: COLOR_SURFACE,
+											"& fieldset": {
+												borderColor: `${COLOR_TEXT_SECONDARY}60`,
+											},
+											"&:hover fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused fieldset": {
+												borderColor: COLOR_PRIMARY,
+											},
+										},
+										"& .MuiInputLabel-root": {
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-focused": {
+												color: COLOR_PRIMARY,
+											},
+										},
+									}}
+								/>
+								<FormControl fullWidth>
+									<InputLabel
+										id="role-select-label"
+										sx={{
+											color: COLOR_TEXT_SECONDARY,
+											"&.Mui-focused": {
+												color: COLOR_PRIMARY,
+											},
+										}}
+									>
+										Role
+									</InputLabel>
+									<Select
+										labelId="role-select-label"
+										name="role"
+										value={formData.role}
+										label="Role"
+										onChange={(e) =>
+											setFormData((prev) => ({ ...prev, role: e.target.value }))
+										}
+										sx={{
+											color: COLOR_TEXT_PRIMARY,
+											backgroundColor: COLOR_SURFACE,
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: `${COLOR_TEXT_SECONDARY}60`,
+											},
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"& .MuiSvgIcon-root": {
+												color: COLOR_TEXT_SECONDARY,
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													backgroundColor: COLOR_SURFACE,
+													"& .MuiMenuItem-root": {
+														color: COLOR_TEXT_PRIMARY,
+														"&:hover": {
+															backgroundColor: `${COLOR_PRIMARY}20`,
+														},
+													},
+												},
+											},
+										}}
+									>
+										<MenuItem value="mechanic">Mechanic</MenuItem>
+										<MenuItem value="owner">Owner</MenuItem>
+										{isAdmin() && <MenuItem value="admin">Admin</MenuItem>}
+									</Select>
+								</FormControl>
+								{!editingStaff && (
+									<TextField
+										name="password"
+										label="Password"
+										type="password"
+										value={formData.password}
+										onChange={handleFormChange}
+										fullWidth
+										required
+										sx={{
+											"& .MuiOutlinedInput-root": {
+												color: COLOR_TEXT_PRIMARY,
+												backgroundColor: COLOR_SURFACE,
+												"& fieldset": {
+													borderColor: `${COLOR_TEXT_SECONDARY}60`,
+												},
+												"&:hover fieldset": {
+													borderColor: COLOR_PRIMARY,
+												},
+												"&.Mui-focused fieldset": {
+													borderColor: COLOR_PRIMARY,
+												},
+											},
+											"& .MuiInputLabel-root": {
+												color: COLOR_TEXT_SECONDARY,
+												"&.Mui-focused": {
+													color: COLOR_PRIMARY,
+												},
+											},
+										}}
+									/>
+								)}
+							</Box>
+						</DialogContent>
+						<DialogActions sx={{ p: 2 }}>
+							<Button
+								onClick={handleCloseDialog}
+								sx={{ color: COLOR_TEXT_SECONDARY }}
+							>
+								Cancel
+							</Button>
+							<Button
+								onClick={handleSubmit}
+								variant="contained"
+								disabled={loading}
+								sx={{
+									bgcolor: COLOR_PRIMARY,
+									"&:hover": { bgcolor: `${COLOR_PRIMARY}dd` },
+								}}
+							>
+								{editingStaff ? "Update" : "Create"}
+							</Button>
+						</DialogActions>
+					</Dialog>
 
-				<Menu
-					anchorEl={anchorEl}
-					open={Boolean(anchorEl)}
-					onClose={handleMenuClose}
-				>
-					<MenuItem
-						onClick={() => {
-							handleOpenDialog(selectedStaff!);
-							handleMenuClose();
+					<Menu
+						anchorEl={anchorEl}
+						open={Boolean(anchorEl)}
+						onClose={handleMenuClose}
+						PaperProps={{
+							sx: {
+								backgroundColor: COLOR_SURFACE,
+								color: COLOR_TEXT_PRIMARY,
+							},
 						}}
 					>
-						<ListItemIcon>
-							<EditIcon fontSize="small" />
-						</ListItemIcon>
-						<ListItemText>Edit</ListItemText>
-					</MenuItem>
-					<MenuItem onClick={handleDeleteStaff} sx={{ color: "#FF3E55" }}>
-						<ListItemIcon>
-							<DeleteIcon fontSize="small" sx={{ color: "#FF3E55" }} />
-						</ListItemIcon>
-						<ListItemText>Delete</ListItemText>
-					</MenuItem>
-				</Menu>
+						<MenuItem
+							onClick={() => {
+								handleOpenDialog(selectedStaff!);
+								handleMenuClose();
+							}}
+							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								"&:hover": {
+									backgroundColor: `${COLOR_PRIMARY}20`,
+								},
+							}}
+						>
+							<ListItemIcon>
+								<EditIcon fontSize="small" sx={{ color: COLOR_PRIMARY }} />
+							</ListItemIcon>
+							<ListItemText>Edit</ListItemText>
+						</MenuItem>
+						<MenuItem
+							onClick={handleDeleteStaff}
+							sx={{
+								color: COLOR_ERROR,
+								"&:hover": {
+									backgroundColor: `${COLOR_ERROR}20`,
+								},
+							}}
+						>
+							<ListItemIcon>
+								<DeleteIcon fontSize="small" sx={{ color: COLOR_ERROR }} />
+							</ListItemIcon>
+							<ListItemText>Delete</ListItemText>
+						</MenuItem>
+					</Menu>
 
-				<CustomSnackbar
-					snackbarState={snackbar}
-					onClose={handleSnackbarClose}
-				/>
-			</Container>
+					<CustomSnackbar
+						snackbarState={snackbar}
+						onClose={handleSnackbarClose}
+					/>
+				</Container>
+			</Box>
 		</Mainlayout>
 	);
 };

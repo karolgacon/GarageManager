@@ -87,18 +87,19 @@ const Diagnostics: React.FC = () => {
 	});
 	const [selectedClient, setSelectedClient] = useState<any>(null);
 	const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-	
+
 	// Dialog states for CRUD operations
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-	const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
-	const [editingDiagnostic, setEditingDiagnostic] = useState<DiagnosticIssue | null>(null);
+	const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
+	const [editingDiagnostic, setEditingDiagnostic] =
+		useState<DiagnosticIssue | null>(null);
 	const [diagnosticForm, setDiagnosticForm] = useState({
-		diagnostic_notes: '',
-		estimated_repair_cost: '',
-		severity_level: 'low',
-		next_inspection_date: '',
+		diagnostic_notes: "",
+		estimated_repair_cost: "",
+		severity_level: "low",
+		next_inspection_date: "",
 		email_notification: true,
-		sms_notification: false
+		sms_notification: false,
 	});
 
 	const { filteredCustomers, loading: customersLoading } = useCustomerData(
@@ -251,49 +252,49 @@ const Diagnostics: React.FC = () => {
 	};
 
 	const handleAddDiagnostic = () => {
-		setDialogMode('add');
+		setDialogMode("add");
 		setEditingDiagnostic(null);
 		// Calculate default next inspection date (1 year from today)
 		const nextYear = new Date();
 		nextYear.setFullYear(nextYear.getFullYear() + 1);
-		const nextInspectionDate = nextYear.toISOString().split('T')[0];
-		
+		const nextInspectionDate = nextYear.toISOString().split("T")[0];
+
 		setDiagnosticForm({
-			diagnostic_notes: '',
-			estimated_repair_cost: '',
-			severity_level: 'low',
+			diagnostic_notes: "",
+			estimated_repair_cost: "",
+			severity_level: "low",
 			next_inspection_date: nextInspectionDate,
 			email_notification: true,
-			sms_notification: false
+			sms_notification: false,
 		});
 		setDialogOpen(true);
 	};
 
 	const handleEditDiagnostic = (diagnostic: DiagnosticIssue) => {
-		setDialogMode('edit');
+		setDialogMode("edit");
 		setEditingDiagnostic(diagnostic);
 		setDiagnosticForm({
-			diagnostic_notes: diagnostic.diagnostic_notes || '',
-			estimated_repair_cost: diagnostic.estimated_repair_cost?.toString() || '',
-			severity_level: diagnostic.severity_level || 'low',
-			next_inspection_date: diagnostic.next_inspection_date || '',
+			diagnostic_notes: diagnostic.diagnostic_notes || "",
+			estimated_repair_cost: diagnostic.estimated_repair_cost?.toString() || "",
+			severity_level: diagnostic.severity_level || "low",
+			next_inspection_date: diagnostic.next_inspection_date || "",
 			email_notification: diagnostic.email_notification || false,
-			sms_notification: diagnostic.sms_notification || false
+			sms_notification: diagnostic.sms_notification || false,
 		});
 		setDialogOpen(true);
 	};
 
 	const handleDeleteDiagnostic = async (diagnosticId: number) => {
-		if (!window.confirm('Are you sure you want to delete this diagnostic?')) {
+		if (!window.confirm("Are you sure you want to delete this diagnostic?")) {
 			return;
 		}
-		
+
 		try {
 			await diagnosticsService.deleteDiagnostic(diagnosticId);
 			setSnackbar({
 				open: true,
-				message: 'Diagnostic deleted successfully',
-				severity: 'success',
+				message: "Diagnostic deleted successfully",
+				severity: "success",
 			});
 			// Refresh data
 			if (selectedVehicleId) {
@@ -302,8 +303,8 @@ const Diagnostics: React.FC = () => {
 		} catch (error) {
 			setSnackbar({
 				open: true,
-				message: 'Failed to delete diagnostic',
-				severity: 'error',
+				message: "Failed to delete diagnostic",
+				severity: "error",
 			});
 		}
 	};
@@ -315,27 +316,35 @@ const Diagnostics: React.FC = () => {
 			const diagnosticData = {
 				vehicle: selectedVehicleId,
 				diagnostic_notes: diagnosticForm.diagnostic_notes,
-				estimated_repair_cost: parseFloat(diagnosticForm.estimated_repair_cost) || 0,
-				severity_level: diagnosticForm.severity_level as "low" | "medium" | "high" | "critical",
+				estimated_repair_cost:
+					parseFloat(diagnosticForm.estimated_repair_cost) || 0,
+				severity_level: diagnosticForm.severity_level as
+					| "low"
+					| "medium"
+					| "high"
+					| "critical",
 				next_inspection_date: diagnosticForm.next_inspection_date || null,
 				email_notification: diagnosticForm.email_notification,
 				sms_notification: diagnosticForm.sms_notification,
 			};
 
-			if (dialogMode === 'add') {
+			if (dialogMode === "add") {
 				await diagnosticsService.createDiagnostic(diagnosticData);
 				setSnackbar({
 					open: true,
-					message: 'Diagnostic added successfully',
-					severity: 'success',
+					message: "Diagnostic added successfully",
+					severity: "success",
 				});
 			} else {
 				if (editingDiagnostic?.id) {
-					await diagnosticsService.updateDiagnostic(editingDiagnostic.id, diagnosticData);
+					await diagnosticsService.updateDiagnostic(
+						editingDiagnostic.id,
+						diagnosticData
+					);
 					setSnackbar({
 						open: true,
-						message: 'Diagnostic updated successfully',
-						severity: 'success',
+						message: "Diagnostic updated successfully",
+						severity: "success",
 					});
 				}
 			}
@@ -348,8 +357,8 @@ const Diagnostics: React.FC = () => {
 		} catch (error) {
 			setSnackbar({
 				open: true,
-				message: 'Failed to save diagnostic',
-				severity: 'error',
+				message: "Failed to save diagnostic",
+				severity: "error",
 			});
 		}
 	};
@@ -358,12 +367,12 @@ const Diagnostics: React.FC = () => {
 		setDialogOpen(false);
 		setEditingDiagnostic(null);
 		setDiagnosticForm({
-			diagnostic_notes: '',
-			estimated_repair_cost: '',
-			severity_level: 'low',
-			next_inspection_date: '',
+			diagnostic_notes: "",
+			estimated_repair_cost: "",
+			severity_level: "low",
+			next_inspection_date: "",
 			email_notification: true,
-			sms_notification: false
+			sms_notification: false,
 		});
 	};
 
@@ -828,14 +837,14 @@ const Diagnostics: React.FC = () => {
 
 				{/* Action buttons for CRUD operations */}
 				{(isAdmin() || isMechanic()) && selectedVehicleId && (
-					<Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
+					<Box sx={{ mb: 2, display: "flex", gap: 1 }}>
 						<Button
 							variant="contained"
 							startIcon={<AddIcon />}
 							onClick={() => handleAddDiagnostic()}
 							sx={{
 								bgcolor: COLOR_PRIMARY,
-								'&:hover': {
+								"&:hover": {
 									bgcolor: `${COLOR_PRIMARY}dd`,
 								},
 							}}
@@ -956,7 +965,9 @@ const Diagnostics: React.FC = () => {
 															borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
 														}}
 													>
-														{new Date(issue.diagnostic_date).toLocaleDateString()}
+														{new Date(
+															issue.diagnostic_date
+														).toLocaleDateString()}
 													</TableCell>
 													<TableCell
 														sx={{
@@ -964,10 +975,11 @@ const Diagnostics: React.FC = () => {
 															borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
 														}}
 													>
-														{issue.next_inspection_date 
-															? new Date(issue.next_inspection_date).toLocaleDateString()
-															: 'Not scheduled'
-														}
+														{issue.next_inspection_date
+															? new Date(
+																	issue.next_inspection_date
+															  ).toLocaleDateString()
+															: "Not scheduled"}
 													</TableCell>
 													<TableCell
 														sx={{
@@ -983,7 +995,10 @@ const Diagnostics: React.FC = () => {
 															borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
 														}}
 													>
-														${issue.estimated_repair_cost ? Number(issue.estimated_repair_cost).toFixed(2) : "0.00"}
+														$
+														{issue.estimated_repair_cost
+															? Number(issue.estimated_repair_cost).toFixed(2)
+															: "0.00"}
 													</TableCell>
 													<TableCell
 														sx={{
@@ -991,17 +1006,23 @@ const Diagnostics: React.FC = () => {
 															borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
 														}}
 													>
-														<Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+														<Box
+															sx={{
+																display: "flex",
+																gap: 0.5,
+																flexWrap: "wrap",
+															}}
+														>
 															{issue.email_notification && (
 																<Box
 																	sx={{
-																		display: 'inline-block',
+																		display: "inline-block",
 																		bgcolor: COLOR_PRIMARY,
-																		color: 'white',
+																		color: "white",
 																		px: 0.5,
 																		py: 0.25,
 																		borderRadius: 0.5,
-																		fontSize: '0.7rem',
+																		fontSize: "0.7rem",
 																	}}
 																>
 																	📧
@@ -1010,23 +1031,27 @@ const Diagnostics: React.FC = () => {
 															{issue.sms_notification && (
 																<Box
 																	sx={{
-																		display: 'inline-block',
+																		display: "inline-block",
 																		bgcolor: COLOR_PRIMARY,
-																		color: 'white',
+																		color: "white",
 																		px: 0.5,
 																		py: 0.25,
 																		borderRadius: 0.5,
-																		fontSize: '0.7rem',
+																		fontSize: "0.7rem",
 																	}}
 																>
 																	📱
 																</Box>
 															)}
-															{!issue.email_notification && !issue.sms_notification && (
-																<Typography variant="caption" sx={{ color: COLOR_TEXT_SECONDARY }}>
-																	None
-																</Typography>
-															)}
+															{!issue.email_notification &&
+																!issue.sms_notification && (
+																	<Typography
+																		variant="caption"
+																		sx={{ color: COLOR_TEXT_SECONDARY }}
+																	>
+																		None
+																	</Typography>
+																)}
 														</Box>
 													</TableCell>
 													<TableCell
@@ -1054,15 +1079,17 @@ const Diagnostics: React.FC = () => {
 																borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
 															}}
 														>
-															<Box sx={{ display: 'flex', gap: 0.5 }}>
+															<Box sx={{ display: "flex", gap: 0.5 }}>
 																{isAdmin() && (
 																	<>
 																		<IconButton
 																			size="small"
-																			onClick={() => handleEditDiagnostic(issue)}
+																			onClick={() =>
+																				handleEditDiagnostic(issue)
+																			}
 																			sx={{
 																				color: COLOR_PRIMARY,
-																				'&:hover': {
+																				"&:hover": {
 																					backgroundColor: `${COLOR_PRIMARY}20`,
 																				},
 																			}}
@@ -1071,10 +1098,12 @@ const Diagnostics: React.FC = () => {
 																		</IconButton>
 																		<IconButton
 																			size="small"
-																			onClick={() => handleDeleteDiagnostic(issue.id)}
+																			onClick={() =>
+																				handleDeleteDiagnostic(issue.id)
+																			}
 																			sx={{
 																				color: COLOR_ERROR,
-																				'&:hover': {
+																				"&:hover": {
 																					backgroundColor: `${COLOR_ERROR}20`,
 																				},
 																			}}
@@ -1089,7 +1118,7 @@ const Diagnostics: React.FC = () => {
 																		onClick={() => handleEditDiagnostic(issue)}
 																		sx={{
 																			color: COLOR_PRIMARY,
-																			'&:hover': {
+																			"&:hover": {
 																				backgroundColor: `${COLOR_PRIMARY}20`,
 																			},
 																		}}
@@ -1270,8 +1299,8 @@ const Diagnostics: React.FC = () => {
 					</Box>
 
 					{/* Add/Edit Diagnostic Dialog */}
-					<Dialog 
-						open={dialogOpen} 
+					<Dialog
+						open={dialogOpen}
 						onClose={handleCloseDialog}
 						maxWidth="md"
 						fullWidth
@@ -1279,90 +1308,100 @@ const Diagnostics: React.FC = () => {
 							sx: {
 								backgroundColor: COLOR_SURFACE,
 								color: COLOR_TEXT_PRIMARY,
-							}
+							},
 						}}
 					>
 						<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
-							{dialogMode === 'add' ? 'Add New Diagnostic' : 'Edit Diagnostic'}
+							{dialogMode === "add" ? "Add New Diagnostic" : "Edit Diagnostic"}
 						</DialogTitle>
 						<DialogContent>
-							<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+							<Box
+								sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+							>
 								<TextField
 									fullWidth
 									multiline
 									rows={4}
 									label="Diagnostic Notes"
 									value={diagnosticForm.diagnostic_notes}
-									onChange={(e) => setDiagnosticForm(prev => ({
-										...prev,
-										diagnostic_notes: e.target.value
-									}))}
+									onChange={(e) =>
+										setDiagnosticForm((prev) => ({
+											...prev,
+											diagnostic_notes: e.target.value,
+										}))
+									}
 									sx={{
-										'& .MuiOutlinedInput-root': {
+										"& .MuiOutlinedInput-root": {
 											color: COLOR_TEXT_PRIMARY,
-											'& fieldset': {
+											"& fieldset": {
 												borderColor: `${COLOR_TEXT_SECONDARY}60`,
 											},
-											'&:hover fieldset': {
+											"&:hover fieldset": {
 												borderColor: COLOR_PRIMARY,
 											},
 										},
-										'& .MuiInputLabel-root': {
+										"& .MuiInputLabel-root": {
 											color: COLOR_TEXT_SECONDARY,
 										},
 									}}
 								/>
-								
+
 								<TextField
 									fullWidth
 									type="number"
 									label="Estimated Repair Cost"
 									value={diagnosticForm.estimated_repair_cost}
-									onChange={(e) => setDiagnosticForm(prev => ({
-										...prev,
-										estimated_repair_cost: e.target.value
-									}))}
+									onChange={(e) =>
+										setDiagnosticForm((prev) => ({
+											...prev,
+											estimated_repair_cost: e.target.value,
+										}))
+									}
 									InputProps={{
-										startAdornment: <Typography sx={{ color: COLOR_TEXT_SECONDARY, mr: 0.5 }}>$</Typography>
+										startAdornment: (
+											<Typography sx={{ color: COLOR_TEXT_SECONDARY, mr: 0.5 }}>
+												$
+											</Typography>
+										),
 									}}
 									sx={{
-										'& .MuiOutlinedInput-root': {
+										"& .MuiOutlinedInput-root": {
 											color: COLOR_TEXT_PRIMARY,
-											'& fieldset': {
+											"& fieldset": {
 												borderColor: `${COLOR_TEXT_SECONDARY}60`,
 											},
-											'&:hover fieldset': {
+											"&:hover fieldset": {
 												borderColor: COLOR_PRIMARY,
 											},
 										},
-										'& .MuiInputLabel-root': {
+										"& .MuiInputLabel-root": {
 											color: COLOR_TEXT_SECONDARY,
 										},
 									}}
 								/>
-								
+
 								<FormControl fullWidth>
-									<InputLabel 
-										sx={{ color: COLOR_TEXT_SECONDARY }}
-									>
+									<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
 										Severity Level
 									</InputLabel>
 									<Select
 										value={diagnosticForm.severity_level}
-										onChange={(e) => setDiagnosticForm(prev => ({
-											...prev,
-											severity_level: e.target.value
-										}))}
+										onChange={(e) =>
+											setDiagnosticForm((prev) => ({
+												...prev,
+												severity_level: e.target.value,
+											}))
+										}
 										label="Severity Level"
 										sx={{
 											color: COLOR_TEXT_PRIMARY,
-											'& .MuiOutlinedInput-notchedOutline': {
+											"& .MuiOutlinedInput-notchedOutline": {
 												borderColor: `${COLOR_TEXT_SECONDARY}60`,
 											},
-											'&:hover .MuiOutlinedInput-notchedOutline': {
+											"&:hover .MuiOutlinedInput-notchedOutline": {
 												borderColor: COLOR_PRIMARY,
 											},
-											'& .MuiSvgIcon-root': {
+											"& .MuiSvgIcon-root": {
 												color: COLOR_TEXT_SECONDARY,
 											},
 										}}
@@ -1373,50 +1412,57 @@ const Diagnostics: React.FC = () => {
 										<MenuItem value="critical">Critical</MenuItem>
 									</Select>
 								</FormControl>
-								
+
 								<TextField
 									fullWidth
 									type="date"
 									label="Next Inspection Date"
 									value={diagnosticForm.next_inspection_date}
-									onChange={(e) => setDiagnosticForm(prev => ({
-										...prev,
-										next_inspection_date: e.target.value
-									}))}
+									onChange={(e) =>
+										setDiagnosticForm((prev) => ({
+											...prev,
+											next_inspection_date: e.target.value,
+										}))
+									}
 									InputLabelProps={{
 										shrink: true,
 									}}
 									sx={{
-										'& .MuiOutlinedInput-root': {
+										"& .MuiOutlinedInput-root": {
 											color: COLOR_TEXT_PRIMARY,
-											'& fieldset': {
+											"& fieldset": {
 												borderColor: `${COLOR_TEXT_SECONDARY}60`,
 											},
-											'&:hover fieldset': {
+											"&:hover fieldset": {
 												borderColor: COLOR_PRIMARY,
 											},
 										},
-										'& .MuiInputLabel-root': {
+										"& .MuiInputLabel-root": {
 											color: COLOR_TEXT_SECONDARY,
 										},
 									}}
 								/>
-								
+
 								<Box>
-									<Typography variant="subtitle2" sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}>
+									<Typography
+										variant="subtitle2"
+										sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
+									>
 										Notification Preferences
 									</Typography>
 									<FormControlLabel
 										control={
 											<Checkbox
 												checked={diagnosticForm.email_notification}
-												onChange={(e) => setDiagnosticForm(prev => ({
-													...prev,
-													email_notification: e.target.checked
-												}))}
+												onChange={(e) =>
+													setDiagnosticForm((prev) => ({
+														...prev,
+														email_notification: e.target.checked,
+													}))
+												}
 												sx={{
 													color: COLOR_TEXT_SECONDARY,
-													'&.Mui-checked': {
+													"&.Mui-checked": {
 														color: COLOR_PRIMARY,
 													},
 												}}
@@ -1429,13 +1475,15 @@ const Diagnostics: React.FC = () => {
 										control={
 											<Checkbox
 												checked={diagnosticForm.sms_notification}
-												onChange={(e) => setDiagnosticForm(prev => ({
-													...prev,
-													sms_notification: e.target.checked
-												}))}
+												onChange={(e) =>
+													setDiagnosticForm((prev) => ({
+														...prev,
+														sms_notification: e.target.checked,
+													}))
+												}
 												sx={{
 													color: COLOR_TEXT_SECONDARY,
-													'&.Mui-checked': {
+													"&.Mui-checked": {
 														color: COLOR_PRIMARY,
 													},
 												}}
@@ -1448,23 +1496,23 @@ const Diagnostics: React.FC = () => {
 							</Box>
 						</DialogContent>
 						<DialogActions sx={{ p: 2 }}>
-							<Button 
+							<Button
 								onClick={handleCloseDialog}
 								sx={{ color: COLOR_TEXT_SECONDARY }}
 							>
 								Cancel
 							</Button>
-							<Button 
+							<Button
 								onClick={handleSaveDiagnostic}
 								variant="contained"
 								sx={{
 									bgcolor: COLOR_PRIMARY,
-									'&:hover': {
+									"&:hover": {
 										bgcolor: `${COLOR_PRIMARY}dd`,
 									},
 								}}
 							>
-								{dialogMode === 'add' ? 'Add Diagnostic' : 'Update Diagnostic'}
+								{dialogMode === "add" ? "Add Diagnostic" : "Update Diagnostic"}
 							</Button>
 						</DialogActions>
 					</Dialog>

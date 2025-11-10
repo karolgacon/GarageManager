@@ -43,16 +43,25 @@ export const diagnosticsService = {
 
 	createDiagnostic: async (diagnosticData: Partial<DiagnosticIssue>) => {
 		try {
-			const response = await api.post(`${BASE_API_URL}/diagnostics/`, diagnosticData);
+			const response = await api.post(
+				`${BASE_API_URL}/diagnostics/`,
+				diagnosticData
+			);
 			return response.data;
 		} catch (error) {
 			throw error;
 		}
 	},
 
-	updateDiagnostic: async (id: number, diagnosticData: Partial<DiagnosticIssue>) => {
+	updateDiagnostic: async (
+		id: number,
+		diagnosticData: Partial<DiagnosticIssue>
+	) => {
 		try {
-			const response = await api.put(`${BASE_API_URL}/diagnostics/${id}/`, diagnosticData);
+			const response = await api.put(
+				`${BASE_API_URL}/diagnostics/${id}/`,
+				diagnosticData
+			);
 			return response.data;
 		} catch (error) {
 			throw error;
