@@ -1,5 +1,6 @@
 import api from "../api";
 import { BASE_API_URL } from "../constants";
+import { DiagnosticIssue } from "../models/DiagnosticIssue";
 
 export const diagnosticsService = {
 	getAllDiagnostics: async () => {
@@ -37,6 +38,33 @@ export const diagnosticsService = {
 			return response.data;
 		} catch (error) {
 			return [];
+		}
+	},
+
+	createDiagnostic: async (diagnosticData: Partial<DiagnosticIssue>) => {
+		try {
+			const response = await api.post(`${BASE_API_URL}/diagnostics/`, diagnosticData);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	updateDiagnostic: async (id: number, diagnosticData: Partial<DiagnosticIssue>) => {
+		try {
+			const response = await api.put(`${BASE_API_URL}/diagnostics/${id}/`, diagnosticData);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	deleteDiagnostic: async (id: number) => {
+		try {
+			const response = await api.delete(`${BASE_API_URL}/diagnostics/${id}/`);
+			return response.data;
+		} catch (error) {
+			throw error;
 		}
 	},
 };

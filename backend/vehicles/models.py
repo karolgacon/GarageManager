@@ -109,6 +109,11 @@ class Diagnostics(models.Model):
         default='low'
     )
     diagnostic_result = models.JSONField(null=True, blank=True)
+    
+    # New fields for next inspection and notifications
+    next_inspection_date = models.DateField(null=True, blank=True, help_text="Date for next periodic inspection")
+    email_notification = models.BooleanField(default=False, help_text="Send email notification to client")
+    sms_notification = models.BooleanField(default=False, help_text="Send SMS notification to client")
 
     def __str__(self):
         return f"Diagnostic {self.vehicle.registration_number} - {self.diagnostic_date}"
