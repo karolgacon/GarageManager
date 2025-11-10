@@ -128,6 +128,32 @@ const StaffManagement: React.FC = () => {
 		try {
 			setLoading(true);
 			if (editingStaff) {
+				// Prevent owner from changing their own role
+				if (
+					editingStaff.id === auth.user_id &&
+					isOwner() &&
+					formData.role !== editingStaff.role
+				) {
+					setSnackbar({
+						open: true,
+						message: "You cannot change your own role as workshop owner",
+						severity: "error",
+					});
+					setLoading(false);
+					return;
+				}
+
+				// Validate that new role is allowed based on current user permissions
+				if (formData.role === "admin" && !isAdmin()) {
+					setSnackbar({
+						open: true,
+						message: "Only admins can assign admin role",
+						severity: "error",
+					});
+					setLoading(false);
+					return;
+				}
+
 				await staffService.updateStaff(editingStaff.id, formData);
 				setSnackbar({
 					open: true,
@@ -164,6 +190,28 @@ const StaffManagement: React.FC = () => {
 
 	const handleDeleteStaff = async () => {
 		if (selectedStaff) {
+			// Prevent owner from deleting himself
+			if (isOwner() && selectedStaff.id === auth.user_id) {
+				setSnackbar({
+					open: true,
+					message: "You cannot delete yourself as the workshop owner!",
+					severity: "warning",
+				});
+				handleMenuClose();
+				return;
+			}
+
+			// Confirm deletion
+			const confirmMessage =
+				selectedStaff.role === "owner"
+					? "Are you sure you want to delete this workshop owner? This may affect workshop operations."
+					: "Are you sure you want to delete this staff member?";
+
+			if (!window.confirm(confirmMessage)) {
+				handleMenuClose();
+				return;
+			}
+
 			try {
 				setLoading(true);
 				await staffService.deleteStaff(selectedStaff.id);
@@ -1005,6 +1053,7 @@ const StaffManagement: React.FC = () => {
 										name="role"
 										value={formData.role}
 										label="Role"
+										disabled={editingStaff?.id === auth.user_id && isOwner()}
 										onChange={(e) =>
 											setFormData((prev) => ({ ...prev, role: e.target.value }))
 										}
@@ -1042,6 +1091,18 @@ const StaffManagement: React.FC = () => {
 										<MenuItem value="owner">Owner</MenuItem>
 										{isAdmin() && <MenuItem value="admin">Admin</MenuItem>}
 									</Select>
+									{editingStaff?.id === auth.user_id && isOwner() && (
+										<Typography
+											variant="caption"
+											sx={{
+												color: COLOR_TEXT_SECONDARY,
+												mt: 0.5,
+												fontSize: "0.7rem",
+											}}
+										>
+											You cannot change your own role as workshop owner
+										</Typography>
+									)}
 								</FormControl>
 								{!editingStaff && (
 									<TextField
@@ -1126,20 +1187,24 @@ const StaffManagement: React.FC = () => {
 							</ListItemIcon>
 							<ListItemText>Edit</ListItemText>
 						</MenuItem>
-						<MenuItem
-							onClick={handleDeleteStaff}
-							sx={{
-								color: COLOR_ERROR,
-								"&:hover": {
-									backgroundColor: `${COLOR_ERROR}20`,
-								},
-							}}
-						>
-							<ListItemIcon>
-								<DeleteIcon fontSize="small" sx={{ color: COLOR_ERROR }} />
-							</ListItemIcon>
-							<ListItemText>Delete</ListItemText>
-						</MenuItem>
+
+						{/* Only show delete option if user is not trying to delete himself */}
+						{!(isOwner() && selectedStaff?.id === auth.user_id) && (
+							<MenuItem
+								onClick={handleDeleteStaff}
+								sx={{
+									color: COLOR_ERROR,
+									"&:hover": {
+										backgroundColor: `${COLOR_ERROR}20`,
+									},
+								}}
+							>
+								<ListItemIcon>
+									<DeleteIcon fontSize="small" sx={{ color: COLOR_ERROR }} />
+								</ListItemIcon>
+								<ListItemText>Delete</ListItemText>
+							</MenuItem>
+						)}
 					</Menu>
 
 					<CustomSnackbar

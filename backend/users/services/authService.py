@@ -37,15 +37,29 @@ class AuthService(BaseService):
         user = authenticate(username=user.email, password=password)
         if not user:
             raise ValueError("Invalid email or password.")
+        
+        # Get workshop_id for owner
+        workshop_id = None
+        if user.role == 'owner':
+            from workshops.models import Workshop
+            workshop = Workshop.objects.filter(owner=user).first()
+            if workshop:
+                workshop_id = workshop.id
+        
         refresh = RefreshToken.for_user(user)
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "role": user.role,
+        }
+        
+        if workshop_id:
+            user_data["workshop_id"] = workshop_id
+            
         return {
             "token": str(refresh.access_token),
             "refresh": str(refresh),
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "is_active": user.is_active,
-                "role": user.role,
-            },
+            "user": user_data,
         }

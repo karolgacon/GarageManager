@@ -53,36 +53,35 @@ const LoginWrapper = forwardRef<LoginWrapperHandle, LoginWrapperProps>(
 
 				const data = res.data;
 				const jwtToken = data.token;
+				const userDetails = data.user; // Use user data from login response
 
 				const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
 
-				try {
-					const userDetailsRes = await axios.get(
-						`${BASE_API_URL}/user/${decoded.user_id}/`
-					);
-					const userDetails = userDetailsRes.data;
+				setAuthHeader(jwtToken);
 
-					setAuthHeader(jwtToken);
+				localStorage.setItem("userRole", userDetails.role);
+				localStorage.setItem("userID", decoded.user_id.toString());
 
-					localStorage.setItem("userRole", userDetails.role);
-					localStorage.setItem("userID", decoded.user_id.toString());
+				const authData = {
+					token: jwtToken,
+					roles: [userDetails.role],
+					username: userDetails.username,
+					is_active: userDetails.is_active,
+					user_id: decoded.user_id,
+					isLoading: false,
+				};
 
-					setAuth({
-						token: jwtToken,
-						roles: [userDetails.role],
-						username: userDetails.username,
-						is_active: userDetails.is_active,
-						user_id: decoded.user_id,
-						isLoading: false,
-					});
+				// Add workshop_id if available
+				if (userDetails.workshop_id) {
+					(authData as any).workshop_id = userDetails.workshop_id;
+				}
 
-					if (!userDetails.is_active) {
-						setError("Your account has not been activated yet.");
-					} else {
-						redirectBasedOnRole(userDetails.role);
-					}
-				} catch (fetchErr) {
-					setError("Could not fetch user data.");
+				setAuth(authData);
+
+				if (!userDetails.is_active) {
+					setError("Your account has not been activated yet.");
+				} else {
+					redirectBasedOnRole(userDetails.role);
 				}
 			} catch (err: any) {
 				handleError(err);
