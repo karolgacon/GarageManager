@@ -7,6 +7,7 @@ import {
 	ListItemText,
 	Typography,
 	Drawer,
+	IconButton,
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -18,6 +19,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
 import GroupIcon from "@mui/icons-material/Group";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import CloseIcon from "@mui/icons-material/Close";
 import AuthContext from "../../context/AuthProvider";
 import {
 	COLOR_PRIMARY,
@@ -130,12 +132,42 @@ const Sidebar: React.FC<SidebarProps> = ({
 					textAlign: "center",
 					mb: 2,
 					cursor: "pointer",
+					minHeight: { xs: "60px", sm: "auto" }, // Minimalna wysokość na mobile
+					position: "relative", // Dla pozycjonowania przycisku close
 				}}
 				onClick={(e) => {
 					e.stopPropagation();
 					handleLogoClick();
 				}}
 			>
+				{isMobile && (
+					<Box
+						sx={{
+							position: "absolute",
+							top: 8,
+							right: 8,
+							zIndex: 1,
+						}}
+					>
+						<IconButton
+							onClick={(e) => {
+								e.stopPropagation();
+								if (onClose) onClose();
+							}}
+							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								backgroundColor: `${COLOR_PRIMARY}20`,
+								width: 32,
+								height: 32,
+								"&:hover": {
+									backgroundColor: `${COLOR_PRIMARY}40`,
+								},
+							}}
+						>
+							<CloseIcon fontSize="small" />
+						</IconButton>
+					</Box>
+				)}
 				<Box
 					sx={{
 						display: "flex",
@@ -147,8 +179,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 					<Box
 						component="img"
 						sx={{
-							height: 60,
-							width: 60,
+							height: { xs: 45, sm: 60 }, // Nieco mniejsze logo na mobile
+							width: { xs: 45, sm: 60 },
+							maxHeight: "100%",
+							maxWidth: "100%",
+							objectFit: "contain",
 							transition: "transform 0.2s ease-in-out",
 							"&:hover": {
 								transform: "scale(1.05)",
@@ -158,7 +193,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 						src="/logo.png"
 					/>
 				</Box>
-				<Typography variant="h6" fontWeight="bold" color={COLOR_TEXT_PRIMARY}>
+				<Typography
+					variant="h6"
+					fontWeight="bold"
+					color={COLOR_TEXT_PRIMARY}
+					sx={{
+						fontSize: { xs: "1rem", sm: "1.25rem" },
+					}}
+				>
 					GarageManager
 				</Typography>
 			</Box>
@@ -216,6 +258,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				open={open}
 				onClose={onClose}
 				sx={{
+					zIndex: 1300, // Wyższy z-index niż AppBar
 					"& .MuiDrawer-paper": {
 						width: 240,
 						boxSizing: "border-box",

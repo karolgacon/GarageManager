@@ -17,6 +17,8 @@ body,
   background: #0F1115 !important;
   background-color: #0F1115 !important;
   min-height: 100vh;
+  overflow-x: hidden;
+  /* Zapobiegnie poziomemu scrollowi na całej stronie */
 }
 
 * {

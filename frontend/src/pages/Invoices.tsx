@@ -32,8 +32,15 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import PaymentIcon from "@mui/icons-material/Payment";
 import AddIcon from "@mui/icons-material/Add";
 import AuthContext from "../context/AuthProvider";
-import { COLOR_PRIMARY } from "../constants";
-import { COLOR_SURFACE } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+	COLOR_SUCCESS,
+	COLOR_WARNING,
+	COLOR_ERROR,
+} from "../constants";
 import api from "../api";
 import Mainlayout from "../components/Mainlayout/Mainlayout";
 import CustomSnackbar, {
@@ -51,6 +58,10 @@ interface Invoice {
 	tax_rate: number;
 	description?: string;
 	client_name?: string;
+	// Dodane właściwości dla kompatybilności
+	number?: string;
+	date?: string;
+	total_amount?: number;
 }
 
 interface Payment {
@@ -62,6 +73,9 @@ interface Payment {
 	transaction_id: string;
 	notes?: string;
 	invoice_number?: string;
+	// Dodane właściwości dla kompatybilności
+	amount?: number;
+	status?: string;
 }
 const Invoices = () => {
 	const { auth, isAdmin, isOwner, isClient } = useContext(AuthContext);
@@ -156,7 +170,7 @@ const Invoices = () => {
 		fetchData();
 	}, [auth.user_id, isClient]);
 
-	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+	const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setTabValue(newValue);
 	};
 
@@ -255,7 +269,9 @@ const Invoices = () => {
 		}
 	};
 
-	const handleDownloadInvoice = (invoiceId: number) => {};
+	const handleDownloadInvoice = (_invoiceId: number) => {
+		// TODO: Implement invoice download functionality
+	};
 
 	const handleViewInvoice = (invoice: Invoice) => {
 		setSelectedInvoiceDetails(invoice);
@@ -269,36 +285,74 @@ const Invoices = () => {
 
 	const renderInvoiceStatus = (status: string) => {
 		if (!status) {
-			return <Chip label="Unknown" color="default" size="small" />;
+			return (
+				<Chip
+					label="Unknown"
+					size="small"
+					sx={{
+						backgroundColor: "rgba(156, 163, 175, 0.2)",
+						color: COLOR_TEXT_PRIMARY,
+					}}
+				/>
+			);
 		}
 
-		let color = "";
+		let chipSx = {};
 		switch (status.toLowerCase()) {
 			case "paid":
-				color = "success";
+				chipSx = {
+					backgroundColor: `${COLOR_SUCCESS}20`,
+					color: COLOR_SUCCESS,
+				};
 				break;
 			case "pending":
-				color = "warning";
+				chipSx = {
+					backgroundColor: `${COLOR_WARNING}20`,
+					color: COLOR_WARNING,
+				};
 				break;
 			case "overdue":
-				color = "error";
+				chipSx = {
+					backgroundColor: `${COLOR_ERROR}20`,
+					color: COLOR_ERROR,
+				};
 				break;
 			default:
-				color = "default";
+				chipSx = {
+					backgroundColor: "rgba(156, 163, 175, 0.2)",
+					color: COLOR_TEXT_PRIMARY,
+				};
 		}
-		return <Chip label={status} color={color as any} size="small" />;
+		return <Chip label={status} size="small" sx={chipSx} />;
 	};
 
 	const renderInvoiceActions = (invoice: Invoice) => {
 		return (
 			<Box sx={{ display: "flex", gap: 1 }}>
-				<IconButton size="small" onClick={() => handleViewInvoice(invoice)}>
+				<IconButton
+					size="small"
+					onClick={() => handleViewInvoice(invoice)}
+					sx={{
+						color: COLOR_TEXT_PRIMARY,
+						"&:hover": {
+							color: COLOR_PRIMARY,
+							backgroundColor: `${COLOR_PRIMARY}20`,
+						},
+					}}
+				>
 					<VisibilityIcon fontSize="small" />
 				</IconButton>
 
 				<IconButton
 					size="small"
 					onClick={() => handleDownloadInvoice(invoice.id)}
+					sx={{
+						color: COLOR_TEXT_PRIMARY,
+						"&:hover": {
+							color: COLOR_PRIMARY,
+							backgroundColor: `${COLOR_PRIMARY}20`,
+						},
+					}}
 				>
 					<GetAppIcon fontSize="small" />
 				</IconButton>
@@ -306,8 +360,13 @@ const Invoices = () => {
 				{isClient() && invoice.status.toLowerCase() === "pending" && (
 					<IconButton
 						size="small"
-						color="primary"
 						onClick={() => handleOpenPaymentDialog(invoice)}
+						sx={{
+							color: COLOR_SUCCESS,
+							"&:hover": {
+								backgroundColor: `${COLOR_SUCCESS}20`,
+							},
+						}}
 					>
 						<PaymentIcon fontSize="small" />
 					</IconButton>
@@ -320,13 +379,13 @@ const Invoices = () => {
 		setSnackbar({ ...snackbar, open: false });
 	};
 
-	const formatDate = (dateString) => {
+	const formatDate = (dateString: string | undefined) => {
 		if (!dateString) return "N/A";
 		const date = new Date(dateString);
 		return !isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date";
 	};
 
-	const formatAmount = (amount) => {
+	const formatAmount = (amount: number | undefined) => {
 		const numAmount = Number(amount || 0);
 		return `$${numAmount.toFixed(2)}`;
 	};
@@ -343,7 +402,11 @@ const Invoices = () => {
 							mb: 3,
 						}}
 					>
-						<Typography variant="h4" fontWeight="bold">
+						<Typography
+							variant="h4"
+							fontWeight="bold"
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Invoices & Payments
 						</Typography>
 
@@ -354,6 +417,7 @@ const Invoices = () => {
 								onClick={handleOpenCreateDialog}
 								sx={{
 									bgcolor: COLOR_PRIMARY,
+									color: COLOR_TEXT_PRIMARY,
 									"&:hover": { bgcolor: "#2563EB" },
 								}}
 							>
@@ -362,13 +426,30 @@ const Invoices = () => {
 						)}
 					</Box>
 
-					<Paper sx={{ mb: 3, overflow: "hidden" }} elevation={2}>
+					<Paper
+						sx={{
+							mb: 3,
+							overflow: "hidden",
+							backgroundColor: COLOR_SURFACE,
+							border: "1px solid rgba(255, 255, 255, 0.1)",
+						}}
+						elevation={0}
+					>
 						<Tabs
 							value={tabValue}
 							onChange={handleTabChange}
 							indicatorColor="primary"
 							textColor="primary"
-							sx={{ borderBottom: 1, borderColor: "divider" }}
+							sx={{
+								borderBottom: 1,
+								borderColor: "rgba(255, 255, 255, 0.1)",
+								"& .MuiTab-root": {
+									color: COLOR_TEXT_SECONDARY,
+									"&.Mui-selected": {
+										color: COLOR_PRIMARY,
+									},
+								},
+							}}
 						>
 							<Tab label="Invoices" />
 							<Tab label="Payments" />
@@ -381,37 +462,62 @@ const Invoices = () => {
 										<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 									</Box>
 								) : error ? (
-									<Typography color="error">{error}</Typography>
+									<Typography sx={{ color: COLOR_ERROR }}>{error}</Typography>
 								) : invoices.length === 0 ? (
-									<Typography>No invoices found.</Typography>
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										No invoices found.
+									</Typography>
 								) : (
 									<TableContainer>
 										<Table sx={{ minWidth: 650 }}>
 											<TableHead>
 												<TableRow>
-													<TableCell>Invoice #</TableCell>
-													<TableCell>Date</TableCell>
-													<TableCell>Due Date</TableCell>
-													<TableCell>Client</TableCell>
-													<TableCell>Amount</TableCell>
-													<TableCell>Status</TableCell>
-													<TableCell>Actions</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Invoice #
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Date
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Due Date
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Client
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Amount
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Status
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Actions
+													</TableCell>
 												</TableRow>
 											</TableHead>
 											<TableBody>
 												{invoices.map((invoice) => (
-													<TableRow key={invoice.id}>
-														<TableCell>{invoice.number}</TableCell>
-														<TableCell>
+													<TableRow
+														key={invoice.id}
+														sx={{
+															"&:hover": {
+																backgroundColor: "rgba(255, 255, 255, 0.05)",
+															},
+														}}
+													>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+															{invoice.number}
+														</TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{formatDate(invoice.issue_date || invoice.date)}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{formatDate(invoice.due_date)}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{invoice.client_name || invoice.client}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{formatAmount(
 																invoice.amount || invoice.total_amount
 															)}
@@ -438,40 +544,63 @@ const Invoices = () => {
 										<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 									</Box>
 								) : error ? (
-									<Typography color="error">{error}</Typography>
+									<Typography sx={{ color: COLOR_ERROR }}>{error}</Typography>
 								) : payments.length === 0 ? (
-									<Typography>No payments found.</Typography>
+									<Typography sx={{ color: COLOR_TEXT_PRIMARY }}>
+										No payments found.
+									</Typography>
 								) : (
 									<TableContainer>
 										<Table sx={{ minWidth: 650 }}>
 											<TableHead>
 												<TableRow>
-													<TableCell>Payment ID</TableCell>
-													<TableCell>Invoice</TableCell>
-													<TableCell>Date</TableCell>
-													<TableCell>Amount</TableCell>
-													<TableCell>Method</TableCell>
-													<TableCell>Status</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Payment ID
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Invoice
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Date
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Amount
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Method
+													</TableCell>
+													<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+														Status
+													</TableCell>
 												</TableRow>
 											</TableHead>
 											<TableBody>
 												{payments.map((payment) => (
-													<TableRow key={payment.id}>
-														<TableCell>{payment.id}</TableCell>
-														<TableCell>
+													<TableRow
+														key={payment.id}
+														sx={{
+															"&:hover": {
+																backgroundColor: "rgba(255, 255, 255, 0.05)",
+															},
+														}}
+													>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
+															{payment.id}
+														</TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{payment.invoice_number || payment.invoice}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{new Date(
 																payment.payment_date
 															).toLocaleDateString()}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{formatAmount(
 																payment.amount_paid || payment.amount
 															)}
 														</TableCell>
-														<TableCell>
+														<TableCell sx={{ color: COLOR_TEXT_PRIMARY }}>
 															{payment.payment_method
 																? payment.payment_method
 																		.charAt(0)
@@ -482,13 +611,19 @@ const Invoices = () => {
 														<TableCell>
 															<Chip
 																label={payment.status || "Unknown"}
-																color={
-																	payment.status &&
-																	payment.status.toLowerCase() === "completed"
-																		? "success"
-																		: "default"
-																}
 																size="small"
+																sx={{
+																	backgroundColor:
+																		payment.status &&
+																		payment.status.toLowerCase() === "completed"
+																			? `${COLOR_SUCCESS}20`
+																			: "rgba(156, 163, 175, 0.2)",
+																	color:
+																		payment.status &&
+																		payment.status.toLowerCase() === "completed"
+																			? COLOR_SUCCESS
+																			: COLOR_TEXT_PRIMARY,
+																}}
 															/>
 														</TableCell>
 													</TableRow>
@@ -509,19 +644,46 @@ const Invoices = () => {
 					onClose={handleCloseCreateDialog}
 					maxWidth="md"
 					fullWidth
+					PaperProps={{
+						sx: {
+							backgroundColor: COLOR_SURFACE,
+							border: "1px solid rgba(255, 255, 255, 0.1)",
+						},
+					}}
 				>
-					<DialogTitle>Create New Invoice</DialogTitle>
-					<DialogContent dividers>
+					<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
+						Create New Invoice
+					</DialogTitle>
+					<DialogContent
+						dividers
+						sx={{
+							borderColor: "rgba(255, 255, 255, 0.1)",
+						}}
+					>
 						<Grid container spacing={3}>
 							<Grid item xs={12} md={6}>
 								<FormControl fullWidth margin="normal">
-									<InputLabel>Client</InputLabel>
+									<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+										Client
+									</InputLabel>
 									<Select
 										value={newInvoice.client}
 										onChange={(e) =>
 											setNewInvoice({ ...newInvoice, client: e.target.value })
 										}
 										label="Client"
+										sx={{
+											color: COLOR_TEXT_PRIMARY,
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: "rgba(255, 255, 255, 0.23)",
+											},
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: "rgba(255, 255, 255, 0.4)",
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+										}}
 									>
 										<MenuItem value="1">Client 1</MenuItem>
 										<MenuItem value="2">Client 2</MenuItem>
@@ -530,13 +692,27 @@ const Invoices = () => {
 							</Grid>
 							<Grid item xs={12} md={6}>
 								<FormControl fullWidth margin="normal">
-									<InputLabel>Booking</InputLabel>
+									<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+										Booking
+									</InputLabel>
 									<Select
 										value={newInvoice.booking}
 										onChange={(e) =>
 											setNewInvoice({ ...newInvoice, booking: e.target.value })
 										}
 										label="Booking"
+										sx={{
+											color: COLOR_TEXT_PRIMARY,
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: "rgba(255, 255, 255, 0.23)",
+											},
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: "rgba(255, 255, 255, 0.4)",
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+										}}
 									>
 										<MenuItem value="1">Booking #1</MenuItem>
 										<MenuItem value="2">Booking #2</MenuItem>
@@ -554,12 +730,30 @@ const Invoices = () => {
 									}
 									InputLabelProps={{
 										shrink: true,
+										sx: { color: COLOR_TEXT_SECONDARY },
+									}}
+									sx={{
+										"& .MuiInputBase-input": {
+											color: COLOR_TEXT_PRIMARY,
+										},
+										"& .MuiOutlinedInput-notchedOutline": {
+											borderColor: "rgba(255, 255, 255, 0.23)",
+										},
+										"&:hover .MuiOutlinedInput-notchedOutline": {
+											borderColor: "rgba(255, 255, 255, 0.4)",
+										},
+										"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+											borderColor: COLOR_PRIMARY,
+										},
 									}}
 									margin="normal"
 								/>
 							</Grid>
 							<Grid item xs={12}>
-								<Typography variant="h6" sx={{ mt: 2, mb: 2 }}>
+								<Typography
+									variant="h6"
+									sx={{ mt: 2, mb: 2, color: COLOR_TEXT_PRIMARY }}
+								>
 									Invoice Items
 								</Typography>
 								{newInvoice.items.map((item, index) => (
@@ -581,6 +775,23 @@ const Invoices = () => {
 												setNewInvoice({ ...newInvoice, items: updatedItems });
 											}}
 											fullWidth
+											InputLabelProps={{
+												sx: { color: COLOR_TEXT_SECONDARY },
+											}}
+											sx={{
+												"& .MuiInputBase-input": {
+													color: COLOR_TEXT_PRIMARY,
+												},
+												"& .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.23)",
+												},
+												"&:hover .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.4)",
+												},
+												"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+													borderColor: COLOR_PRIMARY,
+												},
+											}}
 										/>
 										<TextField
 											label="Qty"
@@ -592,7 +803,24 @@ const Invoices = () => {
 													parseInt(e.target.value) || 1;
 												setNewInvoice({ ...newInvoice, items: updatedItems });
 											}}
-											sx={{ width: "100px" }}
+											sx={{
+												width: "100px",
+												"& .MuiInputBase-input": {
+													color: COLOR_TEXT_PRIMARY,
+												},
+												"& .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.23)",
+												},
+												"&:hover .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.4)",
+												},
+												"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+													borderColor: COLOR_PRIMARY,
+												},
+											}}
+											InputLabelProps={{
+												sx: { color: COLOR_TEXT_SECONDARY },
+											}}
 										/>
 										<TextField
 											label="Price"
@@ -604,12 +832,35 @@ const Invoices = () => {
 													parseFloat(e.target.value) || 0;
 												setNewInvoice({ ...newInvoice, items: updatedItems });
 											}}
-											sx={{ width: "150px" }}
+											sx={{
+												width: "150px",
+												"& .MuiInputBase-input": {
+													color: COLOR_TEXT_PRIMARY,
+												},
+												"& .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.23)",
+												},
+												"&:hover .MuiOutlinedInput-notchedOutline": {
+													borderColor: "rgba(255, 255, 255, 0.4)",
+												},
+												"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+													borderColor: COLOR_PRIMARY,
+												},
+											}}
+											InputLabelProps={{
+												sx: { color: COLOR_TEXT_SECONDARY },
+											}}
 										/>
 										<Button
 											color="error"
 											onClick={() => handleRemoveInvoiceItem(index)}
 											disabled={newInvoice.items.length <= 1}
+											sx={{
+												color: COLOR_ERROR,
+												"&:hover": {
+													backgroundColor: `${COLOR_ERROR}20`,
+												},
+											}}
 										>
 											Remove
 										</Button>
@@ -619,19 +870,40 @@ const Invoices = () => {
 									variant="outlined"
 									startIcon={<AddIcon />}
 									onClick={handleAddInvoiceItem}
-									sx={{ mt: 1 }}
+									sx={{
+										mt: 1,
+										color: COLOR_PRIMARY,
+										borderColor: COLOR_PRIMARY,
+										"&:hover": {
+											borderColor: COLOR_PRIMARY,
+											backgroundColor: `${COLOR_PRIMARY}20`,
+										},
+									}}
 								>
 									Add Item
 								</Button>
 							</Grid>
 						</Grid>
 					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleCloseCreateDialog}>Cancel</Button>
+					<DialogActions
+						sx={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}
+					>
+						<Button
+							onClick={handleCloseCreateDialog}
+							sx={{ color: COLOR_TEXT_SECONDARY }}
+						>
+							Cancel
+						</Button>
 						<Button
 							onClick={handleSaveInvoice}
 							variant="contained"
-							sx={{ backgroundColor: COLOR_PRIMARY }}
+							sx={{
+								backgroundColor: COLOR_PRIMARY,
+								color: COLOR_TEXT_PRIMARY,
+								"&:hover": {
+									backgroundColor: "#2563EB",
+								},
+							}}
 						>
 							Create Invoice
 						</Button>
@@ -644,14 +916,35 @@ const Invoices = () => {
 				onClose={handleClosePaymentDialog}
 				maxWidth="sm"
 				fullWidth
+				PaperProps={{
+					sx: {
+						backgroundColor: COLOR_SURFACE,
+						border: "1px solid rgba(255, 255, 255, 0.1)",
+					},
+				}}
 			>
-				<DialogTitle>Make Payment</DialogTitle>
-				<DialogContent dividers>
+				<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
+					Make Payment
+				</DialogTitle>
+				<DialogContent
+					dividers
+					sx={{
+						borderColor: "rgba(255, 255, 255, 0.1)",
+					}}
+				>
 					<Box sx={{ mb: 2 }}>
-						<Typography variant="subtitle1" gutterBottom>
+						<Typography
+							variant="subtitle1"
+							gutterBottom
+							sx={{ color: COLOR_TEXT_PRIMARY }}
+						>
 							Invoice: {selectedInvoice?.number}
 						</Typography>
-						<Typography variant="body2" color="text.secondary" gutterBottom>
+						<Typography
+							variant="body2"
+							color={COLOR_TEXT_SECONDARY}
+							gutterBottom
+						>
 							Total Amount: ${(selectedInvoice?.amount || 0).toFixed(2)}
 						</Typography>
 					</Box>
@@ -668,10 +961,29 @@ const Invoices = () => {
 							})
 						}
 						margin="normal"
+						InputLabelProps={{
+							sx: { color: COLOR_TEXT_SECONDARY },
+						}}
+						sx={{
+							"& .MuiInputBase-input": {
+								color: COLOR_TEXT_PRIMARY,
+							},
+							"& .MuiOutlinedInput-notchedOutline": {
+								borderColor: "rgba(255, 255, 255, 0.23)",
+							},
+							"&:hover .MuiOutlinedInput-notchedOutline": {
+								borderColor: "rgba(255, 255, 255, 0.4)",
+							},
+							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+								borderColor: COLOR_PRIMARY,
+							},
+						}}
 					/>
 
 					<FormControl fullWidth margin="normal">
-						<InputLabel>Payment Method</InputLabel>
+						<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+							Payment Method
+						</InputLabel>
 						<Select
 							value={paymentDetails.payment_method}
 							onChange={(e) =>
@@ -681,6 +993,18 @@ const Invoices = () => {
 								})
 							}
 							label="Payment Method"
+							sx={{
+								color: COLOR_TEXT_PRIMARY,
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderColor: "rgba(255, 255, 255, 0.23)",
+								},
+								"&:hover .MuiOutlinedInput-notchedOutline": {
+									borderColor: "rgba(255, 255, 255, 0.4)",
+								},
+								"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+									borderColor: COLOR_PRIMARY,
+								},
+							}}
 						>
 							<MenuItem value="card">Credit Card</MenuItem>
 							<MenuItem value="bank_transfer">Bank Transfer</MenuItem>
@@ -688,12 +1012,23 @@ const Invoices = () => {
 						</Select>
 					</FormControl>
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClosePaymentDialog}>Cancel</Button>
+				<DialogActions sx={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
+					<Button
+						onClick={handleClosePaymentDialog}
+						sx={{ color: COLOR_TEXT_SECONDARY }}
+					>
+						Cancel
+					</Button>
 					<Button
 						onClick={handleSavePayment}
 						variant="contained"
-						sx={{ backgroundColor: COLOR_PRIMARY }}
+						sx={{
+							backgroundColor: COLOR_PRIMARY,
+							color: COLOR_TEXT_PRIMARY,
+							"&:hover": {
+								backgroundColor: "#2563EB",
+							},
+						}}
 					>
 						Pay Now
 					</Button>
@@ -705,41 +1040,72 @@ const Invoices = () => {
 				onClose={handleCloseInvoiceDetailsDialog}
 				maxWidth="md"
 				fullWidth
+				PaperProps={{
+					sx: {
+						backgroundColor: COLOR_SURFACE,
+						border: "1px solid rgba(255, 255, 255, 0.1)",
+					},
+				}}
 			>
-				<DialogTitle>
+				<DialogTitle sx={{ color: COLOR_TEXT_PRIMARY }}>
 					Invoice Details -{" "}
 					{selectedInvoiceDetails?.id
 						? `INV-${selectedInvoiceDetails.id.toString().padStart(3, "0")}`
 						: ""}
 				</DialogTitle>
-				<DialogContent dividers>
+				<DialogContent
+					dividers
+					sx={{
+						borderColor: "rgba(255, 255, 255, 0.1)",
+					}}
+				>
 					{selectedInvoiceDetails && (
 						<Box sx={{ p: 2 }}>
 							<Grid container spacing={2}>
 								<Grid item xs={12} md={6}>
-									<Typography variant="subtitle1" fontWeight="bold">
+									<Typography
+										variant="subtitle1"
+										fontWeight="bold"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										Client Information
 									</Typography>
-									<Typography variant="body1">
+									<Typography
+										variant="body1"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										{selectedInvoiceDetails.client_name ||
 											`Client #${selectedInvoiceDetails.client}`}
 									</Typography>
 								</Grid>
 								<Grid item xs={12} md={6}>
-									<Typography variant="subtitle1" fontWeight="bold">
+									<Typography
+										variant="subtitle1"
+										fontWeight="bold"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										Invoice Details
 									</Typography>
-									<Typography variant="body2">
+									<Typography
+										variant="body2"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										Status: {selectedInvoiceDetails.status}
 									</Typography>
-									<Typography variant="body2">
+									<Typography
+										variant="body2"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										Issue Date:{" "}
 										{formatDate(
 											selectedInvoiceDetails.issue_date ||
 												selectedInvoiceDetails.date
 										)}
 									</Typography>
-									<Typography variant="body2">
+									<Typography
+										variant="body2"
+										sx={{ color: COLOR_TEXT_PRIMARY }}
+									>
 										Due Date: {formatDate(selectedInvoiceDetails.due_date)}
 									</Typography>
 								</Grid>
@@ -747,7 +1113,7 @@ const Invoices = () => {
 									<Typography
 										variant="subtitle1"
 										fontWeight="bold"
-										sx={{ mt: 2 }}
+										sx={{ mt: 2, color: COLOR_TEXT_PRIMARY }}
 									>
 										Financial Summary
 									</Typography>
@@ -755,16 +1121,25 @@ const Invoices = () => {
 										sx={{
 											mt: 1,
 											p: 2,
-											bgcolor: COLOR_SURFACE,
+											bgcolor: `${COLOR_SURFACE}80`,
+											border: "1px solid rgba(255, 255, 255, 0.1)",
 											borderRadius: 1,
 										}}
 									>
 										<Grid container spacing={2}>
 											<Grid item xs={6}>
-												<Typography variant="body2">Subtotal:</Typography>
+												<Typography
+													variant="body2"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
+													Subtotal:
+												</Typography>
 											</Grid>
 											<Grid item xs={6} textAlign="right">
-												<Typography variant="body2">
+												<Typography
+													variant="body2"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													{formatAmount(
 														selectedInvoiceDetails.amount /
 															(1 + (selectedInvoiceDetails.tax_rate || 0))
@@ -774,17 +1149,25 @@ const Invoices = () => {
 											{selectedInvoiceDetails.discount > 0 && (
 												<>
 													<Grid item xs={6}>
-														<Typography variant="body2">Discount:</Typography>
+														<Typography
+															variant="body2"
+															sx={{ color: COLOR_TEXT_PRIMARY }}
+														>
+															Discount:
+														</Typography>
 													</Grid>
 													<Grid item xs={6} textAlign="right">
-														<Typography variant="body2" color="error">
+														<Typography variant="body2" color={COLOR_ERROR}>
 															-{formatAmount(selectedInvoiceDetails.discount)}
 														</Typography>
 													</Grid>
 												</>
 											)}
 											<Grid item xs={6}>
-												<Typography variant="body2">
+												<Typography
+													variant="body2"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													Tax (
 													{(
 														(selectedInvoiceDetails.tax_rate || 0) * 100
@@ -793,7 +1176,10 @@ const Invoices = () => {
 												</Typography>
 											</Grid>
 											<Grid item xs={6} textAlign="right">
-												<Typography variant="body2">
+												<Typography
+													variant="body2"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													{formatAmount(
 														(selectedInvoiceDetails.amount *
 															(selectedInvoiceDetails.tax_rate || 0)) /
@@ -802,12 +1188,20 @@ const Invoices = () => {
 												</Typography>
 											</Grid>
 											<Grid item xs={6}>
-												<Typography variant="body2" fontWeight="bold">
+												<Typography
+													variant="body2"
+													fontWeight="bold"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													Total Amount:
 												</Typography>
 											</Grid>
 											<Grid item xs={6} textAlign="right">
-												<Typography variant="body2" fontWeight="bold">
+												<Typography
+													variant="body2"
+													fontWeight="bold"
+													sx={{ color: COLOR_TEXT_PRIMARY }}
+												>
 													{formatAmount(selectedInvoiceDetails.amount)}
 												</Typography>
 											</Grid>
@@ -818,16 +1212,27 @@ const Invoices = () => {
 						</Box>
 					)}
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleCloseInvoiceDetailsDialog}>Close</Button>
+				<DialogActions sx={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
+					<Button
+						onClick={handleCloseInvoiceDetailsDialog}
+						sx={{ color: COLOR_TEXT_SECONDARY }}
+					>
+						Close
+					</Button>
 					{selectedInvoiceDetails?.status.toLowerCase() === "pending" &&
 						isClient() && (
 							<Button
 								variant="contained"
-								color="primary"
 								onClick={() => {
 									handleCloseInvoiceDetailsDialog();
 									handleOpenPaymentDialog(selectedInvoiceDetails);
+								}}
+								sx={{
+									backgroundColor: COLOR_PRIMARY,
+									color: COLOR_TEXT_PRIMARY,
+									"&:hover": {
+										backgroundColor: "#2563EB",
+									},
 								}}
 							>
 								Pay Now
@@ -839,6 +1244,14 @@ const Invoices = () => {
 							handleCloseInvoiceDetailsDialog();
 							selectedInvoiceDetails &&
 								handleDownloadInvoice(selectedInvoiceDetails.id);
+						}}
+						sx={{
+							color: COLOR_PRIMARY,
+							borderColor: COLOR_PRIMARY,
+							"&:hover": {
+								borderColor: COLOR_PRIMARY,
+								backgroundColor: `${COLOR_PRIMARY}20`,
+							},
 						}}
 					>
 						Download

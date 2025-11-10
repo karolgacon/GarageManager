@@ -261,16 +261,22 @@ const HeaderBar = () => {
 		<Paper
 			elevation={3}
 			sx={{
-				p: 2,
-				mb: 2,
+				p: { xs: 1.5, sm: 2 }, // Mniejszy padding na mobile
+				mb: { xs: 0, sm: 2 }, // Brak marginesu dolnego na mobile
+				mt: { xs: 0, sm: 0 }, // Brak marginesu górnego
 				borderRadius: { xs: 0, sm: 1 },
 				backgroundColor: COLOR_SURFACE, // Ciemne tło headerbar
 				color: COLOR_TEXT_PRIMARY, // Jasny tekst
-				position: "sticky",
-				top: 0,
-				zIndex: 1000,
+				position: { xs: "fixed", sm: "static" }, // Fixed na mobile, static na desktop
+				top: { xs: 56, sm: "auto" }, // Pod AppBar na mobile
+				left: { xs: 0, sm: "auto" }, // Pełna szerokość na mobile
+				right: { xs: 0, sm: "auto" },
+				zIndex: { xs: 1200, sm: "auto" }, // Wyższy z-index tylko na mobile
 				boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
 				border: `1px solid rgba(228, 230, 232, 0.1)`,
+				width: { xs: "100%", sm: "100%" }, // Pełna szerokość na obu
+				maxWidth: "100%",
+				overflowX: "hidden",
 			}}
 		>
 			<Box
@@ -278,9 +284,12 @@ const HeaderBar = () => {
 					display: "flex",
 					justifyContent: "space-between",
 					alignItems: "center",
+					width: "100%",
+					maxWidth: "100%",
+					overflowX: "hidden", // Zapobiegnie poziomemu overflow
 				}}
 			>
-				<Box sx={{ ml: 2 }}>
+				<Box sx={{ ml: { xs: 1, sm: 2 } }}>
 					<Typography
 						variant="h6"
 						fontWeight="bold"
@@ -300,9 +309,11 @@ const HeaderBar = () => {
 					sx={{
 						display: "flex",
 						alignItems: "center",
-						gap: 3,
-						paddingRight: 3,
+						gap: { xs: 1.5, sm: 3 }, // Mniejszy gap na mobile
+						paddingRight: { xs: 1, sm: 3 }, // Mniejszy padding na mobile
 						marginRight: isMobile ? 0 : 1,
+						minWidth: 0, // Pozwoli na flex shrink
+						flex: "0 0 auto", // Nie będzie się rozciągać
 					}}
 				>
 					<IconButton
@@ -382,7 +393,7 @@ const HeaderBar = () => {
 							},
 						},
 					]}
-					sx={{ zIndex: 1500, width: 320, maxWidth: "90vw" }}
+					sx={{ zIndex: 1600, width: 320, maxWidth: "90vw" }}
 				>
 					<ClickAwayListener onClickAway={handleEmailClose}>
 						<Paper
@@ -522,7 +533,7 @@ const HeaderBar = () => {
 							},
 						},
 					]}
-					sx={{ zIndex: 1500, width: 320, maxWidth: "90vw" }}
+					sx={{ zIndex: 1600, width: 320, maxWidth: "90vw" }}
 				>
 					<ClickAwayListener onClickAway={handleNotificationClose}>
 						<Paper
@@ -649,7 +660,7 @@ const HeaderBar = () => {
 				<Popper
 					open={true}
 					anchorEl={anchorEl}
-					placement="bottom-end"
+					placement="bottom-start"
 					disablePortal={false}
 					modifiers={[
 						{
@@ -658,19 +669,19 @@ const HeaderBar = () => {
 							options: {
 								altAxis: true,
 								altBoundary: true,
-								tether: true,
-								rootBoundary: "document",
+								tether: false, // Wyłączenie tether żeby menu nie było przesuwane
+								rootBoundary: "viewport", // Zmiana na viewport
 								padding: 8,
 							},
 						},
 						{
 							name: "offset",
 							options: {
-								offset: [0, 10],
+								offset: [0, 15], // Zwiększenie offsetu żeby menu było niżej
 							},
 						},
 					]}
-					sx={{ zIndex: 1500 }}
+					sx={{ zIndex: 1600 }}
 				>
 					<ClickAwayListener onClickAway={handleClose}>
 						<Paper
@@ -678,7 +689,7 @@ const HeaderBar = () => {
 							sx={{
 								overflow: "visible",
 								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
-								mt: 1.5,
+								mt: 0.5, // Zmniejszony margines top
 								minWidth: 200,
 								marginRight: 2,
 								backgroundColor: COLOR_SURFACE,

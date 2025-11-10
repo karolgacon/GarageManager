@@ -42,14 +42,24 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 				flexDirection: "column",
 				minHeight: "100vh",
 				position: "relative",
+				overflowX: "hidden", // Zapobiegnie poziomemu scrollowi
+				width: "100%",
+				maxWidth: "100vw", // Ogranicza szerokość do viewport
 			}}
 		>
-			<Box sx={{ display: "flex", flex: 1 }}>
+			<Box
+				sx={{
+					display: "flex",
+					flex: 1,
+					overflowX: "hidden", // Zapobiegnie poziomemu scrollowi w main flex container
+					width: "100%",
+				}}
+			>
 				{isMobile && (
 					<AppBar
 						position="fixed"
 						sx={{
-							zIndex: (theme) => theme.zIndex.drawer + 1,
+							zIndex: 1300, // Wyższy z-index niż HeaderBar
 							backgroundColor: COLOR_PRIMARY,
 						}}
 					>
@@ -84,8 +94,10 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 						flexDirection: "column",
 						backgroundColor: COLOR_BACKGROUND, // Ciemne tło głównej zawartości
 						width: "100%",
-						mt: isMobile ? 8 : 0,
+						maxWidth: "100%", // Ogranicza szerokość
+						mt: isMobile ? 8 : 0, // Przywrócenie oryginalnego marginesu
 						pb: "40px",
+						overflowX: "hidden", // Zapobiegnie poziomemu scrollowi
 					}}
 				>
 					<HeaderBar />
@@ -93,9 +105,12 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 						maxWidth="xl"
 						sx={{
 							py: 0,
-							pt: 2,
+							pt: { xs: 9, sm: 2 }, // Dodatkowy padding na mobile dla fixed HeaderBar, normalny na desktop
 							px: { xs: 1, sm: 2, md: 3 },
 							flex: 1,
+							width: "100%",
+							maxWidth: { xs: "100%", sm: "100%", md: "100%" }, // Pełna szerokość ale bez overflow
+							overflowX: "hidden", // Zapobiegnie poziomemu scrollowi
 						}}
 					>
 						{children}
@@ -107,7 +122,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 			<FloatingChatButton
 				position={{
 					bottom: 64, // Above footer
-					right: 24,
+					right: isMobile ? 16 : 24, // Mniejszy margin na mobile
 				}}
 			/>
 
