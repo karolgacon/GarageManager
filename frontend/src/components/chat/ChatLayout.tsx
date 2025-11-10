@@ -18,6 +18,13 @@ import {
 	Close as CloseIcon,
 	Refresh as RefreshIcon,
 } from "@mui/icons-material";
+import {
+	COLOR_PRIMARY,
+	COLOR_BACKGROUND,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+	COLOR_TEXT_SECONDARY,
+} from "../../constants";
 import { Conversation, Message } from "../../models/chat";
 import { useChatApi } from "../../api/chatApi";
 import {
@@ -166,7 +173,13 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 		if (isEmbedded) {
 			return (
 				<Paper
-					sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+					sx={{
+						height: "100%",
+						display: "flex",
+						flexDirection: "column",
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+					}}
 				>
 					{children}
 				</Paper>
@@ -174,11 +187,33 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 		}
 
 		return (
-			<Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-				<AppBar position="static" color="default" elevation={1}>
+			<Box
+				sx={{
+					height: "100vh",
+					display: "flex",
+					flexDirection: "column",
+					backgroundColor: COLOR_BACKGROUND,
+				}}
+			>
+				<AppBar
+					position="static"
+					color="default"
+					elevation={1}
+					sx={{
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
+					}}
+				>
 					<Toolbar variant="dense">
-						<ChatIcon sx={{ mr: 1 }} />
-						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+						<ChatIcon sx={{ mr: 1, color: COLOR_PRIMARY }} />
+						<Typography
+							variant="h6"
+							component="div"
+							sx={{
+								flexGrow: 1,
+								color: COLOR_TEXT_PRIMARY,
+							}}
+						>
 							Chat z Mechanikiem
 						</Typography>
 
@@ -188,6 +223,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 							<IconButton
 								color="inherit"
 								onClick={() => setShowNotifications(!showNotifications)}
+								sx={{ color: COLOR_TEXT_PRIMARY }}
 							>
 								<Badge badgeContent={notifications.length} color="error">
 									<NotificationsIcon />
@@ -196,14 +232,18 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 						</Tooltip>
 
 						<Tooltip title="Ustawienia">
-							<IconButton color="inherit">
+							<IconButton color="inherit" sx={{ color: COLOR_TEXT_PRIMARY }}>
 								<SettingsIcon />
 							</IconButton>
 						</Tooltip>
 
 						{onClose && (
 							<Tooltip title="Zamknij">
-								<IconButton color="inherit" onClick={onClose}>
+								<IconButton
+									color="inherit"
+									onClick={onClose}
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								>
 									<CloseIcon />
 								</IconButton>
 							</Tooltip>
@@ -227,7 +267,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 					lg={3}
 					sx={{
 						borderRight: 1,
-						borderColor: "divider",
+						borderColor: COLOR_TEXT_SECONDARY + "30",
+						backgroundColor: COLOR_SURFACE,
 						height: "100%",
 						display: {
 							xs: selectedConversation ? "none" : "block",
@@ -253,6 +294,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 					lg={9}
 					sx={{
 						height: "100%",
+						backgroundColor: COLOR_BACKGROUND,
 						display: {
 							xs: selectedConversation ? "block" : "none",
 							md: "block",

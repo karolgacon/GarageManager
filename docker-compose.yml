@@ -28,7 +28,7 @@ services:
     volumes:
       - ./backend:/backend
     command: >
-      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
     environment:
       - DB_HOST=db
       - DB_NAME=db

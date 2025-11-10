@@ -4,6 +4,7 @@ cachetools==5.3.3
 certifi==2024.7.4
 channels==4.3.1
 channels-redis==4.3.0
+daphne==4.1.2
 charset-normalizer==3.3.2
 cryptography==44.0.0
 celery==5.4.0

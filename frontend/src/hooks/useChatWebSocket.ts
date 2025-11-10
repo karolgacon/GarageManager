@@ -52,13 +52,19 @@ export const useChatWebSocket = (
 
 	// Get auth token
 	const getAuthToken = useCallback(() => {
-		return localStorage.getItem("token"); // Zmieniono z "authToken" na "token"
+		const token = localStorage.getItem("token"); // Zmieniono z "authToken" na "token"
+		console.log(
+			"🔑 WebSocket: Getting auth token:",
+			token ? "Token found" : "No token"
+		);
+		return token;
 	}, []);
 
 	// Build WebSocket URL
 	const getWebSocketUrl = useCallback(() => {
 		const token = getAuthToken();
 		if (!token) {
+			console.error("❌ WebSocket: No auth token available");
 			throw new Error("No auth token available");
 		}
 
@@ -70,6 +76,7 @@ export const useChatWebSocket = (
 		}
 		wsUrl += `?token=${encodeURIComponent(token)}`;
 
+		console.log("🌐 WebSocket URL:", wsUrl);
 		return wsUrl;
 	}, [conversationUuid]);
 
@@ -77,23 +84,30 @@ export const useChatWebSocket = (
 	const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } =
 		useWebSocket(autoConnect ? getWebSocketUrl() : null, {
 			onOpen: () => {
-				console.log("WebSocket connected");
+				console.log("✅ WebSocket connected successfully");
 				setConnectionInfo({
 					connected: true,
 					conversation_uuid: conversationUuid || null,
 					user_id: null, // Will be updated from server
 				});
 			},
-			onClose: () => {
-				console.log("WebSocket disconnected");
+			onClose: (event: CloseEvent) => {
+				console.log(
+					`🔌 WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}`
+				);
 				setConnectionInfo(null);
 			},
 			onError: (event: Event) => {
-				console.error("WebSocket error:", event);
+				console.error("❌ WebSocket error:", event);
 			},
 			shouldReconnect: (closeEvent: CloseEvent) => {
+				console.log(
+					`🔄 WebSocket reconnect decision. Close code: ${closeEvent.code}`
+				);
 				// Reconnect unless it's an authentication error
-				return closeEvent.code !== 4001;
+				const shouldReconnect = closeEvent.code !== 4001;
+				console.log(`🔄 Should reconnect: ${shouldReconnect}`);
+				return shouldReconnect;
 			},
 			reconnectAttempts: 5,
 			reconnectInterval: 3000,

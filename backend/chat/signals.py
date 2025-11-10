@@ -1,7 +1,23 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Message
+from .models import Message, Conversation, ConversationParticipant
 from .services import NotificationService
+
+@receiver(post_save, sender=Conversation)
+def conversation_created_handler(sender, instance, created, **kwargs):
+    """Handler dla nowych konwersacji - automatycznie dodaj uczestników"""
+    if created:
+        # Automatycznie utwórz uczestników konwersacji
+        ConversationParticipant.objects.get_or_create(
+            conversation=instance,
+            user=instance.client,
+            defaults={'notifications_enabled': True}
+        )
+        ConversationParticipant.objects.get_or_create(
+            conversation=instance,
+            user=instance.mechanic,
+            defaults={'notifications_enabled': True}
+        )
 
 @receiver(post_save, sender=Message)
 def message_created_handler(sender, instance, created, **kwargs):

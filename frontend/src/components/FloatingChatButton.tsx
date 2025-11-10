@@ -14,7 +14,12 @@ import {
 import { Chat as ChatIcon, Close as CloseIcon } from "@mui/icons-material";
 import RealChatDialog from "./RealChatDialog";
 import { useChatNotifications } from "../hooks/useChatWebSocket";
-import { COLOR_PRIMARY, COLOR_SECONDARY } from "../constants";
+import {
+	COLOR_PRIMARY,
+	COLOR_SECONDARY,
+	COLOR_SURFACE,
+	COLOR_TEXT_PRIMARY,
+} from "../constants";
 import AuthContext from "../context/AuthProvider";
 
 interface FloatingChatButtonProps {
@@ -97,6 +102,8 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 						margin: isMobile ? 0 : 2,
 						borderRadius: isMobile ? 0 : 2,
 						position: "relative",
+						backgroundColor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
 					},
 				}}
 				sx={{
@@ -114,10 +121,12 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 						top: 8,
 						right: 8,
 						zIndex: 1,
-						bgcolor: "background.paper",
+						bgcolor: COLOR_SURFACE,
+						color: COLOR_TEXT_PRIMARY,
 						boxShadow: 1,
 						"&:hover": {
-							bgcolor: "grey.100",
+							bgcolor: COLOR_PRIMARY,
+							color: "white",
 						},
 					}}
 				>
