@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Box,
 	List,
@@ -35,6 +35,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Conversation } from "../../models/chat";
+import { resourcesApiClient, User, Workshop } from "../../api/resourcesApi";
 
 interface ConversationListProps {
 	conversations: Conversation[];
@@ -45,6 +46,7 @@ interface ConversationListProps {
 		workshopId: number,
 		subject: string
 	) => Promise<Conversation>;
+	onUpdateStatus?: (conversationUuid: string, status: string) => Promise<void>;
 	isLoading: boolean;
 	error: string | null;
 }
@@ -68,6 +70,32 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 	const [workshopId, setWorkshopId] = useState<number | "">("");
 	const [subject, setSubject] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [mechanics, setMechanics] = useState<User[]>([]);
+	const [workshops, setWorkshops] = useState<Workshop[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	// Load mechanics and workshops when dialog opens
+	useEffect(() => {
+		if (open) {
+			loadResources();
+		}
+	}, [open]);
+
+	const loadResources = async () => {
+		try {
+			setLoading(true);
+			const [mechanicsData, workshopsData] = await Promise.all([
+				resourcesApiClient.getMechanics(),
+				resourcesApiClient.getWorkshops(),
+			]);
+			setMechanics(mechanicsData);
+			setWorkshops(workshopsData);
+		} catch (error) {
+			console.error("Failed to load resources:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handleSubmit = async () => {
 		if (!mechanicId || !workshopId || !subject.trim()) return;
@@ -90,43 +118,53 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
 			<DialogTitle>Nowa konwersacja</DialogTitle>
 			<DialogContent>
-				<Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-					<FormControl fullWidth>
-						<InputLabel>Warsztat</InputLabel>
-						<Select
-							value={workshopId}
-							onChange={(e) => setWorkshopId(e.target.value as number)}
-							label="Warsztat"
-						>
-							<MenuItem value={1}>Warsztat AutoSerwis</MenuItem>
-							<MenuItem value={2}>Warsztat Express</MenuItem>
-							<MenuItem value={3}>Warsztat Premium</MenuItem>
-						</Select>
-					</FormControl>
+				{loading ? (
+					<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+						<CircularProgress />
+					</Box>
+				) : (
+					<Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+						<FormControl fullWidth>
+							<InputLabel>Warsztat</InputLabel>
+							<Select
+								value={workshopId}
+								onChange={(e) => setWorkshopId(e.target.value as number)}
+								label="Warsztat"
+							>
+								{workshops.map((workshop) => (
+									<MenuItem key={workshop.id} value={workshop.id}>
+										{workshop.name}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
 
-					<FormControl fullWidth>
-						<InputLabel>Mechanik</InputLabel>
-						<Select
-							value={mechanicId}
-							onChange={(e) => setMechanicId(e.target.value as number)}
-							label="Mechanik"
-						>
-							<MenuItem value={1}>Jan Kowalski</MenuItem>
-							<MenuItem value={2}>Piotr Nowak</MenuItem>
-							<MenuItem value={3}>Anna Wiśniewska</MenuItem>
-						</Select>
-					</FormControl>
+						<FormControl fullWidth>
+							<InputLabel>Mechanik</InputLabel>
+							<Select
+								value={mechanicId}
+								onChange={(e) => setMechanicId(e.target.value as number)}
+								label="Mechanik"
+							>
+								{mechanics.map((mechanic) => (
+									<MenuItem key={mechanic.id} value={mechanic.id}>
+										{mechanic.first_name} {mechanic.last_name} ({mechanic.username})
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
 
-					<TextField
-						fullWidth
-						label="Temat"
-						value={subject}
-						onChange={(e) => setSubject(e.target.value)}
-						placeholder="Opisz problem lub pytanie..."
-						multiline
-						rows={3}
-					/>
-				</Box>
+						<TextField
+							fullWidth
+							label="Temat"
+							value={subject}
+							onChange={(e) => setSubject(e.target.value)}
+							placeholder="Opisz problem lub pytanie..."
+							multiline
+							rows={3}
+						/>
+					</Box>
+				)}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={onClose}>Anuluj</Button>
@@ -134,7 +172,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					onClick={handleSubmit}
 					variant="contained"
 					disabled={
-						!mechanicId || !workshopId || !subject.trim() || isSubmitting
+						!mechanicId || !workshopId || !subject.trim() || isSubmitting || loading
 					}
 				>
 					{isSubmitting ? <CircularProgress size={20} /> : "Utwórz"}
@@ -149,6 +187,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 	selectedConversation,
 	onConversationSelect,
 	onCreateConversation,
+	onUpdateStatus,
 	isLoading,
 	error,
 }) => {
@@ -185,10 +224,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
 		switch (status) {
 			case "active":
 				return "success";
+			case "waiting_client":
+				return "warning";
+			case "waiting_mechanic":
+				return "info";
+			case "resolved":
+				return "success";
 			case "closed":
 				return "default";
-			case "pending":
-				return "warning";
 			default:
 				return "default";
 		}
@@ -198,10 +241,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
 		switch (status) {
 			case "active":
 				return "Aktywna";
+			case "waiting_client":
+				return "Oczekuje na klienta";
+			case "waiting_mechanic":
+				return "Oczekuje na mechanika";
+			case "resolved":
+				return "Rozwiązana";
 			case "closed":
 				return "Zamknięta";
-			case "pending":
-				return "Oczekująca";
 			default:
 				return status;
 		}
@@ -213,7 +260,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
 			<Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
 				<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
 					<Typography variant="h6" sx={{ flexGrow: 1 }}>
-						Konwersacje
+						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+							Konwersacje
+							{isLoading && <CircularProgress size={16} />}
+						</Box>
 					</Typography>
 					<IconButton
 						size="small"

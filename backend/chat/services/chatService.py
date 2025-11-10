@@ -69,7 +69,23 @@ class ChatService:
 
         # Aktualizuj timestamp ostatniej wiadomości
         conversation.last_message_at = timezone.now()
-        conversation.save(update_fields=['last_message_at'])
+        
+        # Aktualizuj status konwersacji w oparciu o nadawcę
+        if conversation.status in ['waiting_client', 'waiting_mechanic']:
+            if sender == conversation.client:
+                # Klient odpowiedział
+                conversation.status = 'waiting_mechanic'
+            elif sender == conversation.mechanic:
+                # Mechanik odpowiedział
+                conversation.status = 'waiting_client'
+        elif conversation.status == 'active':
+            # Jeśli rozmowa była aktywna, ustaw status oczekiwania na drugą stronę
+            if sender == conversation.client:
+                conversation.status = 'waiting_mechanic'
+            elif sender == conversation.mechanic:
+                conversation.status = 'waiting_client'
+        
+        conversation.save(update_fields=['last_message_at', 'status'])
 
         return message
 
@@ -161,6 +177,32 @@ class ChatService:
                 total_unread += conversation.unread_count_mechanic
                 
         return total_unread
+
+    @staticmethod
+    def update_conversation_status(conversation, new_status, updated_by):
+        """Zaktualizuj status konwersacji"""
+        if updated_by not in [conversation.client, conversation.mechanic]:
+            raise PermissionError("User cannot update this conversation status")
+        
+        valid_statuses = ['active', 'waiting_client', 'waiting_mechanic', 'resolved', 'closed']
+        if new_status not in valid_statuses:
+            raise ValueError(f"Invalid status: {new_status}")
+        
+        old_status = conversation.status
+        conversation.status = new_status
+        
+        if new_status == 'closed':
+            conversation.closed_at = timezone.now()
+            conversation.save(update_fields=['status', 'closed_at'])
+        else:
+            conversation.save(update_fields=['status'])
+        
+        # Wyślij powiadomienie o zmianie statusu
+        if old_status != new_status:
+            from .supportServices import NotificationService
+            NotificationService.notify_conversation_status_change(conversation, new_status)
+        
+        return conversation
 
     @staticmethod
     def search_conversations(user, query):

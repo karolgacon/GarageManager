@@ -12,11 +12,20 @@ import {
 	Alert,
 	Avatar,
 	Chip,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
 } from "@mui/material";
 import {
 	Chat as ChatIcon,
 	Send as SendIcon,
 	Build as BuildIcon,
+	Add as AddIcon,
 } from "@mui/icons-material";
 import {
 	COLOR_PRIMARY,
@@ -29,16 +38,287 @@ import {
 } from "../constants";
 import { useChatApi } from "../api/chatApi";
 import { useChatWebSocket } from "../hooks/useChatWebSocket";
+import { resourcesApiClient, User, Workshop } from "../api/resourcesApi";
 import { Conversation, Message } from "../models/chat";
 
 interface RealChatDialogProps {
 	onClose?: () => void;
 }
 
+interface CreateConversationDialogProps {
+	open: boolean;
+	onClose: () => void;
+	onSubmit: (
+		mechanicId: number,
+		workshopId: number,
+		subject: string
+	) => Promise<void>;
+}
+
+const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
+	open,
+	onClose,
+	onSubmit,
+}) => {
+	const [mechanicId, setMechanicId] = useState<number | "">("");
+	const [workshopId, setWorkshopId] = useState<number | "">("");
+	const [subject, setSubject] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [mechanics, setMechanics] = useState<User[]>([]);
+	const [workshops, setWorkshops] = useState<Workshop[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	// Load mechanics and workshops when dialog opens
+	useEffect(() => {
+		if (open) {
+			loadResources();
+		}
+	}, [open]);
+
+	const loadResources = async () => {
+		try {
+			setLoading(true);
+			const [mechanicsData, workshopsData] = await Promise.all([
+				resourcesApiClient.getMechanics(),
+				resourcesApiClient.getWorkshops(),
+			]);
+			setMechanics(mechanicsData);
+			setWorkshops(workshopsData);
+		} catch (error) {
+			console.error("Failed to load resources:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleSubmit = async () => {
+		if (!mechanicId || !workshopId || !subject.trim()) return;
+
+		try {
+			setIsSubmitting(true);
+			await onSubmit(Number(mechanicId), Number(workshopId), subject);
+			setMechanicId("");
+			setWorkshopId("");
+			setSubject("");
+		} catch (error) {
+			console.error("Failed to create conversation:", error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	return (
+		<Dialog 
+			open={open} 
+			onClose={onClose} 
+			maxWidth="sm" 
+			fullWidth
+			PaperProps={{
+				sx: {
+					backgroundColor: COLOR_SURFACE,
+					color: COLOR_TEXT_PRIMARY,
+					border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+					borderRadius: 2,
+				},
+			}}
+		>
+			<DialogTitle 
+				sx={{
+					backgroundColor: COLOR_PRIMARY,
+					color: "white",
+					borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+				}}
+			>
+				Nowa konwersacja
+			</DialogTitle>
+			<DialogContent sx={{ backgroundColor: COLOR_SURFACE }}>
+				{loading ? (
+					<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+						<CircularProgress sx={{ color: COLOR_PRIMARY }} />
+					</Box>
+				) : (
+					<Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+						<FormControl fullWidth>
+							<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>Warsztat</InputLabel>
+							<Select
+								value={workshopId}
+								onChange={(e) => setWorkshopId(e.target.value as number)}
+								label="Warsztat"
+								sx={{
+									"& .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_TEXT_SECONDARY + "50",
+									},
+									"&:hover .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_PRIMARY + "80",
+									},
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_PRIMARY,
+									},
+									"& .MuiSelect-select": {
+										color: COLOR_TEXT_PRIMARY,
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											backgroundColor: COLOR_SURFACE,
+											border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+										},
+									},
+								}}
+							>
+								{workshops.map((workshop) => (
+									<MenuItem 
+										key={workshop.id} 
+										value={workshop.id}
+										sx={{
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: COLOR_PRIMARY + "20",
+											},
+											"&.Mui-selected": {
+												backgroundColor: COLOR_PRIMARY + "30",
+											},
+										}}
+									>
+										{workshop.name}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+
+						<FormControl fullWidth>
+							<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>Mechanik</InputLabel>
+							<Select
+								value={mechanicId}
+								onChange={(e) => setMechanicId(e.target.value as number)}
+								label="Mechanik"
+								sx={{
+									"& .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_TEXT_SECONDARY + "50",
+									},
+									"&:hover .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_PRIMARY + "80",
+									},
+									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+										borderColor: COLOR_PRIMARY,
+									},
+									"& .MuiSelect-select": {
+										color: COLOR_TEXT_PRIMARY,
+									},
+								}}
+								MenuProps={{
+									PaperProps: {
+										sx: {
+											backgroundColor: COLOR_SURFACE,
+											border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+										},
+									},
+								}}
+							>
+								{mechanics.map((mechanic) => (
+									<MenuItem 
+										key={mechanic.id} 
+										value={mechanic.id}
+										sx={{
+											color: COLOR_TEXT_PRIMARY,
+											"&:hover": {
+												backgroundColor: COLOR_PRIMARY + "20",
+											},
+											"&.Mui-selected": {
+												backgroundColor: COLOR_PRIMARY + "30",
+											},
+										}}
+									>
+										{mechanic.first_name} {mechanic.last_name} ({mechanic.username})
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+
+						<TextField
+							fullWidth
+							label="Temat"
+							value={subject}
+							onChange={(e) => setSubject(e.target.value)}
+							placeholder="Opisz problem lub pytanie..."
+							multiline
+							rows={3}
+							sx={{
+								"& .MuiOutlinedInput-root": {
+									"& fieldset": {
+										borderColor: COLOR_TEXT_SECONDARY + "50",
+									},
+									"&:hover fieldset": {
+										borderColor: COLOR_PRIMARY + "80",
+									},
+									"&.Mui-focused fieldset": {
+										borderColor: COLOR_PRIMARY,
+									},
+									"& textarea": {
+										color: COLOR_TEXT_PRIMARY,
+									},
+								},
+								"& .MuiInputLabel-root": {
+									color: COLOR_TEXT_SECONDARY,
+								},
+							}}
+						/>
+					</Box>
+				)}
+			</DialogContent>
+			<DialogActions 
+				sx={{
+					backgroundColor: COLOR_SURFACE,
+					borderTop: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+					gap: 1,
+				}}
+			>
+				<Button 
+					onClick={onClose}
+					sx={{
+						color: COLOR_TEXT_SECONDARY,
+						"&:hover": {
+							backgroundColor: COLOR_TEXT_SECONDARY + "10",
+						},
+					}}
+				>
+					Anuluj
+				</Button>
+				<Button
+					onClick={handleSubmit}
+					variant="contained"
+					disabled={
+						!mechanicId || !workshopId || !subject.trim() || isSubmitting || loading
+					}
+					sx={{
+						backgroundColor: COLOR_PRIMARY,
+						color: "white",
+						"&:hover": {
+							backgroundColor: COLOR_PRIMARY + "CC",
+						},
+						"&.Mui-disabled": {
+							backgroundColor: COLOR_TEXT_SECONDARY + "30",
+							color: COLOR_TEXT_SECONDARY + "60",
+						},
+					}}
+				>
+					{isSubmitting ? (
+						<CircularProgress size={20} sx={{ color: "white" }} />
+					) : (
+						"Utwórz"
+					)}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
+};
+
 const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 	const [message, setMessage] = useState("");
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation | null>(null);
+	const [showCreateDialog, setShowCreateDialog] = useState(false);
 
 	// Chat API hook
 	const {
@@ -49,6 +329,8 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 		fetchConversations,
 		fetchMessages,
 		sendMessage: apiSendMessage,
+		markAsRead,
+		createConversation,
 	} = useChatApi();
 
 	// WebSocket - włączamy komunikację real-time
@@ -86,19 +368,24 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 			fetchMessages(selectedConversation.uuid)
 				.then(() => {
 					console.log("✅ Messages loaded:", messages.length);
+					// Mark conversation as read when opening it
+					return markAsRead(selectedConversation.uuid);
+				})
+				.then(() => {
+					console.log("✅ Conversation marked as read");
 				})
 				.catch((err) => {
-					console.error("❌ Error loading messages:", err);
+					console.error("❌ Error loading messages or marking as read:", err);
 				});
 		}
-	}, [selectedConversation, fetchMessages]);
+	}, [selectedConversation?.uuid]); // Tylko UUID konwersacji
 
 	// Select first conversation by default
 	useEffect(() => {
 		if (conversations.length > 0 && !selectedConversation) {
 			setSelectedConversation(conversations[0]);
 		}
-	}, [conversations, selectedConversation]);
+	}, [conversations.length, selectedConversation?.uuid]); // Bardziej konkretne dependencies
 
 	const handleSendMessage = useCallback(async () => {
 		if (!message.trim() || !selectedConversation) {
@@ -134,6 +421,26 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 			);
 		}
 	}, [message, selectedConversation, apiSendMessage, fetchMessages]);
+
+	const handleCreateConversation = async (
+		mechanicId: number,
+		workshopId: number,
+		subject: string
+	) => {
+		try {
+			const newConversation = await createConversation({
+				mechanic_id: mechanicId,
+				workshop_id: workshopId,
+				subject,
+				priority: "normal",
+			});
+			setSelectedConversation(newConversation);
+			setShowCreateDialog(false);
+		} catch (error) {
+			console.error("Failed to create conversation:", error);
+			alert("Nie udało się utworzyć konwersacji");
+		}
+	};
 
 	const formatTime = (dateString: string) => {
 		const date = new Date(dateString);
@@ -272,7 +579,15 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 							borderColor: COLOR_TEXT_SECONDARY + "20",
 						}}
 					>
-						Konwersacje ({conversations.length}){isLoading && " - ładowanie..."}
+						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+							Konwersacje ({conversations.length})
+							{isLoading && (
+								<CircularProgress
+									size={16}
+									sx={{ color: COLOR_TEXT_PRIMARY }}
+								/>
+							)}
+						</Box>
 						{error && " - błąd połączenia"}
 					</Typography>
 
@@ -414,6 +729,54 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 									)}
 								</ListItem>
 							))}
+
+							{/* Nowa konwersacja - elegancki kafelek */}
+							<ListItem
+								button
+								onClick={() => setShowCreateDialog(true)}
+								sx={{
+									borderTop: conversations.length > 0 ? 1 : 0,
+									borderColor: COLOR_TEXT_SECONDARY + "20",
+									backgroundColor: COLOR_SURFACE + "80",
+									"&:hover": {
+										backgroundColor: COLOR_PRIMARY + "15",
+									},
+									py: 2,
+									px: 2,
+								}}
+							>
+								<Avatar 
+									sx={{ 
+										mr: 2, 
+										bgcolor: COLOR_PRIMARY + "30",
+										border: `2px dashed ${COLOR_PRIMARY}80`,
+										color: COLOR_PRIMARY 
+									}}
+								>
+									<AddIcon />
+								</Avatar>
+								<ListItemText
+									primary={
+										<Typography
+											variant="subtitle2"
+											sx={{ 
+												color: COLOR_PRIMARY,
+												fontWeight: 500 
+											}}
+										>
+											Nowa konwersacja
+										</Typography>
+									}
+									secondary={
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											Rozpocznij rozmowę z mechanikiem
+										</Typography>
+									}
+								/>
+							</ListItem>
 						</List>
 					)}
 				</Paper>
@@ -606,8 +969,15 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 					</Box>
 				)}
 			</Box>
+
+			{/* Create Conversation Dialog */}
+			<CreateConversationDialog
+				open={showCreateDialog}
+				onClose={() => setShowCreateDialog(false)}
+				onSubmit={handleCreateConversation}
+			/>
 		</Box>
 	);
 };
 
-export default RealChatDialog;
+export default React.memo(RealChatDialog);

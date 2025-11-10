@@ -30,6 +30,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = ConversationPagination
+    lookup_field = 'uuid'  # Używaj UUID zamiast ID
 
     def get_queryset(self):
         """Pobierz konwersacje użytkownika"""
@@ -80,7 +81,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
             )
 
     @action(detail=True, methods=['post'])
-    def close(self, request, pk=None):
+    def close(self, request, uuid=None):
         """Zamknij konwersację"""
         conversation = self.get_object()
         
@@ -94,7 +95,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
             )
 
     @action(detail=True, methods=['post'])
-    def mark_read(self, request, pk=None):
+    def mark_read(self, request, uuid=None):
         """Oznacz wszystkie wiadomości jako przeczytane"""
         conversation = self.get_object()
         
@@ -114,6 +115,35 @@ class ConversationViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(conversations, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def update_status(self, request, pk=None):
+        """Zaktualizuj status konwersacji"""
+        try:
+            conversation = self.get_object()
+            new_status = request.data.get('status')
+            
+            if not new_status:
+                return Response(
+                    {'error': 'Status is required'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            updated_conversation = ChatService.update_conversation_status(
+                conversation, new_status, request.user
+            )
+            
+            serializer = ConversationSerializer(
+                updated_conversation, 
+                context={'user': request.user}
+            )
+            return Response(serializer.data)
+            
+        except (PermissionError, ValueError) as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(detail=False, methods=['get'])
     def unread_count(self, request):

@@ -36,7 +36,7 @@ const StyledContainer = styled(Box)({
 	flexDirection: "column",
 	alignItems: "center",
 	width: "100%",
-	maxWidth: "650px", 
+	maxWidth: "650px",
 	margin: "0 auto",
 });
 
@@ -47,11 +47,11 @@ const StyledFormCard = styled(Paper)({
 	width: "100%",
 	boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
 	border: "1px solid #E5E7EB",
-	minHeight: "400px", 
+	minHeight: "400px",
 });
 
 const StyledFormTitle = styled(Typography)({
-	fontSize: "26px", 
+	fontSize: "26px",
 	fontWeight: "600",
 	color: "#1F2937",
 	marginBottom: "6px",
@@ -62,12 +62,12 @@ const StyledFormSubtitle = styled(Typography)({
 	fontSize: "15px",
 	color: "#6B7280",
 	textAlign: "center",
-	marginBottom: "30px", 
+	marginBottom: "30px",
 });
 
 const StyledTextField = styled(TextField)({
 	width: "100%",
-	marginBottom: "20px", 
+	marginBottom: "20px",
 	"& .MuiOutlinedInput-root": {
 		padding: "0",
 		borderRadius: "12px",
@@ -75,7 +75,7 @@ const StyledTextField = styled(TextField)({
 		"& input": {
 			padding: "14px 20px",
 			fontSize: "16px",
-			minHeight: "16px", 
+			minHeight: "16px",
 		},
 		"& fieldset": {
 			border: "1px solid #D1D5DB",
@@ -108,12 +108,12 @@ const StyledButtonGroup = styled(Box)({
 
 const StyledButton = styled(Button)({
 	flex: 1,
-	padding: "14px 24px", 
+	padding: "14px 24px",
 	borderRadius: "12px",
 	fontSize: "16px",
 	fontWeight: "600",
 	textTransform: "none",
-	minHeight: "48px", 
+	minHeight: "48px",
 	transition: "all 0.2s ease",
 });
 
@@ -157,7 +157,7 @@ const StyledProgressBar = styled(LinearProgress)({
 	height: "6px",
 	backgroundColor: "#E5E7EB",
 	borderRadius: "3px",
-	marginBottom: "20px", 
+	marginBottom: "20px",
 	"& .MuiLinearProgress-bar": {
 		backgroundColor: "#FF3B57",
 		borderRadius: "3px",
@@ -166,8 +166,8 @@ const StyledProgressBar = styled(LinearProgress)({
 
 const StyledStepIndicator = styled(Typography)({
 	textAlign: "center",
-	marginBottom: "20px", 
-	fontSize: "15px", 
+	marginBottom: "20px",
+	fontSize: "15px",
 	color: "#6B7280",
 	fontWeight: "500",
 });
@@ -177,8 +177,8 @@ const StyledErrorAlert = styled(Alert)({
 	border: "1px solid #FECACA",
 	color: "#DC2626",
 	borderRadius: "12px",
-	fontSize: "14px", 
-	marginTop: "20px", 
+	fontSize: "14px",
+	marginTop: "20px",
 	fontWeight: "500",
 	"& .MuiAlert-icon": {
 		display: "none",
@@ -300,17 +300,18 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 		setLoading(true);
 		setError(null);
 
+		// Move token declaration to function scope
+		const token = localStorage.getItem("token");
+
+		if (!token) {
+			showSnackbar("Authentication error. Please log in again.", "error");
+			setTimeout(() => {
+				navigate("/login");
+			}, 2000);
+			return;
+		}
+
 		try {
-			const token = localStorage.getItem("token");
-
-			if (!token) {
-				showSnackbar("Authentication error. Please log in again.", "error");
-				setTimeout(() => {
-					navigate("/login");
-				}, 2000);
-				return;
-			}
-
 			const response = await axios.post(
 				`${BASE_API_URL}/users/profile/`,
 				{
@@ -331,8 +332,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				}
 			);
 
-
-
 			showSnackbar(
 				"Profile completed successfully! Welcome to GarageManager!",
 				"success"
@@ -341,8 +340,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ userData }) => {
 				navigate("/home");
 			}, 2000);
 		} catch (err: any) {
-
-
 			if (axios.isAxiosError(err)) {
 				if (err.response?.status === 401) {
 					showSnackbar("Session expired. Please log in again.", "error");

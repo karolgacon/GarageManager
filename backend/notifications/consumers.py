@@ -49,6 +49,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.mark_notification_as_read(notification_id)
         elif message_type == 'mark_all_as_read':
             await self.mark_all_notifications_as_read()
+        elif message_type == 'get_unread_notifications':
+            await self.send_unread_notifications()
 
     async def notification_message(self, event):
         """Handler dla otrzymywania powiadomień z grupy"""

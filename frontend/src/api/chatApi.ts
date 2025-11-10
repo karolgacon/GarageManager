@@ -83,12 +83,24 @@ export class ChatApiClient {
 		await this.client.post(`/conversations/${uuid}/close/`);
 	}
 
+	async updateConversationStatus(uuid: string, status: string): Promise<Conversation> {
+		const response: AxiosResponse<Conversation> = await this.client.post(
+			`/conversations/${uuid}/update_status/`,
+			{ status }
+		);
+		return response.data;
+	}
+
 	async markConversationAsRead(
 		uuid: string
 	): Promise<{ marked_count: number }> {
+		console.log(
+			`🌐 API: Marking conversation ${uuid} as read via /conversations/${uuid}/mark_read/`
+		);
 		const response = await this.client.post(
 			`/conversations/${uuid}/mark_read/`
 		);
+		console.log(`🌐 API: Mark as read response:`, response.data);
 		return response.data;
 	}
 
@@ -230,36 +242,53 @@ export const useChatApi = (): UseChatApiReturn => {
 		}
 	};
 
-	const sendMessage = async (
-		conversationUuid: string,
-		data: MessageCreateRequest
-	): Promise<Message> => {
-		try {
-			setError(null);
-			const message = await chatApiClient.sendMessage(conversationUuid, data);
-			setMessages((prev) => [...prev, message]);
-			return message;
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "Failed to send message";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		}
-	};
+	const sendMessage = React.useCallback(
+		async (
+			conversationUuid: string,
+			data: MessageCreateRequest
+		): Promise<Message> => {
+			try {
+				setError(null);
+				const message = await chatApiClient.sendMessage(conversationUuid, data);
+				setMessages((prev) => [...prev, message]);
+				return message;
+			} catch (err) {
+				const errorMessage =
+					err instanceof Error ? err.message : "Failed to send message";
+				setError(errorMessage);
+				throw new Error(errorMessage);
+			}
+		},
+		[]
+	);
 
-	const markAsRead = async (conversationUuid: string): Promise<void> => {
-		try {
-			await chatApiClient.markConversationAsRead(conversationUuid);
-			// Update conversation unread count
-			setConversations((prev) =>
-				prev.map((conv) =>
-					conv.uuid === conversationUuid ? { ...conv, unread_count: 0 } : conv
-				)
-			);
-		} catch (err) {
-			console.error("Failed to mark as read:", err);
-		}
-	};
+	const markAsRead = React.useCallback(
+		async (conversationUuid: string): Promise<void> => {
+			console.log(`💬 Marking conversation ${conversationUuid} as read`);
+			try {
+				await chatApiClient.markConversationAsRead(conversationUuid);
+				console.log(`✅ API call successful for ${conversationUuid}`);
+				// Update conversation unread count
+				setConversations((prev) =>
+					prev.map((conv) => {
+						if (conv.uuid === conversationUuid) {
+							console.log(
+								`🔄 Updating conversation ${conversationUuid} unread count: ${conv.unread_count} -> 0`
+							);
+							return { ...conv, unread_count: 0 };
+						}
+						return conv;
+					})
+				);
+				console.log(
+					`✅ Local state updated for conversation ${conversationUuid}`
+				);
+			} catch (err) {
+				console.error("❌ Failed to mark as read:", err);
+			}
+		},
+		[]
+	);
 
 	const searchConversations = async (
 		query: string
@@ -276,6 +305,29 @@ export const useChatApi = (): UseChatApiReturn => {
 		}
 	};
 
+	const updateConversationStatus = async (
+		conversationUuid: string, 
+		status: string
+	): Promise<void> => {
+		try {
+			setError(null);
+			const updatedConversation = await chatApiClient.updateConversationStatus(conversationUuid, status);
+			
+			// Update local state
+			setConversations(prev => 
+				prev.map(conv => 
+					conv.uuid === conversationUuid 
+						? { ...conv, status: updatedConversation.status }
+						: conv
+				)
+			);
+		} catch (err) {
+			setError(
+				err instanceof Error ? err.message : "Failed to update conversation status"
+			);
+		}
+	};
+
 	return {
 		conversations,
 		messages,
@@ -287,6 +339,7 @@ export const useChatApi = (): UseChatApiReturn => {
 		sendMessage,
 		markAsRead,
 		searchConversations,
+		updateConversationStatus,
 	};
 };
 

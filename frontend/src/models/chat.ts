@@ -237,6 +237,7 @@ export interface UseChatApiReturn {
 	) => Promise<Message>;
 	markAsRead: (conversationUuid: string) => Promise<void>;
 	searchConversations: (query: string) => Promise<Conversation[]>;
+	updateConversationStatus: (conversationUuid: string, status: string) => Promise<void>;
 }
 
 // Component props types

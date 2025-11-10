@@ -16,15 +16,50 @@ class NotificationService:
         
         # Importuj tutaj aby uniknąć circular imports
         from notifications.services.notificationService import NotificationService as BaseNotificationService
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
         
         try:
             sender_name = f"{message.sender.first_name} {message.sender.last_name}".strip()
             if not sender_name:
                 sender_name = message.sender.username
                 
+            notification_message = f"Nowa wiadomość od {sender_name}: {message.content[:50]}{'...' if len(message.content) > 50 else ''}"
+            
+            # Utwórz powiadomienie push (dla ikony dzwonka w HeaderBar)
+            notification = BaseNotificationService.send_notification(
+                user=recipient,
+                message=notification_message,
+                notification_type='chat_message',
+                channel='push',
+                related_object_id=message.id,
+                related_object_type='Message'
+            )
+            
+            # Wyślij powiadomienie przez WebSocket
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{recipient.id}',
+                    {
+                        'type': 'notification_message',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'notification_type': notification.notification_type,
+                            'channel': notification.channel,
+                            'read_status': notification.read_status,
+                            'created_at': notification.created_at.isoformat(),
+                            'priority': notification.priority,
+                            'action_url': notification.action_url,
+                        }
+                    }
+                )
+            
+            # Utwórz też powiadomienie email (dla ikony email)
             BaseNotificationService.send_notification(
                 user=recipient,
-                message=f"Nowa wiadomość od {sender_name}: {conversation.subject}",
+                message=notification_message,
                 notification_type='chat_message',
                 channel='email',
                 related_object_id=message.id,

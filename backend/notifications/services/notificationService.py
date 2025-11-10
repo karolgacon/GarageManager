@@ -40,7 +40,7 @@ class NotificationService(BaseService):
                 'related_object_type': related_object_type,
             }
 
-            notification = cls.repository.create(**notification_data)
+            notification = cls.repository.create(notification_data)
 
             if use_queue:
                 try:

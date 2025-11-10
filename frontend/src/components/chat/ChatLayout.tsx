@@ -60,6 +60,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 		createConversation,
 		sendMessage,
 		markAsRead,
+		updateConversationStatus,
 	} = useChatApi();
 
 	// WebSocket hooks
@@ -281,6 +282,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 						selectedConversation={selectedConversation}
 						onConversationSelect={handleConversationSelect}
 						onCreateConversation={handleCreateConversation}
+						onUpdateStatus={updateConversationStatus}
 						isLoading={isLoading}
 						error={error}
 					/>

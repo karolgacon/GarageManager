@@ -35,7 +35,7 @@ import {
 import AuthContext from "../../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { set } from "date-fns";
+import useNotifications from "../../hooks/useNotifications";
 
 interface Notification {
 	id: number;
@@ -58,57 +58,47 @@ const HeaderBar = () => {
 	const [notificationAnchorEl, setNotificationAnchorEl] =
 		useState<null | HTMLElement>(null);
 	const notificationOpen = Boolean(notificationAnchorEl);
-	const [notifications, setNotifications] = useState<Notification[]>([]);
-	const [notificationsLoading, setNotificationsLoading] = useState(false);
 
 	const [emailAnchorEl, setEmailAnchorEl] = useState<null | HTMLElement>(null);
 	const emailOpen = Boolean(emailAnchorEl);
 	const [emails, setEmails] = useState<Notification[]>([]);
 	const [emailsLoading, setEmailsLoading] = useState(false);
 
+	// Use WebSocket notifications instead of manual API calls
+	const {
+		notifications,
+		unreadCount: wsUnreadCount,
+		markAsRead: wsMarkAsRead,
+		markAllAsRead: wsMarkAllAsRead,
+	} = useNotifications();
+
 	useEffect(() => {
-		fetchNotifications();
-		fetchEmails();
+		fetchEmails(); // Tylko emails nie mają jeszcze WebSocket
 	}, []);
 
-	const fetchNotifications = async () => {
-		if (!auth?.accessToken) return;
-
-		setNotificationsLoading(true);
-		try {
-			const response = await axios.get("/api/notifications/", {
-				params: {
-					channel: "push",
-					read_status: false,
-				},
-				headers: {
-					Authorization: `Bearer ${auth.accessToken}`,
-				},
-			});
-			setNotifications(response.data);
-		} catch (error) {
-			setNotifications([]);
-		} finally {
-			setNotificationsLoading(false);
-		}
-	};
-
 	const fetchEmails = async () => {
-		if (!auth?.accessToken) return;
+		if (!auth?.token) return;
 
 		setEmailsLoading(true);
 		try {
-			const response = await axios.get("/api/notifications/", {
+			console.log(
+				"📧 Fetching emails with token:",
+				auth.token?.slice(0, 20) + "..."
+			);
+			const response = await axios.get("/api/v1/notifications/", {
 				params: {
 					channel: "email",
 					read_status: false,
 				},
 				headers: {
-					Authorization: `Bearer ${auth.accessToken}`,
+					Authorization: `Bearer ${auth.token}`,
 				},
 			});
-			setEmails(response.data);
+			console.log("📧 Emails response:", response.data);
+			// Ensure we always set an array
+			setEmails(Array.isArray(response.data) ? response.data : []);
 		} catch (error) {
+			console.error("❌ Error fetching emails:", error);
 			setEmails([]);
 		} finally {
 			setEmailsLoading(false);
@@ -119,95 +109,98 @@ const HeaderBar = () => {
 		notificationId: number,
 		isEmail: boolean = false
 	) => {
-		if (!auth?.accessToken) return;
-
-		try {
-			await axios.patch(
-				`/api/notifications/${notificationId}/`,
-				{
-					read_status: true,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${auth.accessToken}`,
+		if (isEmail) {
+			// Handle email notifications via API (legacy)
+			if (!auth?.token) return;
+			try {
+				await axios.patch(
+					`/api/v1/notifications/${notificationId}/`,
+					{
+						read_status: true,
 					},
-				}
-			);
+					{
+						headers: {
+							Authorization: `Bearer ${auth.token}`,
+						},
+					}
+				);
 
-			if (isEmail) {
 				setEmails((prevEmails) =>
-					prevEmails.map((email) =>
-						email.id === notificationId
-							? { ...email, read_status: true }
-							: email
-					)
+					Array.isArray(prevEmails)
+						? prevEmails.map((email) =>
+								email.id === notificationId
+									? { ...email, read_status: true }
+									: email
+						  )
+						: []
 				);
-			} else {
-				setNotifications((prevNotifications) =>
-					prevNotifications.map((notification) =>
-						notification.id === notificationId
-							? { ...notification, read_status: true }
-							: notification
-					)
-				);
+			} catch (error) {
+				console.error("Failed to mark email as read:", error);
 			}
-		} catch (error) {
-			setNotifications((prevNotifications) =>
-				prevNotifications.map((notification) =>
-					notification.id === notificationId
-						? { ...notification, read_status: false }
-						: notification
-				)
-			);
+		} else {
+			// Handle push notifications via WebSocket
+			wsMarkAsRead(notificationId);
 		}
 	};
 
 	const markAllAsRead = async (isEmail: boolean = false) => {
-		if (!auth?.accessToken) return;
+		if (isEmail) {
+			// Handle email notifications via API (legacy)
+			if (!auth?.token) {
+				console.log("❌ No auth token available");
+				return;
+			}
 
-		const items = isEmail ? emails : notifications;
-		const unreadItems = items.filter((item) => !item.read_status);
+			const unreadItems = emails.filter((item) => !item.read_status);
 
-		if (unreadItems.length === 0) return;
+			console.log(`🟢 MarkAllAsRead called for emails`);
+			console.log(`🟢 Total emails:`, emails.length);
+			console.log(`🟢 Unread emails:`, unreadItems.length);
 
-		try {
-			await Promise.all(
-				unreadItems.map((item) =>
-					axios.patch(
-						`/api/notifications/${item.id}/`,
-						{
-							read_status: true,
-						},
-						{
-							headers: {
-								Authorization: `Bearer ${auth.accessToken}`,
+			if (unreadItems.length === 0) {
+				console.log("ℹ️ No unread emails to mark");
+				return;
+			}
+
+			try {
+				console.log(`🟢 Making ${unreadItems.length} PATCH requests...`);
+				await Promise.all(
+					unreadItems.map((item) => {
+						console.log(`🟢 Marking email ${item.id} as read`);
+						return axios.patch(
+							`/api/v1/notifications/${item.id}/`,
+							{
+								read_status: true,
 							},
-						}
-					)
-				)
-			);
+							{
+								headers: {
+									Authorization: `Bearer ${auth.token}`,
+								},
+							}
+						);
+					})
+				);
 
-			if (isEmail) {
+				console.log(`🟢 All email PATCH requests completed successfully`);
+
 				setEmails((prevEmails) =>
-					prevEmails.map((email) => ({ ...email, read_status: true }))
+					Array.isArray(prevEmails)
+						? prevEmails.map((email) => ({ ...email, read_status: true }))
+						: []
 				);
-			} else {
-				setNotifications((prevNotifications) =>
-					prevNotifications.map((notification) => ({
-						...notification,
-						read_status: true,
-					}))
+			} catch (error) {
+				setEmails((prevEmails) =>
+					Array.isArray(prevEmails)
+						? prevEmails.map((email) => ({
+								...email,
+								read_status: false,
+						  }))
+						: []
 				);
 			}
-		} catch (error) {
-			if (isEmail) {
-				setEmails((prevEmails) =>
-					prevEmails.map((email) => ({
-						...email,
-						read_status: false,
-					}))
-				);
-			}
+		} else {
+			// Handle push notifications via WebSocket
+			wsMarkAllAsRead();
 		}
 	};
 
@@ -245,10 +238,10 @@ const HeaderBar = () => {
 		handleClose();
 	};
 
-	const unreadNotificationsCount = notifications.filter(
-		(n) => !n.read_status
-	).length;
-	const unreadEmailsCount = emails.filter((e) => !e.read_status).length;
+	const unreadNotificationsCount = wsUnreadCount;
+	const unreadEmailsCount = Array.isArray(emails)
+		? emails.filter((e) => !e.read_status).length
+		: 0;
 
 	const canAccessInvoices = isAdmin() || isOwner() || isClient();
 
@@ -387,9 +380,15 @@ const HeaderBar = () => {
 							options: {
 								altAxis: true,
 								altBoundary: true,
-								tether: true,
-								rootBoundary: "document",
+								tether: false,
+								rootBoundary: "viewport",
 								padding: 8,
+							},
+						},
+						{
+							name: "offset",
+							options: {
+								offset: [0, 15],
 							},
 						},
 					]}
@@ -401,7 +400,7 @@ const HeaderBar = () => {
 							sx={{
 								overflow: "visible",
 								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
-								mt: 1.5,
+								mt: 0.5,
 								maxHeight: "70vh",
 								overflowY: "auto",
 								backgroundColor: COLOR_SURFACE,
@@ -443,7 +442,7 @@ const HeaderBar = () => {
 								<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
 									<CircularProgress size={24} />
 								</Box>
-							) : emails.length > 0 ? (
+							) : Array.isArray(emails) && emails.length > 0 ? (
 								<List sx={{ p: 0 }}>
 									{emails.map((email) => (
 										<ListItem
@@ -527,9 +526,15 @@ const HeaderBar = () => {
 							options: {
 								altAxis: true,
 								altBoundary: true,
-								tether: true,
-								rootBoundary: "document",
+								tether: false,
+								rootBoundary: "viewport",
 								padding: 8,
+							},
+						},
+						{
+							name: "offset",
+							options: {
+								offset: [0, 15],
 							},
 						},
 					]}
@@ -541,7 +546,7 @@ const HeaderBar = () => {
 							sx={{
 								overflow: "visible",
 								filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.3))",
-								mt: 1.5,
+								mt: 0.5,
 								maxHeight: "70vh",
 								overflowY: "auto",
 								backgroundColor: COLOR_SURFACE,
@@ -579,11 +584,11 @@ const HeaderBar = () => {
 								)}
 							</Box>
 
-							{notificationsLoading ? (
+							{!notifications || notifications.length === 0 ? (
 								<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
 									<CircularProgress size={24} />
 								</Box>
-							) : notifications.length > 0 ? (
+							) : Array.isArray(notifications) && notifications.length > 0 ? (
 								<List sx={{ p: 0 }}>
 									{notifications.map((notification) => (
 										<ListItem

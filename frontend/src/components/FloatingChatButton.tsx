@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
 	Fab,
 	Dialog,
@@ -21,6 +21,7 @@ import {
 	COLOR_TEXT_PRIMARY,
 } from "../constants";
 import AuthContext from "../context/AuthProvider";
+import axios from "axios";
 
 interface FloatingChatButtonProps {
 	position?: {
@@ -33,6 +34,7 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 	position = { bottom: 24, right: 24 },
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [unreadCount, setUnreadCount] = useState(0);
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -42,15 +44,91 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 
 	// Get notifications for badge count (only if authenticated)
 	const { notifications } = useChatNotifications();
-	const unreadCount = isAuthenticated
-		? notifications.filter((n) => n.type === "new_message").length
-		: 0;
+
+	// Fetch unread count from API
+	useEffect(() => {
+		if (!isAuthenticated) {
+			setUnreadCount(0);
+			return;
+		}
+
+		const fetchUnreadCount = async () => {
+			console.log("💬 Fetching unread count...");
+			try {
+				const response = await axios.get(
+					"/api/v1/chat/conversations/unread_count/",
+					{
+						headers: {
+							Authorization: `Bearer ${auth?.token}`,
+						},
+					}
+				);
+				console.log("💬 Unread count response:", response.data);
+				setUnreadCount(response.data.unread_count || 0);
+			} catch (error) {
+				console.error("❌ Failed to fetch unread count:", error);
+				setUnreadCount(0);
+			}
+		};
+
+		fetchUnreadCount();
+
+		// Refresh count every 30 seconds
+		const interval = setInterval(fetchUnreadCount, 30000);
+		return () => clearInterval(interval);
+	}, [isAuthenticated, auth?.token]);
+
+	// Update count when new chat notifications arrive
+	useEffect(() => {
+		const chatNotifications = notifications.filter(
+			(n) => n.type === "new_message"
+		);
+		if (chatNotifications.length > 0) {
+			// Refresh count when new chat message notifications arrive
+			const fetchUnreadCount = async () => {
+				try {
+					const response = await axios.get(
+						"/api/v1/chat/conversations/unread_count/",
+						{
+							headers: {
+								Authorization: `Bearer ${auth?.token}`,
+							},
+						}
+					);
+					setUnreadCount(response.data.unread_count || 0);
+				} catch (error) {
+					console.error("Failed to fetch unread count:", error);
+				}
+			};
+			fetchUnreadCount();
+		}
+	}, [notifications, auth?.token]);
+
 	const handleToggleChat = () => {
 		setIsOpen(!isOpen);
 	};
 
 	const handleCloseChat = () => {
 		setIsOpen(false);
+		// Refresh unread count when chat is closed (in case messages were read)
+		if (isAuthenticated) {
+			const fetchUnreadCount = async () => {
+				try {
+					const response = await axios.get(
+						"/api/v1/chat/conversations/unread_count/",
+						{
+							headers: {
+								Authorization: `Bearer ${auth?.token}`,
+							},
+						}
+					);
+					setUnreadCount(response.data.unread_count || 0);
+				} catch (error) {
+					console.error("Failed to fetch unread count:", error);
+				}
+			};
+			fetchUnreadCount();
+		}
 	};
 
 	// Don't render if user is not authenticated
