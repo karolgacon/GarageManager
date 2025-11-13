@@ -147,9 +147,89 @@ const Bookings: React.FC = () => {
 			}
 
 			if (bookingType === "upcoming") {
-				bookingsData = await bookingService.getUpcomingBookings();
+				// Upcoming bookings - różne endpoint'y dla różnych ról
+				switch (auth.roles?.[0]) {
+					case "client":
+						if (auth.user_id) {
+							bookingsData = await bookingService.getClientBookings(
+								auth.user_id
+							);
+							// Filtruj tylko zaplanowane
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "scheduled"
+							);
+						}
+						break;
+					case "mechanic":
+						if (auth.user_id) {
+							bookingsData = await bookingService.getMechanicBookings(
+								auth.user_id
+							);
+							// Filtruj tylko zaplanowane
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "scheduled"
+							);
+						}
+						break;
+					case "owner":
+						if (selectedWorkshop) {
+							bookingsData = await bookingService.getWorkshopBookings(
+								selectedWorkshop
+							);
+							// Filtruj tylko zaplanowane
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "scheduled"
+							);
+						}
+						break;
+					case "admin":
+						bookingsData = await bookingService.getUpcomingBookings();
+						break;
+					default:
+						bookingsData = [];
+				}
 			} else if (bookingType === "past") {
-				bookingsData = await bookingService.getPastBookings();
+				// Past bookings - różne endpoint'y dla różnych ról
+				switch (auth.roles?.[0]) {
+					case "client":
+						if (auth.user_id) {
+							bookingsData = await bookingService.getClientBookings(
+								auth.user_id
+							);
+							// Filtruj tylko zakończone
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "completed"
+							);
+						}
+						break;
+					case "mechanic":
+						if (auth.user_id) {
+							bookingsData = await bookingService.getMechanicBookings(
+								auth.user_id
+							);
+							// Filtruj tylko zakończone
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "completed"
+							);
+						}
+						break;
+					case "owner":
+						if (selectedWorkshop) {
+							bookingsData = await bookingService.getWorkshopBookings(
+								selectedWorkshop
+							);
+							// Filtruj tylko zakończone
+							bookingsData = bookingsData.filter(
+								(booking: any) => booking.status === "completed"
+							);
+						}
+						break;
+					case "admin":
+						bookingsData = await bookingService.getPastBookings();
+						break;
+					default:
+						bookingsData = [];
+				}
 			} else {
 				let startDate, endDate;
 
@@ -201,6 +281,7 @@ const Bookings: React.FC = () => {
 						}
 						break;
 					case "mechanic":
+						// Mechanik widzi tylko swoje własne appointments
 						if (auth.user_id) {
 							bookingsData = await bookingService.getMechanicBookings(
 								auth.user_id,

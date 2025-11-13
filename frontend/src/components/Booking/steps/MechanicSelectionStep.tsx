@@ -96,10 +96,16 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 			const response = await workshopService.checkMechanicAvailability(
 				selectedWorkshop.id,
 				date,
-				time
+				time,
+				60 // 1 hour duration
 			);
 
-			setAvailableMechanics(response.available_mechanics || []);
+			// Backend zwraca wszystkich mechaników z flagą is_available
+			const allMechanicsWithAvailability = response.mechanics || [];
+			const availableMechanicsFiltered = allMechanicsWithAvailability.filter(
+				(mechanic: any) => mechanic.is_available
+			);
+			setAvailableMechanics(availableMechanicsFiltered);
 		} catch (err) {
 			console.error("Error checking mechanic availability:", err);
 			// Nie pokazujemy błędu - to opcjonalne

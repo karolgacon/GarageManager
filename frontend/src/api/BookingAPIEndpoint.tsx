@@ -128,7 +128,7 @@ export const bookingService = {
 			if (endDate) params.end_date = endDate;
 
 			const response = await api.get(
-				`${BASE_API_URL}/appointments/by_priority/`,
+				`${BASE_API_URL}/appointments/by_mechanic/`,
 				{
 					params: {
 						mechanic_id: mechanicId,

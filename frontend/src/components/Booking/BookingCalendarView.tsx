@@ -43,6 +43,24 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 	calendarView,
 	onView,
 }) => {
+	// Debug logging
+	console.log("BookingCalendarView - Debug Info:", {
+		calendarView,
+		bookingsLength: bookings.length,
+		daysOfWeekLength: daysOfWeek.length,
+		bookings: bookings.map((b) => ({
+			id: b.id,
+			date: b.date,
+			service: b.service,
+			customerFirstName: b.customerFirstName,
+		})),
+		daysOfWeek: daysOfWeek.map((d) => ({
+			date: d.date,
+			dayName: d.dayName,
+			dayNumber: d.dayNumber,
+		})),
+	});
+
 	const timeSlots = [
 		"07:00 am",
 		"08:00 am",
@@ -57,6 +75,8 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 		"05:00 pm",
 		"06:00 pm",
 		"07:00 pm",
+		"08:00 pm", // dodajemy brakujące sloty
+		"09:00 pm",
 	];
 
 	const renderCalendarTitle = () => {
@@ -112,15 +132,39 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 			isPm && hour !== 12 ? hour + 12 : !isPm && hour === 12 ? 0 : hour;
 		const formattedDate = format(date, "yyyy-MM-dd");
 
-		return bookings.filter((booking) => {
+		const filteredBookings = bookings.filter((booking) => {
 			if (!booking.date) return false;
 
 			const bookingDate = new Date(booking.date);
 			const bookingDateStr = format(bookingDate, "yyyy-MM-dd");
 			const bookingHour = bookingDate.getHours();
 
-			return bookingDateStr === formattedDate && bookingHour === adjustedHour;
+			// Match date and hour slot (booking hour should match the time slot hour)
+			const matches =
+				bookingDateStr === formattedDate && bookingHour === adjustedHour;
+
+			// Debug specific matches
+			if (bookingDateStr === formattedDate) {
+				console.log("Date match found:", {
+					timeStr,
+					adjustedHour,
+					formattedDate,
+					booking: {
+						id: booking.id,
+						date: booking.date,
+						service: booking.service,
+					},
+					bookingDateStr,
+					bookingHour,
+					hourMatches: bookingHour === adjustedHour,
+					finalMatch: matches,
+				});
+			}
+
+			return matches;
 		});
+
+		return filteredBookings;
 	};
 
 	if (bookings.length === 0 && userRole === "admin") {
@@ -233,7 +277,22 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 									"yyyy-MM-dd"
 								);
 								const currentDate = format(day.date, "yyyy-MM-dd");
-								return bookingDate === currentDate;
+								const matches = bookingDate === currentDate;
+
+								// Debug month view filtering
+								if (matches) {
+									console.log("Month view - Found booking match:", {
+										bookingDate,
+										currentDate,
+										booking: {
+											id: booking.id,
+											date: booking.date,
+											service: booking.service,
+										},
+									});
+								}
+
+								return matches;
 							});
 
 							return (
@@ -495,6 +554,20 @@ const BookingCalendarView: React.FC<BookingCalendarViewProps> = ({
 
 					{daysOfWeek.map((day, dayIndex) => {
 						const dayBookings = getBookingsForTimeAndDay(time, day.date);
+
+						// Debug day/week view
+						if (dayIndex === 0) {
+							// Log only for first day to avoid spam
+							console.log(`Day/Week view - ${time} slot:`, {
+								dayDate: format(day.date, "yyyy-MM-dd"),
+								dayBookingsCount: dayBookings.length,
+								allBookings: bookings.map((b) => ({
+									id: b.id,
+									date: b.date,
+									parsedDate: format(new Date(b.date), "yyyy-MM-dd HH:mm"),
+								})),
+							});
+						}
 
 						return (
 							<Box

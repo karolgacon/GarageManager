@@ -12,7 +12,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.beat_schedule = {
     'update-appointment-statuses': {
         'task': 'appointments.tasks.update_appointment_statuses',
-        'schedule': crontab(minute='*/15'),  # Uruchamiaj co 15 minut
+        'schedule': crontab(minute='*'),  # Uruchamiaj co minutę
     },
 }
 

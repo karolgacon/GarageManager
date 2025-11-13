@@ -250,7 +250,7 @@ export const workshopService = {
 	getWorkshopMechanics: async (workshopId: number) => {
 		try {
 			const response = await api.get(
-				`${BASE_API_URL}/availability/workshop-mechanics/`,
+				`${BASE_API_URL}/availability/get-workshop-mechanics/`,
 				{
 					params: { workshop_id: workshopId },
 				}
@@ -269,7 +269,7 @@ export const workshopService = {
 	) => {
 		try {
 			const response = await api.get(
-				`${BASE_API_URL}/availability/mechanic-availability/`,
+				`${BASE_API_URL}/availability/get-mechanic-availability/`,
 				{
 					params: {
 						workshop_id: workshopId,

@@ -5,40 +5,61 @@ class AppointmentRepository(BaseRepository):
     model = Appointment
 
     @staticmethod
-    def get_appointments_by_client(client_id):
+    def get_appointments_by_client(client_id, start_date=None, end_date=None):
         """
         Retrieves all appointments for a specific client.
+        Optionally filters by date range.
         """
         try:
             appointments = Appointment.objects.filter(client_id=client_id)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found for client with ID {client_id}.")
+            
+            # Apply date filters if provided
+            if start_date:
+                appointments = appointments.filter(date__date__gte=start_date)
+            if end_date:
+                appointments = appointments.filter(date__date__lte=end_date)
+            
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for client {client_id}: {str(e)}")
 
     @staticmethod
-    def get_appointments_by_mechanic(mechanic_id):
+    def get_appointments_by_mechanic(mechanic_id, start_date=None, end_date=None):
         """
         Retrieves all appointments assigned to a specific mechanic.
+        Optionally filters by date range.
         """
         try:
             appointments = Appointment.objects.filter(assigned_mechanic_id=mechanic_id)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found for mechanic with ID {mechanic_id}.")
+            
+            # Apply date filters if provided
+            if start_date:
+                appointments = appointments.filter(date__date__gte=start_date)
+            if end_date:
+                appointments = appointments.filter(date__date__lte=end_date)
+            
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for mechanic {mechanic_id}: {str(e)}")
 
     @staticmethod
-    def get_appointments_by_workshop(workshop_id):
+    def get_appointments_by_workshop(workshop_id, start_date=None, end_date=None):
         """
         Retrieves all appointments for a specific workshop.
+        Optionally filters by date range.
         """
         try:
             appointments = Appointment.objects.filter(workshop_id=workshop_id)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found for workshop with ID {workshop_id}.")
+            
+            # Apply date filters if provided
+            if start_date:
+                appointments = appointments.filter(date__date__gte=start_date)
+            if end_date:
+                appointments = appointments.filter(date__date__lte=end_date)
+            
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for workshop {workshop_id}: {str(e)}")
@@ -50,8 +71,7 @@ class AppointmentRepository(BaseRepository):
         """
         try:
             appointments = Appointment.objects.filter(vehicle_id=vehicle_id)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found for vehicle with ID {vehicle_id}.")
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for vehicle {vehicle_id}: {str(e)}")

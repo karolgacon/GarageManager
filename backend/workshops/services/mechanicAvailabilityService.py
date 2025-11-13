@@ -17,7 +17,7 @@ class MechanicAvailabilityService:
         ).select_related('mechanic')
     
     @staticmethod
-    def get_available_mechanics(workshop_id, date, time_slot, duration_minutes=120):
+    def get_available_mechanics(workshop_id, date, time_slot, duration_minutes=60):
         """
         Zwraca listę dostępnych mechaników w danym czasie
         """
@@ -39,11 +39,14 @@ class MechanicAvailabilityService:
         return available_mechanics
     
     @staticmethod
-    def is_mechanic_available(workshop_mechanic, date, time_slot, duration_minutes=120):
+    def is_mechanic_available(workshop_mechanic, date, time_slot, duration_minutes=60):
         """
         Sprawdza czy mechanik jest dostępny w danym czasie
         """
         appointment_time = datetime.combine(date, time_slot)
+        # Make appointment_time timezone-aware to match database timestamps
+        if timezone.is_naive(appointment_time):
+            appointment_time = timezone.make_aware(appointment_time)
         appointment_end = appointment_time + timedelta(minutes=duration_minutes)
         
         # Sprawdź podstawową dostępność (harmonogram pracy)
@@ -93,7 +96,7 @@ class MechanicAvailabilityService:
         return True
     
     @staticmethod
-    def get_available_time_slots(workshop_id, date, duration_minutes=120):
+    def get_available_time_slots(workshop_id, date, duration_minutes=60):
         """
         Zwraca słownik dostępnych slotów czasowych z listą dostępnych mechaników
         """
@@ -147,7 +150,7 @@ class MechanicAvailabilityService:
         return slots_with_mechanics
     
     @staticmethod
-    def auto_assign_mechanic(workshop_id, date, time_slot, duration_minutes=120):
+    def auto_assign_mechanic(workshop_id, date, time_slot, duration_minutes=60):
         """
         Automatycznie przypisuje mechanika na podstawie dostępności
         """

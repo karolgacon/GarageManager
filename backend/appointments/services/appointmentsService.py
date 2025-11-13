@@ -7,38 +7,35 @@ class AppointmentService(BaseService):
     repository = AppointmentRepository
 
     @staticmethod
-    def get_appointments_by_client(client_id):
+    def get_appointments_by_client(client_id, start_date=None, end_date=None):
         """
         Retrieves all appointments for a specific client.
+        Optionally filters by date range.
         """
         try:
-            return AppointmentRepository.get_appointments_by_client(client_id)
-        except ValueError as e:
-            raise Http404(str(e))
+            return AppointmentRepository.get_appointments_by_client(client_id, start_date, end_date)
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for client: {str(e)}")
 
     @staticmethod
-    def get_appointments_by_mechanic(mechanic_id):
+    def get_appointments_by_mechanic(mechanic_id, start_date=None, end_date=None):
         """
         Retrieves all appointments assigned to a specific mechanic.
+        Optionally filters by date range.
         """
         try:
-            return AppointmentRepository.get_appointments_by_mechanic(mechanic_id)
-        except ValueError as e:
-            raise Http404(str(e))
+            return AppointmentRepository.get_appointments_by_mechanic(mechanic_id, start_date, end_date)
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for mechanic: {str(e)}")
 
     @staticmethod
-    def get_appointments_by_workshop(workshop_id):
+    def get_appointments_by_workshop(workshop_id, start_date=None, end_date=None):
         """
         Retrieves all appointments for a specific workshop.
+        Optionally filters by date range.
         """
         try:
-            return AppointmentRepository.get_appointments_by_workshop(workshop_id)
-        except ValueError as e:
-            raise Http404(str(e))
+            return AppointmentRepository.get_appointments_by_workshop(workshop_id, start_date, end_date)
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for workshop: {str(e)}")
 
@@ -49,8 +46,6 @@ class AppointmentService(BaseService):
         """
         try:
             return AppointmentRepository.get_appointments_by_vehicle(vehicle_id)
-        except ValueError as e:
-            raise Http404(str(e))
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments for vehicle: {str(e)}")
 

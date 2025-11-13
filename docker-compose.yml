@@ -130,6 +130,28 @@ services:
     networks:
       - app-network
 
+  beat:
+    build:
+      context: .
+    volumes:
+      - ./backend:/backend
+    command: >
+      sh -c "celery -A backend beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=db
+      - DB_USER=user
+      - DB_PASS=localdevpw
+      - CELERY_BROKER_URL=amqp://garage:garage123@rabbitmq:5672//
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - backend
+      - rabbitmq
+      - redis
+      - db
+    networks:
+      - app-network
+
   notification-worker:
     build:
       context: .

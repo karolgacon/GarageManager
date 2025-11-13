@@ -139,7 +139,7 @@ class MechanicAvailability(models.Model):
         ordering = ['weekday', 'start_time']
     
     def __str__(self):
-        return f"{self.workshop_mechanic.mechanic.get_full_name()} - {self.get_weekday_display()} {self.start_time}-{self.end_time}"
+        return f"{self.workshop_mechanic.mechanic.first_name} {self.workshop_mechanic.mechanic.last_name} - {self.get_weekday_display()} {self.start_time}-{self.end_time}"
     
     def is_available_at_time(self, date, time):
         """Sprawdza czy mechanik jest dostępny w danym czasie"""
@@ -165,7 +165,7 @@ class MechanicBreak(models.Model):
         ordering = ['start_date']
     
     def __str__(self):
-        return f"{self.workshop_mechanic.mechanic.get_full_name()} - {self.start_date} do {self.end_date}"
+        return f"{self.workshop_mechanic.mechanic.first_name} {self.workshop_mechanic.mechanic.last_name} - {self.start_date} do {self.end_date}"
     
     def overlaps_with_slot(self, date, time):
         """Sprawdza czy przerwa pokrywa się z danym slotem czasowym"""

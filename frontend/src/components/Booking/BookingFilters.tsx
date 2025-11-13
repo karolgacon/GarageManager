@@ -85,6 +85,22 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 										textField: {
 											size: "small",
 											fullWidth: true,
+											sx: {
+												"& .MuiInputBase-input": {
+													color: COLOR_TEXT_PRIMARY + " !important",
+												},
+												"& .MuiOutlinedInput-root": {
+													"& fieldset": {
+														borderColor: COLOR_TEXT_SECONDARY,
+													},
+													"&:hover fieldset": {
+														borderColor: COLOR_PRIMARY,
+													},
+													"&.Mui-focused fieldset": {
+														borderColor: COLOR_PRIMARY,
+													},
+												},
+											},
 										},
 										layout: {
 											sx: {
@@ -144,11 +160,17 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 												borderColor: COLOR_PRIMARY,
 											},
 											"& .MuiInputBase-input": {
-												color: COLOR_TEXT_PRIMARY,
+												color: COLOR_TEXT_PRIMARY + " !important",
 											},
 											"& .MuiInputAdornment-root": {
 												color: COLOR_TEXT_SECONDARY,
 											},
+										},
+										"& .MuiInputBase-input": {
+											color: COLOR_TEXT_PRIMARY + " !important",
+										},
+										"& .MuiFormLabel-root": {
+											color: COLOR_TEXT_SECONDARY + " !important",
 										},
 									}}
 									closeOnSelect={true}

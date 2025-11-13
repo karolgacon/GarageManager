@@ -48,22 +48,29 @@ class AppointmentViewSet(BaseViewSet):
     @extend_schema(
         summary="Retrieve appointments for a specific client",
         description="Returns a list of appointments for a specific client.",
-        parameters=[OpenApiParameter(name="client_id", description="ID of the client", required=True, type=str)],
+        parameters=[
+            OpenApiParameter(name="client_id", description="ID of the client", required=True, type=str),
+            OpenApiParameter(name="start_date", description="Start date for filtering (YYYY-MM-DD)", required=False, type=str),
+            OpenApiParameter(name="end_date", description="End date for filtering (YYYY-MM-DD)", required=False, type=str),
+        ],
         responses={200: AppointmentSerializer(many=True), 404: OpenApiResponse(description="No appointments found")}
     )
     @action(detail=False, methods=['get'])
     def by_client(self, request):
         """Retrieve appointments for a specific client."""
         client_id = request.query_params.get('client_id')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
         if client_id:
             try:
-                appointments = self.service.get_appointments_by_client(client_id)
+                appointments = self.service.get_appointments_by_client(client_id, start_date, end_date)
                 serializer = self.serializer_class(appointments, many=True)
                 return Response(serializer.data)
-            except Http404:
+            except Exception as e:
                 return Response(
-                    {"error": "No appointments found for the specified client."},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"error": f"Error retrieving appointments: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(
             {"error": "The 'client_id' parameter is required."},
@@ -73,22 +80,29 @@ class AppointmentViewSet(BaseViewSet):
     @extend_schema(
         summary="Retrieve appointments for a specific workshop",
         description="Returns a list of appointments for a specific workshop.",
-        parameters=[OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=str)],
+        parameters=[
+            OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=str),
+            OpenApiParameter(name="start_date", description="Start date for filtering (YYYY-MM-DD)", required=False, type=str),
+            OpenApiParameter(name="end_date", description="End date for filtering (YYYY-MM-DD)", required=False, type=str),
+        ],
         responses={200: AppointmentSerializer(many=True), 404: OpenApiResponse(description="No appointments found")}
     )
     @action(detail=False, methods=['get'])
     def by_workshop(self, request):
         """Retrieve appointments for a specific workshop."""
         workshop_id = request.query_params.get('workshop_id')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
         if workshop_id:
             try:
-                appointments = self.service.get_appointments_by_workshop(workshop_id)
+                appointments = self.service.get_appointments_by_workshop(workshop_id, start_date, end_date)
                 serializer = self.serializer_class(appointments, many=True)
                 return Response(serializer.data)
-            except Http404:
+            except Exception as e:
                 return Response(
-                    {"error": "No appointments found for the specified workshop."},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"error": f"Error retrieving appointments: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(
             {"error": "The 'workshop_id' parameter is required."},
@@ -110,10 +124,10 @@ class AppointmentViewSet(BaseViewSet):
                 appointments = self.service.get_appointments_by_vehicle(vehicle_id)
                 serializer = self.serializer_class(appointments, many=True)
                 return Response(serializer.data)
-            except Http404:
+            except Exception as e:
                 return Response(
-                    {"error": "No appointments found for the specified vehicle."},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"error": f"Error retrieving appointments: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(
             {"error": "The 'vehicle_id' parameter is required."},
@@ -167,5 +181,37 @@ class AppointmentViewSet(BaseViewSet):
                 )
         return Response(
             {"error": "The 'priority' parameter is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @extend_schema(
+        summary="Retrieve appointments for a specific mechanic",
+        description="Returns a list of appointments assigned to a specific mechanic.",
+        parameters=[
+            OpenApiParameter(name="mechanic_id", description="ID of the mechanic", required=True, type=str),
+            OpenApiParameter(name="start_date", description="Start date for filtering (YYYY-MM-DD)", required=False, type=str),
+            OpenApiParameter(name="end_date", description="End date for filtering (YYYY-MM-DD)", required=False, type=str),
+        ],
+        responses={200: AppointmentSerializer(many=True), 404: OpenApiResponse(description="No appointments found")}
+    )
+    @action(detail=False, methods=['get'])
+    def by_mechanic(self, request):
+        """Retrieve appointments for a specific mechanic."""
+        mechanic_id = request.query_params.get('mechanic_id')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
+        if mechanic_id:
+            try:
+                appointments = self.service.get_appointments_by_mechanic(mechanic_id, start_date, end_date)
+                serializer = self.serializer_class(appointments, many=True)
+                return Response(serializer.data)
+            except Exception as e:
+                return Response(
+                    {"error": f"Error retrieving appointments: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        return Response(
+            {"error": "The 'mechanic_id' parameter is required."},
             status=status.HTTP_400_BAD_REQUEST
         )

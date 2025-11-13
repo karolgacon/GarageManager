@@ -18,17 +18,20 @@ import WarningIcon from "@mui/icons-material/Warning";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingIcon from "@mui/icons-material/Pending";
+import EventIcon from "@mui/icons-material/Event";
 import {
 	COLOR_PRIMARY,
 	COLOR_SURFACE,
 	COLOR_TEXT_PRIMARY,
 	COLOR_TEXT_SECONDARY,
+	COLOR_SUCCESS,
 } from "../../constants";
 import AuthContext from "../../context/AuthProvider";
 import { serviceService } from "../../api/ServiceAPIEndpoint";
 import { diagnosticsService } from "../../api/DiagnosticsAPIEndpoint";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
+import { workshopService } from "../../api/WorkshopAPIEndpoint";
 
 const MechanicDashboard: React.FC = () => {
 	const { auth } = useContext(AuthContext);
@@ -54,7 +57,15 @@ const MechanicDashboard: React.FC = () => {
 				}
 
 				const mechanicId = auth.user_id;
-				const workshopId = (auth as any).workshop_id;
+
+				// Pobierz warsztat mechanika przez API
+				let workshopId = null;
+				try {
+					const workshop = await workshopService.getCurrentUserWorkshop();
+					workshopId = workshop.id;
+				} catch (workshopError) {
+					console.error("Error fetching workshop:", workshopError);
+				}
 
 				if (!mechanicId || !workshopId) {
 					setError(
@@ -181,6 +192,20 @@ const MechanicDashboard: React.FC = () => {
 
 	return (
 		<Box>
+			<Box sx={{ mb: 4 }}>
+				<Typography
+					variant="h4"
+					gutterBottom
+					fontWeight="bold"
+					sx={{ color: COLOR_TEXT_PRIMARY }}
+				>
+					Mechanic Dashboard
+				</Typography>
+				<Typography variant="subtitle1" sx={{ color: COLOR_TEXT_SECONDARY }}>
+					Here's your work overview for today
+				</Typography>
+			</Box>
+
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>
 					<Paper
@@ -252,7 +277,7 @@ const MechanicDashboard: React.FC = () => {
 							sx={{ display: "flex", flexDirection: "column", height: "100%" }}
 						>
 							<CheckCircleIcon
-								sx={{ color: COLOR_PRIMARY, fontSize: 40, mb: 1 }}
+								sx={{ color: COLOR_SUCCESS, fontSize: 40, mb: 1 }}
 							/>
 							<Typography
 								variant="h5"
@@ -300,12 +325,15 @@ const MechanicDashboard: React.FC = () => {
 			</Grid>
 
 			<Grid container spacing={3}>
-				<Grid item xs={12} md={8}>
+				<Grid item xs={12} md={6}>
 					<Paper
 						elevation={2}
 						sx={{
 							p: 3,
 							borderRadius: 2,
+							width: "100%",
+							display: "flex",
+							flexDirection: "column",
 							backgroundColor: COLOR_SURFACE,
 						}}
 					>
@@ -320,29 +348,40 @@ const MechanicDashboard: React.FC = () => {
 						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						{dashboardData.todayTasks.length === 0 ? (
-							<Typography
-								variant="body1"
+							<Box
 								sx={{
 									textAlign: "center",
-									py: 2,
-									color: COLOR_TEXT_PRIMARY,
+									py: 4,
 								}}
 							>
-								No tasks scheduled for today.
-							</Typography>
+								<EventIcon
+									sx={{ fontSize: 48, color: COLOR_TEXT_SECONDARY, mb: 2 }}
+								/>
+								<Typography
+									variant="h6"
+									sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
+								>
+									No tasks scheduled for today
+								</Typography>
+								<Typography
+									variant="body2"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
+								>
+									Enjoy your free time or check upcoming appointments!
+								</Typography>
+							</Box>
 						) : (
 							<Grid container spacing={2}>
 								{dashboardData.todayTasks.map((task) => (
 									<Grid item xs={12} key={task.id}>
 										<Card
-											variant="outlined"
+											elevation={1}
 											sx={{
 												borderRadius: 2,
-												borderColor: COLOR_TEXT_SECONDARY,
 												backgroundColor: COLOR_SURFACE,
 											}}
 										>
-											<CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+											<CardContent>
 												<Box
 													sx={{
 														display: "flex",
@@ -350,31 +389,41 @@ const MechanicDashboard: React.FC = () => {
 														alignItems: "center",
 													}}
 												>
-													<Box>
+													<Box sx={{ flex: 1 }}>
 														<Typography
-															variant="subtitle1"
-															fontWeight="medium"
-															sx={{ color: COLOR_TEXT_PRIMARY }}
+															variant="h6"
+															fontWeight="bold"
+															sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
 														>
 															{task.vehicle}
 														</Typography>
 														<Typography
-															variant="body2"
-															sx={{ color: COLOR_TEXT_SECONDARY }}
+															variant="body1"
+															sx={{ color: COLOR_TEXT_SECONDARY, mb: 0.5 }}
 														>
-															{task.service} - {task.time}
+															{task.service}
+														</Typography>
+														<Typography
+															variant="body2"
+															sx={{ color: COLOR_PRIMARY, fontWeight: 500 }}
+														>
+															⏰ {task.time}
 														</Typography>
 													</Box>
 													<Chip
 														icon={<PendingIcon />}
-														label="Pending"
-														size="small"
-														color="primary"
+														label={
+															task.status === "completed"
+																? "Completed"
+																: "Pending"
+														}
 														sx={{
 															bgcolor:
 																task.status === "completed"
-																	? "success.main"
+																	? COLOR_SUCCESS
 																	: COLOR_PRIMARY,
+															color: "white",
+															"& .MuiChip-icon": { color: "white" },
 														}}
 													/>
 												</Box>
@@ -385,15 +434,30 @@ const MechanicDashboard: React.FC = () => {
 							</Grid>
 						)}
 
-						<Box sx={{ textAlign: "center", mt: 3 }}>
+						<Box
+							sx={{
+								flex: 1,
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "space-between",
+								mt: 3,
+							}}
+						>
 							<Button
-								variant="contained"
+								variant="outlined"
+								fullWidth
 								component={Link}
 								to="/bookings"
 								sx={{
-									borderRadius: 2,
-									bgcolor: COLOR_PRIMARY,
-									"&:hover": { bgcolor: `${COLOR_PRIMARY}d9` },
+									borderRadius: 1,
+									borderColor: COLOR_PRIMARY,
+									color: COLOR_PRIMARY,
+									py: 1.5,
+									textTransform: "uppercase",
+									"&:hover": {
+										bgcolor: `${COLOR_PRIMARY}10`,
+										borderColor: COLOR_PRIMARY,
+									},
 								}}
 							>
 								View All Bookings
@@ -402,12 +466,15 @@ const MechanicDashboard: React.FC = () => {
 					</Paper>
 				</Grid>
 
-				<Grid item xs={12} md={4}>
+				<Grid item xs={12} md={6}>
 					<Paper
 						elevation={2}
 						sx={{
 							p: 3,
 							borderRadius: 2,
+							width: "100%",
+							display: "flex",
+							flexDirection: "column",
 							backgroundColor: COLOR_SURFACE,
 						}}
 					>
@@ -422,49 +489,74 @@ const MechanicDashboard: React.FC = () => {
 						<Divider sx={{ my: 2, borderColor: COLOR_TEXT_SECONDARY }} />
 
 						{dashboardData.criticalIssues.length === 0 ? (
-							<Typography
-								variant="body1"
+							<Box
 								sx={{
 									textAlign: "center",
-									py: 2,
-									color: COLOR_TEXT_PRIMARY,
+									py: 4,
 								}}
 							>
-								No critical issues at the moment.
-							</Typography>
+								<CheckCircleIcon
+									sx={{ fontSize: 48, color: COLOR_SUCCESS, mb: 2 }}
+								/>
+								<Typography
+									variant="h6"
+									sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
+								>
+									All clear!
+								</Typography>
+								<Typography
+									variant="body2"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
+								>
+									No critical issues at the moment.
+								</Typography>
+							</Box>
 						) : (
 							<Grid container spacing={2}>
 								{dashboardData.criticalIssues.map((issue) => (
 									<Grid item xs={12} key={issue.id}>
 										<Card
-											variant="outlined"
+											elevation={1}
 											sx={{
 												borderRadius: 2,
-												borderColor:
-													issue.severity === "critical"
-														? "#EF4444"
-														: COLOR_TEXT_SECONDARY,
 												backgroundColor: COLOR_SURFACE,
 											}}
 										>
-											<CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-												<Box sx={{ display: "flex", alignItems: "center" }}>
-													<WarningIcon color="error" sx={{ mr: 1 }} />
-													<Box>
+											<CardContent>
+												<Box sx={{ display: "flex", alignItems: "flex-start" }}>
+													<WarningIcon
+														sx={{
+															color: "#EF4444",
+															fontSize: 24,
+															mr: 2,
+															mt: 0.5,
+														}}
+													/>
+													<Box sx={{ flex: 1 }}>
 														<Typography
-															variant="subtitle2"
-															fontWeight="medium"
-															sx={{ color: COLOR_TEXT_PRIMARY }}
+															variant="subtitle1"
+															fontWeight="bold"
+															sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
 														>
 															{issue.vehicle}
 														</Typography>
 														<Typography
-															variant="body2"
-															color="error"
-															sx={{ color: "#EF4444" }}
+															variant="body1"
+															sx={{ color: "#EF4444", fontWeight: 500 }}
 														>
 															{issue.issue}
 														</Typography>
+														<Chip
+															label="CRITICAL"
+															size="small"
+															sx={{
+																bgcolor: "#EF4444",
+																color: "white",
+																fontWeight: 600,
+																fontSize: "0.75rem",
+																mt: 1,
+															}}
+														/>
 													</Box>
 												</Box>
 											</CardContent>
@@ -474,13 +566,31 @@ const MechanicDashboard: React.FC = () => {
 							</Grid>
 						)}
 
-						<Box sx={{ textAlign: "center", mt: 3 }}>
+						<Box
+							sx={{
+								flex: 1,
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "space-between",
+								mt: 3,
+							}}
+						>
 							<Button
 								variant="outlined"
-								color="error"
+								fullWidth
 								component={Link}
 								to="/diagnostics"
-								sx={{ borderRadius: 2 }}
+								sx={{
+									borderRadius: 1,
+									borderColor: COLOR_PRIMARY,
+									color: COLOR_PRIMARY,
+									py: 1.5,
+									textTransform: "uppercase",
+									"&:hover": {
+										bgcolor: `${COLOR_PRIMARY}10`,
+										borderColor: COLOR_PRIMARY,
+									},
+								}}
 							>
 								View All Diagnostics
 							</Button>

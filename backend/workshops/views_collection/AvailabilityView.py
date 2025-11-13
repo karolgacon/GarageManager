@@ -8,13 +8,35 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRespon
 from backend.views_collection.BaseView import BaseViewSet
 from ..services.availabilityService import AvailabilityService
 from ..services.mechanicAvailabilityService import MechanicAvailabilityService
-from ..models import WorkshopAvailability, WorkshopBreak
+from ..models import WorkshopAvailability, WorkshopBreak, MechanicAvailability
 from ..serializers import WorkshopAvailabilitySerializer, WorkshopBreakSerializer
 
 
 class WorkshopAvailabilityViewSet(BaseViewSet):
     service = AvailabilityService
     serializer_class = WorkshopAvailabilitySerializer
+
+    def list(self, request):
+        """Override list - redirect to specific actions"""
+        return Response({
+            "message": "Use specific endpoints: check_availability, available_dates, get-workshop-mechanics, get-mechanic-availability",
+            "available_actions": [
+                "/api/v1/availability/check_availability/",
+                "/api/v1/availability/available_dates/",
+                "/api/v1/availability/get-workshop-mechanics/",
+                "/api/v1/availability/get-mechanic-availability/"
+            ]
+        })
+
+    def retrieve(self, request, pk=None):
+        """Override retrieve - redirect to specific actions"""
+        return Response({
+            "message": "Use specific endpoints with query parameters",
+            "available_actions": [
+                "/api/v1/availability/check_availability/?workshop_id=X&date=YYYY-MM-DD",
+                "/api/v1/availability/get-workshop-mechanics/?workshop_id=X"
+            ]
+        })
 
     @extend_schema(
         summary="Check workshop availability for a specific date",
@@ -199,6 +221,207 @@ class WorkshopAvailabilityViewSet(BaseViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @extend_schema(
+        summary="Get workshop mechanics",
+        description="Returns list of mechanics assigned to a workshop",
+        parameters=[
+            OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=int),
+        ],
+        responses={
+            200: OpenApiResponse(description="Workshop mechanics information"),
+            400: OpenApiResponse(description="Bad request")
+        }
+    )
+    @action(detail=False, methods=['get'], url_path='get-workshop-mechanics')
+    def get_workshop_mechanics(self, request):
+        """Get all mechanics for a specific workshop"""
+        print(f"DEBUG: get_workshop_mechanics called with params: {request.query_params}")
+        workshop_id = request.query_params.get('workshop_id')
+        
+        if not workshop_id:
+            print("DEBUG: No workshop_id provided")
+            return Response(
+                {"error": "Parameter 'workshop_id' is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            workshop_id = int(workshop_id)
+            print(f"DEBUG: Getting mechanics for workshop {workshop_id}")
+            mechanics = MechanicAvailabilityService.get_workshop_mechanics(workshop_id)
+            print(f"DEBUG: Found {mechanics.count()} mechanics")
+            
+            mechanic_data = []
+            for mechanic in mechanics:
+                mechanic_data.append({
+                    'id': mechanic.mechanic.id,
+                    'first_name': mechanic.mechanic.first_name,
+                    'last_name': mechanic.mechanic.last_name,
+                    'full_name': f"{mechanic.mechanic.first_name} {mechanic.mechanic.last_name}",
+                    'email': mechanic.mechanic.email
+                })
+            
+            return Response({
+                'mechanics': mechanic_data,
+                'total_count': len(mechanic_data)
+            })
+            
+        except ValueError as e:
+            print(f"DEBUG: ValueError: {e}")
+            return Response(
+                {"error": "Invalid workshop_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            print(f"DEBUG: Exception in get_workshop_mechanics: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {"error": f"Error retrieving mechanics: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @extend_schema(
+        summary="Check mechanic availability for workshop",
+        description="Returns available mechanics for specific date and time in workshop",
+        parameters=[
+            OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=int),
+            OpenApiParameter(name="date", description="Date (YYYY-MM-DD)", required=True, type=str),
+            OpenApiParameter(name="time", description="Time (HH:MM)", required=False, type=str),
+            OpenApiParameter(name="duration", description="Duration in minutes", required=False, type=int),
+        ],
+        responses={
+            200: OpenApiResponse(description="Mechanic availability information"),
+            400: OpenApiResponse(description="Bad request")
+        }
+    )
+    @action(detail=False, methods=['get'], url_path='get-mechanic-availability')
+    def check_mechanic_availability(self, request):
+        """Check which mechanics are available for a specific date and time"""
+        print(f"DEBUG: check_mechanic_availability called with params: {request.query_params}")
+        workshop_id = request.query_params.get('workshop_id')
+        date_str = request.query_params.get('date')
+        time_str = request.query_params.get('time')
+        
+        try:
+            duration = int(request.query_params.get('duration', 60))
+            print(f"DEBUG: workshop_id={workshop_id}, date_str={date_str}, time_str={time_str}, duration={duration}")
+        except Exception as e:
+            print(f"DEBUG: Error parsing duration: {e}")
+            duration = 120
+        
+        if not workshop_id or not date_str:
+            print("DEBUG: Missing required params")
+            return Response(
+                {"error": "Parameters 'workshop_id' and 'date' are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            workshop_id = int(workshop_id)
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            print(f"DEBUG: Parsed workshop_id={workshop_id}, target_date={target_date}")
+            
+            if time_str:
+                print(f"DEBUG: Checking specific time {time_str}")
+                # Sprawdź konkretny czas
+                time_slot = datetime.strptime(time_str, '%H:%M').time()
+                print(f"DEBUG: Parsed time_slot={time_slot}")
+                
+                available_mechanics = MechanicAvailabilityService.get_available_mechanics(
+                    workshop_id, target_date, time_slot, duration
+                )
+                print(f"DEBUG: Available mechanics count: {len(available_mechanics)}")
+                
+                mechanic_data = []
+                for mechanic in available_mechanics:
+                    mechanic_data.append({
+                        'id': mechanic.id,
+                        'first_name': mechanic.first_name,
+                        'last_name': mechanic.last_name,
+                        'full_name': f"{mechanic.first_name} {mechanic.last_name}",
+                        'email': mechanic.email,
+                        'is_available': True
+                    })
+                
+                # Pobierz wszystkich mechaników warsztatu dla porównania
+                print("DEBUG: Getting all workshop mechanics for comparison")
+                all_mechanics = MechanicAvailabilityService.get_workshop_mechanics(workshop_id)
+                
+                # Utwórz set ID dostępnych mechaników dla szybkiego wyszukiwania
+                available_mechanic_ids = {mechanic.id for mechanic in available_mechanics}
+                
+                # Dodaj niedostępnych mechaników
+                for workshop_mechanic in all_mechanics:
+                    if workshop_mechanic.mechanic.id not in available_mechanic_ids:
+                        mechanic_data.append({
+                            'id': workshop_mechanic.mechanic.id,
+                            'first_name': workshop_mechanic.mechanic.first_name,
+                            'last_name': workshop_mechanic.mechanic.last_name,
+                            'full_name': f"{workshop_mechanic.mechanic.first_name} {workshop_mechanic.mechanic.last_name}",
+                            'email': workshop_mechanic.mechanic.email,
+                            'is_available': False
+                        })
+                
+                print(f"DEBUG: Unavailable mechanics count: {len(all_mechanics) - len(available_mechanics)}")
+                print(f"DEBUG: Returning {len(mechanic_data)} total mechanics")
+                return Response({
+                    'mechanics': mechanic_data,
+                    'available_count': len(available_mechanics),
+                    'total_count': len(all_mechanics),
+                    'date': date_str,
+                    'time': time_str
+                })
+            else:
+                # Sprawdź ogólną dostępność na cały dzień
+                print("DEBUG: Checking general availability for the day")
+                all_mechanics = MechanicAvailabilityService.get_workshop_mechanics(workshop_id)
+                mechanic_data = []
+                
+                for mechanic in all_mechanics:
+                    # Sprawdź czy mechanik ma dostępność w tym dniu
+                    weekday = target_date.weekday()
+                    try:
+                        availability = MechanicAvailability.objects.get(
+                            workshop_mechanic=mechanic,
+                            weekday=weekday
+                        )
+                        is_available = availability.is_available
+                    except MechanicAvailability.DoesNotExist:
+                        is_available = False
+                    mechanic_data.append({
+                        'id': mechanic.mechanic.id,
+                        'first_name': mechanic.mechanic.first_name,
+                        'last_name': mechanic.mechanic.last_name,
+                        'full_name': f"{mechanic.mechanic.first_name} {mechanic.mechanic.last_name}",
+                        'email': mechanic.mechanic.email,
+                        'is_available': is_available
+                    })
+                
+                available_count = sum(1 for m in mechanic_data if m['is_available'])
+                
+                return Response({
+                    'mechanics': mechanic_data,
+                    'available_count': available_count,
+                    'total_count': len(all_mechanics),
+                    'date': date_str
+                })
+                
+        except ValueError as e:
+            print(f"DEBUG: ValueError in check_mechanic_availability: {e}")
+            return Response(
+                {"error": f"Invalid parameter: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            print(f"DEBUG: Exception in check_mechanic_availability: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {"error": f"Error checking availability: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class WorkshopBreakViewSet(BaseViewSet):
     queryset = WorkshopBreak.objects.all()
@@ -232,159 +455,4 @@ class WorkshopBreakViewSet(BaseViewSet):
             return Response(
                 {"error": "Invalid workshop_id"},
                 status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class MechanicAvailabilityViewSet(ViewSet):
-    """Separate ViewSet for mechanic availability endpoints"""
-    
-    @extend_schema(
-        summary="Check mechanic availability for workshop",
-        description="Returns available mechanics for specific date and time in workshop",
-        parameters=[
-            OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=int),
-            OpenApiParameter(name="date", description="Date (YYYY-MM-DD)", required=True, type=str),
-            OpenApiParameter(name="time", description="Time (HH:MM)", required=False, type=str),
-            OpenApiParameter(name="duration", description="Duration in minutes", required=False, type=int),
-        ],
-        responses={
-            200: OpenApiResponse(description="Mechanic availability information"),
-            400: OpenApiResponse(description="Bad request")
-        }
-    )
-    @action(detail=False, methods=['get'], url_path='mechanic-availability')
-    def check_mechanic_availability(self, request):
-        """Check which mechanics are available for a specific date and time"""
-        workshop_id = request.query_params.get('workshop_id')
-        date_str = request.query_params.get('date')
-        time_str = request.query_params.get('time')
-        duration = int(request.query_params.get('duration', 120))
-        
-        if not workshop_id or not date_str:
-            return Response(
-                {"error": "Parameters 'workshop_id' and 'date' are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        try:
-            workshop_id = int(workshop_id)
-            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            
-            if time_str:
-                # Sprawdź konkretny czas
-                time_slot = datetime.strptime(time_str, '%H:%M').time()
-                available_mechanics = MechanicAvailabilityService.get_available_mechanics(
-                    workshop_id, target_date, time_slot, duration
-                )
-                
-                mechanic_data = []
-                for mechanic in available_mechanics:
-                    mechanic_data.append({
-                        'id': mechanic.id,
-                        'first_name': mechanic.first_name,
-                        'last_name': mechanic.last_name,
-                        'username': mechanic.username,
-                        'email': mechanic.email
-                    })
-                
-                return Response({
-                    'date': date_str,
-                    'time': time_str,
-                    'duration_minutes': duration,
-                    'available_mechanics': mechanic_data,
-                    'total_available': len(mechanic_data)
-                })
-            else:
-                # Zwróć wszystkie dostępne sloty z mechanikami
-                slots_with_mechanics = MechanicAvailabilityService.get_available_time_slots(
-                    workshop_id, target_date, duration
-                )
-                
-                formatted_slots = {}
-                for time_slot, mechanics in slots_with_mechanics.items():
-                    mechanic_data = []
-                    for mechanic in mechanics:
-                        mechanic_data.append({
-                            'id': mechanic.id,
-                            'first_name': mechanic.first_name,
-                            'last_name': mechanic.last_name,
-                            'username': mechanic.username,
-                            'email': mechanic.email
-                        })
-                    
-                    formatted_slots[time_slot.strftime('%H:%M')] = {
-                        'available_mechanics': mechanic_data,
-                        'total_available': len(mechanic_data)
-                    }
-                
-                return Response({
-                    'date': date_str,
-                    'duration_minutes': duration,
-                    'available_slots': formatted_slots
-                })
-                
-        except ValueError as e:
-            return Response(
-                {"error": f"Invalid date/time format: {str(e)}"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            return Response(
-                {"error": f"Error checking mechanic availability: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
-    @extend_schema(
-        summary="Get all mechanics in workshop",
-        description="Returns list of all mechanics working in specific workshop",
-        parameters=[
-            OpenApiParameter(name="workshop_id", description="ID of the workshop", required=True, type=int)
-        ],
-        responses={
-            200: OpenApiResponse(description="List of mechanics"),
-            400: OpenApiResponse(description="Bad request")
-        }
-    )
-    @action(detail=False, methods=['get'], url_path='workshop-mechanics')  
-    def get_workshop_mechanics(self, request):
-        """Get all mechanics working in a specific workshop"""
-        workshop_id = request.query_params.get('workshop_id')
-        
-        if not workshop_id:
-            return Response(
-                {"error": "Parameter 'workshop_id' is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        try:
-            workshop_id = int(workshop_id)
-            workshop_mechanics = MechanicAvailabilityService.get_workshop_mechanics(workshop_id)
-            
-            mechanics_data = []
-            for workshop_mechanic in workshop_mechanics:
-                mechanic = workshop_mechanic.mechanic
-                mechanics_data.append({
-                    'id': mechanic.id,
-                    'first_name': mechanic.first_name,
-                    'last_name': mechanic.last_name,
-                    'username': mechanic.username,
-                    'email': mechanic.email,
-                    'hired_date': workshop_mechanic.hired_date.isoformat() if workshop_mechanic.hired_date else None
-                })
-            
-            return Response({
-                'workshop_id': workshop_id,
-                'mechanics': mechanics_data,
-                'total_count': len(mechanics_data)
-            })
-            
-        except ValueError:
-            return Response(
-                {"error": "Invalid workshop_id"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            return Response(
-                {"error": f"Error getting workshop mechanics: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
