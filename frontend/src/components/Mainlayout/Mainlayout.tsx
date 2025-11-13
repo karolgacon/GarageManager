@@ -103,6 +103,7 @@ const Mainlayout = ({ children }: { children: React.ReactNode }) => {
 					<HeaderBar />
 					<Container
 						maxWidth="xl"
+						className="thin-scrollbar"
 						sx={{
 							py: 0,
 							pt: { xs: 9, sm: 2 }, // Dodatkowy padding na mobile dla fixed HeaderBar, normalny na desktop

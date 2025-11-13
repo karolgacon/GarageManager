@@ -78,13 +78,24 @@ export const customerService = {
 				const response = await api.get(`${BASE_API_URL}/vehicles/`, {
 					params: { owner: customerId },
 				});
-				return response.data;
+
+				// Filtruj pojazdy po owner_id w frontend jako backup
+				const vehicles = response.data || [];
+				return vehicles.filter(
+					(vehicle: any) =>
+						vehicle.owner_id === customerId || vehicle.owner === customerId
+				);
 			} catch (error) {
 				try {
 					const response = await api.get(`${BASE_API_URL}/vehicles/`, {
 						params: { owner_id: customerId },
 					});
-					return response.data;
+
+					const vehicles = response.data || [];
+					return vehicles.filter(
+						(vehicle: any) =>
+							vehicle.owner_id === customerId || vehicle.owner === customerId
+					);
 				} catch (secondError) {
 					try {
 						const response = await api.get(
@@ -92,7 +103,18 @@ export const customerService = {
 						);
 						return response.data;
 					} catch (thirdError) {
-						return [];
+						// Jako ostateczność - pobierz wszystkie i filtruj
+						try {
+							const response = await api.get(`${BASE_API_URL}/vehicles/`);
+							const vehicles = response.data || [];
+							return vehicles.filter(
+								(vehicle: any) =>
+									vehicle.owner_id === customerId ||
+									vehicle.owner === customerId
+							);
+						} catch (finalError) {
+							return [];
+						}
 					}
 				}
 			}

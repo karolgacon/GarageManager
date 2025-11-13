@@ -24,6 +24,10 @@ interface BookingContentProps {
 	onView: (id: number) => void;
 	onEdit: (id: number) => void;
 	onDelete: (id: number) => void;
+	onStatusChange?: (
+		id: number,
+		newStatus: "scheduled" | "in_progress" | "completed"
+	) => void;
 	onForceLoadingComplete?: () => void;
 	onRefresh?: () => void;
 }
@@ -41,6 +45,7 @@ const BookingContent: React.FC<BookingContentProps> = ({
 	onView,
 	onEdit,
 	onDelete,
+	onStatusChange,
 	onForceLoadingComplete,
 	onRefresh,
 }) => {
@@ -166,10 +171,11 @@ const BookingContent: React.FC<BookingContentProps> = ({
 				) : (
 					<BookingListView
 						bookings={bookings}
-						userRole={userRole}
+						userRole={userRole || ""}
 						onView={onView}
 						onEdit={onEdit}
 						onDelete={onDelete}
+						onStatusChange={onStatusChange}
 					/>
 				)}
 			</Box>

@@ -107,12 +107,11 @@ class ConversationSerializer(serializers.ModelSerializer):
 
 class ConversationCreateSerializer(serializers.ModelSerializer):
     """Serializer do tworzenia nowych konwersacji"""
-    mechanic_id = serializers.IntegerField(write_only=True)
-    workshop_id = serializers.IntegerField(write_only=True)
+    vehicle_id = serializers.IntegerField(write_only=True)
     
     class Meta:
         model = Conversation
-        fields = ['mechanic_id', 'workshop_id', 'subject', 'priority', 'appointment']
+        fields = ['vehicle_id', 'subject', 'priority', 'appointment']
 
     def validate_subject(self, value):
         if not value or not value.strip():
@@ -120,6 +119,69 @@ class ConversationCreateSerializer(serializers.ModelSerializer):
         if len(value) > 200:
             raise serializers.ValidationError("Subject too long (max 200 characters)")
         return value
+
+    def validate_vehicle_id(self, value):
+        """Waliduj czy pojazd należy do użytkownika i jest w serwisie"""
+        from vehicles.models import Vehicle
+        from appointments.models import Appointment
+        
+        request = self.context.get('request')
+        if not request or not request.user:
+            raise serializers.ValidationError("Authentication required")
+        
+        try:
+            vehicle = Vehicle.objects.get(id=value, owner=request.user)
+        except Vehicle.DoesNotExist:
+            raise serializers.ValidationError("Vehicle not found or you don't have permission to access it")
+        
+        # Sprawdź czy pojazd jest aktualnie w serwisie
+        active_appointment = Appointment.objects.filter(
+            vehicle=vehicle,
+            status__in=['confirmed', 'in_progress']
+        ).first()
+        
+        if not active_appointment:
+            raise serializers.ValidationError("Vehicle is not currently in service. Chat can only be created for vehicles that are in workshop.")
+        
+        if not active_appointment.assigned_mechanic:
+            raise serializers.ValidationError("No mechanic assigned to this vehicle's service.")
+        
+        return value
+
+    def create(self, validated_data):
+        """Utwórz konwersację na podstawie pojazdu"""
+        from vehicles.models import Vehicle
+        from appointments.models import Appointment
+        
+        vehicle_id = validated_data.pop('vehicle_id')
+        request = self.context.get('request')
+        
+        # Pobierz pojazd i aktywny appointment
+        vehicle = Vehicle.objects.get(id=vehicle_id, owner=request.user)
+        active_appointment = Appointment.objects.filter(
+            vehicle=vehicle,
+            status__in=['confirmed', 'in_progress']
+        ).first()
+        
+        # Ustaw automatycznie klienta, mechanika i warsztat
+        validated_data['client'] = request.user
+        validated_data['mechanic'] = active_appointment.assigned_mechanic
+        validated_data['workshop'] = active_appointment.workshop
+        validated_data['appointment'] = active_appointment
+        
+        conversation = super().create(validated_data)
+        
+        # Utwórz uczestników konwersacji
+        ConversationParticipant.objects.create(
+            conversation=conversation,
+            user=conversation.client
+        )
+        ConversationParticipant.objects.create(
+            conversation=conversation,
+            user=conversation.mechanic
+        )
+        
+        return conversation
 
 class ConversationParticipantSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField()

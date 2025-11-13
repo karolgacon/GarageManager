@@ -60,3 +60,30 @@ class VehicleService(BaseService):
         if vehicles:
             return vehicles.first().workshop if hasattr(vehicles.first(), 'workshop') else None
         return None
+
+    @classmethod
+    def get_vehicles_in_service_by_owner(cls, owner_id):
+        """
+        Pobiera pojazdy należące do właściciela, które są aktualnie w serwisie.
+        Zwraca pojazdy z dodatkowymi informacjami o aktualnym warsztacie i mechaniku.
+        """
+        vehicles = cls.repository.get_vehicles_in_service_by_owner(owner_id)
+        
+        # Dodaj informacje o aktualnym appointment dla każdego pojazdu
+        result = []
+        for vehicle in vehicles:
+            # Pobierz aktualny appointment (najnowszy aktywny)
+            current_appointment = vehicle.appointments.filter(
+                status__in=['confirmed', 'in_progress']
+            ).order_by('-date').first()
+            
+            if current_appointment:
+                # Dodaj dodatkowe atrybuty do pojazdu
+                vehicle.current_appointment = current_appointment
+                vehicle.current_workshop_id = current_appointment.workshop.id
+                vehicle.current_workshop_name = current_appointment.workshop.name
+                vehicle.current_mechanic_id = current_appointment.assigned_mechanic.id if current_appointment.assigned_mechanic else None
+                vehicle.current_mechanic_name = f"{current_appointment.assigned_mechanic.first_name} {current_appointment.assigned_mechanic.last_name}" if current_appointment.assigned_mechanic else "Nie przypisano"
+                result.append(vehicle)
+        
+        return result

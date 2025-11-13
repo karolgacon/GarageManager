@@ -148,7 +148,8 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 							>
 								{mechanics.map((mechanic) => (
 									<MenuItem key={mechanic.id} value={mechanic.id}>
-										{mechanic.first_name} {mechanic.last_name} ({mechanic.username})
+										{mechanic.first_name} {mechanic.last_name} (
+										{mechanic.username})
 									</MenuItem>
 								))}
 							</Select>
@@ -172,7 +173,11 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					onClick={handleSubmit}
 					variant="contained"
 					disabled={
-						!mechanicId || !workshopId || !subject.trim() || isSubmitting || loading
+						!mechanicId ||
+						!workshopId ||
+						!subject.trim() ||
+						isSubmitting ||
+						loading
 					}
 				>
 					{isSubmitting ? <CircularProgress size={20} /> : "Utwórz"}

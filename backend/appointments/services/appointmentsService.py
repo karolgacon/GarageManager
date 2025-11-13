@@ -61,8 +61,6 @@ class AppointmentService(BaseService):
         """
         try:
             return AppointmentRepository.get_appointments_by_status(status)
-        except ValueError as e:
-            raise Http404(str(e))
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments with status: {str(e)}")
 
@@ -73,7 +71,5 @@ class AppointmentService(BaseService):
         """
         try:
             return AppointmentRepository.get_appointments_by_priority(priority)
-        except ValueError as e:
-            raise Http404(str(e))
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments with priority: {str(e)}")

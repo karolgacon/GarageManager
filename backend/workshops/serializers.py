@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Workshop, Service, WorkshopMechanic, Report
+from .models import Workshop, Service, WorkshopMechanic, Report, WorkshopAvailability, WorkshopBreak
 from django.contrib.auth.models import User
 
 class WorkshopSerializer(serializers.ModelSerializer):
@@ -38,3 +38,17 @@ class StaffMemberSerializer(serializers.ModelSerializer):
             return obj.date_joined.date().isoformat()
         except:
             return None
+
+class WorkshopAvailabilitySerializer(serializers.ModelSerializer):
+    weekday_display = serializers.CharField(source='get_weekday_display', read_only=True)
+    
+    class Meta:
+        model = WorkshopAvailability
+        fields = ['id', 'workshop', 'weekday', 'weekday_display', 'start_time', 'end_time', 
+                 'is_available', 'slot_duration']
+
+class WorkshopBreakSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkshopBreak
+        fields = ['id', 'workshop', 'start_date', 'end_date', 'start_time', 'end_time', 
+                 'reason', 'is_recurring']

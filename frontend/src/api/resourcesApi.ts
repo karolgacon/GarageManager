@@ -38,6 +38,24 @@ export interface Workshop {
 	phone: string;
 }
 
+export interface VehicleInService {
+	id: number;
+	brand: string;
+	model: string;
+	year: number;
+	registration_number: string;
+	vin: string;
+	color?: string;
+	owner_id: number;
+	owner_name?: string;
+	status: string;
+	current_workshop_id?: number;
+	current_workshop_name?: string;
+	current_mechanic_id?: number;
+	current_mechanic_name?: string;
+	appointment_status?: string;
+}
+
 export class ResourcesApiClient {
 	private client = createApiClient();
 
@@ -52,6 +70,11 @@ export class ResourcesApiClient {
 
 	async getWorkshops(): Promise<Workshop[]> {
 		const response = await this.client.get("/api/v1/workshops/");
+		return response.data.results || response.data;
+	}
+
+	async getVehiclesInService(): Promise<VehicleInService[]> {
+		const response = await this.client.get("/api/v1/vehicles/in-service/");
 		return response.data.results || response.data;
 	}
 }

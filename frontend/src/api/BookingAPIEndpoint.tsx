@@ -65,6 +65,7 @@ export const bookingService = {
 
 	getUpcomingBookings: async () => {
 		try {
+			// Pobierz tylko zaplanowane appointments jako upcoming
 			const response = await api.get(
 				`${BASE_API_URL}/appointments/by_status/`,
 				{
@@ -159,6 +160,21 @@ export const bookingService = {
 				`${BASE_API_URL}/appointments/${id}/`,
 				bookingData
 			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	// Funkcja do zmiany statusu appointment przez mechanika
+	updateBookingStatus: async (
+		id: number,
+		status: "scheduled" | "in_progress" | "completed"
+	) => {
+		try {
+			const response = await api.patch(`${BASE_API_URL}/appointments/${id}/`, {
+				status,
+			});
 			return response.data;
 		} catch (error) {
 			throw error;

@@ -328,6 +328,19 @@ const Bookings: React.FC = () => {
 		}
 	};
 
+	const handleStatusChange = async (
+		bookingId: number,
+		newStatus: "scheduled" | "in_progress" | "completed"
+	) => {
+		try {
+			await bookingService.updateBookingStatus(bookingId, newStatus);
+			showSnackbar("Status updated successfully", "success");
+			loadBookings();
+		} catch (error) {
+			showSnackbar("Error updating status", "error");
+		}
+	};
+
 	const handleModalClose = (modalType: string) => {
 		if (modalType === "new") {
 			setIsNewBookingModalOpen(false);
@@ -454,6 +467,7 @@ const Bookings: React.FC = () => {
 							onView={handleViewBooking}
 							onEdit={handleEditBooking}
 							onDelete={handleDeleteBooking}
+							onStatusChange={handleStatusChange}
 							onForceLoadingComplete={handleForceLoadingComplete}
 							onRefresh={loadBookings}
 						/>

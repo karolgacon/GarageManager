@@ -49,24 +49,30 @@ class BaseViewSet(viewsets.ViewSet):
     )
     def create(self, request):
         """Create a new record."""
+        print(f"[DEBUG] Received data: {request.data}")
+        
         # Use serializer for validation and data processing
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            print(f"[DEBUG] Validated data: {serializer.validated_data}")
             try:
                 record = self.service.create(serializer.validated_data)
                 output_serializer = self.serializer_class(record)
                 return Response(output_serializer.data, status=status.HTTP_201_CREATED)
             except ValidationError as e:
+                print(f"[DEBUG] ValidationError: {str(e)}")
                 return Response(
                     {"error": e.message_dict if hasattr(e, 'message_dict') else str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             except Exception as e:
+                print(f"[DEBUG] Exception: {str(e)}")
                 return Response(
                     {"error": str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
+            print(f"[DEBUG] Serializer errors: {serializer.errors}")
             return Response(
                 {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST

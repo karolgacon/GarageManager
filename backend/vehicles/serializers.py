@@ -111,6 +111,47 @@ class VehicleServiceSerializer(serializers.ModelSerializer):
 
         return data
 
+class VehicleInServiceSerializer(serializers.ModelSerializer):
+    """
+    Serializer for vehicles that are currently in service.
+    Includes information about current workshop and mechanic.
+    """
+    owner_name = serializers.SerializerMethodField()
+    current_workshop_id = serializers.SerializerMethodField()
+    current_workshop_name = serializers.SerializerMethodField()
+    current_mechanic_id = serializers.SerializerMethodField()
+    current_mechanic_name = serializers.SerializerMethodField()
+    appointment_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Vehicle
+        fields = [
+            'id', 'brand', 'model', 'year', 'registration_number', 'vin',
+            'color', 'owner_id', 'owner_name', 'status',
+            'current_workshop_id', 'current_workshop_name',
+            'current_mechanic_id', 'current_mechanic_name',
+            'appointment_status'
+        ]
+
+    def get_owner_name(self, obj):
+        return f"{obj.owner.first_name} {obj.owner.last_name}" if obj.owner else None
+
+    def get_current_workshop_id(self, obj):
+        return getattr(obj, 'current_workshop_id', None)
+
+    def get_current_workshop_name(self, obj):
+        return getattr(obj, 'current_workshop_name', None)
+
+    def get_current_mechanic_id(self, obj):
+        return getattr(obj, 'current_mechanic_id', None)
+
+    def get_current_mechanic_name(self, obj):
+        return getattr(obj, 'current_mechanic_name', None)
+
+    def get_appointment_status(self, obj):
+        current_appointment = getattr(obj, 'current_appointment', None)
+        return current_appointment.status if current_appointment else None
+
     def create(self, validated_data):
         """
         Override create to handle foreign key relationships.

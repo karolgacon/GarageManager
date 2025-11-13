@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse
 from ..services.vehicleService import VehicleService
-from ..serializers import VehicleSerializer
+from ..serializers import VehicleSerializer, VehicleInServiceSerializer
 
 @extend_schema_view(
     list=extend_schema(
@@ -154,4 +154,20 @@ class VehicleViewSet(BaseViewSet):
 
         vehicles = self.service.get_vehicles_by_client(int(owner_id))
         serializer = self.serializer_class(vehicles, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get current user's vehicles in service",
+        description="Retrieve vehicles owned by the current user that are currently in service (have active appointments)",
+        responses={200: VehicleInServiceSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='in-service')
+    def in_service(self, request):
+        """
+        Pobiera pojazdy zalogowanego użytkownika, które są aktualnie w serwisie.
+        Pojazd jest w serwisie jeśli ma aktywny appointment ze statusem 'confirmed' lub 'in_progress'.
+        """
+        user = request.user
+        vehicles = self.service.get_vehicles_in_service_by_owner(user.id)
+        serializer = VehicleInServiceSerializer(vehicles, many=True)
         return Response(serializer.data)

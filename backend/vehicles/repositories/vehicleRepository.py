@@ -45,3 +45,21 @@ class VehicleRepository(BaseRepository):
         return Vehicle.objects.filter(
             appointments__workshop_id=workshop_id
         ).distinct()
+
+    @classmethod
+    def get_vehicles_in_service_by_owner(cls, owner_id):
+        """
+        Pobiera pojazdy należące do właściciela, które są aktualnie w serwisie.
+        Pojazd jest w serwisie jeśli ma aktywny appointment ze statusem 'confirmed' lub 'in_progress'.
+        """
+        from appointments.models import Appointment
+        
+        return cls.model.objects.filter(
+            owner_id=owner_id,
+            appointments__status__in=['confirmed', 'in_progress']
+        ).select_related(
+            'owner'
+        ).prefetch_related(
+            'appointments__workshop',
+            'appointments__assigned_mechanic'
+        ).distinct()

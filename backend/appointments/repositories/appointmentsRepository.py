@@ -63,8 +63,7 @@ class AppointmentRepository(BaseRepository):
         """
         try:
             appointments = Appointment.objects.filter(status=status)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found with status {status}.")
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments with status {status}: {str(e)}")
@@ -76,8 +75,7 @@ class AppointmentRepository(BaseRepository):
         """
         try:
             appointments = Appointment.objects.filter(priority=priority)
-            if not appointments.exists():
-                raise ValueError(f"No appointments found with priority {priority}.")
+            # Return empty queryset instead of raising error when no appointments found
             return appointments
         except Exception as e:
             raise RuntimeError(f"Error retrieving appointments with priority {priority}: {str(e)}")

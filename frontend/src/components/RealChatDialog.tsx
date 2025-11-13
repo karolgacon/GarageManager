@@ -38,7 +38,7 @@ import {
 } from "../constants";
 import { useChatApi } from "../api/chatApi";
 import { useChatWebSocket } from "../hooks/useChatWebSocket";
-import { resourcesApiClient, User, Workshop } from "../api/resourcesApi";
+import { resourcesApiClient, VehicleInService } from "../api/resourcesApi";
 import { Conversation, Message } from "../models/chat";
 
 interface RealChatDialogProps {
@@ -48,11 +48,7 @@ interface RealChatDialogProps {
 interface CreateConversationDialogProps {
 	open: boolean;
 	onClose: () => void;
-	onSubmit: (
-		mechanicId: number,
-		workshopId: number,
-		subject: string
-	) => Promise<void>;
+	onSubmit: (vehicleId: number, subject: string) => Promise<void>;
 }
 
 const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
@@ -60,13 +56,13 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 	onClose,
 	onSubmit,
 }) => {
-	const [mechanicId, setMechanicId] = useState<number | "">("");
-	const [workshopId, setWorkshopId] = useState<number | "">("");
+	const [vehicleId, setVehicleId] = useState<number | "">("");
 	const [subject, setSubject] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [mechanics, setMechanics] = useState<User[]>([]);
-	const [workshops, setWorkshops] = useState<Workshop[]>([]);
+	const [vehicles, setVehicles] = useState<VehicleInService[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [selectedVehicle, setSelectedVehicle] =
+		useState<VehicleInService | null>(null);
 
 	// Load mechanics and workshops when dialog opens
 	useEffect(() => {
@@ -78,28 +74,24 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 	const loadResources = async () => {
 		try {
 			setLoading(true);
-			const [mechanicsData, workshopsData] = await Promise.all([
-				resourcesApiClient.getMechanics(),
-				resourcesApiClient.getWorkshops(),
-			]);
-			setMechanics(mechanicsData);
-			setWorkshops(workshopsData);
+			const vehiclesData = await resourcesApiClient.getVehiclesInService();
+			setVehicles(vehiclesData);
 		} catch (error) {
-			console.error("Failed to load resources:", error);
+			console.error("Failed to load vehicles in service:", error);
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const handleSubmit = async () => {
-		if (!mechanicId || !workshopId || !subject.trim()) return;
+		if (!vehicleId || !subject.trim()) return;
 
 		try {
 			setIsSubmitting(true);
-			await onSubmit(Number(mechanicId), Number(workshopId), subject);
-			setMechanicId("");
-			setWorkshopId("");
+			await onSubmit(Number(vehicleId), subject);
+			setVehicleId("");
 			setSubject("");
+			setSelectedVehicle(null);
 		} catch (error) {
 			console.error("Failed to create conversation:", error);
 		} finally {
@@ -107,11 +99,17 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 		}
 	};
 
+	const handleVehicleSelect = (selectedVehicleId: number) => {
+		setVehicleId(selectedVehicleId);
+		const vehicle = vehicles.find((v) => v.id === selectedVehicleId);
+		setSelectedVehicle(vehicle || null);
+	};
+
 	return (
-		<Dialog 
-			open={open} 
-			onClose={onClose} 
-			maxWidth="sm" 
+		<Dialog
+			open={open}
+			onClose={onClose}
+			maxWidth="sm"
 			fullWidth
 			PaperProps={{
 				sx: {
@@ -122,7 +120,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 				},
 			}}
 		>
-			<DialogTitle 
+			<DialogTitle
 				sx={{
 					backgroundColor: COLOR_PRIMARY,
 					color: "white",
@@ -138,103 +136,123 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					</Box>
 				) : (
 					<Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-						<FormControl fullWidth>
-							<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>Warsztat</InputLabel>
-							<Select
-								value={workshopId}
-								onChange={(e) => setWorkshopId(e.target.value as number)}
-								label="Warsztat"
+						{vehicles.length === 0 ? (
+							<Alert
+								severity="info"
 								sx={{
-									"& .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_TEXT_SECONDARY + "50",
-									},
-									"&:hover .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_PRIMARY + "80",
-									},
-									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_PRIMARY,
-									},
-									"& .MuiSelect-select": {
-										color: COLOR_TEXT_PRIMARY,
-									},
-								}}
-								MenuProps={{
-									PaperProps: {
-										sx: {
-											backgroundColor: COLOR_SURFACE,
-											border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
-										},
-									},
+									backgroundColor: "rgba(33, 150, 243, 0.1)",
+									color: COLOR_TEXT_PRIMARY,
+									border: "1px solid rgba(33, 150, 243, 0.3)",
 								}}
 							>
-								{workshops.map((workshop) => (
-									<MenuItem 
-										key={workshop.id} 
-										value={workshop.id}
+								Brak pojazdów w serwisie. Nowy czat można utworzyć tylko dla
+								pojazdu, który jest aktualnie w warsztacie.
+							</Alert>
+						) : (
+							<>
+								<FormControl fullWidth>
+									<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
+										Pojazd
+									</InputLabel>
+									<Select
+										value={vehicleId}
+										onChange={(e) =>
+											handleVehicleSelect(e.target.value as number)
+										}
+										label="Pojazd"
 										sx={{
-											color: COLOR_TEXT_PRIMARY,
-											"&:hover": {
-												backgroundColor: COLOR_PRIMARY + "20",
+											"& .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_TEXT_SECONDARY + "50",
 											},
-											"&.Mui-selected": {
-												backgroundColor: COLOR_PRIMARY + "30",
+											"&:hover .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY + "80",
+											},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+												borderColor: COLOR_PRIMARY,
+											},
+											"& .MuiSelect-select": {
+												color: COLOR_TEXT_PRIMARY,
+											},
+										}}
+										MenuProps={{
+											PaperProps: {
+												sx: {
+													backgroundColor: COLOR_SURFACE,
+													border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
+												},
 											},
 										}}
 									>
-										{workshop.name}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
+										{vehicles.map((vehicle) => (
+											<MenuItem
+												key={vehicle.id}
+												value={vehicle.id}
+												sx={{
+													color: COLOR_TEXT_PRIMARY,
+													"&:hover": {
+														backgroundColor: COLOR_PRIMARY + "20",
+													},
+													"&.Mui-selected": {
+														backgroundColor: COLOR_PRIMARY + "30",
+													},
+												}}
+											>
+												{vehicle.brand} {vehicle.model} (
+												{vehicle.registration_number})
+												<Typography
+													variant="caption"
+													sx={{ ml: 1, color: COLOR_TEXT_SECONDARY }}
+												>
+													- {vehicle.current_workshop_name}
+												</Typography>
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
 
-						<FormControl fullWidth>
-							<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>Mechanik</InputLabel>
-							<Select
-								value={mechanicId}
-								onChange={(e) => setMechanicId(e.target.value as number)}
-								label="Mechanik"
-								sx={{
-									"& .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_TEXT_SECONDARY + "50",
-									},
-									"&:hover .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_PRIMARY + "80",
-									},
-									"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-										borderColor: COLOR_PRIMARY,
-									},
-									"& .MuiSelect-select": {
-										color: COLOR_TEXT_PRIMARY,
-									},
-								}}
-								MenuProps={{
-									PaperProps: {
-										sx: {
-											backgroundColor: COLOR_SURFACE,
-											border: `1px solid ${COLOR_TEXT_SECONDARY}30`,
-										},
-									},
-								}}
-							>
-								{mechanics.map((mechanic) => (
-									<MenuItem 
-										key={mechanic.id} 
-										value={mechanic.id}
+								{selectedVehicle && (
+									<Paper
 										sx={{
-											color: COLOR_TEXT_PRIMARY,
-											"&:hover": {
-												backgroundColor: COLOR_PRIMARY + "20",
-											},
-											"&.Mui-selected": {
-												backgroundColor: COLOR_PRIMARY + "30",
-											},
+											p: 2,
+											backgroundColor: COLOR_SURFACE + "80",
+											border: `1px solid ${COLOR_PRIMARY}30`,
 										}}
 									>
-										{mechanic.first_name} {mechanic.last_name} ({mechanic.username})
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
+										<Typography
+											variant="subtitle2"
+											sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}
+										>
+											Informacje o serwisie:
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											<strong>Warsztat:</strong>{" "}
+											{selectedVehicle.current_workshop_name}
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											<strong>Mechanik:</strong>{" "}
+											{selectedVehicle.current_mechanic_name}
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											<strong>Status:</strong>{" "}
+											{selectedVehicle.appointment_status === "confirmed"
+												? "Potwierdzony"
+												: selectedVehicle.appointment_status === "in_progress"
+												? "W trakcie"
+												: selectedVehicle.appointment_status}
+										</Typography>
+									</Paper>
+								)}
+							</>
+						)}
 
 						<TextField
 							fullWidth
@@ -267,14 +285,14 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					</Box>
 				)}
 			</DialogContent>
-			<DialogActions 
+			<DialogActions
 				sx={{
 					backgroundColor: COLOR_SURFACE,
 					borderTop: `1px solid ${COLOR_TEXT_SECONDARY}30`,
 					gap: 1,
 				}}
 			>
-				<Button 
+				<Button
 					onClick={onClose}
 					sx={{
 						color: COLOR_TEXT_SECONDARY,
@@ -288,9 +306,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 				<Button
 					onClick={handleSubmit}
 					variant="contained"
-					disabled={
-						!mechanicId || !workshopId || !subject.trim() || isSubmitting || loading
-					}
+					disabled={!vehicleId || !subject.trim() || isSubmitting || loading}
 					sx={{
 						backgroundColor: COLOR_PRIMARY,
 						color: "white",
@@ -423,14 +439,12 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 	}, [message, selectedConversation, apiSendMessage, fetchMessages]);
 
 	const handleCreateConversation = async (
-		mechanicId: number,
-		workshopId: number,
+		vehicleId: number,
 		subject: string
 	) => {
 		try {
 			const newConversation = await createConversation({
-				mechanic_id: mechanicId,
-				workshop_id: workshopId,
+				vehicle_id: vehicleId,
 				subject,
 				priority: "normal",
 			});
@@ -745,12 +759,12 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 									px: 2,
 								}}
 							>
-								<Avatar 
-									sx={{ 
-										mr: 2, 
+								<Avatar
+									sx={{
+										mr: 2,
 										bgcolor: COLOR_PRIMARY + "30",
 										border: `2px dashed ${COLOR_PRIMARY}80`,
-										color: COLOR_PRIMARY 
+										color: COLOR_PRIMARY,
 									}}
 								>
 									<AddIcon />
@@ -759,9 +773,9 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 									primary={
 										<Typography
 											variant="subtitle2"
-											sx={{ 
+											sx={{
 												color: COLOR_PRIMARY,
-												fontWeight: 500 
+												fontWeight: 500,
 											}}
 										>
 											Nowa konwersacja

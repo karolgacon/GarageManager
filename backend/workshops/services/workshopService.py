@@ -200,3 +200,59 @@ class WorkshopService(BaseService):
         nearby_workshops.sort(key=lambda w: w.distance_to(latitude, longitude))
         
         return nearby_workshops
+
+    @staticmethod
+    def search_workshops(query=None, location_lat=None, location_lng=None, sort_by='name', specialization=None, has_location=None):
+        """
+        Wyszukaj warsztaty z możliwością sortowania i filtrowania
+        """
+        from ..models import Workshop
+        from django.db.models import Q
+        
+        workshops = Workshop.objects.all()
+        
+        # Filtrowanie po nazwie/lokalizacji
+        if query:
+            workshops = workshops.filter(
+                Q(name__icontains=query) | 
+                Q(location__icontains=query) |
+                Q(address_full__icontains=query)
+            )
+        
+        # Filtrowanie po specjalizacji
+        if specialization:
+            workshops = workshops.filter(specialization=specialization)
+        
+        # Filtrowanie warsztatów z danymi geolokalizacji
+        if has_location:
+            workshops = workshops.filter(
+                latitude__isnull=False,
+                longitude__isnull=False
+            )
+        
+        workshops_list = list(workshops)
+        
+        # Dodanie odległości dla warsztatów z geolokalizacją
+        if location_lat and location_lng:
+            for workshop in workshops_list:
+                if workshop.has_location_data:
+                    workshop.calculated_distance = workshop.distance_to(float(location_lat), float(location_lng))
+                else:
+                    workshop.calculated_distance = None
+        
+        # Sortowanie
+        if sort_by == 'distance' and location_lat and location_lng:
+            workshops_list = [w for w in workshops_list if hasattr(w, 'calculated_distance') and w.calculated_distance is not None]
+            workshops_list.sort(key=lambda w: w.calculated_distance)
+        elif sort_by == 'rating':
+            workshops_list.sort(key=lambda w: w.rating, reverse=True)
+        elif sort_by == 'name':
+            workshops_list.sort(key=lambda w: w.name)
+        
+        return workshops_list
+
+    @staticmethod
+    def get_workshop_specializations():
+        """Pobierz dostępne specjalizacje warsztatów"""
+        from ..models import Workshop
+        return Workshop.SPECIALIZATION_CHOICES

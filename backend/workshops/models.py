@@ -112,6 +112,140 @@ class WorkshopMechanic(models.Model):
 
     class Meta:
         unique_together = ['workshop', 'mechanic']
+    
+    def __str__(self):
+        return f"{self.mechanic.get_full_name()} - {self.workshop.name}"
+
+class MechanicAvailability(models.Model):
+    """Zarządzanie dostępnością poszczególnych mechaników"""
+    WEEKDAY_CHOICES = [
+        (0, 'Poniedziałek'),
+        (1, 'Wtorek'),
+        (2, 'Środa'),
+        (3, 'Czwartek'),
+        (4, 'Piątek'),
+        (5, 'Sobota'),
+        (6, 'Niedziela'),
+    ]
+    
+    workshop_mechanic = models.ForeignKey(WorkshopMechanic, on_delete=models.CASCADE, related_name='availability_schedule')
+    weekday = models.IntegerField(choices=WEEKDAY_CHOICES)
+    start_time = models.TimeField(help_text="Godzina rozpoczęcia pracy")
+    end_time = models.TimeField(help_text="Godzina zakończenia pracy")
+    is_available = models.BooleanField(default=True, help_text="Czy mechanik jest dostępny tego dnia")
+    
+    class Meta:
+        unique_together = ['workshop_mechanic', 'weekday']
+        ordering = ['weekday', 'start_time']
+    
+    def __str__(self):
+        return f"{self.workshop_mechanic.mechanic.get_full_name()} - {self.get_weekday_display()} {self.start_time}-{self.end_time}"
+    
+    def is_available_at_time(self, date, time):
+        """Sprawdza czy mechanik jest dostępny w danym czasie"""
+        if not self.is_available:
+            return False
+        
+        if date.weekday() != self.weekday:
+            return False
+            
+        return self.start_time <= time <= self.end_time
+
+class MechanicBreak(models.Model):
+    """Przerwy w dostępności mechaników (urlopy, święta, etc.)"""
+    workshop_mechanic = models.ForeignKey(WorkshopMechanic, on_delete=models.CASCADE, related_name='breaks')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True, help_text="Opcjonalna godzina początku przerwy")
+    end_time = models.TimeField(null=True, blank=True, help_text="Opcjonalna godzina końca przerwy")
+    reason = models.CharField(max_length=255, blank=True)
+    is_recurring = models.BooleanField(default=False, help_text="Czy przerwa jest cykliczna")
+    
+    class Meta:
+        ordering = ['start_date']
+    
+    def __str__(self):
+        return f"{self.workshop_mechanic.mechanic.get_full_name()} - {self.start_date} do {self.end_date}"
+    
+    def overlaps_with_slot(self, date, time):
+        """Sprawdza czy przerwa pokrywa się z danym slotem czasowym"""
+        if not (self.start_date <= date <= self.end_date):
+            return False
+        
+        if self.start_time and self.end_time:
+            return self.start_time <= time <= self.end_time
+        
+        return True  # Całodniowa przerwa
+
+class WorkshopAvailability(models.Model):
+    """Zarządzanie dostępnością warsztatów"""
+    WEEKDAY_CHOICES = [
+        (0, 'Poniedziałek'),
+        (1, 'Wtorek'),
+        (2, 'Środa'),
+        (3, 'Czwartek'),
+        (4, 'Piątek'),
+        (5, 'Sobota'),
+        (6, 'Niedziela'),
+    ]
+    
+    workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='availability_schedule')
+    weekday = models.IntegerField(choices=WEEKDAY_CHOICES)
+    start_time = models.TimeField(help_text="Godzina otwarcia")
+    end_time = models.TimeField(help_text="Godzina zamknięcia")
+    is_available = models.BooleanField(default=True, help_text="Czy warsztat jest dostępny tego dnia")
+    slot_duration = models.IntegerField(default=60, help_text="Długość pojedynczego slotu w minutach")
+    
+    class Meta:
+        unique_together = ['workshop', 'weekday']
+        ordering = ['weekday', 'start_time']
+    
+    def __str__(self):
+        return f"{self.workshop.name} - {self.get_weekday_display()} {self.start_time}-{self.end_time}"
+    
+    def get_available_slots(self, date):
+        """Zwraca dostępne sloty czasowe dla danej daty"""
+        from datetime import datetime, time, timedelta
+        
+        if not self.is_available:
+            return []
+        
+        slots = []
+        current_time = datetime.combine(date, self.start_time)
+        end_time = datetime.combine(date, self.end_time)
+        
+        while current_time + timedelta(minutes=self.slot_duration) <= end_time:
+            slots.append(current_time.time())
+            current_time += timedelta(minutes=self.slot_duration)
+        
+        return slots
+
+class WorkshopBreak(models.Model):
+    """Przerwy w dostępności warsztatów (urlopy, święta, etc.)"""
+    workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='breaks')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True, help_text="Opcjonalna godzina początku przerwy")
+    end_time = models.TimeField(null=True, blank=True, help_text="Opcjonalna godzina końca przerwy")
+    reason = models.CharField(max_length=255, blank=True)
+    is_recurring = models.BooleanField(default=False, help_text="Czy przerwa jest cykliczna (np. święta)")
+    
+    class Meta:
+        ordering = ['start_date']
+    
+    def __str__(self):
+        return f"{self.workshop.name} - {self.start_date} do {self.end_date}"
+    
+    def overlaps_with_slot(self, date, time):
+        """Sprawdza czy przerwa pokrywa się z danym slotem czasowym"""
+        if not (self.start_date <= date <= self.end_date):
+            return False
+        
+        if self.start_time and self.end_time:
+            return self.start_time <= time <= self.end_time
+        
+        return True  # Całodniowa przerwa
+
 
 class Report(models.Model):
     REPORT_TYPES = [

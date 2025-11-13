@@ -147,6 +147,143 @@ export const workshopService = {
 			throw error;
 		}
 	},
+
+	searchWorkshops: async (params: {
+		query?: string;
+		latitude?: number;
+		longitude?: number;
+		sort_by?: string;
+		specialization?: string;
+		has_location?: boolean;
+	}): Promise<Workshop[]> => {
+		try {
+			const response = await api.get(`${BASE_URL}/search/`, { params });
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	getSpecializations: async (): Promise<
+		Array<{ value: string; label: string }>
+	> => {
+		try {
+			const response = await api.get(`${BASE_URL}/specializations/`);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	checkAvailability: async (
+		workshopId: number,
+		date: string
+	): Promise<{
+		available: boolean;
+		message: string;
+		slots: string[];
+		working_hours?: {
+			start: string;
+			end: string;
+			slot_duration: number;
+		};
+	}> => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/availability/check_availability/`,
+				{
+					params: { workshop_id: workshopId, date },
+				}
+			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	getAvailableDates: async (
+		workshopId: number,
+		startDate: string,
+		endDate: string
+	): Promise<{
+		available_dates: string[];
+	}> => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/availability/available_dates/`,
+				{
+					params: {
+						workshop_id: workshopId,
+						start_date: startDate,
+						end_date: endDate,
+					},
+				}
+			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	checkSlot: async (
+		workshopId: number,
+		datetime: string
+	): Promise<{
+		available: boolean;
+		workshop_id: number;
+		datetime: string;
+	}> => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/availability/check_slot/`,
+				{
+					params: { workshop_id: workshopId, datetime },
+				}
+			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	// Nowe metody dla mechaników
+	getWorkshopMechanics: async (workshopId: number) => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/availability/workshop-mechanics/`,
+				{
+					params: { workshop_id: workshopId },
+				}
+			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	checkMechanicAvailability: async (
+		workshopId: number,
+		date: string,
+		time?: string,
+		duration?: number
+	) => {
+		try {
+			const response = await api.get(
+				`${BASE_API_URL}/availability/mechanic-availability/`,
+				{
+					params: {
+						workshop_id: workshopId,
+						date,
+						...(time && { time }),
+						...(duration && { duration }),
+					},
+				}
+			);
+			return response.data;
+		} catch (error) {
+			throw error;
+		}
+	},
 };
 
 export type { Workshop, Mechanic };

@@ -235,3 +235,65 @@ class WorkshopViewSet(BaseViewSet):
             return Response({"error": "Invalid latitude or longitude"}, status=400)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Search workshops with filters and sorting",
+        description="Search workshops with optional filters and sorting options",
+        parameters=[
+            OpenApiParameter(name="query", description="Search query for name/location", required=False, type=str),
+            OpenApiParameter(name="latitude", description="User latitude for distance calculation", required=False, type=float),
+            OpenApiParameter(name="longitude", description="User longitude for distance calculation", required=False, type=float),
+            OpenApiParameter(name="sort_by", description="Sort by: name, rating, distance", required=False, type=str),
+            OpenApiParameter(name="specialization", description="Workshop specialization", required=False, type=str),
+            OpenApiParameter(name="has_location", description="Filter by geolocation data availability", required=False, type=bool)
+        ],
+        responses={200: WorkshopSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='search')
+    def search_workshops(self, request):
+        """Wyszukaj warsztaty z filtrami i sortowaniem"""
+        query = request.query_params.get('query')
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        sort_by = request.query_params.get('sort_by', 'name')
+        specialization = request.query_params.get('specialization')
+        has_location = request.query_params.get('has_location')
+        
+        if has_location is not None:
+            has_location = has_location.lower() in ['true', '1', 'yes']
+        
+        try:
+            workshops = self.service.search_workshops(
+                query=query,
+                location_lat=latitude,
+                location_lng=longitude,
+                sort_by=sort_by,
+                specialization=specialization,
+                has_location=has_location
+            )
+            
+            serializer = self.serializer_class(workshops, many=True)
+            
+            # Dodaj obliczoną odległość do odpowiedzi
+            for workshop_data, workshop in zip(serializer.data, workshops):
+                if hasattr(workshop, 'calculated_distance') and workshop.calculated_distance is not None:
+                    workshop_data['distance_km'] = round(workshop.calculated_distance, 2)
+            
+            return Response(serializer.data)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+    @extend_schema(
+        summary="Get workshop specializations",
+        description="Get list of available workshop specializations",
+        responses={200: OpenApiResponse(description="List of specializations")}
+    )
+    @action(detail=False, methods=['get'], url_path='specializations')
+    def get_specializations(self, request):
+        """Pobierz dostępne specjalizacje warsztatów"""
+        specializations = self.service.get_workshop_specializations()
+        return Response([
+            {"value": value, "label": label} 
+            for value, label in specializations
+        ])

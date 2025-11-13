@@ -1,0 +1,48 @@
+/* Dark theme styles for Leaflet maps */
+.leaflet-container {
+    background: #1a1a1a;
+}
+
+.leaflet-tile {
+    filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+.leaflet-popup-content-wrapper {
+    background: #2a2a2a;
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-popup-tip {
+    background: #2a2a2a;
+}
+
+.leaflet-popup-close-button {
+    color: #ffffff;
+    opacity: 0.7;
+}
+
+.leaflet-popup-close-button:hover {
+    opacity: 1;
+}
+
+.leaflet-control-zoom a {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #ffffff;
+}
+
+.leaflet-control-zoom a:hover {
+    background: #3a3a3a;
+    border-color: #3875f6;
+}
+
+.leaflet-control-attribution {
+    background: rgba(42, 42, 42, 0.8);
+    color: #cccccc;
+}
+
+.leaflet-control-attribution a {
+    color: #3875f6;
+}

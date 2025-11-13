@@ -83,7 +83,10 @@ export class ChatApiClient {
 		await this.client.post(`/conversations/${uuid}/close/`);
 	}
 
-	async updateConversationStatus(uuid: string, status: string): Promise<Conversation> {
+	async updateConversationStatus(
+		uuid: string,
+		status: string
+	): Promise<Conversation> {
 		const response: AxiosResponse<Conversation> = await this.client.post(
 			`/conversations/${uuid}/update_status/`,
 			{ status }
@@ -306,24 +309,29 @@ export const useChatApi = (): UseChatApiReturn => {
 	};
 
 	const updateConversationStatus = async (
-		conversationUuid: string, 
+		conversationUuid: string,
 		status: string
 	): Promise<void> => {
 		try {
 			setError(null);
-			const updatedConversation = await chatApiClient.updateConversationStatus(conversationUuid, status);
-			
+			const updatedConversation = await chatApiClient.updateConversationStatus(
+				conversationUuid,
+				status
+			);
+
 			// Update local state
-			setConversations(prev => 
-				prev.map(conv => 
-					conv.uuid === conversationUuid 
+			setConversations((prev) =>
+				prev.map((conv) =>
+					conv.uuid === conversationUuid
 						? { ...conv, status: updatedConversation.status }
 						: conv
 				)
 			);
 		} catch (err) {
 			setError(
-				err instanceof Error ? err.message : "Failed to update conversation status"
+				err instanceof Error
+					? err.message
+					: "Failed to update conversation status"
 			);
 		}
 	};

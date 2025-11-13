@@ -16,6 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { format } from "date-fns";
 import BookingForm from "./BookingForm";
+import BookingWizard from "./BookingWizard";
 import AuthContext from "../../context/AuthProvider";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { customerService } from "../../api/CustomerAPIEndpoint";
@@ -61,6 +62,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 	const [clientVehicles, setClientVehicles] = useState<any[]>([]);
 	const [enrichedBookingData, setEnrichedBookingData] = useState<any>(null);
 	const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
+	const [useWizard, setUseWizard] = useState<boolean>(true); // Domyślnie używaj wizard
 
 	useEffect(() => {
 		if (auth.roles?.[0] === "client" && auth.user_id) {
@@ -162,13 +164,14 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 			<Dialog
 				open={isNewBookingModalOpen}
 				onClose={() => onClose("new")}
-				maxWidth="md"
+				maxWidth="lg"
 				fullWidth
 				sx={{
 					"& .MuiDialog-paper": {
 						backgroundColor: COLOR_SURFACE,
 						color: COLOR_TEXT_PRIMARY,
 						border: `1px solid rgba(255, 255, 255, 0.1)`,
+						maxHeight: "90vh",
 					},
 				}}
 			>
@@ -185,7 +188,7 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 							fontWeight="bold"
 							color={COLOR_TEXT_PRIMARY}
 						>
-							Create New Booking
+							Umów wizytę w warsztacie
 						</Typography>
 						<IconButton
 							onClick={() => onClose("new")}
@@ -195,43 +198,63 @@ const BookingModals: React.FC<BookingModalsProps> = ({
 						</IconButton>
 					</Box>
 				</DialogTitle>
-				<DialogContent>
-					<BookingForm
-						id="create-booking-form"
-						onSubmit={onCreateBooking}
-						clientVehicles={clientVehicles}
-						userRole={auth.roles?.[0]}
-						userId={auth.user_id}
-					/>
-				</DialogContent>
-				<DialogActions
-					sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}
+				<DialogContent
+					className={useWizard ? "modal-scrollbar" : ""}
+					sx={{
+						p: 0,
+						overflow: useWizard ? "auto" : "hidden",
+						maxHeight: useWizard ? "calc(90vh - 120px)" : "auto",
+					}}
 				>
-					<Button
-						variant="outlined"
-						onClick={() => onClose("new")}
-						sx={{
-							color: COLOR_TEXT_SECONDARY,
-							borderColor: `rgba(255, 255, 255, 0.2)`,
-							"&:hover": { borderColor: COLOR_PRIMARY, color: COLOR_PRIMARY },
-							minWidth: "100px",
-						}}
+					{useWizard ? (
+						<BookingWizard
+							onComplete={onCreateBooking}
+							onCancel={() => onClose("new")}
+							userRole={auth.roles?.[0]}
+							userId={auth.user_id}
+						/>
+					) : (
+						<Box sx={{ p: 3 }}>
+							<BookingForm
+								id="create-booking-form"
+								onSubmit={onCreateBooking}
+								clientVehicles={clientVehicles}
+								userRole={auth.roles?.[0]}
+								userId={auth.user_id}
+							/>
+						</Box>
+					)}
+				</DialogContent>
+				{!useWizard && (
+					<DialogActions
+						sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}
 					>
-						CANCEL
-					</Button>
-					<Button
-						variant="contained"
-						type="submit"
-						form="create-booking-form"
-						sx={{
-							bgcolor: COLOR_PRIMARY,
-							"&:hover": { bgcolor: `rgba(56, 130, 246, 0.8)` },
-							minWidth: "150px",
-						}}
-					>
-						CREATE BOOKING
-					</Button>
-				</DialogActions>
+						<Button
+							variant="outlined"
+							onClick={() => onClose("new")}
+							sx={{
+								color: COLOR_TEXT_SECONDARY,
+								borderColor: `rgba(255, 255, 255, 0.2)`,
+								"&:hover": { borderColor: COLOR_PRIMARY, color: COLOR_PRIMARY },
+								minWidth: "100px",
+							}}
+						>
+							CANCEL
+						</Button>
+						<Button
+							variant="contained"
+							type="submit"
+							form="create-booking-form"
+							sx={{
+								bgcolor: COLOR_PRIMARY,
+								"&:hover": { bgcolor: `rgba(56, 130, 246, 0.8)` },
+								minWidth: "150px",
+							}}
+						>
+							CREATE BOOKING
+						</Button>
+					</DialogActions>
+				)}
 			</Dialog>
 
 			<Dialog

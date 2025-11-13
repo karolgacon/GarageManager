@@ -161,8 +161,7 @@ export interface ConnectionInfo {
 
 // API request/response types
 export interface ConversationCreateRequest {
-	mechanic_id: number;
-	workshop_id: number;
+	vehicle_id: number;
 	subject: string;
 	priority?: "low" | "normal" | "high" | "urgent";
 	appointment?: number;
@@ -237,7 +236,10 @@ export interface UseChatApiReturn {
 	) => Promise<Message>;
 	markAsRead: (conversationUuid: string) => Promise<void>;
 	searchConversations: (query: string) => Promise<Conversation[]>;
-	updateConversationStatus: (conversationUuid: string, status: string) => Promise<void>;
+	updateConversationStatus: (
+		conversationUuid: string,
+		status: string
+	) => Promise<void>;
 }
 
 // Component props types

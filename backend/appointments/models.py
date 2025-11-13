@@ -3,14 +3,14 @@ from users.models import User
 from vehicles.models import Vehicle
 from workshops.models import Workshop
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from datetime import timedelta
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('confirmed', 'Confirmed'),
-        ('in_progress', 'In progress'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled')
+        ('scheduled', 'Zaplanowane'),  # Umówione/oczekujące
+        ('in_progress', 'W trakcie'), 
+        ('completed', 'Skończone')
     ]
 
     PRIORITY_CHOICES = [
@@ -25,6 +25,15 @@ class Appointment(models.Model):
         ('urgent', 'Urgent'),
     ]
 
+    APPOINTMENT_TYPES = [
+        ('service', 'Serwis'),
+        ('inspection', 'Przegląd'),
+        ('diagnostic', 'Diagnostyka'),
+        ('repair', 'Naprawa'),
+        ('maintenance', 'Konserwacja'),
+        ('other', 'Inne'),
+    ]
+
     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
     workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='appointments')
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='appointments')
@@ -37,10 +46,28 @@ class Appointment(models.Model):
         help_text="Mechanik przypisany do tej wizyty"
     )
     date = models.DateTimeField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='low')
     estimated_completion_date = models.DateTimeField(null=True, blank=True)
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES, default='standard')
+    
+    # Nowe pola dla wieloetapowego procesu rezerwacji
+    appointment_type = models.CharField(
+        max_length=20, 
+        choices=APPOINTMENT_TYPES, 
+        default='service',
+        help_text="Typ wizyty (serwis, przegląd, etc.)"
+    )
+    service_description = models.TextField(
+        null=True, 
+        blank=True,
+        help_text="Szczegółowy opis problemu lub wymaganej usługi"
+    )
+    duration_estimate = models.IntegerField(
+        null=True, 
+        blank=True,
+        help_text="Szacowany czas trwania w minutach"
+    )
 
     def __str__(self):
         return f"Wizyta {self.client.username} w {self.workshop.name}"
@@ -52,10 +79,52 @@ class Appointment(models.Model):
             raise ValidationError(f"Invalid priority: {self.priority}")
         if self.booking_type not in dict(self.BOOKING_TYPES):
             raise ValidationError(f"Invalid booking type: {self.booking_type}")
+        if self.appointment_type not in dict(self.APPOINTMENT_TYPES):
+            raise ValidationError(f"Invalid appointment type: {self.appointment_type}")
 
     def save(self, *args, **kwargs):
         self.clean()
+        # Automatycznie ustaw status na podstawie daty
+        self.update_status_based_on_date()
         super().save(*args, **kwargs)
+    
+    def update_status_based_on_date(self):
+        """
+        Automatycznie aktualizuje status na podstawie daty i czasu
+        """
+        now = timezone.now()
+        appointment_time = self.date
+        
+        # Szacowany czas zakończenia (domyślnie 2 godziny)
+        estimated_end = appointment_time + timedelta(
+            minutes=self.duration_estimate if self.duration_estimate else 120
+        )
+        
+        # Jeśli appointment już się skończył -> completed
+        if now > estimated_end and self.status != 'completed':
+            self.status = 'completed'
+        # Jeśli appointment trwa w tym momencie -> in_progress  
+        elif appointment_time <= now <= estimated_end and self.status == 'scheduled':
+            self.status = 'in_progress'
+    
+    @classmethod
+    def update_all_statuses(cls):
+        """
+        Aktualizuje statusy wszystkich appointments na podstawie daty
+        """
+        for appointment in cls.objects.exclude(status='completed'):
+            old_status = appointment.status
+            appointment.update_status_based_on_date()
+            if old_status != appointment.status:
+                appointment.save()
+    
+    @property
+    def estimated_end_time(self):
+        """
+        Zwraca szacowany czas zakończenia wizyty
+        """
+        duration = self.duration_estimate if self.duration_estimate else 120
+        return self.date + timedelta(minutes=duration)
 
 class RepairJob(models.Model):
     COMPLEXITY_CHOICES = [

@@ -13,6 +13,9 @@ import {
 	TablePagination,
 	IconButton,
 	Tooltip,
+	Select,
+	MenuItem,
+	FormControl,
 } from "@mui/material";
 import { format } from "date-fns";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -32,6 +35,10 @@ interface BookingListViewProps {
 	onView: (id: number) => void;
 	onEdit: (id: number) => void;
 	onDelete: (id: number) => void;
+	onStatusChange?: (
+		id: number,
+		newStatus: "scheduled" | "in_progress" | "completed"
+	) => void;
 }
 
 const BookingListView: React.FC<BookingListViewProps> = ({
@@ -40,6 +47,7 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 	onView,
 	onEdit,
 	onDelete,
+	onStatusChange,
 }) => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -59,25 +67,27 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 		let color: "success" | "warning" | "error" | "info" | "default" = "default";
 
 		switch (status?.toLowerCase()) {
-			case "confirmed":
-				color = "success";
-				break;
-			case "pending":
+			case "scheduled":
 				color = "warning";
 				break;
-			case "completed":
+			case "in_progress":
 				color = "info";
 				break;
-			case "cancelled":
-				color = "error";
+			case "completed":
+				color = "success";
 				break;
 		}
 
+		// Polskie tłumaczenia statusów
+		const statusLabels: Record<string, string> = {
+			scheduled: "Zaplanowane",
+			in_progress: "W trakcie",
+			completed: "Skończone",
+		};
+
 		return (
 			<Chip
-				label={
-					status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"
-				}
+				label={statusLabels[status?.toLowerCase()] || status}
 				color={color}
 				size="small"
 				sx={{ fontWeight: 500 }}
@@ -130,7 +140,7 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 	};
 
 	const canCancel = (booking: any) => {
-		if (booking.status === "completed" || booking.status === "cancelled") {
+		if (booking.status === "completed") {
 			return false;
 		}
 
@@ -189,11 +199,11 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 												borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
 											},
 											bgcolor:
-												booking.status === "cancelled"
-													? "rgba(239, 68, 68, 0.1)"
-													: booking.status === "completed"
-													? "rgba(56, 130, 246, 0.1)"
-													: "transparent",
+												booking.status === "completed"
+													? "rgba(56, 130, 246, 0.1)" // Niebieski dla skończonych
+													: booking.status === "in_progress"
+													? "rgba(251, 191, 36, 0.1)" // Żółty dla w trakcie
+													: "transparent", // Domyślny dla zaplanowanych
 											"&:hover": {
 												backgroundColor: "rgba(255, 255, 255, 0.05)",
 											},
@@ -223,7 +233,37 @@ const BookingListView: React.FC<BookingListViewProps> = ({
 												</Typography>
 											)}
 										</TableCell>
-										<TableCell>{getStatusChip(booking.status)}</TableCell>
+										<TableCell>
+											{userRole === "mechanic" && onStatusChange ? (
+												<FormControl size="small" variant="outlined">
+													<Select
+														value={booking.status}
+														onChange={(e) =>
+															onStatusChange(
+																booking.id,
+																e.target.value as
+																	| "scheduled"
+																	| "in_progress"
+																	| "completed"
+															)
+														}
+														sx={{
+															minWidth: 120,
+															fontSize: "0.875rem",
+															"& .MuiSelect-select": {
+																padding: "4px 8px",
+															},
+														}}
+													>
+														<MenuItem value="scheduled">Zaplanowane</MenuItem>
+														<MenuItem value="in_progress">W trakcie</MenuItem>
+														<MenuItem value="completed">Skończone</MenuItem>
+													</Select>
+												</FormControl>
+											) : (
+												getStatusChip(booking.status)
+											)}
+										</TableCell>
 										<TableCell align="right">
 											<Tooltip title="View Details">
 												<IconButton
