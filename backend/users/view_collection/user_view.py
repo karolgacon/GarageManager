@@ -76,65 +76,155 @@ class UserViewSet(BaseViewSet):
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
         if request.method == 'GET':
-
             try:
+                # Return combined User + Profile data
+                profile_data = {
+                    # User data
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name or "",
+                    'last_name': user.last_name or "",
+                }
+                
+                print(f"DEBUG: User email: '{user.email}', Profile data: {profile_data}")
+                
+                # Profile data
                 if hasattr(user, 'profile') and user.profile:
-                    serializer = ProfileSerializer(user.profile)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                    profile_data.update({
+                        "id": user.profile.id,
+                        "address": user.profile.address or "",
+                        "phone": user.profile.phone or "",
+                        "photo": user.profile.photo.url if user.profile.photo else "",
+                        "preferred_contact_method": user.profile.preferred_contact_method or "email"
+                    })
                 else:
-
-                    return Response({
+                    profile_data.update({
                         "id": None,
-                        "user": user.id,
                         "address": "",
                         "phone": "",
                         "photo": "",
                         "preferred_contact_method": "email"
-                    }, status=status.HTTP_200_OK)
+                    })
+                    
+                # Email should always be available regardless of profile existence
+                return Response(profile_data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({
-                    "id": None,
-                    "user": user.id,
-                    "address": "",
-                    "phone": "",
-                    "photo": "",
-                    "preferred_contact_method": "email"
-                }, status=status.HTTP_200_OK)
+                    "error": f"Error fetching profile: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         elif request.method == 'POST':
+            # Update User data (first_name, last_name)
+            user_updated = False
+            if 'first_name' in request.data:
+                user.first_name = request.data['first_name']
+                user_updated = True
+            if 'last_name' in request.data:
+                user.last_name = request.data['last_name']
+                user_updated = True
+                
+            if user_updated:
+                user.save()
 
+            # Handle Profile data
             if hasattr(user, 'profile') and user.profile:
                 return Response(
                     {"error": "Profile already exists. Use PUT to update."},
                     status=status.HTTP_409_CONFLICT
                 )
 
-            data = request.data.copy()
-            data['user'] = request.user.id
+            # Create profile with Profile-specific fields only
+            profile_data = {
+                'user': request.user.id,
+                'address': request.data.get('address', ''),
+                'phone': request.data.get('phone', ''),
+                'preferred_contact_method': request.data.get('preferred_contact_method', 'email')
+            }
 
-            serializer = ProfileSerializer(data=data)
+            serializer = ProfileSerializer(data=profile_data)
             if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                profile = serializer.save()
+                
+                # Return complete profile data
+                response_data = {
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'id': profile.id,
+                    'address': profile.address,
+                    'phone': profile.phone,
+                    'preferred_contact_method': profile.preferred_contact_method
+                }
+                return Response(response_data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'PUT':
+            # Update User data (first_name, last_name)
+            user_updated = False
+            if 'first_name' in request.data:
+                user.first_name = request.data['first_name']
+                user_updated = True
+            if 'last_name' in request.data:
+                user.last_name = request.data['last_name']
+                user_updated = True
+                
+            if user_updated:
+                user.save()
 
+            # Handle Profile data
             if not hasattr(user, 'profile') or not user.profile:
+                # Create new profile if doesn't exist
+                profile_data = {
+                    'user': request.user.id,
+                    'address': request.data.get('address', ''),
+                    'phone': request.data.get('phone', ''),
+                    'preferred_contact_method': request.data.get('preferred_contact_method', 'email')
+                }
 
-                data = request.data.copy()
-                data['user'] = request.user.id
-
-                serializer = ProfileSerializer(data=data)
+                serializer = ProfileSerializer(data=profile_data)
                 if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    profile = serializer.save()
+                    
+                    response_data = {
+                        'user_id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'id': profile.id,
+                        'address': profile.address,
+                        'phone': profile.phone,
+                        'preferred_contact_method': profile.preferred_contact_method
+                    }
+                    return Response(response_data, status=status.HTTP_201_CREATED)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = ProfileSerializer(user.profile, data=request.data, partial=True)
+            # Update existing profile
+            profile_data = {
+                'address': request.data.get('address', user.profile.address),
+                'phone': request.data.get('phone', user.profile.phone),
+                'preferred_contact_method': request.data.get('preferred_contact_method', user.profile.preferred_contact_method)
+            }
+            
+            serializer = ProfileSerializer(user.profile, data=profile_data, partial=True)
             if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                profile = serializer.save()
+                
+                response_data = {
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'id': profile.id,
+                    'address': profile.address,
+                    'phone': profile.phone,
+                    'preferred_contact_method': profile.preferred_contact_method
+                }
+                return Response(response_data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':

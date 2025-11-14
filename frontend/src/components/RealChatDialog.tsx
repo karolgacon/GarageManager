@@ -606,17 +606,67 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 					</Typography>
 
 					{conversations.length === 0 ? (
-						<Box sx={{ p: 2, textAlign: "center" }}>
-							<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
-								Brak aktywnych konwersacji
-							</Typography>
-							<Typography
-								variant="caption"
-								sx={{ color: COLOR_TEXT_SECONDARY }}
+						<>
+							<Box sx={{ p: 2, textAlign: "center" }}>
+								<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
+									Brak aktywnych konwersacji
+								</Typography>
+								<Typography
+									variant="caption"
+									sx={{ color: COLOR_TEXT_SECONDARY }}
+								>
+									Rozpocznij nową rozmowę z mechanikiem
+								</Typography>
+							</Box>
+
+							{/* Kafelek nowej konwersacji gdy brak konwersacji */}
+							<ListItem
+								button
+								onClick={() => setShowCreateDialog(true)}
+								sx={{
+									backgroundColor: COLOR_SURFACE + "80",
+									"&:hover": {
+										backgroundColor: COLOR_PRIMARY + "15",
+									},
+									py: 2,
+									px: 2,
+									borderTop: 1,
+									borderColor: COLOR_TEXT_SECONDARY + "20",
+								}}
 							>
-								Rozpocznij nową rozmowę z mechanikiem
-							</Typography>
-						</Box>
+								<Avatar
+									sx={{
+										mr: 2,
+										bgcolor: COLOR_PRIMARY + "30",
+										border: `2px dashed ${COLOR_PRIMARY}80`,
+										color: COLOR_PRIMARY,
+									}}
+								>
+									<AddIcon />
+								</Avatar>
+								<ListItemText
+									primary={
+										<Typography
+											variant="subtitle2"
+											sx={{
+												color: COLOR_PRIMARY,
+												fontWeight: 500,
+											}}
+										>
+											Nowa konwersacja
+										</Typography>
+									}
+									secondary={
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											Rozpocznij rozmowę z mechanikiem
+										</Typography>
+									}
+								/>
+							</ListItem>
+						</>
 					) : (
 						<List dense>
 							{conversations.map((conv) => (

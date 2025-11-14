@@ -35,10 +35,14 @@ import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
 import { serviceService } from "../../api/ServiceAPIEndpoint";
 import { diagnosticsService } from "../../api/DiagnosticsAPIEndpoint";
+import { ProfileService } from "../../api/ProfileAPIEndpoint";
+import { UserProfile } from "../../models/ProfileModel";
 
 const ClientDashboard: React.FC = () => {
 	const { auth } = useContext(AuthContext);
 	const [loading, setLoading] = useState(true);
+	const [profile, setProfile] = useState<UserProfile | null>(null);
+	const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
 	const [dashboardData, setDashboardData] = useState({
 		vehicles: 0,
 		upcomingBookings: 0,
@@ -47,6 +51,28 @@ const ClientDashboard: React.FC = () => {
 		userVehicles: [] as any[],
 		nextAppointment: null as any,
 	});
+
+	const checkProfileCompleteness = (userProfile: UserProfile) => {
+		return (
+			!userProfile.first_name ||
+			!userProfile.last_name ||
+			!userProfile.address ||
+			!userProfile.phone
+		);
+	};
+
+	const fetchProfile = async () => {
+		try {
+			const userId = localStorage.getItem("userID");
+			if (userId) {
+				const profileData = await ProfileService.getProfile(userId);
+				setProfile(profileData);
+				setIsProfileIncomplete(checkProfileCompleteness(profileData));
+			}
+		} catch (error) {
+			console.error("Error fetching profile:", error);
+		}
+	};
 
 	useEffect(() => {
 		const fetchClientData = async () => {
@@ -62,6 +88,9 @@ const ClientDashboard: React.FC = () => {
 				if (!clientId) {
 					return;
 				}
+
+				// Fetch profile data first
+				await fetchProfile();
 
 				let vehicles: any[] = [];
 				try {
@@ -170,6 +199,49 @@ const ClientDashboard: React.FC = () => {
 
 	return (
 		<Box>
+			{/* Profile Completion Warning */}
+			{isProfileIncomplete && (
+				<Card
+					sx={{
+						mb: 3,
+						backgroundColor: "#FFF3CD",
+						border: "1px solid #FFDB4A",
+						borderRadius: 2,
+					}}
+				>
+					<CardContent sx={{ py: 2 }}>
+						<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+							<WarningIcon sx={{ color: "#856404" }} />
+							<Box sx={{ flex: 1 }}>
+								<Typography
+									variant="h6"
+									sx={{ color: "#856404", fontWeight: "bold" }}
+								>
+									Uzupełnij swój profil
+								</Typography>
+								<Typography variant="body2" sx={{ color: "#856404", mt: 0.5 }}>
+									Aby w pełni korzystać z naszych usług, uzupełnij swoje dane
+									osobowe (imię, nazwisko, adres, telefon).
+								</Typography>
+							</Box>
+							<Button
+								component={Link}
+								to="/profile"
+								variant="contained"
+								size="small"
+								sx={{
+									backgroundColor: "#856404",
+									"&:hover": {
+										backgroundColor: "#664321",
+									},
+								}}
+							>
+								Uzupełnij profil
+							</Button>
+						</Box>
+					</CardContent>
+				</Card>
+			)}
 
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid item xs={12} sm={6} md={3}>

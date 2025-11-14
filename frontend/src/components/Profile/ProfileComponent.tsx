@@ -28,7 +28,7 @@ import {
 	Email as EmailIcon,
 	LocationOn as LocationIcon,
 } from "@mui/icons-material";
-import { Profile } from "../../models/ProfileModel";
+import { Profile, UserProfile } from "../../models/ProfileModel";
 import { ProfileService } from "../../api/ProfileAPIEndpoint";
 import { LoyaltyService, LoyaltyPoints } from "../../api/LoyaltyAPIEndpoint";
 import CustomSnackbar, { SnackbarState } from "../Mainlayout/Snackbar";
@@ -45,14 +45,18 @@ import {
 import AuthContext from "../../context/AuthProvider";
 
 const ProfileComponent: React.FC = () => {
-	const [profile, setProfile] = useState<Profile | null>(null);
+	const [profile, setProfile] = useState<UserProfile | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [modalMode, setModalMode] = useState<"create" | "edit">("edit");
-	const [formData, setFormData] = useState<Profile>({
+	const [formData, setFormData] = useState<UserProfile>({
+		user_id: 0,
+		username: "",
+		email: "",
+		first_name: "",
+		last_name: "",
 		id: 0,
-		user: 0,
 		address: "",
 		phone: "",
 		photo: "",
@@ -112,10 +116,16 @@ const ProfileComponent: React.FC = () => {
 			}
 
 			const profileData = await ProfileService.getProfile(userId);
+			console.log("DEBUG: Profile data from API:", profileData);
+			console.log("DEBUG: Profile email:", profileData.email);
 			setProfile(profileData);
 			setFormData({
-				id: profileData.id || "",
-				user: profileData.user || "",
+				user_id: profileData.user_id || 0,
+				username: profileData.username || "",
+				email: profileData.email || "",
+				first_name: profileData.first_name || "",
+				last_name: profileData.last_name || "",
+				id: profileData.id || 0,
 				address: profileData.address || "",
 				phone: profileData.phone || "",
 				photo: profileData.photo || "",
@@ -619,6 +629,109 @@ const ProfileComponent: React.FC = () => {
 
 							<Box sx={{ p: 3 }}>
 								<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+									{/* First Name */}
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											py: 1.5,
+											borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
+										}}
+									>
+										<PersonIcon
+											sx={{
+												mr: 2,
+												color: COLOR_TEXT_SECONDARY,
+												fontSize: 20,
+											}}
+										/>
+										<Typography
+											variant="body2"
+											fontWeight="500"
+											sx={{
+												minWidth: 160,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											Imię:
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											{profile.first_name || "Nie podano"}
+										</Typography>
+									</Box>
+
+									{/* Last Name */}
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											py: 1.5,
+											borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
+										}}
+									>
+										<PersonIcon
+											sx={{
+												mr: 2,
+												color: COLOR_TEXT_SECONDARY,
+												fontSize: 20,
+											}}
+										/>
+										<Typography
+											variant="body2"
+											fontWeight="500"
+											sx={{
+												minWidth: 160,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											Nazwisko:
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											{profile.last_name || "Nie podano"}
+										</Typography>
+									</Box>
+
+									{/* Email */}
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											py: 1.5,
+											borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}20`,
+										}}
+									>
+										<EmailIcon
+											sx={{
+												mr: 2,
+												color: COLOR_TEXT_SECONDARY,
+												fontSize: 20,
+											}}
+										/>
+										<Typography
+											variant="body2"
+											fontWeight="500"
+											sx={{
+												minWidth: 160,
+												color: COLOR_TEXT_PRIMARY,
+											}}
+										>
+											Email:
+										</Typography>
+										<Typography
+											variant="body2"
+											sx={{ color: COLOR_TEXT_SECONDARY }}
+										>
+											{profile.email || "Nie podano"}
+										</Typography>
+									</Box>
+
+									{/* Address */}
 									<Box
 										sx={{
 											display: "flex",
@@ -1060,6 +1173,68 @@ const ProfileComponent: React.FC = () => {
 										pt: 1,
 									}}
 								>
+									<TextField
+										fullWidth
+										label="Imię"
+										name="first_name"
+										value={formData.first_name}
+										onChange={handleChange}
+										placeholder="Wprowadź imię"
+										variant="outlined"
+										sx={{
+											"& .MuiOutlinedInput-root": {
+												backgroundColor: COLOR_BACKGROUND,
+												color: COLOR_TEXT_PRIMARY,
+												"& fieldset": {
+													borderColor: `${COLOR_TEXT_SECONDARY}40`,
+												},
+												"&:hover fieldset": {
+													borderColor: `${COLOR_TEXT_SECONDARY}60`,
+												},
+												"&.Mui-focused fieldset": {
+													borderColor: COLOR_PRIMARY,
+												},
+											},
+											"& .MuiInputLabel-root": {
+												color: COLOR_TEXT_SECONDARY,
+												"&.Mui-focused": {
+													color: COLOR_PRIMARY,
+												},
+											},
+										}}
+									/>
+
+									<TextField
+										fullWidth
+										label="Nazwisko"
+										name="last_name"
+										value={formData.last_name}
+										onChange={handleChange}
+										placeholder="Wprowadź nazwisko"
+										variant="outlined"
+										sx={{
+											"& .MuiOutlinedInput-root": {
+												backgroundColor: COLOR_BACKGROUND,
+												color: COLOR_TEXT_PRIMARY,
+												"& fieldset": {
+													borderColor: `${COLOR_TEXT_SECONDARY}40`,
+												},
+												"&:hover fieldset": {
+													borderColor: `${COLOR_TEXT_SECONDARY}60`,
+												},
+												"&.Mui-focused fieldset": {
+													borderColor: COLOR_PRIMARY,
+												},
+											},
+											"& .MuiInputLabel-root": {
+												color: COLOR_TEXT_SECONDARY,
+												"&.Mui-focused": {
+													color: COLOR_PRIMARY,
+												},
+											},
+										}}
+									/>
+
 									<TextField
 										fullWidth
 										label="Adres"

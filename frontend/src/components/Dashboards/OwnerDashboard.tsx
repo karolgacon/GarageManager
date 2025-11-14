@@ -32,10 +32,17 @@ import { staffService } from "../../api/StaffAPIEndpoint";
 import { vehicleService } from "../../api/VehicleAPIEndpoint";
 import { bookingService } from "../../api/BookingAPIEndpoint";
 import { inventoryService } from "../../api/PartAPIEndpoint";
+import { ProfileService } from "../../api/ProfileAPIEndpoint";
+import { UserProfile } from "../../models/ProfileModel";
+import WarningIcon from "@mui/icons-material/Warning";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 
 const OwnerDashboard: React.FC = () => {
 	const { auth } = useContext(AuthContext);
 	const [loading, setLoading] = useState(true);
+	const [profile, setProfile] = useState<UserProfile | null>(null);
+	const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
 	const [workshopData, setWorkshopData] = useState({
 		name: "",
 		location: "",
@@ -46,6 +53,28 @@ const OwnerDashboard: React.FC = () => {
 		inventoryItems: 0,
 		recentMechanics: [] as any[],
 	});
+
+	const checkProfileCompleteness = (userProfile: UserProfile) => {
+		return (
+			!userProfile.first_name ||
+			!userProfile.last_name ||
+			!userProfile.address ||
+			!userProfile.phone
+		);
+	};
+
+	const fetchProfile = async () => {
+		try {
+			const userId = localStorage.getItem("userID");
+			if (userId) {
+				const profileData = await ProfileService.getProfile(userId);
+				setProfile(profileData);
+				setIsProfileIncomplete(checkProfileCompleteness(profileData));
+			}
+		} catch (error) {
+			console.error("Error fetching profile:", error);
+		}
+	};
 
 	useEffect(() => {
 		const fetchWorkshopData = async () => {
