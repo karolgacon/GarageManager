@@ -248,7 +248,7 @@ const VehicleSelectionStep: React.FC<VehicleSelectionStepProps> = ({
 				}}
 			>
 				<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
-					Wybierz pojazd do serwisu
+					Select vehicle for service
 				</Typography>
 
 				<Button
@@ -264,7 +264,7 @@ const VehicleSelectionStep: React.FC<VehicleSelectionStepProps> = ({
 						},
 					}}
 				>
-					Dodaj pojazd
+					Add Vehicle
 				</Button>
 			</Box>
 
@@ -296,13 +296,13 @@ const VehicleSelectionStep: React.FC<VehicleSelectionStepProps> = ({
 							sx={{ fontSize: 64, color: COLOR_TEXT_SECONDARY, mb: 2 }}
 						/>
 						<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY, mb: 1 }}>
-							Nie masz jeszcze żadnych pojazdów
+							You don't have any vehicles yet
 						</Typography>
 						<Typography
 							variant="body2"
 							sx={{ color: COLOR_TEXT_SECONDARY, mb: 3 }}
 						>
-							Dodaj swój pierwszy pojazd, aby móc umówić wizytę w warsztacie.
+							Add your first vehicle to be able to book an appointment at the workshop.
 						</Typography>
 						<Button
 							variant="contained"
@@ -315,7 +315,7 @@ const VehicleSelectionStep: React.FC<VehicleSelectionStepProps> = ({
 								},
 							}}
 						>
-							Dodaj pojazd
+							Add Vehicle
 						</Button>
 					</CardContent>
 				</Card>

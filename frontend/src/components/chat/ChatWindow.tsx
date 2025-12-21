@@ -171,11 +171,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 	const getStatusLabel = (status: string) => {
 		switch (status) {
 			case "active":
-				return "Aktywna";
+				return "Active";
 			case "closed":
-				return "Zamknięta";
+				return "Closed";
 			case "pending":
-				return "Oczekująca";
+				return "Pending";
 			default:
 				return status;
 		}
@@ -227,14 +227,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 						onClose={() => setMenuAnchor(null)}
 					>
 						<MenuItem onClick={() => setMenuAnchor(null)}>
-							Informacje o konwersacji
-						</MenuItem>
-						<MenuItem onClick={() => setMenuAnchor(null)}>
-							Historia wiadomości
-						</MenuItem>
-						<Divider />
-						<MenuItem onClick={() => setMenuAnchor(null)}>
-							Zamknij konwersację
+						Conversation information
+					</MenuItem>
+					<MenuItem onClick={() => setMenuAnchor(null)}>
+						Message history
+					</MenuItem>
+					<Divider />
+					<MenuItem onClick={() => setMenuAnchor(null)}>
+						Close conversation
 						</MenuItem>
 					</Menu>
 				</Toolbar>
@@ -288,22 +288,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 						multiple
 						onChange={handleFileSelect}
 					/>
-					<Tooltip title="Załącz plik">
-						<IconButton
-							onClick={() => fileInputRef.current?.click()}
-							disabled={isSending}
-						>
-							<AttachFileIcon />
-						</IconButton>
-					</Tooltip>
-
-					{/* Message Input */}
+				<Tooltip title="Attach file">
 					<TextField
 						inputRef={messageInputRef}
 						fullWidth
 						multiline
 						maxRows={4}
-						placeholder="Napisz wiadomość..."
+						placeholder="Write a message..."
 						value={messageContent}
 						onChange={handleInputChange}
 						onKeyPress={handleKeyPress}

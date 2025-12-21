@@ -175,8 +175,7 @@ const WorkshopSelectionStep: React.FC<WorkshopSelectionStepProps> = ({
 
 	// Render map component
 	const renderMap = () => {
-		// Default center - Warsaw, Poland
-		const defaultCenter: [number, number] = [52.2297, 21.0122];
+		const defaultCenter: [number, number] = [50.0647, 19.945];
 
 		// Use user location if available
 		const center: [number, number] = userLocation
@@ -186,7 +185,7 @@ const WorkshopSelectionStep: React.FC<WorkshopSelectionStepProps> = ({
 		return (
 			<MapContainer
 				center={center}
-				zoom={13}
+				zoom={11}
 				style={{ height: "400px", width: "100%", borderRadius: "8px" }}
 			>
 				<TileLayer
@@ -551,7 +550,7 @@ const WorkshopSelectionStep: React.FC<WorkshopSelectionStepProps> = ({
 				}}
 			>
 				<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
-					Dostępne warsztaty ({workshops.length})
+					Available Workshops ({workshops.length})
 				</Typography>
 
 				<Tabs

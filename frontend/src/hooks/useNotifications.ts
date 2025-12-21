@@ -1,16 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-
-interface NotificationData {
-	id: number;
-	message: string;
-	notification_type: string;
-	channel: string;
-	read_status: boolean;
-	created_at: string;
-	priority?: string;
-	action_url?: string;
-}
+import {
+	notificationService,
+	type NotificationData,
+} from "../api/NotificationAPIEndpoint";
 
 interface WebSocketNotification {
 	type: string;
@@ -28,31 +21,77 @@ interface UseNotificationsReturn {
 	refreshNotifications: () => void;
 }
 
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000";
+const WS_BASE_URL =
+	import.meta.env.VITE_WS_URL ||
+	import.meta.env.VITE_API_URL?.replace(/^http/, "ws").replace("/api/v1", "") ||
+	"ws://localhost:8000";
 
 export const useNotifications = (): UseNotificationsReturn => {
 	const [notifications, setNotifications] = useState<NotificationData[]>([]);
 	const [unreadCount, setUnreadCount] = useState(0);
+	const [lastHttpFetch, setLastHttpFetch] = useState<number>(0);
 
 	// Get auth token and user ID
 	const getAuthInfo = useCallback(() => {
 		const token = localStorage.getItem("token");
-		const userStr = localStorage.getItem("user");
+		const userIdStr =
+			localStorage.getItem("user_id") || localStorage.getItem("userID");
 
-		if (!token || !userStr) {
+		console.log("🔔 Auth check - token:", !!token, "userId:", userIdStr);
+
+		if (!token || !userIdStr) {
 			return null;
 		}
 
 		try {
-			const user = JSON.parse(userStr);
+			const userId = parseInt(userIdStr);
+			if (isNaN(userId)) {
+				console.log("🔔 Auth check - invalid userId:", userIdStr);
+				return null;
+			}
+
 			return {
 				token,
-				userId: user.id,
+				userId,
 			};
 		} catch {
 			return null;
 		}
 	}, []);
+
+	// HTTP API fallback - fetch notifications when WebSocket is not connected
+	const fetchNotificationsHttp = useCallback(async () => {
+		const now = Date.now();
+		// Nie ładuj częściej niż co 10 sekund (dla debugowania)
+		if (now - lastHttpFetch < 10000) {
+			console.log(
+				"🔔 HTTP: Skipping fetch - too recent, last fetch:",
+				new Date(lastHttpFetch)
+			);
+			return;
+		}
+
+		try {
+			console.log("🔔 HTTP: Fetching notifications...");
+			const allNotifications = await notificationService.getNotifications();
+			const unreadNotifications = allNotifications.filter(
+				(n) => !n.read_status
+			);
+
+			console.log(
+				"🔔 HTTP Fallback: Loaded",
+				allNotifications.length,
+				"notifications,",
+				unreadNotifications.length,
+				"unread"
+			);
+			setNotifications(allNotifications.slice(0, 50)); // Limit to 50 most recent
+			setUnreadCount(unreadNotifications.length);
+			setLastHttpFetch(now);
+		} catch (error) {
+			console.error("🔔 HTTP Fallback: Error fetching notifications:", error);
+		}
+	}, [lastHttpFetch]);
 
 	// Build WebSocket URL for notifications
 	const getWebSocketUrl = useCallback(() => {
@@ -133,7 +172,7 @@ export const useNotifications = (): UseNotificationsReturn => {
 
 	// Mark notification as read
 	const markAsRead = useCallback(
-		(notificationId: number) => {
+		async (notificationId: number) => {
 			if (readyState === ReadyState.OPEN) {
 				sendJsonMessage({
 					type: "mark_as_read",
@@ -147,13 +186,28 @@ export const useNotifications = (): UseNotificationsReturn => {
 					)
 				);
 				setUnreadCount((prev) => Math.max(0, prev - 1));
+			} else {
+				// HTTP API fallback
+				try {
+					await notificationService.markAsRead(notificationId);
+
+					// Update local state
+					setNotifications((prev) =>
+						prev.map((n) =>
+							n.id === notificationId ? { ...n, read_status: true } : n
+						)
+					);
+					setUnreadCount((prev) => Math.max(0, prev - 1));
+				} catch (error) {
+					console.error("❌ Failed to mark notification as read:", error);
+				}
 			}
 		},
 		[sendJsonMessage, readyState]
 	);
 
 	// Mark all notifications as read
-	const markAllAsRead = useCallback(() => {
+	const markAllAsRead = useCallback(async () => {
 		if (readyState === ReadyState.OPEN) {
 			sendJsonMessage({
 				type: "mark_all_as_read",
@@ -164,17 +218,33 @@ export const useNotifications = (): UseNotificationsReturn => {
 				prev.map((n) => ({ ...n, read_status: true }))
 			);
 			setUnreadCount(0);
+		} else {
+			// HTTP API fallback
+			try {
+				await notificationService.markAllAsRead();
+
+				// Update local state
+				setNotifications((prev) =>
+					prev.map((n) => ({ ...n, read_status: true }))
+				);
+				setUnreadCount(0);
+			} catch (error) {
+				console.error("❌ Failed to mark all notifications as read:", error);
+			}
 		}
 	}, [sendJsonMessage, readyState]);
 
 	// Refresh notifications (request fresh data from server)
-	const refreshNotifications = useCallback(() => {
+	const refreshNotifications = useCallback(async () => {
 		if (readyState === ReadyState.OPEN) {
 			sendJsonMessage({
 				type: "get_unread_notifications",
 			});
+		} else {
+			// HTTP API fallback
+			await fetchNotificationsHttp();
 		}
-	}, [sendJsonMessage, readyState]);
+	}, [sendJsonMessage, readyState, fetchNotificationsHttp]);
 
 	// Auto-refresh notifications when connection is established
 	useEffect(() => {
@@ -182,6 +252,35 @@ export const useNotifications = (): UseNotificationsReturn => {
 			refreshNotifications();
 		}
 	}, [readyState, refreshNotifications]);
+
+	// Fallback: Load notifications via HTTP if WebSocket fails
+	useEffect(() => {
+		const authInfo = getAuthInfo();
+		if (authInfo && readyState === ReadyState.CLOSED) {
+			// Opóźnienie 2s przed użyciem HTTP fallback
+			const timer = setTimeout(() => {
+				if (readyState === ReadyState.CLOSED) {
+					console.log("🔔 WebSocket not connected, using HTTP fallback");
+					fetchNotificationsHttp();
+				}
+			}, 2000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [readyState, getAuthInfo, fetchNotificationsHttp]);
+
+	// Initial load - zawsze załaduj powiadomienia przez HTTP przy starcie
+	useEffect(() => {
+		const authInfo = getAuthInfo();
+		console.log("🔔 Initial load: checking auth info:", !!authInfo);
+		if (authInfo) {
+			console.log(
+				"🔔 Initial notification load via HTTP for user:",
+				authInfo.userId
+			);
+			fetchNotificationsHttp();
+		}
+	}, []); // Uruchom tylko raz przy mounted
 
 	const isConnected = readyState === ReadyState.OPEN;
 

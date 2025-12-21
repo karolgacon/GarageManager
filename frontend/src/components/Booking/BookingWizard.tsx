@@ -38,40 +38,41 @@ interface BookingWizardProps {
 }
 
 interface BookingFormData {
-	workshop?: any;
-	dateTime?: string;
-	vehicle?: any;
 	appointmentType?: string;
 	serviceDescription?: string;
 	priority?: string;
+	workshop?: any;
+	selectedDate?: string; // Just the date
+	dateTime?: string; // Full datetime
+	vehicle?: any;
 	selectedMechanic?: any; // Opcjonalny mechanik
 }
 
 const steps = [
 	{
-		label: "Wybierz warsztat",
-		description: "Znajdź warsztat w pobliżu",
+		label: "Select Service Type",
+		description: "Choose appointment type and describe the issue",
+		icon: <ServiceIcon />,
+	},
+	{
+		label: "Select Workshop & Date",
+		description: "Find a workshop and choose your preferred date",
 		icon: <WorkshopIcon />,
 	},
 	{
-		label: "Wybierz termin",
-		description: "Data i godzina wizyty",
+		label: "Select Time",
+		description: "Choose appointment time based on service type",
 		icon: <ScheduleIcon />,
 	},
 	{
-		label: "Wybierz mechanika",
-		description: "Opcjonalny wybór mechanika",
-		icon: <PersonIcon />,
-	},
-	{
-		label: "Wybierz pojazd",
-		description: "Pojazd do serwisu",
+		label: "Select Vehicle",
+		description: "Choose which vehicle needs service",
 		icon: <VehicleIcon />,
 	},
 	{
-		label: "Opis usługi",
-		description: "Rodzaj i opis problemu",
-		icon: <ServiceIcon />,
+		label: "Select Mechanic",
+		description: "Optional: Choose a preferred mechanic",
+		icon: <PersonIcon />,
 	},
 ];
 
@@ -87,11 +88,11 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<BookingFormData>({});
 	const [stepValidation, setStepValidation] = useState<boolean[]>([
-		false,
-		false,
-		false, // Mechanik (opcjonalny - będzie zawsze true)
-		false,
-		false,
+		false, // Service type
+		false, // Workshop & Date
+		false, // Time
+		false, // Vehicle
+		true, // Mechanic (optional - always true)
 	]);
 
 	const handleNext = () => {
@@ -139,36 +140,38 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
+				// Step 1: Service Type & Description
 				return (
-					<WorkshopSelectionStep
-						selectedWorkshop={formData.workshop}
-						onWorkshopSelect={(workshop: any) => updateFormData({ workshop })}
+					<ServiceDescriptionStep
+						appointmentType={formData.appointmentType}
+						serviceDescription={formData.serviceDescription}
+						priority={formData.priority}
+						onDataChange={(data: any) => updateFormData(data)}
 						onValidationChange={(isValid: boolean) =>
 							updateStepValidation(0, isValid)
 						}
 					/>
 				);
 			case 1:
+				// Step 2: Workshop & Date Selection
 				return (
-					<DateTimeSelectionStep
+					<WorkshopSelectionStep
 						selectedWorkshop={formData.workshop}
-						selectedDateTime={formData.dateTime}
-						onDateTimeSelect={(dateTime: string) =>
-							updateFormData({ dateTime })
-						}
+						onWorkshopSelect={(workshop: any) => updateFormData({ workshop })}
 						onValidationChange={(isValid: boolean) =>
 							updateStepValidation(1, isValid)
 						}
 					/>
 				);
 			case 2:
+				// Step 3: Time Selection (dependent on appointment type)
 				return (
-					<MechanicSelectionStep
+					<DateTimeSelectionStep
 						selectedWorkshop={formData.workshop}
 						selectedDateTime={formData.dateTime}
-						selectedMechanic={formData.selectedMechanic}
-						onMechanicSelect={(mechanic: any) =>
-							updateFormData({ selectedMechanic: mechanic })
+						appointmentType={formData.appointmentType}
+						onDateTimeSelect={(dateTime: string) =>
+							updateFormData({ dateTime })
 						}
 						onValidationChange={(isValid: boolean) =>
 							updateStepValidation(2, isValid)
@@ -176,6 +179,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 					/>
 				);
 			case 3:
+				// Step 4: Vehicle Selection
 				return (
 					<VehicleSelectionStep
 						selectedVehicle={formData.vehicle}
@@ -188,12 +192,16 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 					/>
 				);
 			case 4:
+				// Step 5: Mechanic Selection (filtered by vehicle brand)
 				return (
-					<ServiceDescriptionStep
-						appointmentType={formData.appointmentType}
-						serviceDescription={formData.serviceDescription}
-						priority={formData.priority}
-						onDataChange={(data: any) => updateFormData(data)}
+					<MechanicSelectionStep
+						selectedWorkshop={formData.workshop}
+						selectedDateTime={formData.dateTime}
+						selectedVehicle={formData.vehicle}
+						selectedMechanic={formData.selectedMechanic}
+						onMechanicSelect={(mechanic: any) =>
+							updateFormData({ selectedMechanic: mechanic })
+						}
 						onValidationChange={(isValid: boolean) =>
 							updateStepValidation(4, isValid)
 						}
@@ -309,7 +317,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 						},
 					}}
 				>
-					{activeStep === 0 ? "Anuluj" : "Wstecz"}
+					{activeStep === 0 ? "Cancel" : "Back"}
 				</Button>
 
 				<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -317,7 +325,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 						variant="body2"
 						sx={{ color: "rgba(255, 255, 255, 0.6)" }}
 					>
-						Krok {activeStep + 1} z {steps.length}
+						Step {activeStep + 1} of {steps.length}
 					</Typography>
 
 					<Button
@@ -336,7 +344,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({
 							},
 						}}
 					>
-						{activeStep === steps.length - 1 ? "Umów wizytę" : "Dalej"}
+						{activeStep === steps.length - 1 ? "Book Appointment" : "Next"}
 					</Button>
 				</Box>
 			</Paper>

@@ -8,9 +8,9 @@ from datetime import timedelta
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
-        ('scheduled', 'Zaplanowane'),  # Umówione/oczekujące
-        ('in_progress', 'W trakcie'), 
-        ('completed', 'Skończone')
+        ('scheduled', 'Scheduled'),
+        ('in_progress', 'In Progress'), 
+        ('completed', 'Completed')
     ]
 
     PRIORITY_CHOICES = [
@@ -26,13 +26,23 @@ class Appointment(models.Model):
     ]
 
     APPOINTMENT_TYPES = [
-        ('service', 'Serwis'),
-        ('inspection', 'Przegląd'),
-        ('diagnostic', 'Diagnostyka'),
-        ('repair', 'Naprawa'),
-        ('maintenance', 'Konserwacja'),
-        ('other', 'Inne'),
+        ('service', 'Service'),
+        ('inspection', 'Inspection'),
+        ('diagnostic', 'Diagnostic'),
+        ('repair', 'Repair'),
+        ('maintenance', 'Maintenance'),
+        ('other', 'Other'),
     ]
+    
+    # Default durations for each appointment type (in minutes)
+    APPOINTMENT_DURATIONS = {
+        'service': 120,
+        'inspection': 60,
+        'diagnostic': 90,
+        'repair': 180,
+        'maintenance': 90,
+        'other': 120,
+    }
 
     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
     workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name='appointments')
@@ -84,6 +94,9 @@ class Appointment(models.Model):
 
     def save(self, *args, **kwargs):
         self.clean()
+        # Auto-set duration based on appointment type if not set
+        if not self.duration_estimate and self.appointment_type:
+            self.duration_estimate = self.APPOINTMENT_DURATIONS.get(self.appointment_type, 120)
         # Automatycznie ustaw status na podstawie daty
         self.update_status_based_on_date()
         super().save(*args, **kwargs)

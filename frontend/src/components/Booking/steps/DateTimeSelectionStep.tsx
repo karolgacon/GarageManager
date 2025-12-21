@@ -20,7 +20,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { format, addDays, parseISO } from "date-fns";
-import { pl } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { workshopService } from "../../../api/WorkshopAPIEndpoint";
 import {
 	COLOR_PRIMARY,
@@ -32,13 +32,25 @@ import {
 interface DateTimeSelectionStepProps {
 	selectedWorkshop?: any;
 	selectedDateTime?: string;
+	appointmentType?: string;
 	onDateTimeSelect: (datetime: string) => void;
 	onValidationChange: (isValid: boolean) => void;
 }
 
+// Duration mapping for appointment types (in minutes)
+const APPOINTMENT_DURATIONS: { [key: string]: number } = {
+	service: 120,
+	inspection: 60,
+	diagnostic: 90,
+	repair: 180,
+	maintenance: 90,
+	other: 120,
+};
+
 const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 	selectedWorkshop,
 	selectedDateTime,
+	appointmentType,
 	onDateTimeSelect,
 	onValidationChange,
 }) => {
@@ -188,7 +200,7 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 							<Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
 								<CalendarIcon sx={{ color: COLOR_PRIMARY, mr: 1 }} />
 								<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
-									Wybierz datę
+									Select Date
 								</Typography>
 							</Box>
 
@@ -199,7 +211,7 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 							) : (
 								<LocalizationProvider
 									dateAdapter={AdapterDateFns}
-									adapterLocale={pl}
+									adapterLocale={enUS}
 								>
 									<DateCalendar
 										value={selectedDate}
@@ -280,8 +292,8 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 										variant="body2"
 										sx={{ color: COLOR_PRIMARY, fontWeight: 600 }}
 									>
-										Wybrana data:{" "}
-										{format(selectedDate, "dd MMMM yyyy", { locale: pl })}
+										Selected date:{" "}
+										{format(selectedDate, "MMMM dd, yyyy", { locale: enUS })}
 									</Typography>
 								</Box>
 							)}
@@ -301,13 +313,13 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 							<Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
 								<TimeIcon sx={{ color: COLOR_PRIMARY, mr: 1 }} />
 								<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY }}>
-									Wybierz godzinę
+									Select Time
 								</Typography>
 							</Box>
 
 							{!selectedDate ? (
 								<Alert severity="info">
-									Wybierz datę, aby zobaczyć dostępne godziny.
+									Select a date to see available times.
 								</Alert>
 							) : loadingSlots ? (
 								<Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
@@ -317,7 +329,7 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 								<Alert severity="warning">{error}</Alert>
 							) : availableSlots.length === 0 ? (
 								<Alert severity="warning">
-									Brak dostępnych terminów w wybranym dniu.
+									No available appointments on the selected date.
 								</Alert>
 							) : (
 								<Box>
@@ -334,13 +346,13 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 												variant="body2"
 												sx={{ color: COLOR_TEXT_SECONDARY }}
 											>
-												Godziny pracy: {workingHours.start} - {workingHours.end}
+												Working hours: {workingHours.start} - {workingHours.end}
 											</Typography>
 											<Typography
 												variant="caption"
 												sx={{ color: COLOR_TEXT_SECONDARY }}
 											>
-												Czas wizyty: {workingHours.slot_duration} minut
+												Appointment duration: {workingHours.slot_duration} minutes
 											</Typography>
 										</Box>
 									)}
@@ -409,8 +421,8 @@ const DateTimeSelectionStep: React.FC<DateTimeSelectionStepProps> = ({
 							<Grid item xs={12} sm={6}>
 								<Chip
 									icon={<CalendarIcon />}
-									label={format(selectedDate, "dd MMMM yyyy (EEEE)", {
-										locale: pl,
+									label={format(selectedDate, "EEEE, MMMM dd, yyyy", {
+										locale: enUS,
 									})}
 									sx={{
 										backgroundColor: COLOR_PRIMARY,

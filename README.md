@@ -74,6 +74,12 @@ docker-compose up -d --build
 # Uruchomienie testów
 pytest
 
+# Uruchomienie testów bezpieczeństwa
+pytest backend/tests/test_security.py -v
+
+# Uruchomienie testów z pokryciem kodu
+pytest --cov=. --cov-report=html
+
 # Worker powiadomień (osobny terminal)
 python notifications/notification_worker.py
 ```
@@ -98,6 +104,54 @@ npm run dev
 - **Frontend** – React/TypeScript
 - **Backend API** – Django REST
 - **Powiadomienia** – Celery + RabbitMQ
+
+## 🔒 Bezpieczeństwo
+
+Aplikacja GarageManager implementuje kompleksowe mechanizmy bezpieczeństwa zgodne z wytycznymi OWASP:
+
+### Zaimplementowane zabezpieczenia:
+
+- **JWT Authentication** - Tokeny dostępu z automatycznym wygasaniem (1h access, 1 dzień refresh)
+- **Hashowanie haseł** - Algorytm bcrypt do bezpiecznego przechowywania haseł
+- **Role-Based Access Control (RBAC)** - Kontrola dostępu oparta na rolach użytkowników
+- **Input Validation** - Walidacja wszystkich danych wejściowych przez Django REST Framework
+- **SQL Injection Prevention** - Ochrona poprzez Django ORM i parametryzowane zapytania
+- **XSS Protection** - Sanityzacja danych wejściowych i kodowanie wyjściowe
+- **CORS Protection** - Konfiguracja dozwolonych źródeł żądań
+- **CSRF Protection** - Django CSRF middleware dla operacji modyfikujących
+- **Secure Configuration** - Wrażliwe dane w zmiennych środowiskowych
+
+### Testy bezpieczeństwa:
+
+System posiada kompletny zestaw testów bezpieczeństwa weryfikujących:
+
+- Uwierzytelnianie i autoryzację
+- Walidację danych wejściowych
+- Ochronę przed SQL Injection i XSS
+- Zarządzanie sesjami i tokenami
+- Ochronę danych osobowych
+- Konfigurację CORS i CSRF
+
+```bash
+# Uruchomienie testów bezpieczeństwa
+pytest backend/tests/test_security.py -v
+
+# Szczegółowy raport
+pytest backend/tests/test_security.py --cov=backend --cov-report=html
+```
+
+Więcej informacji: [Security Testing Documentation](backend/backend/tests/README_SECURITY.md)
+
+## 📚 Dokumentacja
+
+- [Analiza bieżącego stanu](docs/01-current-state-analysis.md)
+- [Plan napraw](docs/02-fixes-plan.md)
+- [Plan implementacji](docs/03-implementation-plan.md)
+- [Timeline projektu](docs/04-project-timeline.md)
+- [Specyfikacja techniczna](docs/05-technical-specs.md)
+- [Projekt bazy danych](docs/07-database-design.md)
+- [Prezentacja](docs/08-presentation.md)
+- [Testowanie i bezpieczeństwo](docs/09-testing-and-security.md)
 
 ## 🤝 Wkład
 

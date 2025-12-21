@@ -253,12 +253,18 @@ class WorkshopAvailabilityViewSet(BaseViewSet):
             
             mechanic_data = []
             for mechanic in mechanics:
+                # Get specializations from profile
+                specializations = []
+                if hasattr(mechanic.mechanic, 'profile') and mechanic.mechanic.profile:
+                    specializations = mechanic.mechanic.profile.specializations or []
+                
                 mechanic_data.append({
                     'id': mechanic.mechanic.id,
                     'first_name': mechanic.mechanic.first_name,
                     'last_name': mechanic.mechanic.last_name,
                     'full_name': f"{mechanic.mechanic.first_name} {mechanic.mechanic.last_name}",
-                    'email': mechanic.mechanic.email
+                    'email': mechanic.mechanic.email,
+                    'specializations': specializations
                 })
             
             return Response({
@@ -335,13 +341,19 @@ class WorkshopAvailabilityViewSet(BaseViewSet):
                 
                 mechanic_data = []
                 for mechanic in available_mechanics:
+                    # Get specializations from profile
+                    specializations = []
+                    if hasattr(mechanic, 'profile') and mechanic.profile:
+                        specializations = mechanic.profile.specializations or []
+                    
                     mechanic_data.append({
                         'id': mechanic.id,
                         'first_name': mechanic.first_name,
                         'last_name': mechanic.last_name,
                         'full_name': f"{mechanic.first_name} {mechanic.last_name}",
                         'email': mechanic.email,
-                        'is_available': True
+                        'is_available': True,
+                        'specializations': specializations
                     })
                 
                 # Pobierz wszystkich mechaników warsztatu dla porównania
@@ -354,13 +366,19 @@ class WorkshopAvailabilityViewSet(BaseViewSet):
                 # Dodaj niedostępnych mechaników
                 for workshop_mechanic in all_mechanics:
                     if workshop_mechanic.mechanic.id not in available_mechanic_ids:
+                        # Get specializations from profile
+                        specializations = []
+                        if hasattr(workshop_mechanic.mechanic, 'profile') and workshop_mechanic.mechanic.profile:
+                            specializations = workshop_mechanic.mechanic.profile.specializations or []
+                        
                         mechanic_data.append({
                             'id': workshop_mechanic.mechanic.id,
                             'first_name': workshop_mechanic.mechanic.first_name,
                             'last_name': workshop_mechanic.mechanic.last_name,
                             'full_name': f"{workshop_mechanic.mechanic.first_name} {workshop_mechanic.mechanic.last_name}",
                             'email': workshop_mechanic.mechanic.email,
-                            'is_available': False
+                            'is_available': False,
+                            'specializations': specializations
                         })
                 
                 print(f"DEBUG: Unavailable mechanics count: {len(all_mechanics) - len(available_mechanics)}")
@@ -389,13 +407,20 @@ class WorkshopAvailabilityViewSet(BaseViewSet):
                         is_available = availability.is_available
                     except MechanicAvailability.DoesNotExist:
                         is_available = False
+                    
+                    # Get specializations from profile
+                    specializations = []
+                    if hasattr(mechanic.mechanic, 'profile') and mechanic.mechanic.profile:
+                        specializations = mechanic.mechanic.profile.specializations or []
+                    
                     mechanic_data.append({
                         'id': mechanic.mechanic.id,
                         'first_name': mechanic.mechanic.first_name,
                         'last_name': mechanic.mechanic.last_name,
                         'full_name': f"{mechanic.mechanic.first_name} {mechanic.mechanic.last_name}",
                         'email': mechanic.mechanic.email,
-                        'is_available': is_available
+                        'is_available': is_available,
+                        'specializations': specializations
                     })
                 
                 available_count = sum(1 for m in mechanic_data if m['is_available'])

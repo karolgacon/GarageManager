@@ -48,7 +48,7 @@ const SimpleChatButton: React.FC<SimpleChatButtonProps> = ({
 		<>
 			{/* Floating Action Button */}
 			<Zoom in={!isOpen}>
-				<Tooltip title="Chat z Mechanikiem" placement="left">
+				<Tooltip title="Chat with Mechanic" placement="left">
 					<Fab
 						onClick={handleToggleChat}
 						sx={{
@@ -135,14 +135,14 @@ const SimpleChatButton: React.FC<SimpleChatButtonProps> = ({
 							}}
 						/>
 						<Typography variant="h4" gutterBottom>
-							Chat z Mechanikiem
+							Chat with Mechanic
 						</Typography>
 						<Typography variant="body1" color="text.secondary">
-							Funkcjonalność czatu jest w trakcie implementacji.
+							Chat functionality is being implemented.
 						</Typography>
 						<Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-							Będziesz mógł tutaj rozmawiać z mechanikami w czasie rzeczywistym,
-							wysyłać załączniki i otrzymywać powiadomienia.
+							You will be able to chat with mechanics in real-time, send
+							attachments and receive notifications.
 						</Typography>
 					</Box>
 				</DialogContent>

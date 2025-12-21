@@ -116,7 +116,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-			<DialogTitle>Nowa konwersacja</DialogTitle>
+				<DialogTitle>New conversation</DialogTitle>
 			<DialogContent>
 				{loading ? (
 					<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
@@ -217,7 +217,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
 	const formatLastActivity = (conversation: Conversation) => {
 		const lastMessage = conversation.last_message;
-		if (!lastMessage) return "Brak wiadomości";
+		if (!lastMessage) return "No messages";
 
 		return formatDistanceToNow(new Date(lastMessage.created_at), {
 			addSuffix: true,
@@ -245,15 +245,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
 	const getStatusLabel = (status: string) => {
 		switch (status) {
 			case "active":
-				return "Aktywna";
+				return "Active";
 			case "waiting_client":
-				return "Oczekuje na klienta";
+				return "Awaiting client";
 			case "waiting_mechanic":
-				return "Oczekuje na mechanika";
+				return "Awaiting mechanic";
 			case "resolved":
-				return "Rozwiązana";
+				return "Resolved";
 			case "closed":
-				return "Zamknięta";
+				return "Closed";
 			default:
 				return status;
 		}
@@ -266,7 +266,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 				<Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
 					<Typography variant="h6" sx={{ flexGrow: 1 }}>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							Konwersacje
+						Conversations
 							{isLoading && <CircularProgress size={16} />}
 						</Box>
 					</Typography>
@@ -411,20 +411,20 @@ const ConversationList: React.FC<ConversationListProps> = ({
 						}}
 					>
 						<Typography variant="h6" color="text.secondary" gutterBottom>
-							{searchQuery ? "Brak wyników" : "Brak konwersacji"}
-						</Typography>
-						<Typography variant="body2" color="text.secondary" paragraph>
-							{searchQuery
-								? "Spróbuj użyć innych słów kluczowych"
-								: "Rozpocznij nową konwersację z mechanikiem"}
-						</Typography>
-						{!searchQuery && (
-							<Button
-								variant="contained"
-								startIcon={<AddIcon />}
-								onClick={() => setShowCreateDialog(true)}
-							>
-								Nowa konwersacja
+						{searchQuery ? "No results" : "No conversations"}
+					</Typography>
+					<Typography variant="body2" color="text.secondary" paragraph>
+						{searchQuery
+							? "Try using different keywords"
+							: "Start a new conversation with a mechanic"}
+					</Typography>
+					{!searchQuery && (
+						<Button
+							variant="contained"
+							startIcon={<AddIcon />}
+							onClick={() => setShowCreateDialog(true)}
+						>
+							New conversation
 							</Button>
 						)}
 					</Box>

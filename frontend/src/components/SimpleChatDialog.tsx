@@ -25,18 +25,18 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 		{
 			id: 1,
 			mechanic: "Jan Kowalski",
-			subject: "Wymiana oleju",
-			lastMessage: "Proszę przywieźć auto na 14:00",
+			subject: "Oil Change",
+			lastMessage: "Please bring the car at 2:00 PM",
 			unreadCount: 2,
 			timestamp: "10:30",
 		},
 		{
 			id: 2,
 			mechanic: "Anna Nowak",
-			subject: "Przegląd techniczny",
-			lastMessage: "Wszystko gotowe do odbioru",
+			subject: "Technical Inspection",
+			lastMessage: "Everything ready for pickup",
 			unreadCount: 0,
-			timestamp: "Wczoraj",
+			timestamp: "Yesterday",
 		},
 	];
 
@@ -48,19 +48,19 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 		{
 			id: 1,
 			sender: "mechanic",
-			content: "Dzień dobry! Sprawdziłem Pana auto.",
+			content: "Hello! I've checked your car.",
 			timestamp: "10:15",
 		},
 		{
 			id: 2,
 			sender: "client",
-			content: "Dzień dobry, co z olejem?",
+			content: "Hello, what about the oil?",
 			timestamp: "10:20",
 		},
 		{
 			id: 3,
 			sender: "mechanic",
-			content: "Olej wymieniony, wszystko w porządku. Może Pan odbierać.",
+			content: "Oil changed, everything is fine. You can pick it up.",
 			timestamp: "10:25",
 		},
 	];
@@ -110,7 +110,7 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 					}}
 				>
 					<Typography variant="h6" sx={{ p: 2, bgcolor: "grey.100" }}>
-						Konwersacje
+						Conversations
 					</Typography>
 					<List dense>
 						{mockConversations.map((conv) => (
@@ -248,7 +248,7 @@ const SimpleChatDialog: React.FC<SimpleChatDialogProps> = ({ onClose }) => {
 					>
 						<TextField
 							fullWidth
-							placeholder="Napisz wiadomość..."
+							placeholder="Type a message..."
 							value={message}
 							onChange={(e) => setMessage(e.target.value)}
 							onKeyPress={(e) => {

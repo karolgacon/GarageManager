@@ -30,6 +30,7 @@ import {
 interface MechanicSelectionStepProps {
 	selectedWorkshop?: any;
 	selectedDateTime?: string;
+	selectedVehicle?: any;
 	selectedMechanic?: any;
 	onMechanicSelect: (mechanic: any) => void;
 	onValidationChange: (isValid: boolean) => void;
@@ -38,12 +39,14 @@ interface MechanicSelectionStepProps {
 const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 	selectedWorkshop,
 	selectedDateTime,
+	selectedVehicle,
 	selectedMechanic,
 	onMechanicSelect,
 	onValidationChange,
 }) => {
 	const [availableMechanics, setAvailableMechanics] = useState<any[]>([]);
 	const [allMechanics, setAllMechanics] = useState<any[]>([]);
+	const [filteredMechanics, setFilteredMechanics] = useState<any[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +66,32 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 			loadAvailableMechanics();
 		}
 	}, [selectedWorkshop, selectedDateTime]);
+
+	// Filter mechanics by vehicle brand specialization
+	useEffect(() => {
+		if (availableMechanics.length > 0 && selectedVehicle) {
+			const vehicleBrand = selectedVehicle.brand?.toLowerCase();
+
+			// Filter mechanics who specialize in this vehicle brand or have no specializations
+			const filtered = availableMechanics.filter((mechanic: any) => {
+				if (
+					!mechanic.specializations ||
+					mechanic.specializations.length === 0
+				) {
+					// No specializations = can work on any vehicle
+					return true;
+				}
+				// Check if mechanic specializes in this brand
+				return mechanic.specializations.some(
+					(spec: string) => spec.toLowerCase() === vehicleBrand
+				);
+			});
+
+			setFilteredMechanics(filtered);
+		} else {
+			setFilteredMechanics(availableMechanics);
+		}
+	}, [availableMechanics, selectedVehicle]);
 
 	const loadWorkshopMechanics = async () => {
 		if (!selectedWorkshop?.id) return;
@@ -120,7 +149,11 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 		onMechanicSelect(null);
 	};
 
-	const renderMechanicCard = (mechanic: any, isAvailable: boolean) => {
+	const renderMechanicCard = (
+		mechanic: any,
+		isAvailable: boolean,
+		isSpecialized: boolean
+	) => {
 		const isSelected = selectedMechanic?.id === mechanic.id;
 
 		return (
@@ -173,15 +206,22 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 								{isAvailable ? (
 									<Chip
 										icon={<CheckIcon />}
-										label="Dostępny"
+										label="Available"
 										color="success"
 										size="small"
 									/>
 								) : (
-									<Chip label="Niedostępny" color="error" size="small" />
+									<Chip label="Unavailable" color="error" size="small" />
+								)}
+								{isSpecialized && selectedVehicle && (
+									<Chip
+										label={`${selectedVehicle.brand} Specialist`}
+										color="info"
+										size="small"
+									/>
 								)}
 								{isSelected && (
-									<Chip label="Wybrany" color="primary" size="small" />
+									<Chip label="Selected" color="primary" size="small" />
 								)}
 							</Box>
 						</Box>
@@ -194,7 +234,7 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 	if (!selectedWorkshop) {
 		return (
 			<Alert severity="warning">
-				Najpierw wybierz warsztat, aby zobaczyć dostępnych mechaników.
+				Please select a workshop first to see available mechanics.
 			</Alert>
 		);
 	}
@@ -204,12 +244,17 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 			<Box textAlign="center" mb={4}>
 				<PersonIcon sx={{ fontSize: 48, color: COLOR_PRIMARY, mb: 2 }} />
 				<Typography variant="h4" color={COLOR_TEXT_PRIMARY} gutterBottom>
-					Wybierz mechanika (opcjonalnie)
+					Select a Mechanic (Optional)
 				</Typography>
 				<Typography variant="body1" color={COLOR_TEXT_SECONDARY}>
-					Możesz wybrać konkretnego mechanika lub pozwolić warsztatowi na
-					automatyczne przypisanie.
+					You can choose a specific mechanic or let the workshop assign one
+					automatically.
 				</Typography>
+				{selectedVehicle && (
+					<Typography variant="body2" color={COLOR_TEXT_SECONDARY} mt={1}>
+						Showing mechanics specialized in {selectedVehicle.brand} vehicles
+					</Typography>
+				)}
 			</Box>
 
 			{loading ? (
@@ -230,14 +275,14 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 							onClick={handleSkip}
 							fullWidth
 						>
-							Automatyczne przypisanie mechanika
+							Auto-assign Mechanic
 						</Button>
 					</Box>
 
 					{allMechanics.length > 0 && (
 						<Box>
 							<Typography variant="h6" color={COLOR_TEXT_PRIMARY} gutterBottom>
-								Mechanicy w warsztacie:
+								Workshop Mechanics:
 							</Typography>
 
 							{selectedDateTime && (
@@ -246,23 +291,42 @@ const MechanicSelectionStep: React.FC<MechanicSelectionStepProps> = ({
 									color={COLOR_TEXT_SECONDARY}
 									gutterBottom
 								>
-									Dostępność na{" "}
-									{new Date(selectedDateTime).toLocaleString("pl-PL")}
+									Availability for{" "}
+									{new Date(selectedDateTime).toLocaleString("en-US")}
 								</Typography>
 							)}
 
 							<Grid container spacing={2} sx={{ mt: 1 }}>
-								{allMechanics.map((mechanic) => {
+								{filteredMechanics.map((mechanic) => {
 									const isAvailable = availableMechanics.some(
 										(available) => available.id === mechanic.id
 									);
-									return renderMechanicCard(mechanic, isAvailable);
+									const isSpecialized =
+										mechanic.specializations &&
+										mechanic.specializations.some(
+											(spec: string) =>
+												spec.toLowerCase() ===
+												selectedVehicle?.brand?.toLowerCase()
+										);
+									return renderMechanicCard(
+										mechanic,
+										isAvailable,
+										isSpecialized
+									);
 								})}
 							</Grid>
 
+							{filteredMechanics.length === 0 && selectedVehicle && (
+								<Alert severity="info" sx={{ mt: 2 }}>
+									No mechanics specializing in {selectedVehicle.brand} are
+									available. The workshop will assign the most suitable
+									mechanic.
+								</Alert>
+							)}
+
 							{!selectedDateTime && (
 								<Alert severity="info" sx={{ mt: 2 }}>
-									Wybierz termin, aby zobaczyć dostępność mechaników.
+									Select a date and time to see mechanic availability.
 								</Alert>
 							)}
 						</Box>

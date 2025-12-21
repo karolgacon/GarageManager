@@ -9,14 +9,16 @@ services:
       - 5173:5173
     volumes:
       - ./frontend:/frontend
-      - /frontend/node_modules # Zapewnia, że node_modules nie będą nadpisywane przez wolumeny
+      - /frontend/node_modules
     environment:
-      - VITE_API_URL=http://localhost:8000 # Zmieniamy na localhost zamiast backend
+      - VITE_API_URL=http://localhost:8000
+      - VITE_BASE_API_URL=http://localhost:8000/api/v1
+      - VITE_WS_URL=ws://localhost:8000
     command: >
-      sh -c "npm install && npm run dev -- --host 0.0.0.0" # Dodanie --host 0.0.0.0 aby było dostępne z zewnątrz
+      sh -c "npm install && npm run dev -- --host 0.0.0.0"
     depends_on:
       backend:
-        condition: service_healthy # Zależność od zdrowego backendu
+        condition: service_healthy
     networks:
       - app-network
 

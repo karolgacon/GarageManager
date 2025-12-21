@@ -538,7 +538,7 @@ const HeaderBar = () => {
 							},
 						},
 					]}
-					sx={{ zIndex: 1600, width: 320, maxWidth: "90vw" }}
+					sx={{ zIndex: 1600, width: 400, maxWidth: "95vw" }}
 				>
 					<ClickAwayListener onClickAway={handleNotificationClose}>
 						<Paper
@@ -594,6 +594,8 @@ const HeaderBar = () => {
 										<ListItem
 											key={notification.id}
 											sx={{
+												px: 3,
+												py: 2,
 												borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}40`,
 												backgroundColor: notification.read_status
 													? "transparent"
@@ -602,6 +604,7 @@ const HeaderBar = () => {
 												"&:hover": {
 													backgroundColor: `${COLOR_SURFACE}80`,
 												},
+												cursor: "pointer",
 											}}
 											onClick={() => markAsRead(notification.id)}
 										>
@@ -610,7 +613,9 @@ const HeaderBar = () => {
 													sx={{
 														display: "flex",
 														justifyContent: "space-between",
-														mb: 0.5,
+														alignItems: "flex-start",
+														mb: 1,
+														gap: 2,
 													}}
 												>
 													<Typography
@@ -618,13 +623,21 @@ const HeaderBar = () => {
 														fontWeight={
 															notification.read_status ? "normal" : "bold"
 														}
-														sx={{ color: COLOR_TEXT_PRIMARY }}
+														sx={{
+															color: COLOR_TEXT_PRIMARY,
+															flex: 1,
+															textTransform: "capitalize",
+														}}
 													>
 														{notification.notification_type.replace(/_/g, " ")}
 													</Typography>
 													<Typography
 														variant="caption"
-														sx={{ color: COLOR_TEXT_SECONDARY }}
+														sx={{
+															color: COLOR_TEXT_SECONDARY,
+															whiteSpace: "nowrap",
+															ml: 1,
+														}}
 													>
 														{formatDate(notification.created_at)}
 													</Typography>
@@ -635,9 +648,11 @@ const HeaderBar = () => {
 														overflow: "hidden",
 														textOverflow: "ellipsis",
 														display: "-webkit-box",
-														WebkitLineClamp: 2,
+														WebkitLineClamp: 3,
 														WebkitBoxOrient: "vertical",
 														color: COLOR_TEXT_SECONDARY,
+														lineHeight: 1.4,
+														mt: 0.5,
 													}}
 												>
 													{notification.message}

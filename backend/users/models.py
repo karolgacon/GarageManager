@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission, PermissionsMixin
+from django.contrib.postgres.fields import ArrayField
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -58,6 +59,15 @@ class Profile(models.Model):
         ('phone', 'Telefon'),
         ('sms', 'SMS')
     ]
+    
+    VEHICLE_BRAND_CHOICES = [
+        ('toyota', 'Toyota'),
+        ('ford', 'Ford'),
+        ('volkswagen', 'Volkswagen'),
+        ('bmw', 'BMW'),
+        ('mercedes', 'Mercedes')
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     address = models.CharField(max_length=255, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
@@ -66,6 +76,12 @@ class Profile(models.Model):
         max_length=20,
         choices=CONTACT_CHOICES,
         default='email'
+    )
+    # Specializations for mechanics - stores list of vehicle brands they specialize in
+    specializations = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of vehicle brands this mechanic specializes in (for mechanics only)"
     )
 
     def __str__(self):

@@ -80,9 +80,9 @@ const StyledBackButton = styled(Button)({
 	borderRadius: "4px",
 	cursor: "pointer",
 	transition: "background-color 0.2s",
-	textTransform: "none", // Wyłączamy uppercase
+	textTransform: "none",
 	"&:hover": {
-		backgroundColor: "#22D3EE", // COLOR_SECONDARY jak w Sign in
+		backgroundColor: "#22D3EE", 
 	},
 	"@media (max-width: 480px)": {
 		fontSize: "14px",

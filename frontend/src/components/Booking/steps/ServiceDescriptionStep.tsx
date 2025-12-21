@@ -44,65 +44,71 @@ interface ServiceDescriptionStepProps {
 const appointmentTypes = [
 	{
 		value: "service",
-		label: "Serwis",
-		description: "Regularne usługi serwisowe, wymiana części",
+		label: "Service",
+		description: "Regular service, part replacements",
 		icon: <ServiceIcon />,
+		duration: 120,
 	},
 	{
 		value: "inspection",
-		label: "Przegląd",
-		description: "Przegląd okresowy, kontrola techniczna",
+		label: "Inspection",
+		description: "Periodic inspection, technical check",
 		icon: <InspectionIcon />,
+		duration: 60,
 	},
 	{
 		value: "diagnostic",
-		label: "Diagnostyka",
-		description: "Diagnostyka komputerowa, identyfikacja",
+		label: "Diagnostic",
+		description: "Computer diagnostics, issue identification",
 		icon: <DiagnosticIcon />,
+		duration: 90,
 	},
 	{
 		value: "repair",
-		label: "Naprawa",
-		description: "Naprawa uszkodzeń, awarie",
+		label: "Repair",
+		description: "Damage repair, breakdowns",
 		icon: <RepairIcon />,
+		duration: 180,
 	},
 	{
 		value: "maintenance",
-		label: "Konserwacja",
-		description: "Mycie, konserwacja, pielęgnacja",
+		label: "Maintenance",
+		description: "Cleaning, maintenance, care",
 		icon: <MaintenanceIcon />,
+		duration: 90,
 	},
 	{
 		value: "other",
-		label: "Inne",
-		description: "Inne usługi lub specjalne żądania",
+		label: "Other",
+		description: "Other services or special requests",
 		icon: <OtherIcon />,
+		duration: 120,
 	},
 ];
 
 const priorityLevels = [
 	{
 		value: "low",
-		label: "Niski",
-		description: "Planowana wizyta, bez pośpiechu",
+		label: "Low",
+		description: "Planned visit, no rush",
 		color: "#4ade80",
 	},
 	{
 		value: "medium",
-		label: "Średni",
-		description: "Standardowa wizyta",
+		label: "Medium",
+		description: "Standard visit",
 		color: "#facc15",
 	},
 	{
 		value: "high",
-		label: "Wysoki",
-		description: "Problem wymaga szybkiej interwencji",
+		label: "High",
+		description: "Issue requires quick intervention",
 		color: "#f97316",
 	},
 	{
 		value: "urgent",
-		label: "Pilny",
-		description: "Awaria, pojazd niezdatny do jazdy",
+		label: "Urgent",
+		description: "Breakdown, vehicle not drivable",
 		color: "#ef4444",
 	},
 ];
@@ -167,7 +173,7 @@ const ServiceDescriptionStep: React.FC<ServiceDescriptionStepProps> = ({
 				{/* Typ wizyty */}
 				<Grid item xs={12}>
 					<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY, mb: 3 }}>
-						1. Wybierz typ wizyty
+						1. Select Appointment Type
 					</Typography>
 
 					<Grid container spacing={2}>
@@ -245,7 +251,7 @@ const ServiceDescriptionStep: React.FC<ServiceDescriptionStepProps> = ({
 
 					{selectedType && (
 						<Alert severity="success" sx={{ mt: 2 }}>
-							<strong>Wybrano:</strong> {getSelectedTypeInfo()?.label} -{" "}
+							<strong>Selected:</strong> {getSelectedTypeInfo()?.label} -{" "}
 							{getSelectedTypeInfo()?.description}
 						</Alert>
 					)}
@@ -254,49 +260,49 @@ const ServiceDescriptionStep: React.FC<ServiceDescriptionStepProps> = ({
 				{/* Opis problemu */}
 				<Grid item xs={12}>
 					<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY, mb: 3 }}>
-						2. Opisz problem lub wymagania
+						2. Describe the Issue or Requirements
 					</Typography>
 
 					<TextField
 						fullWidth
 						multiline
 						rows={6}
-						label="Szczegółowy opis..."
+						label="Detailed description..."
 						value={description}
 						onChange={handleDescriptionChange}
-						placeholder={`Opisz dokładnie:
+						placeholder={`Describe in detail:
 ${
 	selectedType === "service"
-		? "- Jakie usługi serwisowe są potrzebne?\n- Czy to planowana wymiana części?"
+		? "- What service work is needed?\n- Is this a planned part replacement?"
 		: ""
 }
 ${
 	selectedType === "inspection"
-		? "- Jaki rodzaj przeglądu?\n- Czy to przegląd okresowy czy przed rejestracją?"
+		? "- What type of inspection?\n- Is this a periodic or pre-registration inspection?"
 		: ""
 }
 ${
 	selectedType === "diagnostic"
-		? "- Jakie objawy zauważyłeś?\n- Kiedy problem się pojawił?"
+		? "- What symptoms have you noticed?\n- When did the problem appear?"
 		: ""
 }
 ${
 	selectedType === "repair"
-		? "- Jaka jest usterka?\n- Czy pojazd jest zdatny do jazdy?"
+		? "- What is the issue?\n- Is the vehicle drivable?"
 		: ""
 }
 ${
 	selectedType === "maintenance"
-		? "- Jakie usługi konserwacyjne?\n- Czy to regularna pielęgnacja?"
+		? "- What maintenance services?\n- Is this regular maintenance?"
 		: ""
 }
 ${
 	selectedType === "other"
-		? "- Opisz swoje potrzeby\n- Czy to specjalna usługa?"
+		? "- Describe your needs\n- Is this a special service?"
 		: ""
 }
-- Czy masz preferowane części lub materiały?
-- Dodatkowe uwagi...`}
+- Do you have preferred parts or materials?
+- Additional notes...`}
 						sx={{
 							"& .MuiInputLabel-root": {
 								color: COLOR_TEXT_SECONDARY,
@@ -332,12 +338,12 @@ ${
 									description.length < 10 ? "#ef4444" : COLOR_TEXT_SECONDARY,
 							}}
 						>
-							{description.length}/500 znaków (minimum 10)
+							{description.length}/500 characters (minimum 10)
 						</Typography>
 
 						{description.length < 10 && (
 							<Typography variant="caption" sx={{ color: "#ef4444" }}>
-								Opis jest za krótki
+								Description is too short
 							</Typography>
 						)}
 					</Box>
@@ -346,7 +352,7 @@ ${
 				{/* Priorytet */}
 				<Grid item xs={12}>
 					<Typography variant="h6" sx={{ color: COLOR_TEXT_PRIMARY, mb: 3 }}>
-						3. Ustal priorytet wizyty
+						3. Set Priority Level
 					</Typography>
 
 					<Card
@@ -446,7 +452,7 @@ ${
 				>
 					<CardContent>
 						<Typography variant="h6" sx={{ color: COLOR_PRIMARY, mb: 3 }}>
-							✓ Podsumowanie usługi
+							✓ Service Summary
 						</Typography>
 
 						<Grid container spacing={3}>
@@ -456,7 +462,7 @@ ${
 										variant="body2"
 										sx={{ color: COLOR_TEXT_SECONDARY, mb: 0.5 }}
 									>
-										Typ wizyty:
+										Appointment Type:
 									</Typography>
 									<Chip
 										icon={getSelectedTypeInfo()?.icon}
@@ -474,7 +480,7 @@ ${
 										variant="body2"
 										sx={{ color: COLOR_TEXT_SECONDARY, mb: 0.5 }}
 									>
-										Priorytet:
+										Priority:
 									</Typography>
 									<Chip
 										icon={<PriorityIcon />}
@@ -496,7 +502,7 @@ ${
 									variant="body2"
 									sx={{ color: COLOR_TEXT_SECONDARY, mb: 0.5 }}
 								>
-									Opis problemu:
+									Issue Description:
 								</Typography>
 								<Typography
 									variant="body2"

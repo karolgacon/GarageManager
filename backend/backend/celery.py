@@ -8,11 +8,10 @@ app = Celery('backend')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Konfiguracja periodic tasks
 app.conf.beat_schedule = {
     'update-appointment-statuses': {
         'task': 'appointments.tasks.update_appointment_statuses',
-        'schedule': crontab(minute='*'),  # Uruchamiaj co minutę
+        'schedule': crontab(minute='*'),
     },
 }
 

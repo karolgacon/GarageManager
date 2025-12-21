@@ -127,7 +127,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 				}}
 			>
 				<Typography variant="caption" color="primary.main" fontWeight="bold">
-					Odpowiedź na:
+					Reply to:
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
 					{message.quote_data.content?.substring(0, 100)}
@@ -283,7 +283,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 									<ReplyIcon fontSize="small" />
 								</IconButton>
 							</Tooltip>
-							<Tooltip title="Więcej">
+							<Tooltip title="More">
 								<IconButton size="small">
 									<MoreVertIcon fontSize="small" />
 								</IconButton>
@@ -352,7 +352,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
 				}}
 			>
 				<Typography variant="body1">
-					Brak wiadomości. Napisz pierwszą wiadomość!
+					No messages. Write the first message!
 				</Typography>
 			</Box>
 		);

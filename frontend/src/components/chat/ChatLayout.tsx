@@ -156,7 +156,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 		<Box display="flex" alignItems="center" gap={1}>
 			<Chip
 				size="small"
-				label={chatConnected ? "Połączono" : "Rozłączono"}
+			label={chatConnected ? "Connected" : "Disconnected"}
 				color={chatConnected ? "success" : "error"}
 				variant="outlined"
 			/>
@@ -215,12 +215,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 								color: COLOR_TEXT_PRIMARY,
 							}}
 						>
-							Chat z Mechanikiem
-						</Typography>
+					Chat with Mechanic
 
-						<ConnectionStatus />
-
-						<Tooltip title="Powiadomienia">
+						<Tooltip title="Notifications">
 							<IconButton
 								color="inherit"
 								onClick={() => setShowNotifications(!showNotifications)}
@@ -239,7 +236,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 						</Tooltip>
 
 						{onClose && (
-							<Tooltip title="Zamknij">
+						<Tooltip title="Close">
 								<IconButton
 									color="inherit"
 									onClick={onClose}
@@ -324,7 +321,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
 							}}
 						>
 							<Typography variant="h6">
-								Wybierz konwersację aby rozpocząć chat
+							Select a conversation to start chatting
 							</Typography>
 						</Box>
 					)}

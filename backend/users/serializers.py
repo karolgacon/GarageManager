@@ -5,18 +5,25 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id','user','address', 'phone', 'preferred_contact_method']
+        fields = ['id','user','address', 'phone', 'preferred_contact_method', 'specializations']
 
 class UserSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
+    specializations = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'roles', 'first_name', 'last_name', 'status', 'is_active']
+        fields = ['id', 'username', 'email', 'role', 'roles', 'first_name', 'last_name', 'status', 'is_active', 'specializations']
 
     def get_roles(self, obj):
         """Return role as array for frontend compatibility"""
         return [obj.role] if obj.role else ['client']
+    
+    def get_specializations(self, obj):
+        """Return mechanic specializations if profile exists"""
+        if hasattr(obj, 'profile') and obj.profile:
+            return obj.profile.specializations
+        return []
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)

@@ -140,7 +140,7 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
 		<>
 			{/* Floating Action Button */}
 			<Zoom in={!isOpen}>
-				<Tooltip title="Chat z Mechanikiem" placement="left">
+				<Tooltip title="Chat with Mechanic" placement="left">
 					<Fab
 						onClick={handleToggleChat}
 						sx={{

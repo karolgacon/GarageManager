@@ -127,7 +127,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					borderBottom: `1px solid ${COLOR_TEXT_SECONDARY}30`,
 				}}
 			>
-				Nowa konwersacja
+				New Conversation
 			</DialogTitle>
 			<DialogContent sx={{ backgroundColor: COLOR_SURFACE }}>
 				{loading ? (
@@ -145,21 +145,21 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 									border: "1px solid rgba(33, 150, 243, 0.3)",
 								}}
 							>
-								Brak pojazdów w serwisie. Nowy czat można utworzyć tylko dla
-								pojazdu, który jest aktualnie w warsztacie.
+								No vehicles in service. New chat can only be created for a
+								vehicle that is currently in the workshop.
 							</Alert>
 						) : (
 							<>
 								<FormControl fullWidth>
 									<InputLabel sx={{ color: COLOR_TEXT_SECONDARY }}>
-										Pojazd
+										Vehicle
 									</InputLabel>
 									<Select
 										value={vehicleId}
 										onChange={(e) =>
 											handleVehicleSelect(e.target.value as number)
 										}
-										label="Pojazd"
+										label="Vehicle"
 										sx={{
 											"& .MuiOutlinedInput-notchedOutline": {
 												borderColor: COLOR_TEXT_SECONDARY + "50",
@@ -322,7 +322,7 @@ const CreateConversationDialog: React.FC<CreateConversationDialogProps> = ({
 					{isSubmitting ? (
 						<CircularProgress size={20} sx={{ color: "white" }} />
 					) : (
-						"Utwórz"
+						"Create"
 					)}
 				</Button>
 			</DialogActions>
@@ -487,7 +487,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 			>
 				<CircularProgress sx={{ color: COLOR_PRIMARY }} />
 				<Typography sx={{ ml: 2, color: COLOR_TEXT_PRIMARY }}>
-					Ładowanie konwersacji...
+					Loading conversations...
 				</Typography>
 			</Box>
 		);
@@ -504,7 +504,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 						border: "1px solid rgba(239, 68, 68, 0.3)",
 					}}
 				>
-					Błąd ładowania czatu: {error}
+					Chat loading error: {error}
 				</Alert>
 				<Button
 					onClick={() => fetchConversations()}
@@ -517,7 +517,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 						},
 					}}
 				>
-					Spróbuj ponownie
+					Try again
 				</Button>
 			</Box>
 		);
@@ -545,13 +545,13 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 				}}
 			>
 				<ChatIcon />
-				<Typography variant="h6">Chat z Mechanikiem</Typography>
+				<Typography variant="h6">Chat with mechanic</Typography>
 				<Box sx={{ flexGrow: 1 }} />
 
 				{/* Connection status */}
 				<Chip
 					size="small"
-					label={isConnected ? "Połączony" : "Tylko HTTP API"}
+					label={isConnected ? "Connected" : "HTTP API only"}
 					sx={{
 						bgcolor: isConnected ? COLOR_SUCCESS : COLOR_WARNING + "80",
 						color: "white",
@@ -594,7 +594,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 						}}
 					>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							Konwersacje ({conversations.length})
+							Conversations ({conversations.length})
 							{isLoading && (
 								<CircularProgress
 									size={16}
@@ -602,10 +602,11 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 								/>
 							)}
 						</Box>
-						{error && " - błąd połączenia"}
+						{error && " - connection error"}
 					</Typography>
 
 					{conversations.length === 0 ? (
+<<<<<<< HEAD
 						<>
 							<Box sx={{ p: 2, textAlign: "center" }}>
 								<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
@@ -667,6 +668,19 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 								/>
 							</ListItem>
 						</>
+=======
+						<Box sx={{ p: 2, textAlign: "center" }}>
+							<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
+								No active conversations
+							</Typography>
+							<Typography
+								variant="caption"
+								sx={{ color: COLOR_TEXT_SECONDARY }}
+							>
+								Start a conversation below
+							</Typography>
+						</Box>
+>>>>>>> 7840ee9 (final touches)
 					) : (
 						<List dense>
 							{conversations.map((conv) => (
@@ -726,15 +740,15 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 													size="small"
 													label={
 														conv.status === "active"
-															? "Aktywny"
+															? "Active"
 															: conv.status === "waiting_client"
-															? "Oczekuje odpowiedzi"
+															? "Waiting for reply"
 															: conv.status === "waiting_mechanic"
-															? "Mechanik odpowie"
+															? "Mechanic will reply"
 															: conv.status === "resolved"
-															? "Rozwiązany"
+															? "Resolved"
 															: conv.status === "closed"
-															? "Zamknięty"
+															? "Closed"
 															: conv.status
 													}
 													sx={{
@@ -794,7 +808,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 								</ListItem>
 							))}
 
-							{/* Nowa konwersacja - elegancki kafelek */}
+							{/* New conversation tile */}
 							<ListItem
 								button
 								onClick={() => setShowCreateDialog(true)}
@@ -828,7 +842,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 												fontWeight: 500,
 											}}
 										>
-											Nowa konwersacja
+											New Conversation
 										</Typography>
 									}
 									secondary={
@@ -836,7 +850,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 											variant="body2"
 											sx={{ color: COLOR_TEXT_SECONDARY }}
 										>
-											Rozpocznij rozmowę z mechanikiem
+											Start a conversation with a mechanic
 										</Typography>
 									}
 								/>
@@ -896,19 +910,19 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 								<Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
 									<CircularProgress size={24} sx={{ color: COLOR_PRIMARY }} />
 									<Typography sx={{ ml: 1, color: COLOR_TEXT_PRIMARY }}>
-										Ładowanie wiadomości...
+										Loading messages...
 									</Typography>
 								</Box>
 							) : messages.length === 0 ? (
 								<Box sx={{ textAlign: "center", p: 4 }}>
 									<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
-										Brak wiadomości w tej konwersacji
+										No messages in this conversation
 									</Typography>
 									<Typography
 										variant="caption"
 										sx={{ color: COLOR_TEXT_SECONDARY }}
 									>
-										Rozpocznij rozmowę poniżej
+										Start a conversation below
 									</Typography>
 								</Box>
 							) : (
@@ -963,7 +977,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 						>
 							<TextField
 								fullWidth
-								placeholder="Napisz wiadomość..."
+								placeholder="Type a message..."
 								value={message}
 								onChange={(e) => setMessage(e.target.value)}
 								onKeyPress={(e) => {
@@ -1028,7 +1042,7 @@ const RealChatDialog: React.FC<RealChatDialogProps> = ({ onClose }) => {
 					>
 						<ChatIcon sx={{ fontSize: 64, color: COLOR_TEXT_SECONDARY }} />
 						<Typography sx={{ color: COLOR_TEXT_SECONDARY }}>
-							Wybierz konwersację aby rozpocząć czat
+								Select a conversation to start chatting
 						</Typography>
 					</Box>
 				)}
