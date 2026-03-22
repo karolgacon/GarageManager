@@ -1,6 +1,5 @@
 # GarageManager
 
-![GarageManager Logo](frontend/public/logo.png)
 
 ## 🚗 O Projekcie
 
